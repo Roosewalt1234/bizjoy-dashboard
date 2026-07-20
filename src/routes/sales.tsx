@@ -109,6 +109,7 @@ interface Lead {
   expected_close_date: string | null;
   salesperson: string | null;
   notes: string | null;
+  lead_type: string | null;
 }
 
 interface Quote {
@@ -127,6 +128,7 @@ interface Quote {
   notes: string | null;
   terms: string | null;
   purchase_order: string | null;
+  quote_type: string | null;
 }
 
 function SalesPage() {
