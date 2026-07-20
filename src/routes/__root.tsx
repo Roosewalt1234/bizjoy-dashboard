@@ -87,6 +87,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Unified dashboard for customers, sales, HR, accounts, contracts, and projects." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "BizSuite — Business Management Dashboard" },
+      { name: "twitter:description", content: "Unified dashboard for customers, sales, HR, accounts, contracts, and projects." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/dfb99310-91e3-44e9-912d-64a65d39c442/id-preview-8167cf48--354de133-d9b9-47d1-adc2-6fdbd7c55c1c.lovable.app-1784552318931.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/dfb99310-91e3-44e9-912d-64a65d39c442/id-preview-8167cf48--354de133-d9b9-47d1-adc2-6fdbd7c55c1c.lovable.app-1784552318931.png" },
     ],
     links: [
       {
