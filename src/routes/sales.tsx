@@ -972,7 +972,7 @@ function QuoteDialog({
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="grid gap-1.5">
               <Label>Quote number *</Label>
               <Input
@@ -995,6 +995,25 @@ function QuoteDialog({
                   {["draft", "sent", "accepted", "invoiced", "rejected", "expired"].map((s) => (
                     <SelectItem key={s} value={s}>
                       {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-1.5">
+              <Label>Type of Lead</Label>
+              <Select
+                disabled={viewOnly}
+                value={form.quote_type ?? ""}
+                onValueChange={(v) => setForm({ ...form, quote_type: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LEAD_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
                     </SelectItem>
                   ))}
                 </SelectContent>
