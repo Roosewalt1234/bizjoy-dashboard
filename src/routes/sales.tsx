@@ -289,7 +289,7 @@ function FunnelBoard() {
                             </div>
                           )}
                         </div>
-                        <GripVertical className="h-4 w-4 text-muted-foreground/50 opacity-0 group-hover:opacity-100" />
+                        <GripVertical className="h-4 w-4 text-muted-foreground/50 opacity-0 group-hover:opacity-100 flex-shrink-0" />
                       </div>
                       {lead.estimated_value != null && (
                         <div className="mt-2 text-sm font-semibold text-primary">
