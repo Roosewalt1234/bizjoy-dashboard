@@ -18,6 +18,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CustomersIndexRouteImport } from './routes/customers.index'
 import { Route as CustomersNewRouteImport } from './routes/customers.new'
 import { Route as CustomersIdRouteImport } from './routes/customers.$id'
+import { Route as CustomersIdViewRouteImport } from './routes/customers.$id.view'
 
 const SalesRoute = SalesRouteImport.update({
   id: '/sales',
@@ -64,6 +65,11 @@ const CustomersIdRoute = CustomersIdRouteImport.update({
   path: '/customers/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CustomersIdViewRoute = CustomersIdViewRouteImport.update({
+  id: '/view',
+  path: '/view',
+  getParentRoute: () => CustomersIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -72,9 +78,10 @@ export interface FileRoutesByFullPath {
   '/hr': typeof HrRoute
   '/projects': typeof ProjectsRoute
   '/sales': typeof SalesRoute
-  '/customers/$id': typeof CustomersIdRoute
+  '/customers/$id': typeof CustomersIdRouteWithChildren
   '/customers/new': typeof CustomersNewRoute
   '/customers/': typeof CustomersIndexRoute
+  '/customers/$id/view': typeof CustomersIdViewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,9 +90,10 @@ export interface FileRoutesByTo {
   '/hr': typeof HrRoute
   '/projects': typeof ProjectsRoute
   '/sales': typeof SalesRoute
-  '/customers/$id': typeof CustomersIdRoute
+  '/customers/$id': typeof CustomersIdRouteWithChildren
   '/customers/new': typeof CustomersNewRoute
   '/customers': typeof CustomersIndexRoute
+  '/customers/$id/view': typeof CustomersIdViewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -95,9 +103,10 @@ export interface FileRoutesById {
   '/hr': typeof HrRoute
   '/projects': typeof ProjectsRoute
   '/sales': typeof SalesRoute
-  '/customers/$id': typeof CustomersIdRoute
+  '/customers/$id': typeof CustomersIdRouteWithChildren
   '/customers/new': typeof CustomersNewRoute
   '/customers/': typeof CustomersIndexRoute
+  '/customers/$id/view': typeof CustomersIdViewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/customers/$id'
     | '/customers/new'
     | '/customers/'
+    | '/customers/$id/view'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/customers/$id'
     | '/customers/new'
     | '/customers'
+    | '/customers/$id/view'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/customers/$id'
     | '/customers/new'
     | '/customers/'
+    | '/customers/$id/view'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -142,7 +154,7 @@ export interface RootRouteChildren {
   HrRoute: typeof HrRoute
   ProjectsRoute: typeof ProjectsRoute
   SalesRoute: typeof SalesRoute
-  CustomersIdRoute: typeof CustomersIdRoute
+  CustomersIdRoute: typeof CustomersIdRouteWithChildren
   CustomersNewRoute: typeof CustomersNewRoute
   CustomersIndexRoute: typeof CustomersIndexRoute
 }
@@ -212,8 +224,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomersIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/customers/$id/view': {
+      id: '/customers/$id/view'
+      path: '/view'
+      fullPath: '/customers/$id/view'
+      preLoaderRoute: typeof CustomersIdViewRouteImport
+      parentRoute: typeof CustomersIdRoute
+    }
   }
 }
+
+interface CustomersIdRouteChildren {
+  CustomersIdViewRoute: typeof CustomersIdViewRoute
+}
+
+const CustomersIdRouteChildren: CustomersIdRouteChildren = {
+  CustomersIdViewRoute: CustomersIdViewRoute,
+}
+
+const CustomersIdRouteWithChildren = CustomersIdRoute._addFileChildren(
+  CustomersIdRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -222,7 +253,7 @@ const rootRouteChildren: RootRouteChildren = {
   HrRoute: HrRoute,
   ProjectsRoute: ProjectsRoute,
   SalesRoute: SalesRoute,
-  CustomersIdRoute: CustomersIdRoute,
+  CustomersIdRoute: CustomersIdRouteWithChildren,
   CustomersNewRoute: CustomersNewRoute,
   CustomersIndexRoute: CustomersIndexRoute,
 }
