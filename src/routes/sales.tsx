@@ -950,6 +950,7 @@ function QuoteDialog({
       notes: form.notes || null,
       terms: form.terms || null,
       purchase_order: form.purchase_order || null,
+      quote_type: form.quote_type || null,
     };
     const { error } = quote
       ? await (supabase.from as any)("quotes").update(payload).eq("id", quote.id)
