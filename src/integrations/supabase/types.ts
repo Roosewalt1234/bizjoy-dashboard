@@ -14,7 +14,403 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      accounts_transactions: {
+        Row: {
+          amount: number | null
+          category: string | null
+          created_at: string
+          currency: string | null
+          description: string | null
+          id: string
+          transaction_date: string | null
+          type: string | null
+        }
+        Insert: {
+          amount?: number | null
+          category?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          transaction_date?: string | null
+          type?: string | null
+        }
+        Update: {
+          amount?: number | null
+          category?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          transaction_date?: string | null
+          type?: string | null
+        }
+        Relationships: []
+      }
+      contracts: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          customer_name: string | null
+          end_date: string | null
+          id: string
+          notes: string | null
+          start_date: string | null
+          status: string | null
+          title: string
+          value: number | null
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          start_date?: string | null
+          status?: string | null
+          title: string
+          value?: number | null
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          start_date?: string | null
+          status?: string | null
+          title?: string
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_contacts: {
+        Row: {
+          created_at: string
+          customer_id: string
+          email: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          mobile: string | null
+          second_name: string | null
+          work_phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          mobile?: string | null
+          second_name?: string | null
+          work_phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          mobile?: string | null
+          second_name?: string | null
+          work_phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_contacts_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_documents: {
+        Row: {
+          created_at: string
+          customer_id: string
+          file_path: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          file_path: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          file_path?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_documents_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          address_city: string | null
+          address_country: string | null
+          address_lat: number | null
+          address_line: string | null
+          address_lng: number | null
+          address_mobile: string | null
+          address_telephone: string | null
+          billing_address_line: string | null
+          billing_city: string | null
+          billing_country: string | null
+          billing_lat: number | null
+          billing_lng: number | null
+          billing_mobile: string | null
+          billing_telephone: string | null
+          company_name: string | null
+          created_at: string
+          currency: string | null
+          customer_type: string
+          display_name: string
+          email: string | null
+          first_name: string | null
+          id: string
+          language: string | null
+          last_name: string | null
+          mobile: string | null
+          opening_balance: number | null
+          payment_terms: string | null
+          phone: string | null
+          portal_enabled: boolean | null
+          salutation: string | null
+          special_instructions: string | null
+          updated_at: string
+          work_phone: string | null
+        }
+        Insert: {
+          address_city?: string | null
+          address_country?: string | null
+          address_lat?: number | null
+          address_line?: string | null
+          address_lng?: number | null
+          address_mobile?: string | null
+          address_telephone?: string | null
+          billing_address_line?: string | null
+          billing_city?: string | null
+          billing_country?: string | null
+          billing_lat?: number | null
+          billing_lng?: number | null
+          billing_mobile?: string | null
+          billing_telephone?: string | null
+          company_name?: string | null
+          created_at?: string
+          currency?: string | null
+          customer_type?: string
+          display_name: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          language?: string | null
+          last_name?: string | null
+          mobile?: string | null
+          opening_balance?: number | null
+          payment_terms?: string | null
+          phone?: string | null
+          portal_enabled?: boolean | null
+          salutation?: string | null
+          special_instructions?: string | null
+          updated_at?: string
+          work_phone?: string | null
+        }
+        Update: {
+          address_city?: string | null
+          address_country?: string | null
+          address_lat?: number | null
+          address_line?: string | null
+          address_lng?: number | null
+          address_mobile?: string | null
+          address_telephone?: string | null
+          billing_address_line?: string | null
+          billing_city?: string | null
+          billing_country?: string | null
+          billing_lat?: number | null
+          billing_lng?: number | null
+          billing_mobile?: string | null
+          billing_telephone?: string | null
+          company_name?: string | null
+          created_at?: string
+          currency?: string | null
+          customer_type?: string
+          display_name?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          language?: string | null
+          last_name?: string | null
+          mobile?: string | null
+          opening_balance?: number | null
+          payment_terms?: string | null
+          phone?: string | null
+          portal_enabled?: boolean | null
+          salutation?: string | null
+          special_instructions?: string | null
+          updated_at?: string
+          work_phone?: string | null
+        }
+        Relationships: []
+      }
+      employees: {
+        Row: {
+          created_at: string
+          department: string | null
+          email: string | null
+          first_name: string
+          hire_date: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          position: string | null
+          salary: number | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          first_name: string
+          hire_date?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          position?: string | null
+          salary?: number | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          first_name?: string
+          hire_date?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          position?: string | null
+          salary?: number | null
+          status?: string | null
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          budget: number | null
+          created_at: string
+          customer_id: string | null
+          customer_name: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          name: string
+          start_date: string | null
+          status: string | null
+        }
+        Insert: {
+          budget?: number | null
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name: string
+          start_date?: string | null
+          status?: string | null
+        }
+        Update: {
+          budget?: number | null
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name?: string
+          start_date?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_orders: {
+        Row: {
+          amount: number | null
+          created_at: string
+          customer_id: string | null
+          customer_name: string | null
+          id: string
+          notes: string | null
+          order_date: string | null
+          order_number: string | null
+          status: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          id?: string
+          notes?: string | null
+          order_date?: string | null
+          order_number?: string | null
+          status?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          id?: string
+          notes?: string | null
+          order_date?: string | null
+          order_number?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
