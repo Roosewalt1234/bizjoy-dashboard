@@ -288,6 +288,16 @@ function FunnelBoard() {
                               {lead.company}
                             </div>
                           )}
+                          {lead.lead_type && (
+                            <span
+                              className={`inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                                LEAD_TYPE_COLORS[lead.lead_type as LeadType] ??
+                                "bg-muted text-muted-foreground"
+                              }`}
+                            >
+                              {lead.lead_type}
+                            </span>
+                          )}
                         </div>
                         <GripVertical className="h-4 w-4 text-muted-foreground/50 opacity-0 group-hover:opacity-100 flex-shrink-0" />
                       </div>
