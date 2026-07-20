@@ -9,11 +9,41 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SalesRouteImport } from './routes/sales'
+import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as HrRouteImport } from './routes/hr'
+import { Route as ContractsRouteImport } from './routes/contracts'
+import { Route as AccountsRouteImport } from './routes/accounts'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CustomersIndexRouteImport } from './routes/customers.index'
 import { Route as CustomersNewRouteImport } from './routes/customers.new'
 import { Route as CustomersIdRouteImport } from './routes/customers.$id'
 
+const SalesRoute = SalesRouteImport.update({
+  id: '/sales',
+  path: '/sales',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsRoute = ProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HrRoute = HrRouteImport.update({
+  id: '/hr',
+  path: '/hr',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContractsRoute = ContractsRouteImport.update({
+  id: '/contracts',
+  path: '/contracts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountsRoute = AccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,12 +67,22 @@ const CustomersIdRoute = CustomersIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/accounts': typeof AccountsRoute
+  '/contracts': typeof ContractsRoute
+  '/hr': typeof HrRoute
+  '/projects': typeof ProjectsRoute
+  '/sales': typeof SalesRoute
   '/customers/$id': typeof CustomersIdRoute
   '/customers/new': typeof CustomersNewRoute
   '/customers/': typeof CustomersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/accounts': typeof AccountsRoute
+  '/contracts': typeof ContractsRoute
+  '/hr': typeof HrRoute
+  '/projects': typeof ProjectsRoute
+  '/sales': typeof SalesRoute
   '/customers/$id': typeof CustomersIdRoute
   '/customers/new': typeof CustomersNewRoute
   '/customers': typeof CustomersIndexRoute
@@ -50,20 +90,58 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/accounts': typeof AccountsRoute
+  '/contracts': typeof ContractsRoute
+  '/hr': typeof HrRoute
+  '/projects': typeof ProjectsRoute
+  '/sales': typeof SalesRoute
   '/customers/$id': typeof CustomersIdRoute
   '/customers/new': typeof CustomersNewRoute
   '/customers/': typeof CustomersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/customers/$id' | '/customers/new' | '/customers/'
+  fullPaths:
+    | '/'
+    | '/accounts'
+    | '/contracts'
+    | '/hr'
+    | '/projects'
+    | '/sales'
+    | '/customers/$id'
+    | '/customers/new'
+    | '/customers/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/customers/$id' | '/customers/new' | '/customers'
-  id: '__root__' | '/' | '/customers/$id' | '/customers/new' | '/customers/'
+  to:
+    | '/'
+    | '/accounts'
+    | '/contracts'
+    | '/hr'
+    | '/projects'
+    | '/sales'
+    | '/customers/$id'
+    | '/customers/new'
+    | '/customers'
+  id:
+    | '__root__'
+    | '/'
+    | '/accounts'
+    | '/contracts'
+    | '/hr'
+    | '/projects'
+    | '/sales'
+    | '/customers/$id'
+    | '/customers/new'
+    | '/customers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountsRoute: typeof AccountsRoute
+  ContractsRoute: typeof ContractsRoute
+  HrRoute: typeof HrRoute
+  ProjectsRoute: typeof ProjectsRoute
+  SalesRoute: typeof SalesRoute
   CustomersIdRoute: typeof CustomersIdRoute
   CustomersNewRoute: typeof CustomersNewRoute
   CustomersIndexRoute: typeof CustomersIndexRoute
@@ -71,6 +149,41 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sales': {
+      id: '/sales'
+      path: '/sales'
+      fullPath: '/sales'
+      preLoaderRoute: typeof SalesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects': {
+      id: '/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hr': {
+      id: '/hr'
+      path: '/hr'
+      fullPath: '/hr'
+      preLoaderRoute: typeof HrRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contracts': {
+      id: '/contracts'
+      path: '/contracts'
+      fullPath: '/contracts'
+      preLoaderRoute: typeof ContractsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounts': {
+      id: '/accounts'
+      path: '/accounts'
+      fullPath: '/accounts'
+      preLoaderRoute: typeof AccountsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +217,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountsRoute: AccountsRoute,
+  ContractsRoute: ContractsRoute,
+  HrRoute: HrRoute,
+  ProjectsRoute: ProjectsRoute,
+  SalesRoute: SalesRoute,
   CustomersIdRoute: CustomersIdRoute,
   CustomersNewRoute: CustomersNewRoute,
   CustomersIndexRoute: CustomersIndexRoute,
