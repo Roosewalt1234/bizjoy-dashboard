@@ -88,9 +88,13 @@ interface Quote {
   status: string | null;
   currency: string | null;
   total: number | null;
+  subtotal: number | null;
   subject: string | null;
   salesperson: string | null;
   project_name: string | null;
+  notes: string | null;
+  terms: string | null;
+  purchase_order: string | null;
 }
 
 function SalesPage() {
