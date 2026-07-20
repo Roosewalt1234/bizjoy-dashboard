@@ -918,16 +918,18 @@ function QuoteDialog({
       (supabase.from as any)("customers")
         .select("id, display_name, company_name")
         .order("display_name", { ascending: true })
+        .range(0, 9999)
         .then(({ data }: any) => setCustomers(data ?? []));
     }
   }, [open, quote]);
 
   const query = (form.customer_name ?? "").toLowerCase();
   const suggestions = query
-    ? customers
-        .filter((c) => (c.display_name ?? "").toLowerCase().includes(query))
-        .slice(0, 8)
-    : customers.slice(0, 8);
+    ? customers.filter((c) =>
+        (c.display_name ?? "").toLowerCase().includes(query) ||
+        (c.company_name ?? "").toLowerCase().includes(query),
+      )
+    : customers;
 
   async function save() {
     if (!form.quote_number?.trim() || !form.customer_name?.trim()) {
