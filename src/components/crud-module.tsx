@@ -44,9 +44,9 @@ export function CrudModule({ title, description, table, fields, listColumns }: P
   const { data: rows = [], isLoading } = useQuery({
     queryKey: [table],
     queryFn: async () => {
-      const { data, error } = await supabase.from(table as never).select("*").order("created_at", { ascending: false });
+      const { data, error } = await (supabase.from as any)(table).select("*").order("created_at", { ascending: false });
       if (error) throw error;
-      return data as any[];
+      return (data ?? []) as any[];
     },
   });
 
@@ -74,11 +74,11 @@ export function CrudModule({ title, description, table, fields, listColumns }: P
     });
     try {
       if (editing) {
-        const { error } = await supabase.from(table as never).update(payload).eq("id", editing.id);
+        const { error } = await (supabase.from as any)(table).update(payload).eq("id", editing.id);
         if (error) throw error;
         toast.success("Updated");
       } else {
-        const { error } = await supabase.from(table as never).insert(payload);
+        const { error } = await (supabase.from as any)(table).insert(payload);
         if (error) throw error;
         toast.success("Created");
       }
@@ -90,7 +90,7 @@ export function CrudModule({ title, description, table, fields, listColumns }: P
   }
 
   async function remove(id: string) {
-    const { error } = await supabase.from(table as never).delete().eq("id", id);
+    const { error } = await (supabase.from as any)(table).delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
     toast.success("Deleted");
     qc.invalidateQueries({ queryKey: [table] });

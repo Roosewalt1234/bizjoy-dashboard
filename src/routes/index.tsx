@@ -13,7 +13,7 @@ function useCount(table: string) {
   return useQuery({
     queryKey: ["count", table],
     queryFn: async () => {
-      const { count } = await supabase.from(table as never).select("*", { count: "exact", head: true });
+      const { count } = await (supabase.from as any)(table).select("*", { count: "exact", head: true });
       return count ?? 0;
     },
   });
