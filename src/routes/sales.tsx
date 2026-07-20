@@ -693,7 +693,8 @@ function QuotesList() {
       q.quote_number?.toLowerCase().includes(s) ||
       q.customer_name?.toLowerCase().includes(s) ||
       q.subject?.toLowerCase().includes(s) ||
-      q.project_name?.toLowerCase().includes(s)
+      q.project_name?.toLowerCase().includes(s) ||
+      q.quote_type?.toLowerCase().includes(s)
     );
   });
 
