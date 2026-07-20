@@ -584,12 +584,15 @@ function QuotesList() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<string>("all");
+  const [quoteDialogOpen, setQuoteDialogOpen] = useState(false);
+  const [editingQuote, setEditingQuote] = useState<Quote | null>(null);
+  const [viewQuote, setViewQuote] = useState<Quote | null>(null);
 
   async function load() {
     setLoading(true);
     const { data, error } = await (supabase.from as any)("quotes")
       .select(
-        "id, quote_number, quote_date, expiry_date, customer_name, status, currency, total, subject, salesperson, project_name",
+        "id, quote_number, quote_date, expiry_date, customer_name, status, currency, total, subject, salesperson, project_name, subtotal, notes, terms, purchase_order",
       )
       .order("quote_date", { ascending: false })
       .limit(1000);
@@ -601,6 +604,18 @@ function QuotesList() {
   useEffect(() => {
     load();
   }, []);
+
+  async function removeQuote(id: string) {
+    if (!confirm("Delete this quote?")) return;
+    const { error } = await (supabase.from as any)("quotes")
+      .delete()
+      .eq("id", id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Deleted");
+      load();
+    }
+  }
 
   const filtered = quotes.filter((q) => {
     if (status !== "all" && q.status !== status) return false;
@@ -643,6 +658,16 @@ function QuotesList() {
             )}
           </SelectContent>
         </Select>
+        <Button
+          size="sm"
+          onClick={() => {
+            setEditingQuote(null);
+            setViewQuote(null);
+            setQuoteDialogOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4 mr-1" /> Create Quote
+        </Button>
         <div className="ml-auto text-sm text-muted-foreground">
           {filtered.length} quotes · Total{" "}
           <span className="font-semibold text-foreground">
@@ -663,19 +688,20 @@ function QuotesList() {
               <TableHead>Subject</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Total</TableHead>
+              <TableHead className="w-28 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8">
+                <TableCell colSpan={7} className="text-center py-8">
                   Loading…
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={7}
                   className="text-center py-8 text-muted-foreground"
                 >
                   No quotes found.
@@ -707,12 +733,346 @@ function QuotesList() {
                   <TableCell className="text-right font-medium">
                     {q.currency} {Number(q.total ?? 0).toLocaleString()}
                   </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8"
+                        onClick={() => {
+                          setEditingQuote(null);
+                          setViewQuote(q);
+                          setQuoteDialogOpen(true);
+                        }}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8"
+                        onClick={() => {
+                          setViewQuote(null);
+                          setEditingQuote(q);
+                          setQuoteDialogOpen(true);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 text-destructive"
+                        onClick={() => removeQuote(q.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))
             )}
           </TableBody>
         </Table>
       </div>
+
+      <QuoteDialog
+        open={quoteDialogOpen}
+        onOpenChange={setQuoteDialogOpen}
+        quote={viewQuote ?? editingQuote}
+        viewOnly={!!viewQuote}
+        onSaved={() => {
+          setQuoteDialogOpen(false);
+          setEditingQuote(null);
+          setViewQuote(null);
+          load();
+        }}
+      />
     </div>
+  );
+}
+
+function QuoteDialog({
+  open,
+  onOpenChange,
+  quote,
+  viewOnly,
+  onSaved,
+}: {
+  open: boolean;
+  onOpenChange: (b: boolean) => void;
+  quote: Quote | null;
+  viewOnly: boolean;
+  onSaved: () => void;
+}) {
+  const [form, setForm] = useState<Partial<Quote>>({});
+  const [saving, setSaving] = useState(false);
+  const [customers, setCustomers] = useState<
+    { id: string; display_name: string | null; company_name: string | null }[]
+  >([]);
+  const [showSuggest, setShowSuggest] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setForm(
+        quote ?? {
+          quote_number: "",
+          quote_date: new Date().toISOString().split("T")[0],
+          expiry_date: "",
+          customer_name: "",
+          status: "draft",
+          currency: "AED",
+          total: null as any,
+          subtotal: null as any,
+          subject: "",
+          salesperson: "",
+          project_name: "",
+          notes: "",
+          terms: "",
+          purchase_order: "",
+        },
+      );
+      (supabase.from as any)("customers")
+        .select("id, display_name, company_name")
+        .order("display_name", { ascending: true })
+        .then(({ data }: any) => setCustomers(data ?? []));
+    }
+  }, [open, quote]);
+
+  const query = (form.customer_name ?? "").toLowerCase();
+  const suggestions = query
+    ? customers
+        .filter((c) => (c.display_name ?? "").toLowerCase().includes(query))
+        .slice(0, 8)
+    : customers.slice(0, 8);
+
+  async function save() {
+    if (!form.quote_number?.trim() || !form.customer_name?.trim()) {
+      toast.error("Quote number and customer name are required");
+      return;
+    }
+    setSaving(true);
+    const payload = {
+      quote_number: form.quote_number,
+      quote_date: form.quote_date || null,
+      expiry_date: form.expiry_date || null,
+      customer_name: form.customer_name,
+      status: form.status || "draft",
+      currency: form.currency || "AED",
+      total: form.total != null && form.total !== ("" as any) ? Number(form.total) : null,
+      subtotal: form.subtotal != null && form.subtotal !== ("" as any) ? Number(form.subtotal) : null,
+      subject: form.subject || null,
+      salesperson: form.salesperson || null,
+      project_name: form.project_name || null,
+      notes: form.notes || null,
+      terms: form.terms || null,
+      purchase_order: form.purchase_order || null,
+    };
+    const { error } = quote
+      ? await (supabase.from as any)("quotes").update(payload).eq("id", quote.id)
+      : await (supabase.from as any)("quotes").insert(payload);
+    setSaving(false);
+    if (error) toast.error(error.message);
+    else {
+      toast.success(quote ? "Updated" : "Created");
+      onSaved();
+    }
+  }
+
+  const title = viewOnly ? "View Quote" : quote ? "Edit Quote" : "Create Quote";
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-1.5">
+              <Label>Quote number *</Label>
+              <Input
+                readOnly={viewOnly}
+                value={form.quote_number ?? ""}
+                onChange={(e) => setForm({ ...form, quote_number: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label>Status</Label>
+              <Select
+                disabled={viewOnly}
+                value={form.status ?? "draft"}
+                onValueChange={(v) => setForm({ ...form, status: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {["draft", "sent", "accepted", "invoiced", "rejected", "expired"].map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid gap-1.5 relative">
+            <Label>Customer name *</Label>
+            <Input
+              readOnly={viewOnly}
+              value={form.customer_name ?? ""}
+              onChange={(e) => {
+                setForm({ ...form, customer_name: e.target.value });
+                setShowSuggest(true);
+              }}
+              onFocus={() => setShowSuggest(true)}
+              onBlur={() => setTimeout(() => setShowSuggest(false), 150)}
+              placeholder="Type to search customers…"
+              autoComplete="off"
+            />
+            {!viewOnly && showSuggest && suggestions.length > 0 && (
+              <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-64 overflow-auto rounded-md border bg-popover shadow-md">
+                {suggestions.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-accent border-b last:border-b-0"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      setForm({ ...form, customer_name: c.display_name ?? "" });
+                      setShowSuggest(false);
+                    }}
+                  >
+                    <div className="font-medium truncate">{c.display_name}</div>
+                    {c.company_name && (
+                      <div className="text-xs text-muted-foreground truncate">{c.company_name}</div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-1.5">
+              <Label>Quote date</Label>
+              <Input
+                type="date"
+                readOnly={viewOnly}
+                value={form.quote_date ?? ""}
+                onChange={(e) => setForm({ ...form, quote_date: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label>Expiry date</Label>
+              <Input
+                type="date"
+                readOnly={viewOnly}
+                value={form.expiry_date ?? ""}
+                onChange={(e) => setForm({ ...form, expiry_date: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-1.5">
+              <Label>Project name</Label>
+              <Input
+                readOnly={viewOnly}
+                value={form.project_name ?? ""}
+                onChange={(e) => setForm({ ...form, project_name: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label>Salesperson</Label>
+              <Input
+                readOnly={viewOnly}
+                value={form.salesperson ?? ""}
+                onChange={(e) => setForm({ ...form, salesperson: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label>Subject</Label>
+            <Input
+              readOnly={viewOnly}
+              value={form.subject ?? ""}
+              onChange={(e) => setForm({ ...form, subject: e.target.value })}
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="grid gap-1.5">
+              <Label>Subtotal</Label>
+              <Input
+                type="number"
+                readOnly={viewOnly}
+                value={(form.subtotal as any) ?? ""}
+                onChange={(e) => setForm({ ...form, subtotal: e.target.value as any })}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label>Total</Label>
+              <Input
+                type="number"
+                readOnly={viewOnly}
+                value={(form.total as any) ?? ""}
+                onChange={(e) => setForm({ ...form, total: e.target.value as any })}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label>Currency</Label>
+              <Select
+                disabled={viewOnly}
+                value={form.currency ?? "AED"}
+                onValueChange={(v) => setForm({ ...form, currency: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="AED">AED</SelectItem>
+                  <SelectItem value="USD">USD</SelectItem>
+                  <SelectItem value="EUR">EUR</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label>Terms</Label>
+            <Textarea
+              readOnly={viewOnly}
+              rows={2}
+              value={form.terms ?? ""}
+              onChange={(e) => setForm({ ...form, terms: e.target.value })}
+            />
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label>Notes</Label>
+            <Textarea
+              readOnly={viewOnly}
+              rows={2}
+              value={form.notes ?? ""}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            {viewOnly ? "Close" : "Cancel"}
+          </Button>
+          {!viewOnly && (
+            <Button onClick={save} disabled={saving}>
+              {saving ? "Saving…" : quote ? "Update" : "Create"}
+            </Button>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
