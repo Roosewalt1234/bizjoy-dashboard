@@ -370,6 +370,137 @@ export type Database = {
           },
         ]
       }
+      quotes: {
+        Row: {
+          created_at: string
+          currency: string | null
+          customer_name: string | null
+          expiry_date: string | null
+          id: string
+          notes: string | null
+          project_name: string | null
+          purchase_order: string | null
+          quote_date: string | null
+          quote_number: string | null
+          salesperson: string | null
+          status: string | null
+          subject: string | null
+          subtotal: number | null
+          terms: string | null
+          total: number | null
+          updated_at: string
+          zoho_customer_id: string | null
+          zoho_quote_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string | null
+          customer_name?: string | null
+          expiry_date?: string | null
+          id?: string
+          notes?: string | null
+          project_name?: string | null
+          purchase_order?: string | null
+          quote_date?: string | null
+          quote_number?: string | null
+          salesperson?: string | null
+          status?: string | null
+          subject?: string | null
+          subtotal?: number | null
+          terms?: string | null
+          total?: number | null
+          updated_at?: string
+          zoho_customer_id?: string | null
+          zoho_quote_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string | null
+          customer_name?: string | null
+          expiry_date?: string | null
+          id?: string
+          notes?: string | null
+          project_name?: string | null
+          purchase_order?: string | null
+          quote_date?: string | null
+          quote_number?: string | null
+          salesperson?: string | null
+          status?: string | null
+          subject?: string | null
+          subtotal?: number | null
+          terms?: string | null
+          total?: number | null
+          updated_at?: string
+          zoho_customer_id?: string | null
+          zoho_quote_id?: string | null
+        }
+        Relationships: []
+      }
+      sales_leads: {
+        Row: {
+          company: string | null
+          created_at: string
+          currency: string | null
+          customer_id: string | null
+          email: string | null
+          estimated_value: number | null
+          expected_close_date: string | null
+          id: string
+          lead_name: string
+          notes: string | null
+          phone: string | null
+          position: number | null
+          salesperson: string | null
+          source: string | null
+          stage: string
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          currency?: string | null
+          customer_id?: string | null
+          email?: string | null
+          estimated_value?: number | null
+          expected_close_date?: string | null
+          id?: string
+          lead_name: string
+          notes?: string | null
+          phone?: string | null
+          position?: number | null
+          salesperson?: string | null
+          source?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          currency?: string | null
+          customer_id?: string | null
+          email?: string | null
+          estimated_value?: number | null
+          expected_close_date?: string | null
+          id?: string
+          lead_name?: string
+          notes?: string | null
+          phone?: string | null
+          position?: number | null
+          salesperson?: string | null
+          source?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_leads_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sales_orders: {
         Row: {
           amount: number | null
