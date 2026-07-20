@@ -382,6 +382,7 @@ export type Database = {
           purchase_order: string | null
           quote_date: string | null
           quote_number: string | null
+          quote_type: string | null
           salesperson: string | null
           status: string | null
           subject: string | null
@@ -403,6 +404,7 @@ export type Database = {
           purchase_order?: string | null
           quote_date?: string | null
           quote_number?: string | null
+          quote_type?: string | null
           salesperson?: string | null
           status?: string | null
           subject?: string | null
@@ -424,6 +426,7 @@ export type Database = {
           purchase_order?: string | null
           quote_date?: string | null
           quote_number?: string | null
+          quote_type?: string | null
           salesperson?: string | null
           status?: string | null
           subject?: string | null
@@ -447,6 +450,7 @@ export type Database = {
           expected_close_date: string | null
           id: string
           lead_name: string
+          lead_type: string | null
           notes: string | null
           phone: string | null
           position: number | null
@@ -465,6 +469,7 @@ export type Database = {
           expected_close_date?: string | null
           id?: string
           lead_name: string
+          lead_type?: string | null
           notes?: string | null
           phone?: string | null
           position?: number | null
@@ -483,6 +488,7 @@ export type Database = {
           expected_close_date?: string | null
           id?: string
           lead_name?: string
+          lead_type?: string | null
           notes?: string | null
           phone?: string | null
           position?: number | null
