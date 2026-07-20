@@ -755,6 +755,7 @@ function QuotesList() {
               <TableHead>Date</TableHead>
               <TableHead>Customer</TableHead>
               <TableHead>Subject</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Total</TableHead>
               <TableHead className="w-28 text-right">Actions</TableHead>
