@@ -326,6 +326,10 @@ function LeadDialog({
 }) {
   const [form, setForm] = useState<Partial<Lead>>({});
   const [saving, setSaving] = useState(false);
+  const [customers, setCustomers] = useState<
+    { id: string; display_name: string | null; company_name: string | null; email: string | null; mobile: string | null; phone: string | null }[]
+  >([]);
+  const [showSuggest, setShowSuggest] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -342,8 +346,19 @@ function LeadDialog({
           notes: "",
         },
       );
+      (supabase.from as any)("customers")
+        .select("id, display_name, company_name, email, mobile, phone")
+        .order("display_name", { ascending: true })
+        .then(({ data }: any) => setCustomers(data ?? []));
     }
   }, [open, lead, defaultStage]);
+
+  const query = (form.lead_name ?? "").toLowerCase();
+  const suggestions = query
+    ? customers
+        .filter((c) => (c.display_name ?? "").toLowerCase().includes(query))
+        .slice(0, 8)
+    : customers.slice(0, 8);
 
   async function save() {
     if (!form.lead_name?.trim()) {
@@ -387,12 +402,48 @@ function LeadDialog({
           <DialogTitle>{lead ? "Edit Lead" : "New Lead"}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-3">
-          <div className="grid gap-1.5">
+          <div className="grid gap-1.5 relative">
             <Label>Lead name *</Label>
             <Input
               value={form.lead_name ?? ""}
-              onChange={(e) => setForm({ ...form, lead_name: e.target.value })}
+              onChange={(e) => {
+                setForm({ ...form, lead_name: e.target.value });
+                setShowSuggest(true);
+              }}
+              onFocus={() => setShowSuggest(true)}
+              onBlur={() => setTimeout(() => setShowSuggest(false), 150)}
+              placeholder="Type to search customers…"
+              autoComplete="off"
             />
+            {showSuggest && suggestions.length > 0 && (
+              <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-64 overflow-auto rounded-md border bg-popover shadow-md">
+                {suggestions.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-accent border-b last:border-b-0"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      setForm({
+                        ...form,
+                        lead_name: c.display_name ?? "",
+                        company: c.company_name ?? form.company ?? "",
+                        email: c.email ?? form.email ?? "",
+                        phone: c.mobile ?? c.phone ?? form.phone ?? "",
+                      });
+                      setShowSuggest(false);
+                    }}
+                  >
+                    <div className="font-medium truncate">{c.display_name}</div>
+                    {c.company_name && (
+                      <div className="text-xs text-muted-foreground truncate">
+                        {c.company_name}
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
