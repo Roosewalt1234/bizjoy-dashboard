@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Eye } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -140,7 +140,10 @@ function CustomersList() {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => navigate({ to: "/customers/$id", params: { id: c.id } })}>
+                    <Button size="icon" variant="ghost" title="View" onClick={() => navigate({ to: "/customers/$id/view", params: { id: c.id } })}>
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" title="Edit" onClick={() => navigate({ to: "/customers/$id", params: { id: c.id } })}>
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <AlertDialog>
