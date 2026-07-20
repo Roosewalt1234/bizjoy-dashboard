@@ -398,16 +398,18 @@ function LeadDialog({
       (supabase.from as any)("customers")
         .select("id, display_name, company_name, email, mobile, phone")
         .order("display_name", { ascending: true })
+        .range(0, 9999)
         .then(({ data }: any) => setCustomers(data ?? []));
     }
   }, [open, lead, defaultStage]);
 
   const query = (form.lead_name ?? "").toLowerCase();
   const suggestions = query
-    ? customers
-        .filter((c) => (c.display_name ?? "").toLowerCase().includes(query))
-        .slice(0, 8)
-    : customers.slice(0, 8);
+    ? customers.filter((c) =>
+        (c.display_name ?? "").toLowerCase().includes(query) ||
+        (c.company_name ?? "").toLowerCase().includes(query),
+      )
+    : customers;
 
   async function save() {
     if (!form.lead_name?.trim()) {
