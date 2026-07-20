@@ -51,6 +51,23 @@ const STAGES = [
 
 type Stage = (typeof STAGES)[number];
 
+const LEAD_TYPES = [
+  "Villa AMC",
+  "Apartment AMC",
+  "FM Contract",
+  "Variation Job FM",
+  "Variation Job AMC",
+  "One time Job",
+  "Rectification work",
+  "Plumbing Work",
+  "AC Works",
+  "Civil Works",
+  "Move in Move out",
+  "Snag Inspection",
+] as const;
+
+type LeadType = (typeof LEAD_TYPES)[number];
+
 const STAGE_COLORS: Record<Stage, string> = {
   "New Lead / Inquiry": "bg-slate-100 text-slate-700 border-slate-300",
   "Contacted / Pitching": "bg-blue-100 text-blue-700 border-blue-300",
@@ -62,6 +79,21 @@ const STAGE_COLORS: Record<Stage, string> = {
   "Won & Activated": "bg-emerald-100 text-emerald-700 border-emerald-300",
   "Closed Lost": "bg-rose-100 text-rose-700 border-rose-300",
   Cancelled: "bg-gray-100 text-gray-600 border-gray-300",
+};
+
+const LEAD_TYPE_COLORS: Record<LeadType, string> = {
+  "Villa AMC": "bg-violet-100 text-violet-700",
+  "Apartment AMC": "bg-fuchsia-100 text-fuchsia-700",
+  "FM Contract": "bg-sky-100 text-sky-700",
+  "Variation Job FM": "bg-lime-100 text-lime-700",
+  "Variation Job AMC": "bg-pink-100 text-pink-700",
+  "One time Job": "bg-amber-100 text-amber-700",
+  "Rectification work": "bg-orange-100 text-orange-700",
+  "Plumbing Work": "bg-cyan-100 text-cyan-700",
+  "AC Works": "bg-emerald-100 text-emerald-700",
+  "Civil Works": "bg-stone-100 text-stone-700",
+  "Move in Move out": "bg-indigo-100 text-indigo-700",
+  "Snag Inspection": "bg-rose-100 text-rose-700",
 };
 
 interface Lead {
