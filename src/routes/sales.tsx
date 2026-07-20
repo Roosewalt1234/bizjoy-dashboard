@@ -51,6 +51,23 @@ const STAGES = [
 
 type Stage = (typeof STAGES)[number];
 
+const LEAD_TYPES = [
+  "Villa AMC",
+  "Apartment AMC",
+  "FM Contract",
+  "Variation Job FM",
+  "Variation Job AMC",
+  "One time Job",
+  "Rectification work",
+  "Plumbing Work",
+  "AC Works",
+  "Civil Works",
+  "Move in Move out",
+  "Snag Inspection",
+] as const;
+
+type LeadType = (typeof LEAD_TYPES)[number];
+
 const STAGE_COLORS: Record<Stage, string> = {
   "New Lead / Inquiry": "bg-slate-100 text-slate-700 border-slate-300",
   "Contacted / Pitching": "bg-blue-100 text-blue-700 border-blue-300",
@@ -62,6 +79,21 @@ const STAGE_COLORS: Record<Stage, string> = {
   "Won & Activated": "bg-emerald-100 text-emerald-700 border-emerald-300",
   "Closed Lost": "bg-rose-100 text-rose-700 border-rose-300",
   Cancelled: "bg-gray-100 text-gray-600 border-gray-300",
+};
+
+const LEAD_TYPE_COLORS: Record<LeadType, string> = {
+  "Villa AMC": "bg-violet-100 text-violet-700",
+  "Apartment AMC": "bg-fuchsia-100 text-fuchsia-700",
+  "FM Contract": "bg-sky-100 text-sky-700",
+  "Variation Job FM": "bg-lime-100 text-lime-700",
+  "Variation Job AMC": "bg-pink-100 text-pink-700",
+  "One time Job": "bg-amber-100 text-amber-700",
+  "Rectification work": "bg-orange-100 text-orange-700",
+  "Plumbing Work": "bg-cyan-100 text-cyan-700",
+  "AC Works": "bg-emerald-100 text-emerald-700",
+  "Civil Works": "bg-stone-100 text-stone-700",
+  "Move in Move out": "bg-indigo-100 text-indigo-700",
+  "Snag Inspection": "bg-rose-100 text-rose-700",
 };
 
 interface Lead {
@@ -77,6 +109,7 @@ interface Lead {
   expected_close_date: string | null;
   salesperson: string | null;
   notes: string | null;
+  lead_type: string | null;
 }
 
 interface Quote {
@@ -95,6 +128,7 @@ interface Quote {
   notes: string | null;
   terms: string | null;
   purchase_order: string | null;
+  quote_type: string | null;
 }
 
 function SalesPage() {
@@ -254,8 +288,18 @@ function FunnelBoard() {
                               {lead.company}
                             </div>
                           )}
+                          {lead.lead_type && (
+                            <span
+                              className={`inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                                LEAD_TYPE_COLORS[lead.lead_type as LeadType] ??
+                                "bg-muted text-muted-foreground"
+                              }`}
+                            >
+                              {lead.lead_type}
+                            </span>
+                          )}
                         </div>
-                        <GripVertical className="h-4 w-4 text-muted-foreground/50 opacity-0 group-hover:opacity-100" />
+                        <GripVertical className="h-4 w-4 text-muted-foreground/50 opacity-0 group-hover:opacity-100 flex-shrink-0" />
                       </div>
                       {lead.estimated_value != null && (
                         <div className="mt-2 text-sm font-semibold text-primary">
@@ -348,6 +392,7 @@ function LeadDialog({
           currency: "AED",
           salesperson: "",
           notes: "",
+          lead_type: "",
         },
       );
       (supabase.from as any)("customers")
@@ -385,6 +430,7 @@ function LeadDialog({
       expected_close_date: form.expected_close_date || null,
       salesperson: form.salesperson || null,
       notes: form.notes || null,
+      lead_type: form.lead_type || null,
     };
     const { error } = lead
       ? await (supabase.from as any)("sales_leads")
@@ -449,7 +495,7 @@ function LeadDialog({
               </div>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div className="grid gap-1.5">
               <Label>Company</Label>
               <Input
@@ -470,6 +516,24 @@ function LeadDialog({
                   {STAGES.map((s) => (
                     <SelectItem key={s} value={s}>
                       {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-1.5">
+              <Label>Type of Lead</Label>
+              <Select
+                value={form.lead_type ?? ""}
+                onValueChange={(v) => setForm({ ...form, lead_type: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LEAD_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -596,7 +660,7 @@ function QuotesList() {
     setLoading(true);
     const { data, error } = await (supabase.from as any)("quotes")
       .select(
-        "id, quote_number, quote_date, expiry_date, customer_name, status, currency, total, subject, salesperson, project_name, subtotal, notes, terms, purchase_order",
+        "id, quote_number, quote_date, expiry_date, customer_name, status, currency, total, subject, salesperson, project_name, subtotal, notes, terms, purchase_order, quote_type",
       )
       .order("quote_date", { ascending: false })
       .limit(1000);
@@ -629,7 +693,8 @@ function QuotesList() {
       q.quote_number?.toLowerCase().includes(s) ||
       q.customer_name?.toLowerCase().includes(s) ||
       q.subject?.toLowerCase().includes(s) ||
-      q.project_name?.toLowerCase().includes(s)
+      q.project_name?.toLowerCase().includes(s) ||
+      q.quote_type?.toLowerCase().includes(s)
     );
   });
 
@@ -690,6 +755,7 @@ function QuotesList() {
               <TableHead>Date</TableHead>
               <TableHead>Customer</TableHead>
               <TableHead>Subject</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Total</TableHead>
               <TableHead className="w-28 text-right">Actions</TableHead>
@@ -698,14 +764,14 @@ function QuotesList() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={8} className="text-center py-8">
                   Loading…
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={8}
                   className="text-center py-8 text-muted-foreground"
                 >
                   No quotes found.
@@ -721,6 +787,18 @@ function QuotesList() {
                   <TableCell>{q.customer_name}</TableCell>
                   <TableCell className="max-w-[280px] truncate">
                     {q.subject}
+                  </TableCell>
+                  <TableCell>
+                    {q.quote_type && (
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
+                          LEAD_TYPE_COLORS[q.quote_type as LeadType] ??
+                          "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {q.quote_type}
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell>
                     {q.status && (
@@ -834,6 +912,7 @@ function QuoteDialog({
           notes: "",
           terms: "",
           purchase_order: "",
+          quote_type: "",
         },
       );
       (supabase.from as any)("customers")
@@ -871,6 +950,7 @@ function QuoteDialog({
       notes: form.notes || null,
       terms: form.terms || null,
       purchase_order: form.purchase_order || null,
+      quote_type: form.quote_type || null,
     };
     const { error } = quote
       ? await (supabase.from as any)("quotes").update(payload).eq("id", quote.id)
@@ -892,7 +972,7 @@ function QuoteDialog({
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="grid gap-1.5">
               <Label>Quote number *</Label>
               <Input
@@ -915,6 +995,25 @@ function QuoteDialog({
                   {["draft", "sent", "accepted", "invoiced", "rejected", "expired"].map((s) => (
                     <SelectItem key={s} value={s}>
                       {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-1.5">
+              <Label>Type of Lead</Label>
+              <Select
+                disabled={viewOnly}
+                value={form.quote_type ?? ""}
+                onValueChange={(v) => setForm({ ...form, quote_type: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LEAD_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
                     </SelectItem>
                   ))}
                 </SelectContent>
