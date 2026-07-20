@@ -912,6 +912,7 @@ function QuoteDialog({
           notes: "",
           terms: "",
           purchase_order: "",
+          quote_type: "",
         },
       );
       (supabase.from as any)("customers")
