@@ -392,6 +392,7 @@ function LeadDialog({
           currency: "AED",
           salesperson: "",
           notes: "",
+          lead_type: "",
         },
       );
       (supabase.from as any)("customers")
