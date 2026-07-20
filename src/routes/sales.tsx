@@ -430,6 +430,7 @@ function LeadDialog({
       expected_close_date: form.expected_close_date || null,
       salesperson: form.salesperson || null,
       notes: form.notes || null,
+      lead_type: form.lead_type || null,
     };
     const { error } = lead
       ? await (supabase.from as any)("sales_leads")
