@@ -789,6 +789,18 @@ function QuotesList() {
                     {q.subject}
                   </TableCell>
                   <TableCell>
+                    {q.quote_type && (
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
+                          LEAD_TYPE_COLORS[q.quote_type as LeadType] ??
+                          "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {q.quote_type}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell>
                     {q.status && (
                       <span
                         className={`inline-block px-2 py-0.5 rounded text-xs capitalize ${
