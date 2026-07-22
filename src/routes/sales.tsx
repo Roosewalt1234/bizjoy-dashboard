@@ -1320,6 +1320,15 @@ function QuoteDialog({
       }
     }
 
+    // When a new quote is created from a lead, advance that lead to "Proposal / Quote Sent"
+    if (!quote && leadId) {
+      const { error: leadErr } = await (supabase.from as any)("sales_leads")
+        .update({ stage: "Proposal / Quote Sent" })
+        .eq("id", leadId);
+      if (leadErr) toast.error(`Quote saved, but lead update failed: ${leadErr.message}`);
+      else toast.success("Lead moved to Proposal / Quote Sent");
+    }
+
     setSaving(false);
     toast.success(quote ? "Updated" : "Created");
     onSaved();
