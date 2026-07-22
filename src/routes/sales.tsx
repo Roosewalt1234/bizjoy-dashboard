@@ -1001,6 +1001,7 @@ function QuotesList() {
         onOpenChange={setPickLeadOpen}
         onPicked={(lead) => {
           setPickLeadOpen(false);
+          setPrefillLeadId(lead?.id ?? null);
           setPrefill(
             lead
               ? {
