@@ -788,6 +788,7 @@ function QuotesList() {
   const [editingQuote, setEditingQuote] = useState<Quote | null>(null);
   const [viewQuote, setViewQuote] = useState<Quote | null>(null);
   const [prefill, setPrefill] = useState<Partial<Quote> | null>(null);
+  const [prefillLeadId, setPrefillLeadId] = useState<string | null>(null);
   const [pickLeadOpen, setPickLeadOpen] = useState(false);
 
 
@@ -1000,6 +1001,7 @@ function QuotesList() {
         onOpenChange={setPickLeadOpen}
         onPicked={(lead) => {
           setPickLeadOpen(false);
+          setPrefillLeadId(lead?.id ?? null);
           setPrefill(
             lead
               ? {
@@ -1023,12 +1025,14 @@ function QuotesList() {
         onOpenChange={setQuoteDialogOpen}
         quote={viewQuote ?? editingQuote}
         prefill={prefill}
+        leadId={prefillLeadId}
         viewOnly={!!viewQuote}
         onSaved={() => {
           setQuoteDialogOpen(false);
           setEditingQuote(null);
           setViewQuote(null);
           setPrefill(null);
+          setPrefillLeadId(null);
           load();
         }}
       />
@@ -1145,6 +1149,7 @@ function QuoteDialog({
   onOpenChange,
   quote,
   prefill,
+  leadId,
   viewOnly,
   onSaved,
 }: {
@@ -1152,6 +1157,7 @@ function QuoteDialog({
   onOpenChange: (b: boolean) => void;
   quote: Quote | null;
   prefill?: Partial<Quote> | null;
+  leadId?: string | null;
   viewOnly: boolean;
   onSaved: () => void;
 }) {
@@ -1312,6 +1318,15 @@ function QuoteDialog({
           return;
         }
       }
+    }
+
+    // When a new quote is created from a lead, advance that lead to "Proposal / Quote Sent"
+    if (!quote && leadId) {
+      const { error: leadErr } = await (supabase.from as any)("sales_leads")
+        .update({ stage: "Proposal / Quote Sent" })
+        .eq("id", leadId);
+      if (leadErr) toast.error(`Quote saved, but lead update failed: ${leadErr.message}`);
+      else toast.success("Lead moved to Proposal / Quote Sent");
     }
 
     setSaving(false);
