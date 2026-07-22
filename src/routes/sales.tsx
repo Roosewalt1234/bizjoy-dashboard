@@ -1414,7 +1414,7 @@ function QuoteDialog({
             <Label>Terms</Label>
             <Textarea
               readOnly={viewOnly}
-              rows={2}
+              rows={8}
               value={form.terms ?? ""}
               onChange={(e) => setForm({ ...form, terms: e.target.value })}
             />
@@ -1424,7 +1424,7 @@ function QuoteDialog({
             <Label>Notes</Label>
             <Textarea
               readOnly={viewOnly}
-              rows={2}
+              rows={8}
               value={form.notes ?? ""}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
             />
