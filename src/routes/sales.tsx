@@ -1161,6 +1161,7 @@ function QuoteDialog({
     { id: string; display_name: string | null; company_name: string | null }[]
   >([]);
   const [showSuggest, setShowSuggest] = useState(false);
+  const [items, setItems] = useState<QuoteItem[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -1173,6 +1174,7 @@ function QuoteDialog({
         currency: "AED",
         total: null as any,
         subtotal: null as any,
+        vat_amount: null as any,
         subject: "",
         salesperson: "",
         project_name: "",
@@ -1194,6 +1196,26 @@ function QuoteDialog({
         .order("display_name", { ascending: true })
         .range(0, 9999)
         .then(({ data }: any) => setCustomers(data ?? []));
+
+      if (quote?.id) {
+        (supabase.from as any)("quote_items")
+          .select("id, description, quantity, unit_price, amount")
+          .eq("quote_id", quote.id)
+          .order("sort_order", { ascending: true })
+          .then(({ data }: any) =>
+            setItems(
+              (data ?? []).map((r: any) => ({
+                id: r.id,
+                description: r.description ?? "",
+                quantity: Number(r.quantity ?? 0),
+                unit_price: Number(r.unit_price ?? 0),
+                amount: Number(r.amount ?? 0),
+              })),
+            ),
+          );
+      } else {
+        setItems([{ description: "", quantity: 1, unit_price: 0, amount: 0 }]);
+      }
     }
 
   }, [open, quote]);
@@ -1205,6 +1227,28 @@ function QuoteDialog({
         (c.company_name ?? "").toLowerCase().includes(query),
       )
     : customers;
+
+  const subtotal = items.reduce((s, it) => s + (Number(it.amount) || 0), 0);
+  const vat = +(subtotal * VAT_RATE).toFixed(2);
+  const grandTotal = +(subtotal + vat).toFixed(2);
+
+  function updateItem(idx: number, patch: Partial<QuoteItem>) {
+    setItems((prev) => {
+      const next = [...prev];
+      const merged = { ...next[idx], ...patch };
+      merged.amount = +(Number(merged.quantity || 0) * Number(merged.unit_price || 0)).toFixed(2);
+      next[idx] = merged;
+      return next;
+    });
+  }
+
+  function addItem() {
+    setItems((prev) => [...prev, { description: "", quantity: 1, unit_price: 0, amount: 0 }]);
+  }
+
+  function removeItem(idx: number) {
+    setItems((prev) => prev.filter((_, i) => i !== idx));
+  }
 
   async function save() {
     if (!form.quote_number?.trim() || !form.customer_name?.trim()) {
@@ -1219,8 +1263,9 @@ function QuoteDialog({
       customer_name: form.customer_name,
       status: form.status || "draft",
       currency: form.currency || "AED",
-      total: form.total != null && form.total !== ("" as any) ? Number(form.total) : null,
-      subtotal: form.subtotal != null && form.subtotal !== ("" as any) ? Number(form.subtotal) : null,
+      subtotal,
+      vat_amount: vat,
+      total: grandTotal,
       subject: form.subject || null,
       salesperson: form.salesperson || null,
       project_name: form.project_name || null,
@@ -1229,16 +1274,51 @@ function QuoteDialog({
       purchase_order: form.purchase_order || null,
       quote_type: form.quote_type || null,
     };
-    const { error } = quote
-      ? await (supabase.from as any)("quotes").update(payload).eq("id", quote.id)
-      : await (supabase.from as any)("quotes").insert(payload);
-    setSaving(false);
-    if (error) toast.error(error.message);
-    else {
-      toast.success(quote ? "Updated" : "Created");
-      onSaved();
+    let quoteId = quote?.id;
+    if (quote) {
+      const { error } = await (supabase.from as any)("quotes").update(payload).eq("id", quote.id);
+      if (error) {
+        setSaving(false);
+        toast.error(error.message);
+        return;
+      }
+    } else {
+      const { data, error } = await (supabase.from as any)("quotes").insert(payload).select("id").single();
+      if (error) {
+        setSaving(false);
+        toast.error(error.message);
+        return;
+      }
+      quoteId = data?.id;
     }
+
+    if (quoteId) {
+      await (supabase.from as any)("quote_items").delete().eq("quote_id", quoteId);
+      const rows = items
+        .filter((it) => it.description.trim() || Number(it.amount) > 0)
+        .map((it, i) => ({
+          quote_id: quoteId,
+          description: it.description,
+          quantity: Number(it.quantity) || 0,
+          unit_price: Number(it.unit_price) || 0,
+          amount: Number(it.amount) || 0,
+          sort_order: i,
+        }));
+      if (rows.length) {
+        const { error: itemsError } = await (supabase.from as any)("quote_items").insert(rows);
+        if (itemsError) {
+          setSaving(false);
+          toast.error(itemsError.message);
+          return;
+        }
+      }
+    }
+
+    setSaving(false);
+    toast.success(quote ? "Updated" : "Created");
+    onSaved();
   }
+
 
   const title = viewOnly ? "View Quote" : quote ? "Edit Quote" : "Create Quote";
 
