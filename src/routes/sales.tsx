@@ -1149,6 +1149,7 @@ function QuoteDialog({
   onOpenChange,
   quote,
   prefill,
+  leadId,
   viewOnly,
   onSaved,
 }: {
@@ -1156,6 +1157,7 @@ function QuoteDialog({
   onOpenChange: (b: boolean) => void;
   quote: Quote | null;
   prefill?: Partial<Quote> | null;
+  leadId?: string | null;
   viewOnly: boolean;
   onSaved: () => void;
 }) {
