@@ -998,7 +998,6 @@ function QuotesList() {
                   total: lead.estimated_value ?? null,
                   subtotal: lead.estimated_value ?? null,
                   salesperson: lead.salesperson ?? "",
-                  notes: lead.notes ?? "",
                   subject: lead.lead_type ? `${lead.lead_type} - ${lead.lead_name}` : lead.lead_name,
                 }
               : {},
