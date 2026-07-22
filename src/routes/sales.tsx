@@ -68,6 +68,29 @@ const LEAD_TYPES = [
 
 type LeadType = (typeof LEAD_TYPES)[number];
 
+const DEFAULT_NOTES_TEXT = `Refer to the signed Service agreement for the following:
+1. Scope of Work,
+2. Contract Duration
+3. Response time & Service availability
+4. Termination clause & Suspension
+5. Governing Law & Dispute Resolution
+6. Exclusions:
+The following are not covered under this AMC unless specified otherwise:
+6.1 Damage due to mishandling, accidents, natural calamities, or unauthorized modifications.
+6.2 Replacement of parts/components unless covered under the contract.`;
+
+const DEFAULT_TERMS_TEXT = `Terms and Conditions
+1. General terms:
+1.1 All services shall be performed professionally and in accordance with industry standards.
+1.2 Any modifications to the AMC terms must be agreed upon in writing.
+2. Payment Terms:
+Advance for every quarter, within 7 days from the date of invoice.
+3. This quotation does not include:
+3.1 Approvals or permits from regulatory authorities (if applicable).
+3.2 Any items not explicitly mentioned in the scope of work.
+4. Contact Information:
+For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com`;
+
 const STAGE_COLORS: Record<Stage, string> = {
   "New Lead / Inquiry": "bg-slate-100 text-slate-700 border-slate-300",
   "Contacted / Pitching": "bg-blue-100 text-blue-700 border-blue-300",
