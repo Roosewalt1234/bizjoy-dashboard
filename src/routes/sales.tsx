@@ -165,6 +165,8 @@ function FunnelBoard() {
   const [editing, setEditing] = useState<Lead | null>(null);
   const [defaultStage, setDefaultStage] = useState<Stage>("New Lead / Inquiry");
   const [dragId, setDragId] = useState<string | null>(null);
+  const [advanceOpen, setAdvanceOpen] = useState(false);
+  const [advanceTarget, setAdvanceTarget] = useState<Stage>("Contacted / Pitching");
 
   async function load() {
     setLoading(true);
@@ -204,6 +206,12 @@ function FunnelBoard() {
   }
 
   function openNew(stage: Stage) {
+    const idx = STAGES.indexOf(stage);
+    if (idx > 0) {
+      setAdvanceTarget(stage);
+      setAdvanceOpen(true);
+      return;
+    }
     setEditing(null);
     setDefaultStage(stage);
     setDialogOpen(true);
