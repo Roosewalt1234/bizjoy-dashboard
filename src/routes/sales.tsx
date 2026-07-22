@@ -832,11 +832,13 @@ function QuotesList() {
           onClick={() => {
             setEditingQuote(null);
             setViewQuote(null);
-            setQuoteDialogOpen(true);
+            setPrefill(null);
+            setPickLeadOpen(true);
           }}
         >
           <Plus className="h-4 w-4 mr-1" /> Create Quote
         </Button>
+
         <div className="ml-auto text-sm text-muted-foreground">
           {filtered.length} quotes · Total{" "}
           <span className="font-semibold text-foreground">
