@@ -1025,12 +1025,14 @@ function QuotesList() {
         onOpenChange={setQuoteDialogOpen}
         quote={viewQuote ?? editingQuote}
         prefill={prefill}
+        leadId={prefillLeadId}
         viewOnly={!!viewQuote}
         onSaved={() => {
           setQuoteDialogOpen(false);
           setEditingQuote(null);
           setViewQuote(null);
           setPrefill(null);
+          setPrefillLeadId(null);
           load();
         }}
       />
