@@ -176,7 +176,10 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
 
       await supabase.from("customer_contacts").delete().eq("customer_id", id!);
       if (contacts.length) {
-        const rows = contacts.map((c) => ({ ...c, customer_id: id!, id: undefined }));
+        const rows = contacts.map((c) => {
+          const { id: _omit, ...rest } = c as any;
+          return { ...rest, customer_id: id! };
+        });
         const { error } = await supabase.from("customer_contacts").insert(rows);
         if (error) throw error;
       }
