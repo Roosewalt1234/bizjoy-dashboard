@@ -145,6 +145,7 @@ interface Quote {
   currency: string | null;
   total: number | null;
   subtotal: number | null;
+  vat_amount: number | null;
   subject: string | null;
   salesperson: string | null;
   project_name: string | null;
@@ -153,6 +154,17 @@ interface Quote {
   purchase_order: string | null;
   quote_type: string | null;
 }
+
+interface QuoteItem {
+  id?: string;
+  description: string;
+  quantity: number;
+  unit_price: number;
+  amount: number;
+}
+
+const VAT_RATE = 0.05;
+
 
 function SalesPage() {
   return (
