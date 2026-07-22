@@ -370,6 +370,50 @@ export type Database = {
           },
         ]
       }
+      quote_items: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          quantity: number
+          quote_id: string
+          sort_order: number
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          quantity?: number
+          quote_id: string
+          sort_order?: number
+          unit_price?: number
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          quantity?: number
+          quote_id?: string
+          sort_order?: number
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_items_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quotes: {
         Row: {
           created_at: string
@@ -390,6 +434,7 @@ export type Database = {
           terms: string | null
           total: number | null
           updated_at: string
+          vat_amount: number | null
           zoho_customer_id: string | null
           zoho_quote_id: string | null
         }
@@ -412,6 +457,7 @@ export type Database = {
           terms?: string | null
           total?: number | null
           updated_at?: string
+          vat_amount?: number | null
           zoho_customer_id?: string | null
           zoho_quote_id?: string | null
         }
@@ -434,6 +480,7 @@ export type Database = {
           terms?: string | null
           total?: number | null
           updated_at?: string
+          vat_amount?: number | null
           zoho_customer_id?: string | null
           zoho_quote_id?: string | null
         }

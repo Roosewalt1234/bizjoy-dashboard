@@ -145,6 +145,7 @@ interface Quote {
   currency: string | null;
   total: number | null;
   subtotal: number | null;
+  vat_amount: number | null;
   subject: string | null;
   salesperson: string | null;
   project_name: string | null;
@@ -153,6 +154,17 @@ interface Quote {
   purchase_order: string | null;
   quote_type: string | null;
 }
+
+interface QuoteItem {
+  id?: string;
+  description: string;
+  quantity: number;
+  unit_price: number;
+  amount: number;
+}
+
+const VAT_RATE = 0.05;
+
 
 function SalesPage() {
   return (
@@ -783,7 +795,7 @@ function QuotesList() {
     setLoading(true);
     const { data, error } = await (supabase.from as any)("quotes")
       .select(
-        "id, quote_number, quote_date, expiry_date, customer_name, status, currency, total, subject, salesperson, project_name, subtotal, notes, terms, purchase_order, quote_type",
+        "id, quote_number, quote_date, expiry_date, customer_name, status, currency, total, subject, salesperson, project_name, subtotal, vat_amount, notes, terms, purchase_order, quote_type",
       )
       .order("quote_date", { ascending: false })
       .limit(1000);
@@ -1149,6 +1161,7 @@ function QuoteDialog({
     { id: string; display_name: string | null; company_name: string | null }[]
   >([]);
   const [showSuggest, setShowSuggest] = useState(false);
+  const [items, setItems] = useState<QuoteItem[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -1161,6 +1174,7 @@ function QuoteDialog({
         currency: "AED",
         total: null as any,
         subtotal: null as any,
+        vat_amount: null as any,
         subject: "",
         salesperson: "",
         project_name: "",
@@ -1182,6 +1196,26 @@ function QuoteDialog({
         .order("display_name", { ascending: true })
         .range(0, 9999)
         .then(({ data }: any) => setCustomers(data ?? []));
+
+      if (quote?.id) {
+        (supabase.from as any)("quote_items")
+          .select("id, description, quantity, unit_price, amount")
+          .eq("quote_id", quote.id)
+          .order("sort_order", { ascending: true })
+          .then(({ data }: any) =>
+            setItems(
+              (data ?? []).map((r: any) => ({
+                id: r.id,
+                description: r.description ?? "",
+                quantity: Number(r.quantity ?? 0),
+                unit_price: Number(r.unit_price ?? 0),
+                amount: Number(r.amount ?? 0),
+              })),
+            ),
+          );
+      } else {
+        setItems([{ description: "", quantity: 1, unit_price: 0, amount: 0 }]);
+      }
     }
 
   }, [open, quote]);
@@ -1193,6 +1227,28 @@ function QuoteDialog({
         (c.company_name ?? "").toLowerCase().includes(query),
       )
     : customers;
+
+  const subtotal = items.reduce((s, it) => s + (Number(it.amount) || 0), 0);
+  const vat = +(subtotal * VAT_RATE).toFixed(2);
+  const grandTotal = +(subtotal + vat).toFixed(2);
+
+  function updateItem(idx: number, patch: Partial<QuoteItem>) {
+    setItems((prev) => {
+      const next = [...prev];
+      const merged = { ...next[idx], ...patch };
+      merged.amount = +(Number(merged.quantity || 0) * Number(merged.unit_price || 0)).toFixed(2);
+      next[idx] = merged;
+      return next;
+    });
+  }
+
+  function addItem() {
+    setItems((prev) => [...prev, { description: "", quantity: 1, unit_price: 0, amount: 0 }]);
+  }
+
+  function removeItem(idx: number) {
+    setItems((prev) => prev.filter((_, i) => i !== idx));
+  }
 
   async function save() {
     if (!form.quote_number?.trim() || !form.customer_name?.trim()) {
@@ -1207,8 +1263,9 @@ function QuoteDialog({
       customer_name: form.customer_name,
       status: form.status || "draft",
       currency: form.currency || "AED",
-      total: form.total != null && form.total !== ("" as any) ? Number(form.total) : null,
-      subtotal: form.subtotal != null && form.subtotal !== ("" as any) ? Number(form.subtotal) : null,
+      subtotal,
+      vat_amount: vat,
+      total: grandTotal,
       subject: form.subject || null,
       salesperson: form.salesperson || null,
       project_name: form.project_name || null,
@@ -1217,22 +1274,57 @@ function QuoteDialog({
       purchase_order: form.purchase_order || null,
       quote_type: form.quote_type || null,
     };
-    const { error } = quote
-      ? await (supabase.from as any)("quotes").update(payload).eq("id", quote.id)
-      : await (supabase.from as any)("quotes").insert(payload);
-    setSaving(false);
-    if (error) toast.error(error.message);
-    else {
-      toast.success(quote ? "Updated" : "Created");
-      onSaved();
+    let quoteId = quote?.id;
+    if (quote) {
+      const { error } = await (supabase.from as any)("quotes").update(payload).eq("id", quote.id);
+      if (error) {
+        setSaving(false);
+        toast.error(error.message);
+        return;
+      }
+    } else {
+      const { data, error } = await (supabase.from as any)("quotes").insert(payload).select("id").single();
+      if (error) {
+        setSaving(false);
+        toast.error(error.message);
+        return;
+      }
+      quoteId = data?.id;
     }
+
+    if (quoteId) {
+      await (supabase.from as any)("quote_items").delete().eq("quote_id", quoteId);
+      const rows = items
+        .filter((it) => it.description.trim() || Number(it.amount) > 0)
+        .map((it, i) => ({
+          quote_id: quoteId,
+          description: it.description,
+          quantity: Number(it.quantity) || 0,
+          unit_price: Number(it.unit_price) || 0,
+          amount: Number(it.amount) || 0,
+          sort_order: i,
+        }));
+      if (rows.length) {
+        const { error: itemsError } = await (supabase.from as any)("quote_items").insert(rows);
+        if (itemsError) {
+          setSaving(false);
+          toast.error(itemsError.message);
+          return;
+        }
+      }
+    }
+
+    setSaving(false);
+    toast.success(quote ? "Updated" : "Created");
+    onSaved();
   }
+
 
   const title = viewOnly ? "View Quote" : quote ? "Edit Quote" : "Create Quote";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
@@ -1372,43 +1464,120 @@ function QuoteDialog({
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div className="grid gap-1.5">
-              <Label>Subtotal</Label>
-              <Input
-                type="number"
-                readOnly={viewOnly}
-                value={(form.subtotal as any) ?? ""}
-                onChange={(e) => setForm({ ...form, subtotal: e.target.value as any })}
-              />
+          <div className="grid gap-1.5">
+            <Label>Currency</Label>
+            <Select
+              disabled={viewOnly}
+              value={form.currency ?? "AED"}
+              onValueChange={(v) => setForm({ ...form, currency: v })}
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="AED">AED</SelectItem>
+                <SelectItem value="USD">USD</SelectItem>
+                <SelectItem value="EUR">EUR</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">Items</Label>
+              {!viewOnly && (
+                <Button type="button" size="sm" variant="outline" onClick={addItem}>
+                  + Add Item
+                </Button>
+              )}
             </div>
-            <div className="grid gap-1.5">
-              <Label>Total</Label>
-              <Input
-                type="number"
-                readOnly={viewOnly}
-                value={(form.total as any) ?? ""}
-                onChange={(e) => setForm({ ...form, total: e.target.value as any })}
-              />
+            <div className="rounded-md border overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+                  <tr>
+                    <th className="text-left px-3 py-2 font-medium">Description</th>
+                    <th className="text-right px-3 py-2 font-medium w-20">Qty</th>
+                    <th className="text-right px-3 py-2 font-medium w-28">Unit Price</th>
+                    <th className="text-right px-3 py-2 font-medium w-28">Amount</th>
+                    {!viewOnly && <th className="w-10"></th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.length === 0 && (
+                    <tr>
+                      <td colSpan={viewOnly ? 4 : 5} className="px-3 py-4 text-center text-muted-foreground">
+                        No items
+                      </td>
+                    </tr>
+                  )}
+                  {items.map((it, idx) => (
+                    <tr key={idx} className="border-t">
+                      <td className="px-2 py-1">
+                        <Input
+                          readOnly={viewOnly}
+                          value={it.description}
+                          onChange={(e) => updateItem(idx, { description: e.target.value })}
+                          placeholder="Item description"
+                          className="border-0 shadow-none focus-visible:ring-0"
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <Input
+                          type="number"
+                          readOnly={viewOnly}
+                          value={it.quantity}
+                          onChange={(e) => updateItem(idx, { quantity: Number(e.target.value) })}
+                          className="border-0 shadow-none focus-visible:ring-0 text-right"
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <Input
+                          type="number"
+                          readOnly={viewOnly}
+                          value={it.unit_price}
+                          onChange={(e) => updateItem(idx, { unit_price: Number(e.target.value) })}
+                          className="border-0 shadow-none focus-visible:ring-0 text-right"
+                        />
+                      </td>
+                      <td className="px-3 py-1 text-right tabular-nums">
+                        {(Number(it.amount) || 0).toFixed(2)}
+                      </td>
+                      {!viewOnly && (
+                        <td className="px-1 py-1 text-right">
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            onClick={() => removeItem(idx)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <div className="grid gap-1.5">
-              <Label>Currency</Label>
-              <Select
-                disabled={viewOnly}
-                value={form.currency ?? "AED"}
-                onValueChange={(v) => setForm({ ...form, currency: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="AED">AED</SelectItem>
-                  <SelectItem value="USD">USD</SelectItem>
-                  <SelectItem value="EUR">EUR</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex justify-end">
+              <div className="w-64 space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="tabular-nums">{subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">VAT (5%)</span>
+                  <span className="tabular-nums">{vat.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between border-t pt-1 font-semibold">
+                  <span>Total ({form.currency ?? "AED"})</span>
+                  <span className="tabular-nums">{grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
             </div>
           </div>
+
 
           <div className="grid gap-1.5">
             <Label>Terms</Label>
