@@ -1464,43 +1464,120 @@ function QuoteDialog({
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div className="grid gap-1.5">
-              <Label>Subtotal</Label>
-              <Input
-                type="number"
-                readOnly={viewOnly}
-                value={(form.subtotal as any) ?? ""}
-                onChange={(e) => setForm({ ...form, subtotal: e.target.value as any })}
-              />
+          <div className="grid gap-1.5">
+            <Label>Currency</Label>
+            <Select
+              disabled={viewOnly}
+              value={form.currency ?? "AED"}
+              onValueChange={(v) => setForm({ ...form, currency: v })}
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="AED">AED</SelectItem>
+                <SelectItem value="USD">USD</SelectItem>
+                <SelectItem value="EUR">EUR</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">Items</Label>
+              {!viewOnly && (
+                <Button type="button" size="sm" variant="outline" onClick={addItem}>
+                  + Add Item
+                </Button>
+              )}
             </div>
-            <div className="grid gap-1.5">
-              <Label>Total</Label>
-              <Input
-                type="number"
-                readOnly={viewOnly}
-                value={(form.total as any) ?? ""}
-                onChange={(e) => setForm({ ...form, total: e.target.value as any })}
-              />
+            <div className="rounded-md border overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+                  <tr>
+                    <th className="text-left px-3 py-2 font-medium">Description</th>
+                    <th className="text-right px-3 py-2 font-medium w-20">Qty</th>
+                    <th className="text-right px-3 py-2 font-medium w-28">Unit Price</th>
+                    <th className="text-right px-3 py-2 font-medium w-28">Amount</th>
+                    {!viewOnly && <th className="w-10"></th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.length === 0 && (
+                    <tr>
+                      <td colSpan={viewOnly ? 4 : 5} className="px-3 py-4 text-center text-muted-foreground">
+                        No items
+                      </td>
+                    </tr>
+                  )}
+                  {items.map((it, idx) => (
+                    <tr key={idx} className="border-t">
+                      <td className="px-2 py-1">
+                        <Input
+                          readOnly={viewOnly}
+                          value={it.description}
+                          onChange={(e) => updateItem(idx, { description: e.target.value })}
+                          placeholder="Item description"
+                          className="border-0 shadow-none focus-visible:ring-0"
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <Input
+                          type="number"
+                          readOnly={viewOnly}
+                          value={it.quantity}
+                          onChange={(e) => updateItem(idx, { quantity: Number(e.target.value) })}
+                          className="border-0 shadow-none focus-visible:ring-0 text-right"
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <Input
+                          type="number"
+                          readOnly={viewOnly}
+                          value={it.unit_price}
+                          onChange={(e) => updateItem(idx, { unit_price: Number(e.target.value) })}
+                          className="border-0 shadow-none focus-visible:ring-0 text-right"
+                        />
+                      </td>
+                      <td className="px-3 py-1 text-right tabular-nums">
+                        {(Number(it.amount) || 0).toFixed(2)}
+                      </td>
+                      {!viewOnly && (
+                        <td className="px-1 py-1 text-right">
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            onClick={() => removeItem(idx)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <div className="grid gap-1.5">
-              <Label>Currency</Label>
-              <Select
-                disabled={viewOnly}
-                value={form.currency ?? "AED"}
-                onValueChange={(v) => setForm({ ...form, currency: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="AED">AED</SelectItem>
-                  <SelectItem value="USD">USD</SelectItem>
-                  <SelectItem value="EUR">EUR</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex justify-end">
+              <div className="w-64 space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="tabular-nums">{subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">VAT (5%)</span>
+                  <span className="tabular-nums">{vat.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between border-t pt-1 font-semibold">
+                  <span>Total ({form.currency ?? "AED"})</span>
+                  <span className="tabular-nums">{grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
             </div>
           </div>
+
 
           <div className="grid gap-1.5">
             <Label>Terms</Label>
