@@ -752,6 +752,9 @@ function QuotesList() {
   const [quoteDialogOpen, setQuoteDialogOpen] = useState(false);
   const [editingQuote, setEditingQuote] = useState<Quote | null>(null);
   const [viewQuote, setViewQuote] = useState<Quote | null>(null);
+  const [prefill, setPrefill] = useState<Partial<Quote> | null>(null);
+  const [pickLeadOpen, setPickLeadOpen] = useState(false);
+
 
   async function load() {
     setLoading(true);
