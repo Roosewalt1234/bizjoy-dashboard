@@ -788,6 +788,7 @@ function QuotesList() {
   const [editingQuote, setEditingQuote] = useState<Quote | null>(null);
   const [viewQuote, setViewQuote] = useState<Quote | null>(null);
   const [prefill, setPrefill] = useState<Partial<Quote> | null>(null);
+  const [prefillLeadId, setPrefillLeadId] = useState<string | null>(null);
   const [pickLeadOpen, setPickLeadOpen] = useState(false);
 
 
