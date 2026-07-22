@@ -752,6 +752,9 @@ function QuotesList() {
   const [quoteDialogOpen, setQuoteDialogOpen] = useState(false);
   const [editingQuote, setEditingQuote] = useState<Quote | null>(null);
   const [viewQuote, setViewQuote] = useState<Quote | null>(null);
+  const [prefill, setPrefill] = useState<Partial<Quote> | null>(null);
+  const [pickLeadOpen, setPickLeadOpen] = useState(false);
+
 
   async function load() {
     setLoading(true);
@@ -829,11 +832,13 @@ function QuotesList() {
           onClick={() => {
             setEditingQuote(null);
             setViewQuote(null);
-            setQuoteDialogOpen(true);
+            setPrefill(null);
+            setPickLeadOpen(true);
           }}
         >
           <Plus className="h-4 w-4 mr-1" /> Create Quote
         </Button>
+
         <div className="ml-auto text-sm text-muted-foreground">
           {filtered.length} quotes · Total{" "}
           <span className="font-semibold text-foreground">
@@ -955,15 +960,41 @@ function QuotesList() {
         </Table>
       </div>
 
+      <PickLeadForQuoteDialog
+        open={pickLeadOpen}
+        onOpenChange={setPickLeadOpen}
+        onPicked={(lead) => {
+          setPickLeadOpen(false);
+          setPrefill(
+            lead
+              ? {
+                  customer_name: lead.lead_name,
+                  project_name: lead.company ?? "",
+                  quote_type: lead.lead_type ?? "",
+                  currency: lead.currency ?? "AED",
+                  total: lead.estimated_value ?? null,
+                  subtotal: lead.estimated_value ?? null,
+                  salesperson: lead.salesperson ?? "",
+                  notes: lead.notes ?? "",
+                  subject: lead.lead_type ? `${lead.lead_type} - ${lead.lead_name}` : lead.lead_name,
+                }
+              : {},
+          );
+          setQuoteDialogOpen(true);
+        }}
+      />
+
       <QuoteDialog
         open={quoteDialogOpen}
         onOpenChange={setQuoteDialogOpen}
         quote={viewQuote ?? editingQuote}
+        prefill={prefill}
         viewOnly={!!viewQuote}
         onSaved={() => {
           setQuoteDialogOpen(false);
           setEditingQuote(null);
           setViewQuote(null);
+          setPrefill(null);
           load();
         }}
       />
@@ -971,16 +1002,122 @@ function QuotesList() {
   );
 }
 
+function PickLeadForQuoteDialog({
+  open,
+  onOpenChange,
+  onPicked,
+}: {
+  open: boolean;
+  onOpenChange: (b: boolean) => void;
+  onPicked: (lead: Lead | null) => void;
+}) {
+  const ELIGIBLE: Stage[] = [
+    "New Lead / Inquiry",
+    "Contacted / Pitching",
+    "Site Survey Scheduled",
+    "Survey Report Ready",
+  ];
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [q, setQ] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    setQ("");
+    setLoading(true);
+    (supabase.from as any)("sales_leads")
+      .select("*")
+      .in("stage", ELIGIBLE)
+      .order("created_at", { ascending: false })
+      .then(({ data, error }: any) => {
+        if (error) toast.error(error.message);
+        else setLeads((data as Lead[]) ?? []);
+        setLoading(false);
+      });
+  }, [open]);
+
+  const filtered = q
+    ? leads.filter((l) =>
+        [l.lead_name, l.company, l.email, l.lead_type, l.stage]
+          .filter(Boolean)
+          .some((v) => (v as string).toLowerCase().includes(q.toLowerCase())),
+      )
+    : leads;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Select a lead to quote</DialogTitle>
+        </DialogHeader>
+        <div className="text-xs text-muted-foreground -mt-2">
+          Showing leads in New Lead, Contacted, Site Survey Scheduled and Survey Report Ready.
+        </div>
+        <Input
+          placeholder="Search leads…"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
+        <div className="max-h-80 overflow-auto rounded-md border divide-y">
+          {loading ? (
+            <div className="p-4 text-sm text-muted-foreground text-center">Loading…</div>
+          ) : filtered.length === 0 ? (
+            <div className="p-4 text-sm text-muted-foreground text-center">
+              No eligible leads found.
+            </div>
+          ) : (
+            filtered.map((l) => (
+              <button
+                key={l.id}
+                type="button"
+                onClick={() => onPicked(l)}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-accent"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="font-medium truncate">{l.lead_name}</div>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded border ${
+                      STAGE_COLORS[l.stage as Stage] ?? ""
+                    }`}
+                  >
+                    {l.stage}
+                  </span>
+                </div>
+                <div className="text-xs text-muted-foreground truncate">
+                  {[l.company, l.lead_type, l.estimated_value ? `${l.currency ?? "AED"} ${Number(l.estimated_value).toLocaleString()}` : null]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onPicked(null)}>
+            Skip — blank quote
+          </Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
 function QuoteDialog({
   open,
   onOpenChange,
   quote,
+  prefill,
   viewOnly,
   onSaved,
 }: {
   open: boolean;
   onOpenChange: (b: boolean) => void;
   quote: Quote | null;
+  prefill?: Partial<Quote> | null;
   viewOnly: boolean;
   onSaved: () => void;
 }) {
@@ -1010,6 +1147,7 @@ function QuoteDialog({
           terms: "",
           purchase_order: "",
           quote_type: "",
+          ...(prefill ?? {}),
         },
       );
       (supabase.from as any)("customers")
@@ -1018,6 +1156,7 @@ function QuoteDialog({
         .range(0, 9999)
         .then(({ data }: any) => setCustomers(data ?? []));
     }
+
   }, [open, quote]);
 
   const query = (form.customer_name ?? "").toLowerCase();
