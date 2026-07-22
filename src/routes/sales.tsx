@@ -363,6 +363,19 @@ function FunnelBoard() {
           load();
         }}
       />
+      <AdvanceLeadDialog
+        open={advanceOpen}
+        onOpenChange={setAdvanceOpen}
+        targetStage={advanceTarget}
+        sourceLeads={leads.filter(
+          (l) => l.stage === STAGES[STAGES.indexOf(advanceTarget) - 1],
+        )}
+        onAdvanced={async (id) => {
+          await moveLead(id, advanceTarget);
+          setAdvanceOpen(false);
+        }}
+      />
+
     </>
   );
 }
