@@ -165,6 +165,8 @@ function FunnelBoard() {
   const [editing, setEditing] = useState<Lead | null>(null);
   const [defaultStage, setDefaultStage] = useState<Stage>("New Lead / Inquiry");
   const [dragId, setDragId] = useState<string | null>(null);
+  const [advanceOpen, setAdvanceOpen] = useState(false);
+  const [advanceTarget, setAdvanceTarget] = useState<Stage>("Contacted / Pitching");
 
   async function load() {
     setLoading(true);
@@ -204,6 +206,12 @@ function FunnelBoard() {
   }
 
   function openNew(stage: Stage) {
+    const idx = STAGES.indexOf(stage);
+    if (idx > 0) {
+      setAdvanceTarget(stage);
+      setAdvanceOpen(true);
+      return;
+    }
     setEditing(null);
     setDefaultStage(stage);
     setDialogOpen(true);
@@ -355,9 +363,96 @@ function FunnelBoard() {
           load();
         }}
       />
+      <AdvanceLeadDialog
+        open={advanceOpen}
+        onOpenChange={setAdvanceOpen}
+        targetStage={advanceTarget}
+        sourceLeads={leads.filter(
+          (l) => l.stage === STAGES[STAGES.indexOf(advanceTarget) - 1],
+        )}
+        onAdvanced={async (id) => {
+          await moveLead(id, advanceTarget);
+          setAdvanceOpen(false);
+        }}
+      />
+
     </>
   );
 }
+
+function AdvanceLeadDialog({
+  open,
+  onOpenChange,
+  targetStage,
+  sourceLeads,
+  onAdvanced,
+}: {
+  open: boolean;
+  onOpenChange: (b: boolean) => void;
+  targetStage: Stage;
+  sourceLeads: Lead[];
+  onAdvanced: (id: string) => void | Promise<void>;
+}) {
+  const prevStage = STAGES[STAGES.indexOf(targetStage) - 1];
+  const [q, setQ] = useState("");
+  useEffect(() => {
+    if (open) setQ("");
+  }, [open]);
+  const filtered = q
+    ? sourceLeads.filter((l) =>
+        [l.lead_name, l.company, l.email]
+          .filter(Boolean)
+          .some((v) => (v as string).toLowerCase().includes(q.toLowerCase())),
+      )
+    : sourceLeads;
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Move lead to “{targetStage}”</DialogTitle>
+        </DialogHeader>
+        <div className="text-xs text-muted-foreground -mt-2">
+          Showing leads currently in “{prevStage}”.
+        </div>
+        <Input
+          placeholder="Search leads…"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
+        <div className="max-h-80 overflow-auto rounded-md border divide-y">
+          {filtered.length === 0 ? (
+            <div className="p-4 text-sm text-muted-foreground text-center">
+              No leads in “{prevStage}”.
+            </div>
+          ) : (
+            filtered.map((l) => (
+              <button
+                key={l.id}
+                type="button"
+                onClick={() => onAdvanced(l.id)}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-accent"
+              >
+                <div className="font-medium truncate">{l.lead_name}</div>
+                {(l.company || l.lead_type) && (
+                  <div className="text-xs text-muted-foreground truncate">
+                    {[l.company, l.lead_type].filter(Boolean).join(" · ")}
+                  </div>
+                )}
+              </button>
+            ))
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
 
 function LeadDialog({
   open,
