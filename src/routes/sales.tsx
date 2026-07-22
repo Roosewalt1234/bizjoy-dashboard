@@ -1110,12 +1110,14 @@ function QuoteDialog({
   open,
   onOpenChange,
   quote,
+  prefill,
   viewOnly,
   onSaved,
 }: {
   open: boolean;
   onOpenChange: (b: boolean) => void;
   quote: Quote | null;
+  prefill?: Partial<Quote> | null;
   viewOnly: boolean;
   onSaved: () => void;
 }) {
@@ -1145,6 +1147,7 @@ function QuoteDialog({
           terms: "",
           purchase_order: "",
           quote_type: "",
+          ...(prefill ?? {}),
         },
       );
       (supabase.from as any)("customers")
@@ -1153,6 +1156,7 @@ function QuoteDialog({
         .range(0, 9999)
         .then(({ data }: any) => setCustomers(data ?? []));
     }
+
   }, [open, quote]);
 
   const query = (form.customer_name ?? "").toLowerCase();
