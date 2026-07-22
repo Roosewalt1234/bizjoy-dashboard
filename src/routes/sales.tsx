@@ -1152,24 +1152,29 @@ function QuoteDialog({
 
   useEffect(() => {
     if (open) {
+      const base = {
+        quote_number: "",
+        quote_date: new Date().toISOString().split("T")[0],
+        expiry_date: "",
+        customer_name: "",
+        status: "draft",
+        currency: "AED",
+        total: null as any,
+        subtotal: null as any,
+        subject: "",
+        salesperson: "",
+        project_name: "",
+        notes: DEFAULT_NOTES_TEXT,
+        terms: DEFAULT_TERMS_TEXT,
+        purchase_order: "",
+        quote_type: "",
+      };
       setForm(
         quote ?? {
-          quote_number: "",
-          quote_date: new Date().toISOString().split("T")[0],
-          expiry_date: "",
-          customer_name: "",
-          status: "draft",
-          currency: "AED",
-          total: null as any,
-          subtotal: null as any,
-          subject: "",
-          salesperson: "",
-          project_name: "",
-          notes: "",
-          terms: "",
-          purchase_order: "",
-          quote_type: "",
+          ...base,
           ...(prefill ?? {}),
+          notes: base.notes,
+          terms: base.terms,
         },
       );
       (supabase.from as any)("customers")
