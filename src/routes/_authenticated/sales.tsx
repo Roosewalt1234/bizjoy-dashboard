@@ -994,6 +994,7 @@ function QuotesList() {
   const [analyseQuote, setAnalyseQuote] = useState<Quote | null>(null);
   const [probabilityQuote, setProbabilityQuote] = useState<Quote | null>(null);
   const [probabilityValue, setProbabilityValue] = useState<string>("Medium");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (probabilityQuote) {
