@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CrudModule } from "@/components/crud-module";
 
-export const Route = createFileRoute("/hr")({
+export const Route = createFileRoute("/_authenticated/hr")({
   component: () => (
     <CrudModule
       title="Human Resources"

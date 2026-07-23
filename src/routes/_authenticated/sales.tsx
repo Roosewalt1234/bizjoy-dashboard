@@ -32,7 +32,7 @@ import {
 import { Plus, Search, Pencil, Trash2, GripVertical, Eye } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/sales")({
+export const Route = createFileRoute("/_authenticated/sales")({
   component: SalesPage,
 });
 

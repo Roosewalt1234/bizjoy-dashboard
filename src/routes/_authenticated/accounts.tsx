@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CrudModule } from "@/components/crud-module";
 
-export const Route = createFileRoute("/accounts")({
+export const Route = createFileRoute("/_authenticated/accounts")({
   component: () => (
     <CrudModule
       title="Accounts"
