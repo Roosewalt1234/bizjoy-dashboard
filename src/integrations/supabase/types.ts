@@ -575,6 +575,7 @@ export type Database = {
           expiry_date: string | null
           id: string
           notes: string | null
+          probability: string | null
           project_name: string | null
           purchase_order: string | null
           quote_date: string | null
@@ -598,6 +599,7 @@ export type Database = {
           expiry_date?: string | null
           id?: string
           notes?: string | null
+          probability?: string | null
           project_name?: string | null
           purchase_order?: string | null
           quote_date?: string | null
@@ -621,6 +623,7 @@ export type Database = {
           expiry_date?: string | null
           id?: string
           notes?: string | null
+          probability?: string | null
           project_name?: string | null
           purchase_order?: string | null
           quote_date?: string | null
