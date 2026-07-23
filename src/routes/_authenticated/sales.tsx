@@ -1119,40 +1119,49 @@ function QuotesList() {
                     {q.currency} {Number(q.total ?? 0).toLocaleString()}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8"
-                        onClick={() => {
-                          setEditingQuote(null);
-                          setViewQuote(q);
-                          setQuoteDialogOpen(true);
-                        }}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8"
-                        onClick={() => {
-                          setViewQuote(null);
-                          setEditingQuote(q);
-                          setQuoteDialogOpen(true);
-                        }}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8 text-destructive"
-                        onClick={() => removeQuote(q.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="icon" variant="ghost" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-44">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setViewQuote(null);
+                            setEditingQuote(q);
+                            setQuoteDialogOpen(true);
+                          }}
+                        >
+                          <Pencil className="h-4 w-4 mr-2" /> Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setEditingQuote(null);
+                            setViewQuote(q);
+                            setQuoteDialogOpen(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-2" /> View
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setFollowupQuote(q)}>
+                          <MessageSquare className="h-4 w-4 mr-2" /> Followup notes
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setStatusQuote(q)}>
+                          <ArrowRightCircle className="h-4 w-4 mr-2" /> Change Status
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setAnalyseQuote(q)}>
+                          <BarChart3 className="h-4 w-4 mr-2" /> Analyse
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => removeQuote(q.id)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))
