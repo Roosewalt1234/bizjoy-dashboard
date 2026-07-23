@@ -1021,10 +1021,34 @@ function QuotesList() {
 
   async function saveStatus() {
     if (!statusQuote) return;
-    const { error } = await (supabase.from as any)("quotes")
-      .update({ status: statusValue, notes: statusNotes })
+    const { error: statusError } = await (supabase.from as any)("quotes")
+      .update({ status: statusValue })
       .eq("id", statusQuote.id);
-    if (error) return toast.error(error.message);
+    if (statusError) return toast.error(statusError.message);
+
+    const remarkText = statusRemarks.trim();
+    if (remarkText) {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData.user;
+      if (!user) {
+        toast.error("Status updated, but remark was not saved (not signed in)");
+      } else {
+        const name =
+          (user.user_metadata as any)?.full_name ||
+          (user.user_metadata as any)?.name ||
+          user.email ||
+          "Unknown";
+        const { error: remarkError } = await (supabase.from as any)("followup_remarks").insert({
+          entity_type: "quote",
+          entity_id: statusQuote.id,
+          remark: `Status changed to "${statusValue}" — ${remarkText}`,
+          user_id: user.id,
+          user_name: name,
+        });
+        if (remarkError) return toast.error(remarkError.message);
+      }
+    }
+
     toast.success("Status updated");
     setStatusQuote(null);
     load();
