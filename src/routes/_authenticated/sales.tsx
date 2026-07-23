@@ -1270,25 +1270,36 @@ function QuotesList() {
 
       {/* Change status */}
       <Dialog open={!!statusQuote} onOpenChange={(o) => !o && setStatusQuote(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Change status — {statusQuote?.quote_number}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-2">
-            <Label className="text-sm">Status</Label>
-            <Select value={statusValue} onValueChange={setStatusValue}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {["draft", "sent", "accepted", "invoiced", "rejected", "expired"].map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {QUOTE_STATUS_TO_STAGE[s] ?? s}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              Maps to funnel stage: <span className="font-medium">{QUOTE_STATUS_TO_STAGE[statusValue] ?? statusValue}</span>
-            </p>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm">Status</Label>
+              <Select value={statusValue} onValueChange={setStatusValue}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {["draft", "sent", "accepted", "invoiced", "rejected", "expired"].map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {QUOTE_STATUS_TO_STAGE[s] ?? s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Maps to funnel stage: <span className="font-medium">{QUOTE_STATUS_TO_STAGE[statusValue] ?? statusValue}</span>
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm">Notes</Label>
+              <Textarea
+                rows={5}
+                value={statusNotes}
+                onChange={(e) => setStatusNotes(e.target.value)}
+                placeholder="Add notes related to this status change..."
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setStatusQuote(null)}>Cancel</Button>
