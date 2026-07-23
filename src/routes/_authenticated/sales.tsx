@@ -1105,16 +1105,15 @@ function QuotesList() {
                     )}
                   </TableCell>
                   <TableCell>
-                    {q.status && (
-                      <span
-                        className={`inline-block px-2 py-0.5 rounded text-xs capitalize ${
-                          QUOTE_STATUS_COLORS[q.status] ??
-                          "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {q.status}
-                      </span>
-                    )}
+                    {q.status && (() => {
+                      const stage = QUOTE_STATUS_TO_STAGE[(q.status ?? "").toLowerCase()];
+                      const cls = stage ? STAGE_COLORS[stage] : "bg-muted text-muted-foreground border-transparent";
+                      return (
+                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium border ${cls}`}>
+                          {stage ?? q.status}
+                        </span>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell className="text-right font-medium">
                     {q.currency} {Number(q.total ?? 0).toLocaleString()}
