@@ -1251,6 +1251,20 @@ function QuotesList() {
                       );
                     })()}
                   </TableCell>
+                  <TableCell>
+                    {q.probability ? (
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded text-xs font-medium border ${
+                          PROBABILITY_COLORS[q.probability as Probability] ??
+                          "bg-muted text-muted-foreground border-transparent"
+                        }`}
+                      >
+                        {q.probability}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
                   <TableCell className="text-right font-medium">
                     {q.currency} {Number(q.total ?? 0).toLocaleString()}
                   </TableCell>
