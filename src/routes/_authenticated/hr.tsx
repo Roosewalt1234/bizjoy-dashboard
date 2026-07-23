@@ -24,6 +24,7 @@ function HRPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
+  const [page, setPage] = useState(1);
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["employees"],
