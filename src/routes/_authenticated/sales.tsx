@@ -956,6 +956,40 @@ function QuotesList() {
   const [prefill, setPrefill] = useState<Partial<Quote> | null>(null);
   const [prefillLeadId, setPrefillLeadId] = useState<string | null>(null);
   const [pickLeadOpen, setPickLeadOpen] = useState(false);
+  const [followupQuote, setFollowupQuote] = useState<Quote | null>(null);
+  const [followupText, setFollowupText] = useState("");
+  const [statusQuote, setStatusQuote] = useState<Quote | null>(null);
+  const [statusValue, setStatusValue] = useState<string>("draft");
+  const [analyseQuote, setAnalyseQuote] = useState<Quote | null>(null);
+
+  useEffect(() => {
+    if (followupQuote) setFollowupText(followupQuote.notes ?? "");
+  }, [followupQuote]);
+  useEffect(() => {
+    if (statusQuote) setStatusValue(statusQuote.status ?? "draft");
+  }, [statusQuote]);
+
+  async function saveFollowup() {
+    if (!followupQuote) return;
+    const { error } = await (supabase.from as any)("quotes")
+      .update({ notes: followupText })
+      .eq("id", followupQuote.id);
+    if (error) return toast.error(error.message);
+    toast.success("Followup saved");
+    setFollowupQuote(null);
+    load();
+  }
+
+  async function saveStatus() {
+    if (!statusQuote) return;
+    const { error } = await (supabase.from as any)("quotes")
+      .update({ status: statusValue })
+      .eq("id", statusQuote.id);
+    if (error) return toast.error(error.message);
+    toast.success("Status updated");
+    setStatusQuote(null);
+    load();
+  }
 
 
   async function load() {
