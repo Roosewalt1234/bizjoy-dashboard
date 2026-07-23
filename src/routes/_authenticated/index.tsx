@@ -78,14 +78,14 @@ function StatCard({ title, count, icon: Icon, to, color }: { title: string; coun
   return (
     <Link to={to}>
       <Card className="hover:shadow-md transition-shadow cursor-pointer">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-          <div className={`h-9 w-9 rounded-md flex items-center justify-center ${color}`}>
-            <Icon className="h-5 w-5 text-white" />
+          <div className={`h-8 w-8 rounded-md flex items-center justify-center ${color}`}>
+            <Icon className="h-4 w-4 text-white" />
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold">{count ?? "—"}</div>
+        <CardContent className="p-3 pt-0">
+          <div className="text-2xl font-bold">{count ?? "—"}</div>
         </CardContent>
       </Card>
     </Link>
