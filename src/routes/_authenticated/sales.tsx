@@ -29,7 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Pencil, Trash2, Eye, MoreHorizontal, MessageSquare, ArrowRightCircle, BarChart3 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye, MoreHorizontal, MessageSquare, ArrowRightCircle, BarChart3, Percent } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -168,7 +168,19 @@ interface Quote {
   terms: string | null;
   purchase_order: string | null;
   quote_type: string | null;
+  probability: string | null;
 }
+
+const PROBABILITY_LEVELS = ["Low", "Medium", "High", "Very High", "Assured"] as const;
+type Probability = (typeof PROBABILITY_LEVELS)[number];
+
+const PROBABILITY_COLORS: Record<Probability, string> = {
+  Low: "bg-slate-100 text-slate-700 border-slate-300",
+  Medium: "bg-blue-100 text-blue-700 border-blue-300",
+  High: "bg-amber-100 text-amber-700 border-amber-300",
+  "Very High": "bg-orange-100 text-orange-700 border-orange-300",
+  Assured: "bg-emerald-100 text-emerald-700 border-emerald-300",
+};
 
 interface QuoteItem {
   id?: string;
@@ -967,6 +979,25 @@ function QuotesList() {
   const [statusValue, setStatusValue] = useState<string>("Pending Quotation");
   const [statusRemarks, setStatusRemarks] = useState<string>("");
   const [analyseQuote, setAnalyseQuote] = useState<Quote | null>(null);
+  const [probabilityQuote, setProbabilityQuote] = useState<Quote | null>(null);
+  const [probabilityValue, setProbabilityValue] = useState<string>("Medium");
+
+  useEffect(() => {
+    if (probabilityQuote) {
+      setProbabilityValue((probabilityQuote.probability as string) ?? "Medium");
+    }
+  }, [probabilityQuote]);
+
+  async function saveProbability() {
+    if (!probabilityQuote) return;
+    const { error } = await (supabase.from as any)("quotes")
+      .update({ probability: probabilityValue })
+      .eq("id", probabilityQuote.id);
+    if (error) return toast.error(error.message);
+    toast.success("Probability updated");
+    setProbabilityQuote(null);
+    load();
+  }
 
   useEffect(() => {
     if (followupQuote) {
@@ -1064,7 +1095,7 @@ function QuotesList() {
     setLoading(true);
     const { data, error } = await (supabase.from as any)("quotes")
       .select(
-        "id, quote_number, quote_date, expiry_date, customer_name, status, currency, total, subject, salesperson, project_name, subtotal, vat_amount, notes, terms, purchase_order, quote_type",
+        "id, quote_number, quote_date, expiry_date, customer_name, status, currency, total, subject, salesperson, project_name, subtotal, vat_amount, notes, terms, purchase_order, quote_type, probability",
       )
       .order("quote_date", { ascending: false })
       .limit(1000);
@@ -1165,6 +1196,7 @@ function QuotesList() {
               <TableHead>Subject</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Probability</TableHead>
               <TableHead className="text-right">Total</TableHead>
               <TableHead className="w-28 text-right">Actions</TableHead>
             </TableRow>
@@ -1172,14 +1204,14 @@ function QuotesList() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
+                <TableCell colSpan={9} className="text-center py-8">
                   Loading…
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={9}
                   className="text-center py-8 text-muted-foreground"
                 >
                   No quotes found.
@@ -1218,6 +1250,20 @@ function QuotesList() {
                         </span>
                       );
                     })()}
+                  </TableCell>
+                  <TableCell>
+                    {q.probability ? (
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded text-xs font-medium border ${
+                          PROBABILITY_COLORS[q.probability as Probability] ??
+                          "bg-muted text-muted-foreground border-transparent"
+                        }`}
+                      >
+                        {q.probability}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-right font-medium">
                     {q.currency} {Number(q.total ?? 0).toLocaleString()}
@@ -1267,6 +1313,12 @@ function QuotesList() {
                           onClick={() => setAnalyseQuote(q)}
                         >
                           <BarChart3 className="h-4 w-4 mr-2" /> Analyse
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
+                          onClick={() => setProbabilityQuote(q)}
+                        >
+                          <Percent className="h-4 w-4 mr-2" /> Edit Probability
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -1416,6 +1468,30 @@ function QuotesList() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setStatusQuote(null)}>Cancel</Button>
             <Button onClick={saveStatus}>Update</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Probability */}
+      <Dialog open={!!probabilityQuote} onOpenChange={(o) => !o && setProbabilityQuote(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Probability — {probabilityQuote?.quote_number}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label className="text-sm">Probability</Label>
+            <Select value={probabilityValue} onValueChange={setProbabilityValue}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {PROBABILITY_LEVELS.map((p) => (
+                  <SelectItem key={p} value={p}>{p}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setProbabilityQuote(null)}>Cancel</Button>
+            <Button onClick={saveProbability}>Update</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
