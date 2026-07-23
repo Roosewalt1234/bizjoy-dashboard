@@ -1284,24 +1284,61 @@ function QuotesList() {
         }}
       />
 
-      {/* Followup notes */}
+      {/* Followup remarks */}
       <Dialog open={!!followupQuote} onOpenChange={(o) => !o && setFollowupQuote(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Followup notes — {followupQuote?.quote_number}</DialogTitle>
+            <DialogTitle>Followup remarks — {followupQuote?.quote_number}</DialogTitle>
           </DialogHeader>
-          <Textarea
-            rows={8}
-            value={followupText}
-            onChange={(e) => setFollowupText(e.target.value)}
-            placeholder="Add followup notes, next steps, call outcomes…"
-          />
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label className="text-sm">Add new remark</Label>
+              <Textarea
+                rows={3}
+                value={followupText}
+                onChange={(e) => setFollowupText(e.target.value)}
+                placeholder="Enter remark, next steps, call outcomes…"
+              />
+              <div className="flex justify-end">
+                <Button size="sm" onClick={saveFollowup}>Add remark</Button>
+              </div>
+            </div>
+            <div className="border-t pt-3">
+              <Label className="text-sm mb-2 block">History</Label>
+              <div className="max-h-80 overflow-y-auto border rounded-md">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-40">Date & Time</TableHead>
+                      <TableHead className="w-40">User</TableHead>
+                      <TableHead>Remark</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {followupLoading ? (
+                      <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground">Loading…</TableCell></TableRow>
+                    ) : followupList.length === 0 ? (
+                      <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground">No remarks yet</TableCell></TableRow>
+                    ) : (
+                      followupList.map((r) => (
+                        <TableRow key={r.id}>
+                          <TableCell className="text-xs whitespace-nowrap">{new Date(r.created_at).toLocaleString()}</TableCell>
+                          <TableCell className="text-xs whitespace-nowrap">{r.user_name ?? "—"}</TableCell>
+                          <TableCell className="text-sm whitespace-pre-wrap">{r.remark}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setFollowupQuote(null)}>Cancel</Button>
-            <Button onClick={saveFollowup}>Save</Button>
+            <Button variant="outline" onClick={() => setFollowupQuote(null)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
 
       {/* Change status */}
       <Dialog open={!!statusQuote} onOpenChange={(o) => !o && setStatusQuote(null)}>
