@@ -962,7 +962,7 @@ function QuotesList() {
   const [followupLoading, setFollowupLoading] = useState(false);
   const [statusQuote, setStatusQuote] = useState<Quote | null>(null);
   const [statusValue, setStatusValue] = useState<string>("draft");
-  const [statusNotes, setStatusNotes] = useState<string>("");
+  const [statusRemarks, setStatusRemarks] = useState<string>("");
   const [analyseQuote, setAnalyseQuote] = useState<Quote | null>(null);
 
   useEffect(() => {
@@ -977,7 +977,7 @@ function QuotesList() {
   useEffect(() => {
     if (statusQuote) {
       setStatusValue(statusQuote.status ?? "draft");
-      setStatusNotes(statusQuote.notes ?? "");
+      setStatusRemarks("");
     }
   }, [statusQuote]);
 
@@ -1021,10 +1021,34 @@ function QuotesList() {
 
   async function saveStatus() {
     if (!statusQuote) return;
-    const { error } = await (supabase.from as any)("quotes")
-      .update({ status: statusValue, notes: statusNotes })
+    const { error: statusError } = await (supabase.from as any)("quotes")
+      .update({ status: statusValue })
       .eq("id", statusQuote.id);
-    if (error) return toast.error(error.message);
+    if (statusError) return toast.error(statusError.message);
+
+    const remarkText = statusRemarks.trim();
+    if (remarkText) {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData.user;
+      if (!user) {
+        toast.error("Status updated, but remark was not saved (not signed in)");
+      } else {
+        const name =
+          (user.user_metadata as any)?.full_name ||
+          (user.user_metadata as any)?.name ||
+          user.email ||
+          "Unknown";
+        const { error: remarkError } = await (supabase.from as any)("followup_remarks").insert({
+          entity_type: "quote",
+          entity_id: statusQuote.id,
+          remark: `Status changed to "${statusValue}" — ${remarkText}`,
+          user_id: user.id,
+          user_name: name,
+        });
+        if (remarkError) return toast.error(remarkError.message);
+      }
+    }
+
     toast.success("Status updated");
     setStatusQuote(null);
     load();
@@ -1200,6 +1224,7 @@ function QuotesList() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-44">
                         <DropdownMenuItem
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
                           onClick={() => {
                             setViewQuote(null);
                             setEditingQuote(q);
@@ -1209,6 +1234,7 @@ function QuotesList() {
                           <Pencil className="h-4 w-4 mr-2" /> Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
                           onClick={() => {
                             setEditingQuote(null);
                             setViewQuote(q);
@@ -1217,18 +1243,27 @@ function QuotesList() {
                         >
                           <Eye className="h-4 w-4 mr-2" /> View
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setFollowupQuote(q)}>
+                        <DropdownMenuItem
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
+                          onClick={() => setFollowupQuote(q)}
+                        >
                           <MessageSquare className="h-4 w-4 mr-2" /> Followup remarks
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setStatusQuote(q)}>
+                        <DropdownMenuItem
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
+                          onClick={() => setStatusQuote(q)}
+                        >
                           <ArrowRightCircle className="h-4 w-4 mr-2" /> Change Status
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setAnalyseQuote(q)}>
+                        <DropdownMenuItem
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
+                          onClick={() => setAnalyseQuote(q)}
+                        >
                           <BarChart3 className="h-4 w-4 mr-2" /> Analyse
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          className="text-destructive focus:text-destructive"
+                          className="text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
                           onClick={() => removeQuote(q.id)}
                         >
                           <Trash2 className="h-4 w-4 mr-2" /> Delete
@@ -1364,12 +1399,12 @@ function QuotesList() {
               </p>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">Notes</Label>
+              <Label className="text-sm">Remarks</Label>
               <Textarea
                 rows={5}
-                value={statusNotes}
-                onChange={(e) => setStatusNotes(e.target.value)}
-                placeholder="Add notes related to this status change..."
+                value={statusRemarks}
+                onChange={(e) => setStatusRemarks(e.target.value)}
+                placeholder="Enter remarks for this status change. This will be logged in the followup remarks with date, time and user."
               />
             </div>
           </div>
