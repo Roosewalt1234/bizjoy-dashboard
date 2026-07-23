@@ -1085,7 +1085,9 @@ function QuotesList() {
   }
 
   const filtered = quotes.filter((q) => {
-    if (status !== "all" && q.status !== status) return false;
+    const qStage = QUOTE_STATUS_TO_STAGE[(q.status ?? "").toLowerCase()] ?? q.status;
+    if (status !== "all" && qStage !== status) return false;
+
     if (!search) return true;
     const s = search.toLowerCase();
     return (
