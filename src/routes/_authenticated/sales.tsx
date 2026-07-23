@@ -1314,6 +1314,12 @@ function QuotesList() {
                         >
                           <BarChart3 className="h-4 w-4 mr-2" /> Analyse
                         </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
+                          onClick={() => setProbabilityQuote(q)}
+                        >
+                          <Percent className="h-4 w-4 mr-2" /> Edit Probability
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
