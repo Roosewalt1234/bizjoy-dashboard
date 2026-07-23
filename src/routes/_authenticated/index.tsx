@@ -181,10 +181,10 @@ function SalesFunnelChart() {
     queryKey: ["sales-funnel-summary", period, customMonth, customYear],
     queryFn: async () => {
       let leadsQ = (supabase.from as any)("sales_leads").select("stage, estimated_value, created_at");
-      let quotesQ = (supabase.from as any)("quotes").select("status, total, created_at");
+      let quotesQ = (supabase.from as any)("quotes").select("status, total, quote_date");
       if (bounds) {
         leadsQ = leadsQ.gte("created_at", bounds.start).lt("created_at", bounds.end);
-        quotesQ = quotesQ.gte("created_at", bounds.start).lt("created_at", bounds.end);
+        quotesQ = quotesQ.gte("quote_date", bounds.start).lt("quote_date", bounds.end);
       }
       const [leadsRes, quotesRes] = await Promise.all([leadsQ, quotesQ]);
       const leadRows = (leadsRes.data ?? []) as { stage: string; estimated_value: number | null }[];
