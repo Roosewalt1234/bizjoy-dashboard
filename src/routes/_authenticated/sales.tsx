@@ -962,7 +962,7 @@ function QuotesList() {
   const [followupLoading, setFollowupLoading] = useState(false);
   const [statusQuote, setStatusQuote] = useState<Quote | null>(null);
   const [statusValue, setStatusValue] = useState<string>("draft");
-  const [statusNotes, setStatusNotes] = useState<string>("");
+  const [statusRemarks, setStatusRemarks] = useState<string>("");
   const [analyseQuote, setAnalyseQuote] = useState<Quote | null>(null);
 
   useEffect(() => {
@@ -977,7 +977,7 @@ function QuotesList() {
   useEffect(() => {
     if (statusQuote) {
       setStatusValue(statusQuote.status ?? "draft");
-      setStatusNotes(statusQuote.notes ?? "");
+      setStatusRemarks("");
     }
   }, [statusQuote]);
 
