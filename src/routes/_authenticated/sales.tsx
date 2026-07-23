@@ -979,6 +979,25 @@ function QuotesList() {
   const [statusValue, setStatusValue] = useState<string>("Pending Quotation");
   const [statusRemarks, setStatusRemarks] = useState<string>("");
   const [analyseQuote, setAnalyseQuote] = useState<Quote | null>(null);
+  const [probabilityQuote, setProbabilityQuote] = useState<Quote | null>(null);
+  const [probabilityValue, setProbabilityValue] = useState<string>("Medium");
+
+  useEffect(() => {
+    if (probabilityQuote) {
+      setProbabilityValue((probabilityQuote.probability as string) ?? "Medium");
+    }
+  }, [probabilityQuote]);
+
+  async function saveProbability() {
+    if (!probabilityQuote) return;
+    const { error } = await (supabase.from as any)("quotes")
+      .update({ probability: probabilityValue })
+      .eq("id", probabilityQuote.id);
+    if (error) return toast.error(error.message);
+    toast.success("Probability updated");
+    setProbabilityQuote(null);
+    load();
+  }
 
   useEffect(() => {
     if (followupQuote) {
