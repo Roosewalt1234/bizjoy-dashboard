@@ -53,6 +53,13 @@ function CustomersList() {
     return matchesSearch && matchesStatus && matchesType;
   });
 
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  useEffect(() => { setPage(1); }, [search, statusFilter, typeFilter]);
+  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
+  const pageRows = paginate(filtered, page);
+
+
   async function handleDelete(id: string) {
     const { error } = await supabase.from("customers").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
