@@ -1218,7 +1218,7 @@ function QuotesList() {
                           <Eye className="h-4 w-4 mr-2" /> View
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setFollowupQuote(q)}>
-                          <MessageSquare className="h-4 w-4 mr-2" /> Followup notes
+                          <MessageSquare className="h-4 w-4 mr-2" /> Followup remarks
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setStatusQuote(q)}>
                           <ArrowRightCircle className="h-4 w-4 mr-2" /> Change Status
