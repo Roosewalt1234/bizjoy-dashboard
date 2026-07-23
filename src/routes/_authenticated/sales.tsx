@@ -1399,12 +1399,12 @@ function QuotesList() {
               </p>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">Notes</Label>
+              <Label className="text-sm">Remarks</Label>
               <Textarea
                 rows={5}
-                value={statusNotes}
-                onChange={(e) => setStatusNotes(e.target.value)}
-                placeholder="Add notes related to this status change..."
+                value={statusRemarks}
+                onChange={(e) => setStatusRemarks(e.target.value)}
+                placeholder="Enter remarks for this status change. This will be logged in the followup remarks with date, time and user."
               />
             </div>
           </div>
