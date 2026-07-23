@@ -41,13 +41,17 @@ const STAGES = [
   "Contacted / Pitching",
   "Site Survey Scheduled",
   "Survey Report Ready",
+  "Pending Quotation",
   "Proposal / Quote Sent",
   "Negotiation",
   "Pending Decision",
+  "Validity Expired",
+  "Invoiced",
   "Won & Activated",
   "Closed Lost",
   "Cancelled",
 ] as const;
+
 
 type Stage = (typeof STAGES)[number];
 
@@ -96,13 +100,17 @@ const STAGE_COLORS: Record<Stage, string> = {
   "Contacted / Pitching": "bg-blue-100 text-blue-700 border-blue-300",
   "Site Survey Scheduled": "bg-cyan-100 text-cyan-700 border-cyan-300",
   "Survey Report Ready": "bg-teal-100 text-teal-700 border-teal-300",
+  "Pending Quotation": "bg-yellow-100 text-yellow-700 border-yellow-300",
   "Proposal / Quote Sent": "bg-indigo-100 text-indigo-700 border-indigo-300",
   Negotiation: "bg-amber-100 text-amber-700 border-amber-300",
   "Pending Decision": "bg-orange-100 text-orange-700 border-orange-300",
+  "Validity Expired": "bg-red-100 text-red-700 border-red-300",
+  Invoiced: "bg-green-100 text-green-700 border-green-300",
   "Won & Activated": "bg-emerald-100 text-emerald-700 border-emerald-300",
   "Closed Lost": "bg-rose-100 text-rose-700 border-rose-300",
   Cancelled: "bg-gray-100 text-gray-600 border-gray-300",
 };
+
 
 const LEAD_TYPE_COLORS: Record<LeadType, string> = {
   "Villa AMC": "bg-violet-100 text-violet-700",
@@ -193,8 +201,18 @@ function SalesPage() {
 
 /* ---------------- Funnel ---------------- */
 
+const QUOTE_STATUS_TO_STAGE: Record<string, Stage> = {
+  draft: "Pending Quotation",
+  sent: "Proposal / Quote Sent",
+  expired: "Validity Expired",
+  invoiced: "Invoiced",
+  rejected: "Closed Lost",
+  accepted: "Won & Activated",
+};
+
 function FunnelBoard() {
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Lead | null>(null);
@@ -205,11 +223,14 @@ function FunnelBoard() {
 
   async function load() {
     setLoading(true);
-    const { data, error } = await (supabase.from as any)("sales_leads")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) toast.error(error.message);
-    else setLeads((data as Lead[]) ?? []);
+    const [leadsRes, quotesRes] = await Promise.all([
+      (supabase.from as any)("sales_leads").select("*").order("created_at", { ascending: false }),
+      (supabase.from as any)("quotes").select("*").order("quote_date", { ascending: false }),
+    ]);
+    if (leadsRes.error) toast.error(leadsRes.error.message);
+    else setLeads((leadsRes.data as Lead[]) ?? []);
+    if (quotesRes.error) toast.error(quotesRes.error.message);
+    else setQuotes((quotesRes.data as Quote[]) ?? []);
     setLoading(false);
   }
 
@@ -257,10 +278,17 @@ function FunnelBoard() {
     setDialogOpen(true);
   }
 
+  const quotesByStage = STAGES.reduce<Record<string, Quote[]>>((acc, s) => {
+    acc[s] = quotes.filter((q) => QUOTE_STATUS_TO_STAGE[(q.status ?? "").toLowerCase()] === s);
+    return acc;
+  }, {});
+
   const totalsByStage = STAGES.reduce<Record<string, number>>((acc, s) => {
-    acc[s] = leads
+    const leadTotal = leads
       .filter((l) => l.stage === s)
       .reduce((sum, l) => sum + (l.estimated_value ?? 0), 0);
+    const quoteTotal = quotesByStage[s].reduce((sum, q) => sum + (Number(q.total) || 0), 0);
+    acc[s] = leadTotal + quoteTotal;
     return acc;
   }, {});
 
@@ -268,7 +296,7 @@ function FunnelBoard() {
     <>
       <div className="flex items-center justify-between mb-4">
         <div className="text-sm text-muted-foreground">
-          {leads.length} lead{leads.length === 1 ? "" : "s"} in pipeline
+          {leads.length} lead{leads.length === 1 ? "" : "s"} · {quotes.length} quote{quotes.length === 1 ? "" : "s"} in pipeline
         </div>
         <Button onClick={() => openNew("New Lead / Inquiry")} size="sm">
           <Plus className="h-4 w-4 mr-1" /> New Lead
@@ -281,6 +309,8 @@ function FunnelBoard() {
         <div className="flex gap-3 overflow-x-auto pb-4">
           {STAGES.map((stage) => {
             const stageLeads = leads.filter((l) => l.stage === stage);
+            const stageQuotes = quotesByStage[stage];
+            const totalCount = stageLeads.length + stageQuotes.length;
             return (
               <div
                 key={stage}
@@ -303,7 +333,7 @@ function FunnelBoard() {
                       />
                       <div className="font-medium text-sm">{stage}</div>
                     </div>
-                    <Badge variant="secondary">{stageLeads.length}</Badge>
+                    <Badge variant="secondary">{totalCount}</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">
                     {totalsByStage[stage].toLocaleString(undefined, {
@@ -375,6 +405,50 @@ function FunnelBoard() {
                       </div>
                     </div>
                   ))}
+                  {stageQuotes.map((q) => (
+                    <div
+                      key={`q-${q.id}`}
+                      className="bg-background border rounded-md p-3 shadow-sm hover:shadow border-l-4 border-l-indigo-400"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-100 text-indigo-700">
+                              QUOTE
+                            </span>
+                            <div className="font-medium text-sm truncate">
+                              {q.quote_number ?? "—"}
+                            </div>
+                          </div>
+                          {q.customer_name && (
+                            <div className="text-xs text-muted-foreground truncate mt-1">
+                              {q.customer_name}
+                            </div>
+                          )}
+                          {q.quote_type && (
+                            <span
+                              className={`inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                                LEAD_TYPE_COLORS[q.quote_type as LeadType] ??
+                                "bg-muted text-muted-foreground"
+                              }`}
+                            >
+                              {q.quote_type}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {q.total != null && (
+                        <div className="mt-2 text-sm font-semibold text-primary">
+                          {(q.currency ?? "AED")} {Number(q.total).toLocaleString()}
+                        </div>
+                      )}
+                      {q.expiry_date && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          Expires: {q.expiry_date}
+                        </div>
+                      )}
+                    </div>
+                  ))}
                   <button
                     onClick={() => openNew(stage)}
                     className="w-full text-xs text-muted-foreground hover:text-foreground hover:bg-background/60 rounded-md py-2 border border-dashed"
@@ -387,6 +461,8 @@ function FunnelBoard() {
           })}
         </div>
       )}
+
+
 
       <LeadDialog
         open={dialogOpen}
