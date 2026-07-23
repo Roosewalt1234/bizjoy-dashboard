@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Pencil } from "lucide-react";
 
-export const Route = createFileRoute("/customers/$id/view")({
+export const Route = createFileRoute("/_authenticated/customers/$id/view")({
   component: CustomerView,
 });
 
