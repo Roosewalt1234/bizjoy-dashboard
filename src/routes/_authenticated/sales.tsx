@@ -29,7 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Pencil, Trash2, GripVertical, Eye } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/sales")({
@@ -210,16 +210,41 @@ const QUOTE_STATUS_TO_STAGE: Record<string, Stage> = {
   accepted: "Won & Activated",
 };
 
+const PERIOD_OPTIONS = [
+  { value: "all", label: "All Time" },
+  { value: "this-month", label: "This Month" },
+  { value: "last-month", label: "Last Month" },
+  { value: "last-3-months", label: "Last 3 Months" },
+  { value: "last-6-months", label: "Last 6 Months" },
+  { value: "this-year", label: "This Year" },
+  { value: "last-year", label: "Last Year" },
+] as const;
+
+function getPeriodBounds(period: string): { start: Date; end: Date } | null {
+  if (period === "all") return null;
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  if (period === "this-month") return { start: new Date(y, m, 1), end: new Date(y, m + 1, 1) };
+  if (period === "last-month") return { start: new Date(y, m - 1, 1), end: new Date(y, m, 1) };
+  if (period === "last-3-months") return { start: new Date(y, m - 2, 1), end: new Date(y, m + 1, 1) };
+  if (period === "last-6-months") return { start: new Date(y, m - 5, 1), end: new Date(y, m + 1, 1) };
+  if (period === "this-year") return { start: new Date(y, 0, 1), end: new Date(y + 1, 0, 1) };
+  if (period === "last-year") return { start: new Date(y - 1, 0, 1), end: new Date(y, 0, 1) };
+  return null;
+}
+
 function FunnelBoard() {
-  const [leads, setLeads] = useState<Lead[]>([]);
+  const [leads, setLeads] = useState<(Lead & { created_at?: string })[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Lead | null>(null);
   const [defaultStage, setDefaultStage] = useState<Stage>("New Lead / Inquiry");
-  const [dragId, setDragId] = useState<string | null>(null);
   const [advanceOpen, setAdvanceOpen] = useState(false);
   const [advanceTarget, setAdvanceTarget] = useState<Stage>("Contacted / Pitching");
+  const [selectedStage, setSelectedStage] = useState<Stage>("New Lead / Inquiry");
+  const [period, setPeriod] = useState<string>("this-month");
 
   async function load() {
     setLoading(true);
@@ -228,7 +253,7 @@ function FunnelBoard() {
       (supabase.from as any)("quotes").select("*").order("quote_date", { ascending: false }),
     ]);
     if (leadsRes.error) toast.error(leadsRes.error.message);
-    else setLeads((leadsRes.data as Lead[]) ?? []);
+    else setLeads((leadsRes.data as any[]) ?? []);
     if (quotesRes.error) toast.error(quotesRes.error.message);
     else setQuotes((quotesRes.data as Quote[]) ?? []);
     setLoading(false);
@@ -240,9 +265,7 @@ function FunnelBoard() {
 
   async function moveLead(id: string, stage: Stage) {
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, stage } : l)));
-    const { error } = await (supabase.from as any)("sales_leads")
-      .update({ stage })
-      .eq("id", id);
+    const { error } = await (supabase.from as any)("sales_leads").update({ stage }).eq("id", id);
     if (error) {
       toast.error(error.message);
       load();
@@ -251,9 +274,7 @@ function FunnelBoard() {
 
   async function remove(id: string) {
     if (!confirm("Delete this lead?")) return;
-    const { error } = await (supabase.from as any)("sales_leads")
-      .delete()
-      .eq("id", id);
+    const { error } = await (supabase.from as any)("sales_leads").delete().eq("id", id);
     if (error) toast.error(error.message);
     else {
       toast.success("Deleted");
@@ -278,25 +299,62 @@ function FunnelBoard() {
     setDialogOpen(true);
   }
 
-  const quotesByStage = STAGES.reduce<Record<string, Quote[]>>((acc, s) => {
-    acc[s] = quotes.filter((q) => QUOTE_STATUS_TO_STAGE[(q.status ?? "").toLowerCase()] === s);
+  const bounds = getPeriodBounds(period);
+  const inRange = (dateStr: string | null | undefined) => {
+    if (!bounds) return true;
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    return d >= bounds.start && d < bounds.end;
+  };
+
+  const filteredLeads = leads.filter((l) => inRange((l as any).created_at));
+  const filteredQuotes = quotes.filter((q) => inRange(q.quote_date));
+
+  const leadsByStage = STAGES.reduce<Record<string, Lead[]>>((acc, s) => {
+    acc[s] = filteredLeads.filter((l) => l.stage === s);
     return acc;
   }, {});
-
+  const quotesByStage = STAGES.reduce<Record<string, Quote[]>>((acc, s) => {
+    acc[s] = filteredQuotes.filter(
+      (q) => QUOTE_STATUS_TO_STAGE[(q.status ?? "").toLowerCase()] === s,
+    );
+    return acc;
+  }, {});
   const totalsByStage = STAGES.reduce<Record<string, number>>((acc, s) => {
-    const leadTotal = leads
-      .filter((l) => l.stage === s)
-      .reduce((sum, l) => sum + (l.estimated_value ?? 0), 0);
+    const leadTotal = leadsByStage[s].reduce((sum, l) => sum + (l.estimated_value ?? 0), 0);
     const quoteTotal = quotesByStage[s].reduce((sum, q) => sum + (Number(q.total) || 0), 0);
     acc[s] = leadTotal + quoteTotal;
     return acc;
   }, {});
+  const countsByStage = STAGES.reduce<Record<string, number>>((acc, s) => {
+    acc[s] = leadsByStage[s].length + quotesByStage[s].length;
+    return acc;
+  }, {});
+
+  const selectedLeads = leadsByStage[selectedStage] ?? [];
+  const selectedQuotes = quotesByStage[selectedStage] ?? [];
 
   return (
     <>
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-sm text-muted-foreground">
-          {leads.length} lead{leads.length === 1 ? "" : "s"} · {quotes.length} quote{quotes.length === 1 ? "" : "s"} in pipeline
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div className="flex items-center gap-3">
+          <Label className="text-sm">Period</Label>
+          <Select value={period} onValueChange={setPeriod}>
+            <SelectTrigger className="w-[180px] h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PERIOD_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div className="text-sm text-muted-foreground">
+            {filteredLeads.length} lead{filteredLeads.length === 1 ? "" : "s"} ·{" "}
+            {filteredQuotes.length} quote{filteredQuotes.length === 1 ? "" : "s"}
+          </div>
         </div>
         <Button onClick={() => openNew("New Lead / Inquiry")} size="sm">
           <Plus className="h-4 w-4 mr-1" /> New Lead
@@ -306,93 +364,102 @@ function FunnelBoard() {
       {loading ? (
         <div className="text-muted-foreground">Loading…</div>
       ) : (
-        <div className="flex gap-3 overflow-x-auto pb-4">
-          {STAGES.map((stage) => {
-            const stageLeads = leads.filter((l) => l.stage === stage);
-            const stageQuotes = quotesByStage[stage];
-            const totalCount = stageLeads.length + stageQuotes.length;
-            return (
-              <div
-                key={stage}
-                className="min-w-[280px] w-[280px] flex-shrink-0 bg-muted/40 rounded-lg border"
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => {
-                  if (dragId) {
-                    moveLead(dragId, stage);
-                    setDragId(null);
-                  }
-                }}
-              >
-                <div className="p-3 border-b bg-background rounded-t-lg">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`inline-block w-2 h-2 rounded-full ${
-                          STAGE_COLORS[stage].split(" ")[0]
-                        }`}
-                      />
-                      <div className="font-medium text-sm">{stage}</div>
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-2 mb-6">
+            {STAGES.map((stage) => {
+              const active = selectedStage === stage;
+              const dotColor = STAGE_COLORS[stage].split(" ")[0];
+              return (
+                <button
+                  key={stage}
+                  type="button"
+                  onClick={() => setSelectedStage(stage)}
+                  className={`text-left rounded-lg border p-3 transition hover:shadow-sm ${
+                    active
+                      ? "border-primary ring-2 ring-primary/30 bg-background"
+                      : "bg-background hover:border-primary/50"
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${dotColor}`} />
+                    <div className="text-[11px] font-medium text-muted-foreground truncate">
+                      {stage}
                     </div>
-                    <Badge variant="secondary">{totalCount}</Badge>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {totalsByStage[stage].toLocaleString(undefined, {
-                      maximumFractionDigits: 0,
-                    })}{" "}
-                    AED
+                  <div className="mt-1.5 text-2xl font-bold leading-none">
+                    {countsByStage[stage]}
                   </div>
-                </div>
-                <div className="p-2 space-y-2 min-h-[100px]">
-                  {stageLeads.map((lead) => (
-                    <div
-                      key={lead.id}
-                      draggable
-                      onDragStart={() => setDragId(lead.id)}
-                      onDragEnd={() => setDragId(null)}
-                      className="bg-background border rounded-md p-3 shadow-sm hover:shadow cursor-grab active:cursor-grabbing group"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <div className="font-medium text-sm truncate">
-                            {lead.lead_name}
-                          </div>
-                          {lead.company && (
-                            <div className="text-xs text-muted-foreground truncate">
-                              {lead.company}
-                            </div>
-                          )}
-                          {lead.lead_type && (
-                            <span
-                              className={`inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${
-                                LEAD_TYPE_COLORS[lead.lead_type as LeadType] ??
-                                "bg-muted text-muted-foreground"
-                              }`}
-                            >
-                              {lead.lead_type}
-                            </span>
-                          )}
-                        </div>
-                        <GripVertical className="h-4 w-4 text-muted-foreground/50 opacity-0 group-hover:opacity-100 flex-shrink-0" />
-                      </div>
-                      {lead.estimated_value != null && (
-                        <div className="mt-2 text-sm font-semibold text-primary">
-                          {(lead.currency ?? "AED")}{" "}
-                          {Number(lead.estimated_value).toLocaleString()}
-                        </div>
-                      )}
-                      {lead.expected_close_date && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                          Close: {lead.expected_close_date}
-                        </div>
-                      )}
-                      <div className="flex items-center gap-1 mt-2 pt-2 border-t opacity-0 group-hover:opacity-100 transition">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 px-2"
-                          onClick={() => openEdit(lead)}
-                        >
-                          <Pencil className="h-3 w-3" />
+                  <div className="mt-1 text-[11px] text-muted-foreground">
+                    AED {totalsByStage[stage].toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="rounded-lg border bg-background">
+            <div className="flex items-center justify-between px-4 py-3 border-b">
+              <div className="flex items-center gap-2">
+                <span className={`inline-block w-2.5 h-2.5 rounded-full ${STAGE_COLORS[selectedStage].split(" ")[0]}`} />
+                <h3 className="font-semibold text-sm">{selectedStage}</h3>
+                <Badge variant="secondary">{countsByStage[selectedStage]}</Badge>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Total: AED {totalsByStage[selectedStage].toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              </div>
+            </div>
+            {selectedLeads.length === 0 && selectedQuotes.length === 0 ? (
+              <div className="p-8 text-center text-sm text-muted-foreground">
+                No records in this stage for the selected period.
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[90px]">Type</TableHead>
+                    <TableHead>Name / Quote #</TableHead>
+                    <TableHead>Company / Customer</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead className="text-right">Value</TableHead>
+                    <TableHead className="w-[110px] text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {selectedLeads.map((lead) => (
+                    <TableRow key={`l-${lead.id}`}>
+                      <TableCell>
+                        <Badge variant="outline" className="text-[10px]">LEAD</Badge>
+                      </TableCell>
+                      <TableCell className="font-medium">{lead.lead_name}</TableCell>
+                      <TableCell className="text-muted-foreground">{lead.company ?? "—"}</TableCell>
+                      <TableCell>
+                        {lead.lead_type ? (
+                          <span
+                            className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                              LEAD_TYPE_COLORS[lead.lead_type as LeadType] ??
+                              "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {lead.lead_type}
+                          </span>
+                        ) : (
+                          "—"
+                        )}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-xs">
+                        {(lead as any).created_at
+                          ? new Date((lead as any).created_at).toLocaleDateString()
+                          : "—"}
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        {lead.estimated_value != null
+                          ? `${lead.currency ?? "AED"} ${Number(lead.estimated_value).toLocaleString()}`
+                          : "—"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => openEdit(lead)}>
+                          <Pencil className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                           size="sm"
@@ -400,69 +467,53 @@ function FunnelBoard() {
                           className="h-7 px-2 text-destructive"
                           onClick={() => remove(lead.id)}
                         >
-                          <Trash2 className="h-3 w-3" />
+                          <Trash2 className="h-3.5 w-3.5" />
                         </Button>
-                      </div>
-                    </div>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                  {stageQuotes.map((q) => (
-                    <div
-                      key={`q-${q.id}`}
-                      className="bg-background border rounded-md p-3 shadow-sm hover:shadow border-l-4 border-l-indigo-400"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1.5">
-                            <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-100 text-indigo-700">
-                              QUOTE
-                            </span>
-                            <div className="font-medium text-sm truncate">
-                              {q.quote_number ?? "—"}
-                            </div>
-                          </div>
-                          {q.customer_name && (
-                            <div className="text-xs text-muted-foreground truncate mt-1">
-                              {q.customer_name}
-                            </div>
-                          )}
-                          {q.quote_type && (
-                            <span
-                              className={`inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${
-                                LEAD_TYPE_COLORS[q.quote_type as LeadType] ??
-                                "bg-muted text-muted-foreground"
-                              }`}
-                            >
-                              {q.quote_type}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      {q.total != null && (
-                        <div className="mt-2 text-sm font-semibold text-primary">
-                          {(q.currency ?? "AED")} {Number(q.total).toLocaleString()}
-                        </div>
-                      )}
-                      {q.expiry_date && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                          Expires: {q.expiry_date}
-                        </div>
-                      )}
-                    </div>
+                  {selectedQuotes.map((q) => (
+                    <TableRow key={`q-${q.id}`}>
+                      <TableCell>
+                        <Badge className="text-[10px] bg-indigo-100 text-indigo-700 hover:bg-indigo-100">
+                          QUOTE
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-medium">{q.quote_number ?? "—"}</TableCell>
+                      <TableCell className="text-muted-foreground">{q.customer_name ?? "—"}</TableCell>
+                      <TableCell>
+                        {q.quote_type ? (
+                          <span
+                            className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                              LEAD_TYPE_COLORS[q.quote_type as LeadType] ??
+                              "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {q.quote_type}
+                          </span>
+                        ) : (
+                          "—"
+                        )}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-xs">
+                        {q.quote_date ? new Date(q.quote_date).toLocaleDateString() : "—"}
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        {q.total != null
+                          ? `${q.currency ?? "AED"} ${Number(q.total).toLocaleString()}`
+                          : "—"}
+                      </TableCell>
+                      <TableCell className="text-right text-xs text-muted-foreground">
+                        —
+                      </TableCell>
+                    </TableRow>
                   ))}
-                  <button
-                    onClick={() => openNew(stage)}
-                    className="w-full text-xs text-muted-foreground hover:text-foreground hover:bg-background/60 rounded-md py-2 border border-dashed"
-                  >
-                    + Add lead
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                </TableBody>
+              </Table>
+            )}
+          </div>
+        </>
       )}
-
-
 
       <LeadDialog
         open={dialogOpen}
@@ -486,7 +537,6 @@ function FunnelBoard() {
           setAdvanceOpen(false);
         }}
       />
-
     </>
   );
 }
