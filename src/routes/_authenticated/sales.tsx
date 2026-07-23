@@ -265,6 +265,8 @@ function FunnelBoard() {
   const [advanceTarget, setAdvanceTarget] = useState<Stage>("Contacted / Pitching");
   const [selectedStage, setSelectedStage] = useState<Stage>("New Lead / Inquiry");
   const [period, setPeriod] = useState<string>("this-month");
+  const [stagePage, setStagePage] = useState(1);
+  useEffect(() => { setStagePage(1); }, [selectedStage, period]);
 
   async function load() {
     setLoading(true);
