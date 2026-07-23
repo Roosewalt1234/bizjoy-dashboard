@@ -1150,6 +1150,11 @@ function QuotesList() {
   });
 
   const totalValue = filtered.reduce((sum, q) => sum + (q.total ?? 0), 0);
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  useEffect(() => { setPage(1); }, [search, status]);
+  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
+  const pageRows = paginate(filtered, page);
 
   return (
     <div>
