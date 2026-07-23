@@ -62,7 +62,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="px-4 py-4">
         <div className="flex items-center gap-2">
-          <img src={logoAsset.url} alt="Fiz Fix ERP" className="h-8 w-8 rounded-md object-contain bg-white" />
+          <img src={logoAsset.url} alt="Fiz Fix ERP" className="h-16 w-16 rounded-md object-contain bg-white" />
           <span className="text-sidebar-foreground font-semibold text-lg group-data-[collapsible=icon]:hidden">
             Fiz Fix ERP
           </span>
