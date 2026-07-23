@@ -36,7 +36,7 @@ type Props = {
   createTitle?: string;
 };
 
-export function CrudModule({ title, description, table, fields, listColumns }: Props) {
+export function CrudModule({ title, description, table, fields, listColumns, createTitle }: Props) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
