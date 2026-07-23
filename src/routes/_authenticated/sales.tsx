@@ -1200,6 +1200,7 @@ function QuotesList() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-44">
                         <DropdownMenuItem
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
                           onClick={() => {
                             setViewQuote(null);
                             setEditingQuote(q);
@@ -1209,6 +1210,7 @@ function QuotesList() {
                           <Pencil className="h-4 w-4 mr-2" /> Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
                           onClick={() => {
                             setEditingQuote(null);
                             setViewQuote(q);
@@ -1217,18 +1219,27 @@ function QuotesList() {
                         >
                           <Eye className="h-4 w-4 mr-2" /> View
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setFollowupQuote(q)}>
+                        <DropdownMenuItem
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
+                          onClick={() => setFollowupQuote(q)}
+                        >
                           <MessageSquare className="h-4 w-4 mr-2" /> Followup remarks
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setStatusQuote(q)}>
+                        <DropdownMenuItem
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
+                          onClick={() => setStatusQuote(q)}
+                        >
                           <ArrowRightCircle className="h-4 w-4 mr-2" /> Change Status
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setAnalyseQuote(q)}>
+                        <DropdownMenuItem
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
+                          onClick={() => setAnalyseQuote(q)}
+                        >
                           <BarChart3 className="h-4 w-4 mr-2" /> Analyse
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          className="text-destructive focus:text-destructive"
+                          className="text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
                           onClick={() => removeQuote(q.id)}
                         >
                           <Trash2 className="h-4 w-4 mr-2" /> Delete
