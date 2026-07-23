@@ -112,7 +112,7 @@ export function CrudModule({ title, description, table, fields, listColumns, cre
           </DialogTrigger>
           <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editing ? `Edit ${title}` : `New ${title}`}</DialogTitle>
+              <DialogTitle>{editing ? `Edit ${title}` : (createTitle ?? `New ${title}`)}</DialogTitle>
             </DialogHeader>
             <form onSubmit={save} className="space-y-3">
               {fields.map((f) => (
