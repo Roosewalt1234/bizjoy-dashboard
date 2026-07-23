@@ -987,7 +987,7 @@ function QuotesList() {
   async function saveStatus() {
     if (!statusQuote) return;
     const { error } = await (supabase.from as any)("quotes")
-      .update({ status: statusValue })
+      .update({ status: statusValue, notes: statusNotes })
       .eq("id", statusQuote.id);
     if (error) return toast.error(error.message);
     toast.success("Status updated");
