@@ -1389,16 +1389,14 @@ function QuotesList() {
               <Select value={statusValue} onValueChange={setStatusValue}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {["draft", "sent", "accepted", "invoiced", "rejected", "expired"].map((s) => (
+                  {STAGES.map((s) => (
                     <SelectItem key={s} value={s}>
-                      {QUOTE_STATUS_TO_STAGE[s] ?? s}
+                      {s}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
-                Maps to funnel stage: <span className="font-medium">{QUOTE_STATUS_TO_STAGE[statusValue] ?? statusValue}</span>
-              </p>
+
             </div>
             <div className="space-y-2">
               <Label className="text-sm">Remarks</Label>
