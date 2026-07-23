@@ -38,6 +38,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar";
 
 export const Route = createFileRoute("/_authenticated/sales")({
   component: SalesPage,
