@@ -29,7 +29,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Pencil, Trash2, Eye } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye, MoreHorizontal, MessageSquare, ArrowRightCircle, BarChart3 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/sales")({
