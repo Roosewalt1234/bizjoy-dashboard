@@ -409,7 +409,7 @@ function Dashboard() {
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground mt-1">Overview of your business modules.</p>
       </div>
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-[240px_1fr_1fr]">
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-[120px_1fr_1fr]">
         <div className="flex flex-col gap-4">
           <StatCard title="Customers" count={customers.data} icon={Users} to="/customers" color="bg-blue-600" />
           <StatCard title="Sales Orders" count={sales.data} icon={ShoppingCart} to="/sales" color="bg-emerald-600" />
