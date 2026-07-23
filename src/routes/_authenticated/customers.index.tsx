@@ -8,7 +8,8 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Plus, Pencil, Trash2, Search, Eye } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar";
 import { toast } from "sonner";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
