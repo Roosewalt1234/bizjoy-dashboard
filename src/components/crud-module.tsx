@@ -55,6 +55,12 @@ export function CrudModule({ title, description, table, fields, listColumns, cre
     },
   });
 
+  const total = rows.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
+  const pageRows = paginate(rows, page);
+
+
   function openNew() {
     setEditing(null);
     const initial: any = {};
