@@ -1,0 +1,1 @@
+UPDATE public.quotes SET created_at = (quote_date::timestamp with time zone) WHERE quote_date IS NOT NULL;
