@@ -180,19 +180,33 @@ function SalesFunnelChart() {
   const { data, isLoading } = useQuery({
     queryKey: ["sales-funnel-summary", period, customMonth, customYear],
     queryFn: async () => {
-      let query = (supabase.from as any)("sales_leads").select("stage, estimated_value, created_at");
+      let leadsQ = (supabase.from as any)("sales_leads").select("stage, estimated_value, created_at");
+      let quotesQ = (supabase.from as any)("quotes").select("status, total, created_at");
       if (bounds) {
-        query = query.gte("created_at", bounds.start).lt("created_at", bounds.end);
+        leadsQ = leadsQ.gte("created_at", bounds.start).lt("created_at", bounds.end);
+        quotesQ = quotesQ.gte("created_at", bounds.start).lt("created_at", bounds.end);
       }
-      const { data } = await query;
-      const rows = (data ?? []) as { stage: string; estimated_value: number | null; created_at: string }[];
+      const [leadsRes, quotesRes] = await Promise.all([leadsQ, quotesQ]);
+      const leadRows = (leadsRes.data ?? []) as { stage: string; estimated_value: number | null }[];
+      const quoteRows = (quotesRes.data ?? []) as { status: string | null; total: number | null }[];
       return FUNNEL_STAGES.map((stage) => {
-        const items = rows.filter((r) => r.stage === stage);
-        const value = items.reduce((s, r) => s + (Number(r.estimated_value) || 0), 0);
-        return { stage, shortStage: stage.replace(" / ", " /\n"), count: items.length, value };
+        const leadItems = leadRows.filter((r) => r.stage === stage);
+        const quoteItems = quoteRows.filter(
+          (r) => QUOTE_STATUS_TO_STAGE[(r.status ?? "").toLowerCase()] === stage,
+        );
+        const value =
+          leadItems.reduce((s, r) => s + (Number(r.estimated_value) || 0), 0) +
+          quoteItems.reduce((s, r) => s + (Number(r.total) || 0), 0);
+        return {
+          stage,
+          shortStage: stage.replace(" / ", " /\n"),
+          count: leadItems.length + quoteItems.length,
+          value,
+        };
       });
     },
   });
+
 
   const totalLeads = data?.reduce((s, d) => s + d.count, 0) ?? 0;
   const totalValue = data?.reduce((s, d) => s + d.value, 0) ?? 0;
