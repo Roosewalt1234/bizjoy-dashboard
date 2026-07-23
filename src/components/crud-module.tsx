@@ -170,7 +170,7 @@ export function CrudModule({ title, description, table, fields, listColumns, cre
               <TableRow><TableCell colSpan={listColumns.length + 1} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
             ) : rows.length === 0 ? (
               <TableRow><TableCell colSpan={listColumns.length + 1} className="text-center py-8 text-muted-foreground">No records yet.</TableCell></TableRow>
-            ) : rows.map((r) => (
+            ) : pageRows.map((r) => (
               <TableRow key={r.id}>
                 {listColumns.map((c) => <TableCell key={c}>{r[c] ?? "—"}</TableCell>)}
                 <TableCell className="text-right">
@@ -197,6 +197,7 @@ export function CrudModule({ title, description, table, fields, listColumns, cre
             ))}
           </TableBody>
         </Table>
+        <PaginationBar page={page} total={total} onPageChange={setPage} />
       </Card>
     </div>
   );
