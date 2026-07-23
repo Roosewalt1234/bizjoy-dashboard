@@ -1612,14 +1612,24 @@ function QuoteDialog({
         purchase_order: "",
         quote_type: "",
       };
+      const normalizedQuote = quote
+        ? {
+            ...quote,
+            status:
+              QUOTE_STATUS_TO_STAGE[(quote.status ?? "").toLowerCase()] ??
+              quote.status ??
+              "Pending Quotation",
+          }
+        : null;
       setForm(
-        quote ?? {
+        normalizedQuote ?? {
           ...base,
           ...(prefill ?? {}),
           notes: base.notes,
           terms: base.terms,
         },
       );
+
       (supabase.from as any)("customers")
         .select("id, display_name, company_name")
         .order("display_name", { ascending: true })
