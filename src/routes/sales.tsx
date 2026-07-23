@@ -508,6 +508,7 @@ function LeadDialog({
     { id: string; display_name: string | null; company_name: string | null; email: string | null; mobile: string | null; phone: string | null }[]
   >([]);
   const [showSuggest, setShowSuggest] = useState(false);
+  const [customerMode, setCustomerMode] = useState<"existing" | "new">("existing");
 
   useEffect(() => {
     if (open) {
