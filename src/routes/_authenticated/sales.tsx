@@ -504,7 +504,7 @@ function FunnelBoard() {
                       </TableCell>
                     </TableRow>
                   ))}
-                  {selectedQuotes.map((q) => (
+                  {quoteSlice.map((q) => (
                     <TableRow key={`q-${q.id}`}>
                       <TableCell>
                         <Badge className="text-[10px] bg-indigo-100 text-indigo-700 hover:bg-indigo-100">
