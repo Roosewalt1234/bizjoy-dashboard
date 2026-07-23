@@ -8,7 +8,8 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Plus, Pencil, Trash2, Search, Eye } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar";
 import { toast } from "sonner";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -27,6 +28,8 @@ function CustomersList() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [typeFilter, setTypeFilter] = useState<"all" | "Individual" | "Business">("all");
+  const [page, setPage] = useState(1);
+
 
   const { data: customers = [], isLoading } = useQuery({
     queryKey: ["customers"],
@@ -49,6 +52,13 @@ function CustomersList() {
     const matchesType = typeFilter === "all" || c.customer_type === typeFilter;
     return matchesSearch && matchesStatus && matchesType;
   });
+
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  useEffect(() => { setPage(1); }, [search, statusFilter, typeFilter]);
+  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
+  const pageRows = paginate(filtered, page);
+
 
   async function handleDelete(id: string) {
     const { error } = await supabase.from("customers").delete().eq("id", id);
@@ -119,7 +129,7 @@ function CustomersList() {
               <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
             ) : filtered.length === 0 ? (
               <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">No customers match the current filters.</TableCell></TableRow>
-            ) : filtered.map((c: any) => (
+            ) : pageRows.map((c: any) => (
               <TableRow key={c.id}>
                 <TableCell className="font-medium">
                   <Link to="/customers/$id" params={{ id: c.id }} className="hover:underline">
@@ -167,6 +177,7 @@ function CustomersList() {
             ))}
           </TableBody>
         </Table>
+        <PaginationBar page={page} total={total} onPageChange={setPage} />
       </Card>
     </div>
   );

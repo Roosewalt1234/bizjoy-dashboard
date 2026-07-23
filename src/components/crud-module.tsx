@@ -18,6 +18,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar";
+import { useEffect } from "react";
 
 export type FieldDef = {
   key: string;
@@ -41,6 +43,8 @@ export function CrudModule({ title, description, table, fields, listColumns, cre
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
   const [form, setForm] = useState<any>({});
+  const [page, setPage] = useState(1);
+
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: [table],
@@ -50,6 +54,12 @@ export function CrudModule({ title, description, table, fields, listColumns, cre
       return (data ?? []) as any[];
     },
   });
+
+  const total = rows.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
+  const pageRows = paginate(rows, page);
+
 
   function openNew() {
     setEditing(null);
@@ -160,7 +170,7 @@ export function CrudModule({ title, description, table, fields, listColumns, cre
               <TableRow><TableCell colSpan={listColumns.length + 1} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
             ) : rows.length === 0 ? (
               <TableRow><TableCell colSpan={listColumns.length + 1} className="text-center py-8 text-muted-foreground">No records yet.</TableCell></TableRow>
-            ) : rows.map((r) => (
+            ) : pageRows.map((r) => (
               <TableRow key={r.id}>
                 {listColumns.map((c) => <TableCell key={c}>{r[c] ?? "—"}</TableCell>)}
                 <TableCell className="text-right">
@@ -187,6 +197,7 @@ export function CrudModule({ title, description, table, fields, listColumns, cre
             ))}
           </TableBody>
         </Table>
+        <PaginationBar page={page} total={total} onPageChange={setPage} />
       </Card>
     </div>
   );

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ function HRPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
+  const [page, setPage] = useState(1);
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["employees"],
@@ -32,6 +34,12 @@ function HRPage() {
       return data ?? [];
     },
   });
+
+  const total = rows.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
+  const pageRows = paginate(rows as any[], page);
+
 
   async function remove(id: string) {
     const { error } = await supabase.from("employees").delete().eq("id", id);
@@ -72,7 +80,7 @@ function HRPage() {
               <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
             ) : rows.length === 0 ? (
               <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No employees yet.</TableCell></TableRow>
-            ) : rows.map((r: any) => (
+            ) : pageRows.map((r: any) => (
               <TableRow key={r.id}>
                 <TableCell>{r.employee_id ?? "—"}</TableCell>
                 <TableCell>{r.full_name ?? ([r.first_name, r.last_name].filter(Boolean).join(" ") || "—")}</TableCell>
@@ -104,6 +112,7 @@ function HRPage() {
             ))}
           </TableBody>
         </Table>
+        <PaginationBar page={page} total={total} onPageChange={setPage} />
       </Card>
 
       <Dialog open={open} onOpenChange={setOpen}>

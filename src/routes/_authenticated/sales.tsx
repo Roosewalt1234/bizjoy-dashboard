@@ -38,6 +38,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar";
 
 export const Route = createFileRoute("/_authenticated/sales")({
   component: SalesPage,
@@ -264,6 +265,8 @@ function FunnelBoard() {
   const [advanceTarget, setAdvanceTarget] = useState<Stage>("Contacted / Pitching");
   const [selectedStage, setSelectedStage] = useState<Stage>("New Lead / Inquiry");
   const [period, setPeriod] = useState<string>("this-month");
+  const [stagePage, setStagePage] = useState(1);
+  useEffect(() => { setStagePage(1); }, [selectedStage, period]);
 
   async function load() {
     setLoading(true);
@@ -355,6 +358,13 @@ function FunnelBoard() {
 
   const selectedLeads = leadsByStage[selectedStage] ?? [];
   const selectedQuotes = quotesByStage[selectedStage] ?? [];
+  const stageTotal = selectedLeads.length + selectedQuotes.length;
+  const stageStart = (stagePage - 1) * PAGE_SIZE;
+  const stageEnd = stageStart + PAGE_SIZE;
+  const leadSlice = selectedLeads.slice(Math.min(stageStart, selectedLeads.length), Math.min(stageEnd, selectedLeads.length));
+  const qOffset = Math.max(0, stageStart - selectedLeads.length);
+  const qEnd = Math.max(0, stageEnd - selectedLeads.length);
+  const quoteSlice = selectedQuotes.slice(qOffset, qEnd);
 
   return (
     <>
@@ -448,7 +458,7 @@ function FunnelBoard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {selectedLeads.map((lead) => (
+                  {leadSlice.map((lead) => (
                     <TableRow key={`l-${lead.id}`}>
                       <TableCell>
                         <Badge variant="outline" className="text-[10px]">LEAD</Badge>
@@ -494,7 +504,7 @@ function FunnelBoard() {
                       </TableCell>
                     </TableRow>
                   ))}
-                  {selectedQuotes.map((q) => (
+                  {quoteSlice.map((q) => (
                     <TableRow key={`q-${q.id}`}>
                       <TableCell>
                         <Badge className="text-[10px] bg-indigo-100 text-indigo-700 hover:bg-indigo-100">
@@ -532,6 +542,9 @@ function FunnelBoard() {
                   ))}
                 </TableBody>
               </Table>
+            )}
+            {stageTotal > 0 && (
+              <PaginationBar page={stagePage} total={stageTotal} onPageChange={setStagePage} />
             )}
           </div>
         </>
@@ -981,6 +994,7 @@ function QuotesList() {
   const [analyseQuote, setAnalyseQuote] = useState<Quote | null>(null);
   const [probabilityQuote, setProbabilityQuote] = useState<Quote | null>(null);
   const [probabilityValue, setProbabilityValue] = useState<string>("Medium");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (probabilityQuote) {
@@ -1136,6 +1150,11 @@ function QuotesList() {
   });
 
   const totalValue = filtered.reduce((sum, q) => sum + (q.total ?? 0), 0);
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  useEffect(() => { setPage(1); }, [search, status]);
+  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
+  const pageRows = paginate(filtered, page);
 
   return (
     <div>
@@ -1218,7 +1237,7 @@ function QuotesList() {
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((q) => (
+              pageRows.map((q) => (
                 <TableRow key={q.id}>
                   <TableCell className="font-medium">
                     {q.quote_number}
@@ -1335,6 +1354,7 @@ function QuotesList() {
             )}
           </TableBody>
         </Table>
+        <PaginationBar page={page} total={total} onPageChange={setPage} />
       </div>
 
       <PickLeadForQuoteDialog
