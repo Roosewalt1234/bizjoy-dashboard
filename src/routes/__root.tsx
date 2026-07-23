@@ -81,13 +81,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "BizSuite — Business Management Dashboard" },
+      { title: "Fiz Fix ERP — Business Management Dashboard" },
       { name: "description", content: "Unified dashboard for customers, sales, HR, accounts, contracts, and projects." },
-      { property: "og:title", content: "BizSuite — Business Management Dashboard" },
+      { property: "og:title", content: "Fiz Fix ERP — Business Management Dashboard" },
       { property: "og:description", content: "Unified dashboard for customers, sales, HR, accounts, contracts, and projects." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "BizSuite — Business Management Dashboard" },
+      { name: "twitter:title", content: "Fiz Fix ERP — Business Management Dashboard" },
       { name: "twitter:description", content: "Unified dashboard for customers, sales, HR, accounts, contracts, and projects." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/dfb99310-91e3-44e9-912d-64a65d39c442/id-preview-8167cf48--354de133-d9b9-47d1-adc2-6fdbd7c55c1c.lovable.app-1784552318931.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/dfb99310-91e3-44e9-912d-64a65d39c442/id-preview-8167cf48--354de133-d9b9-47d1-adc2-6fdbd7c55c1c.lovable.app-1784552318931.png" },
@@ -97,7 +97,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/fizfix-logo.jpeg", type: "image/jpeg" },
     ],
   }),
   shellComponent: RootShell,
@@ -153,7 +153,10 @@ function RootComponent() {
             <div className="flex-1 flex flex-col min-w-0">
               <header className="h-14 flex items-center gap-3 border-b bg-card px-4">
                 <SidebarTrigger />
-                <h1 className="text-sm font-medium text-muted-foreground">BizSuite</h1>
+                <div className="flex items-center gap-2">
+                  <img src="/fizfix-logo.jpeg" alt="Fiz Fix ERP" className="h-6 w-6 object-contain" />
+                  <h1 className="text-sm font-medium text-muted-foreground">Fiz Fix ERP</h1>
+                </div>
               </header>
               <main className="flex-1 overflow-auto">
                 <Outlet />

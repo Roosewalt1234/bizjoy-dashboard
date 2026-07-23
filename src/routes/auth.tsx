@@ -12,10 +12,10 @@ import { Loader2 } from "lucide-react";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — BizSuite" },
-      { name: "description", content: "Sign in to access the BizSuite business management dashboard." },
-      { property: "og:title", content: "Sign in — BizSuite" },
-      { property: "og:description", content: "Sign in to access the BizSuite business management dashboard." },
+      { title: "Sign in — Fiz Fix ERP" },
+      { name: "description", content: "Sign in to access the Fiz Fix ERP business management dashboard." },
+      { property: "og:title", content: "Sign in — Fiz Fix ERP" },
+      { property: "og:description", content: "Sign in to access the Fiz Fix ERP business management dashboard." },
     ],
   }),
   component: AuthPage,
@@ -65,7 +65,10 @@ function AuthPage() {
     <div className="min-h-screen flex items-center justify-center bg-muted/40 px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">BizSuite</CardTitle>
+          <div className="flex justify-center mb-2">
+            <img src="/fizfix-logo.jpeg" alt="Fiz Fix ERP" className="h-12 w-12 object-contain" />
+          </div>
+          <CardTitle className="text-2xl">Fiz Fix ERP</CardTitle>
           <CardDescription>Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

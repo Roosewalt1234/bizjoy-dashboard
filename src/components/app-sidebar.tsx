@@ -25,6 +25,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import logoAsset from "@/assets/fizfix-logo.jpeg.asset.json";
 
 const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -61,11 +62,9 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="px-4 py-4">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-md bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground font-bold">
-            B
-          </div>
+          <img src={logoAsset.url} alt="Fiz Fix ERP" className="h-8 w-8 rounded-md object-contain bg-white" />
           <span className="text-sidebar-foreground font-semibold text-lg group-data-[collapsible=icon]:hidden">
-            BizSuite
+            Fiz Fix ERP
           </span>
         </div>
       </SidebarHeader>

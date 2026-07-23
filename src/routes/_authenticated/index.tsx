@@ -12,9 +12,9 @@ export const Route = createFileRoute("/_authenticated/")({
   component: Dashboard,
   head: () => ({
     meta: [
-      { title: "Dashboard | FizFix Business Suite" },
+      { title: "Dashboard | Fiz Fix ERP" },
       { name: "description", content: "Overview of customers, sales funnel, HR, accounts, contracts and projects." },
-      { property: "og:title", content: "Dashboard | FizFix Business Suite" },
+      { property: "og:title", content: "Dashboard | Fiz Fix ERP" },
       { property: "og:description", content: "Overview of customers, sales funnel, HR, accounts, contracts and projects." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
