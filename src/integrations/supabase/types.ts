@@ -283,43 +283,139 @@ export type Database = {
       }
       employees: {
         Row: {
+          accommodation: number | null
+          assigned_branch: string | null
+          commission_rate: number | null
           created_at: string
+          current_visa_expiry_date: string | null
+          current_visa_status: string | null
+          date_of_birth: string | null
           department: string | null
           email: string | null
+          emirates_id_expiry_date: string | null
+          emirates_id_number: string | null
+          employee_id: string | null
+          employment_type: string | null
           first_name: string
+          food_allowance: number | null
+          full_name: string | null
           hire_date: string | null
           id: string
+          iloe_insurance_expiry_date: string | null
+          iloe_insurance_number: string | null
+          labor_card_expiry_date: string | null
+          labor_card_number: string | null
           last_name: string | null
+          medical_insurance_expiry_date: string | null
+          medical_insurance_number: string | null
+          nationality: string | null
+          notes: string | null
+          ohc_expiry_date: string | null
+          ohc_number: string | null
+          ot_amount: number | null
+          part_time_card_expiry_date: string | null
+          part_time_card_number: string | null
+          passport_expiry_date: string | null
+          passport_number: string | null
           phone: string | null
           position: string | null
+          profile_photo: string | null
+          referred_by: string | null
           salary: number | null
           status: string | null
+          transport: number | null
+          visa_expiry_date: string | null
+          visa_issued_by: string | null
         }
         Insert: {
+          accommodation?: number | null
+          assigned_branch?: string | null
+          commission_rate?: number | null
           created_at?: string
+          current_visa_expiry_date?: string | null
+          current_visa_status?: string | null
+          date_of_birth?: string | null
           department?: string | null
           email?: string | null
+          emirates_id_expiry_date?: string | null
+          emirates_id_number?: string | null
+          employee_id?: string | null
+          employment_type?: string | null
           first_name: string
+          food_allowance?: number | null
+          full_name?: string | null
           hire_date?: string | null
           id?: string
+          iloe_insurance_expiry_date?: string | null
+          iloe_insurance_number?: string | null
+          labor_card_expiry_date?: string | null
+          labor_card_number?: string | null
           last_name?: string | null
+          medical_insurance_expiry_date?: string | null
+          medical_insurance_number?: string | null
+          nationality?: string | null
+          notes?: string | null
+          ohc_expiry_date?: string | null
+          ohc_number?: string | null
+          ot_amount?: number | null
+          part_time_card_expiry_date?: string | null
+          part_time_card_number?: string | null
+          passport_expiry_date?: string | null
+          passport_number?: string | null
           phone?: string | null
           position?: string | null
+          profile_photo?: string | null
+          referred_by?: string | null
           salary?: number | null
           status?: string | null
+          transport?: number | null
+          visa_expiry_date?: string | null
+          visa_issued_by?: string | null
         }
         Update: {
+          accommodation?: number | null
+          assigned_branch?: string | null
+          commission_rate?: number | null
           created_at?: string
+          current_visa_expiry_date?: string | null
+          current_visa_status?: string | null
+          date_of_birth?: string | null
           department?: string | null
           email?: string | null
+          emirates_id_expiry_date?: string | null
+          emirates_id_number?: string | null
+          employee_id?: string | null
+          employment_type?: string | null
           first_name?: string
+          food_allowance?: number | null
+          full_name?: string | null
           hire_date?: string | null
           id?: string
+          iloe_insurance_expiry_date?: string | null
+          iloe_insurance_number?: string | null
+          labor_card_expiry_date?: string | null
+          labor_card_number?: string | null
           last_name?: string | null
+          medical_insurance_expiry_date?: string | null
+          medical_insurance_number?: string | null
+          nationality?: string | null
+          notes?: string | null
+          ohc_expiry_date?: string | null
+          ohc_number?: string | null
+          ot_amount?: number | null
+          part_time_card_expiry_date?: string | null
+          part_time_card_number?: string | null
+          passport_expiry_date?: string | null
+          passport_number?: string | null
           phone?: string | null
           position?: string | null
+          profile_photo?: string | null
+          referred_by?: string | null
           salary?: number | null
           status?: string | null
+          transport?: number | null
+          visa_expiry_date?: string | null
+          visa_issued_by?: string | null
         }
         Relationships: []
       }
