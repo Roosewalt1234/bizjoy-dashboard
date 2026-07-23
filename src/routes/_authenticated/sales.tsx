@@ -46,8 +46,8 @@ const STAGES = [
   "Negotiation",
   "Pending Decision",
   "Validity Expired",
-  "Invoiced",
   "Won & Activated",
+  "Invoiced",
   "Closed Lost",
   "Cancelled",
 ] as const;
