@@ -1114,7 +1114,8 @@ function QuotesList() {
           />
         </div>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-56">
+
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
