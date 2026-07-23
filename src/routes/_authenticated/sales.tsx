@@ -41,13 +41,17 @@ const STAGES = [
   "Contacted / Pitching",
   "Site Survey Scheduled",
   "Survey Report Ready",
+  "Pending Quotation",
   "Proposal / Quote Sent",
   "Negotiation",
   "Pending Decision",
+  "Validity Expired",
+  "Invoiced",
   "Won & Activated",
   "Closed Lost",
   "Cancelled",
 ] as const;
+
 
 type Stage = (typeof STAGES)[number];
 
