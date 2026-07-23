@@ -543,6 +543,9 @@ function FunnelBoard() {
                 </TableBody>
               </Table>
             )}
+            {stageTotal > 0 && (
+              <PaginationBar page={stagePage} total={stageTotal} onPageChange={setStagePage} />
+            )}
           </div>
         </>
       )}
