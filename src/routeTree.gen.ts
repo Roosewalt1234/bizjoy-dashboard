@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
@@ -21,6 +22,11 @@ import { Route as AuthenticatedCustomersNewRouteImport } from './routes/_authent
 import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenticated/customers.$id'
 import { Route as AuthenticatedCustomersIdViewRouteImport } from './routes/_authenticated/customers.$id.view'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -82,6 +88,7 @@ const AuthenticatedCustomersIdViewRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
+  '/auth': typeof AuthRoute
   '/accounts': typeof AuthenticatedAccountsRoute
   '/contracts': typeof AuthenticatedContractsRoute
   '/hr': typeof AuthenticatedHrRoute
@@ -93,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/customers/$id/view': typeof AuthenticatedCustomersIdViewRoute
 }
 export interface FileRoutesByTo {
+  '/auth': typeof AuthRoute
   '/accounts': typeof AuthenticatedAccountsRoute
   '/contracts': typeof AuthenticatedContractsRoute
   '/hr': typeof AuthenticatedHrRoute
@@ -107,6 +115,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
   '/_authenticated/accounts': typeof AuthenticatedAccountsRoute
   '/_authenticated/contracts': typeof AuthenticatedContractsRoute
   '/_authenticated/hr': typeof AuthenticatedHrRoute
@@ -122,6 +131,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/accounts'
     | '/contracts'
     | '/hr'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/customers/$id/view'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/auth'
     | '/accounts'
     | '/contracts'
     | '/hr'
@@ -146,6 +157,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_authenticated'
+    | '/auth'
     | '/_authenticated/accounts'
     | '/_authenticated/contracts'
     | '/_authenticated/hr'
@@ -160,10 +172,18 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -287,6 +307,7 @@ const AuthenticatedRouteRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
