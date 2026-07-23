@@ -27,9 +27,12 @@ const FUNNEL_STAGES = [
   "Contacted / Pitching",
   "Site Survey Scheduled",
   "Survey Report Ready",
+  "Pending Quotation",
   "Proposal / Quote Sent",
   "Negotiation",
   "Pending Decision",
+  "Validity Expired",
+  "Invoiced",
   "Won & Activated",
   "Closed Lost",
   "Cancelled",
@@ -40,13 +43,26 @@ const STAGE_COLORS: Record<string, string> = {
   "Contacted / Pitching": "#6366f1",
   "Site Survey Scheduled": "#8b5cf6",
   "Survey Report Ready": "#a855f7",
+  "Pending Quotation": "#eab308",
   "Proposal / Quote Sent": "#0ea5e9",
   "Negotiation": "#f59e0b",
-  "Pending Decision": "#eab308",
+  "Pending Decision": "#f97316",
+  "Validity Expired": "#dc2626",
+  "Invoiced": "#22c55e",
   "Won & Activated": "#10b981",
   "Closed Lost": "#ef4444",
   "Cancelled": "#6b7280",
 };
+
+const QUOTE_STATUS_TO_STAGE: Record<string, string> = {
+  draft: "Pending Quotation",
+  sent: "Proposal / Quote Sent",
+  expired: "Validity Expired",
+  invoiced: "Invoiced",
+  rejected: "Closed Lost",
+  accepted: "Won & Activated",
+};
+
 
 function useCount(table: string) {
   return useQuery({
