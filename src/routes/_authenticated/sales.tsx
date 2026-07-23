@@ -29,7 +29,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Pencil, Trash2, Eye } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye, MoreHorizontal, MessageSquare, ArrowRightCircle, BarChart3 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/sales")({
@@ -949,6 +956,40 @@ function QuotesList() {
   const [prefill, setPrefill] = useState<Partial<Quote> | null>(null);
   const [prefillLeadId, setPrefillLeadId] = useState<string | null>(null);
   const [pickLeadOpen, setPickLeadOpen] = useState(false);
+  const [followupQuote, setFollowupQuote] = useState<Quote | null>(null);
+  const [followupText, setFollowupText] = useState("");
+  const [statusQuote, setStatusQuote] = useState<Quote | null>(null);
+  const [statusValue, setStatusValue] = useState<string>("draft");
+  const [analyseQuote, setAnalyseQuote] = useState<Quote | null>(null);
+
+  useEffect(() => {
+    if (followupQuote) setFollowupText(followupQuote.notes ?? "");
+  }, [followupQuote]);
+  useEffect(() => {
+    if (statusQuote) setStatusValue(statusQuote.status ?? "draft");
+  }, [statusQuote]);
+
+  async function saveFollowup() {
+    if (!followupQuote) return;
+    const { error } = await (supabase.from as any)("quotes")
+      .update({ notes: followupText })
+      .eq("id", followupQuote.id);
+    if (error) return toast.error(error.message);
+    toast.success("Followup saved");
+    setFollowupQuote(null);
+    load();
+  }
+
+  async function saveStatus() {
+    if (!statusQuote) return;
+    const { error } = await (supabase.from as any)("quotes")
+      .update({ status: statusValue })
+      .eq("id", statusQuote.id);
+    if (error) return toast.error(error.message);
+    toast.success("Status updated");
+    setStatusQuote(null);
+    load();
+  }
 
 
   async function load() {
@@ -1098,55 +1139,63 @@ function QuotesList() {
                     )}
                   </TableCell>
                   <TableCell>
-                    {q.status && (
-                      <span
-                        className={`inline-block px-2 py-0.5 rounded text-xs capitalize ${
-                          QUOTE_STATUS_COLORS[q.status] ??
-                          "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {q.status}
-                      </span>
-                    )}
+                    {q.status && (() => {
+                      const stage = QUOTE_STATUS_TO_STAGE[(q.status ?? "").toLowerCase()];
+                      const cls = stage ? STAGE_COLORS[stage] : "bg-muted text-muted-foreground border-transparent";
+                      return (
+                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium border ${cls}`}>
+                          {stage ?? q.status}
+                        </span>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell className="text-right font-medium">
                     {q.currency} {Number(q.total ?? 0).toLocaleString()}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8"
-                        onClick={() => {
-                          setEditingQuote(null);
-                          setViewQuote(q);
-                          setQuoteDialogOpen(true);
-                        }}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8"
-                        onClick={() => {
-                          setViewQuote(null);
-                          setEditingQuote(q);
-                          setQuoteDialogOpen(true);
-                        }}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8 text-destructive"
-                        onClick={() => removeQuote(q.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="icon" variant="ghost" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-44">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setViewQuote(null);
+                            setEditingQuote(q);
+                            setQuoteDialogOpen(true);
+                          }}
+                        >
+                          <Pencil className="h-4 w-4 mr-2" /> Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setEditingQuote(null);
+                            setViewQuote(q);
+                            setQuoteDialogOpen(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-2" /> View
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setFollowupQuote(q)}>
+                          <MessageSquare className="h-4 w-4 mr-2" /> Followup notes
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setStatusQuote(q)}>
+                          <ArrowRightCircle className="h-4 w-4 mr-2" /> Change Status
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setAnalyseQuote(q)}>
+                          <BarChart3 className="h-4 w-4 mr-2" /> Analyse
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => removeQuote(q.id)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))
@@ -1195,6 +1244,97 @@ function QuotesList() {
           load();
         }}
       />
+
+      {/* Followup notes */}
+      <Dialog open={!!followupQuote} onOpenChange={(o) => !o && setFollowupQuote(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Followup notes — {followupQuote?.quote_number}</DialogTitle>
+          </DialogHeader>
+          <Textarea
+            rows={8}
+            value={followupText}
+            onChange={(e) => setFollowupText(e.target.value)}
+            placeholder="Add followup notes, next steps, call outcomes…"
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFollowupQuote(null)}>Cancel</Button>
+            <Button onClick={saveFollowup}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change status */}
+      <Dialog open={!!statusQuote} onOpenChange={(o) => !o && setStatusQuote(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Change status — {statusQuote?.quote_number}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label className="text-sm">Status</Label>
+            <Select value={statusValue} onValueChange={setStatusValue}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {["draft", "sent", "accepted", "invoiced", "rejected", "expired"].map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {QUOTE_STATUS_TO_STAGE[s] ?? s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Maps to funnel stage: <span className="font-medium">{QUOTE_STATUS_TO_STAGE[statusValue] ?? statusValue}</span>
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setStatusQuote(null)}>Cancel</Button>
+            <Button onClick={saveStatus}>Update</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Analyse */}
+      <Dialog open={!!analyseQuote} onOpenChange={(o) => !o && setAnalyseQuote(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Analyse — {analyseQuote?.quote_number}</DialogTitle>
+          </DialogHeader>
+          {analyseQuote && (() => {
+            const subtotal = Number(analyseQuote.subtotal ?? 0);
+            const vat = Number(analyseQuote.vat_amount ?? 0);
+            const total = Number(analyseQuote.total ?? 0);
+            const stage = QUOTE_STATUS_TO_STAGE[(analyseQuote.status ?? "").toLowerCase()] ?? analyseQuote.status;
+            const daysOpen = analyseQuote.quote_date
+              ? Math.max(0, Math.floor((Date.now() - new Date(analyseQuote.quote_date).getTime()) / 86400000))
+              : null;
+            const daysToExpiry = analyseQuote.expiry_date
+              ? Math.floor((new Date(analyseQuote.expiry_date).getTime() - Date.now()) / 86400000)
+              : null;
+            return (
+              <div className="text-sm space-y-2">
+                <div className="flex justify-between"><span className="text-muted-foreground">Customer</span><span>{analyseQuote.customer_name ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Type</span><span>{analyseQuote.quote_type ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Funnel stage</span><span>{stage ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Quote date</span><span>{analyseQuote.quote_date ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Expiry</span><span>{analyseQuote.expiry_date ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Days open</span><span>{daysOpen ?? "—"}</span></div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Days to expiry</span>
+                  <span className={daysToExpiry != null && daysToExpiry < 0 ? "text-destructive" : ""}>
+                    {daysToExpiry ?? "—"}
+                  </span>
+                </div>
+                <div className="border-t pt-2 flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{analyseQuote.currency} {subtotal.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">VAT (5%)</span><span>{analyseQuote.currency} {vat.toLocaleString()}</span></div>
+                <div className="flex justify-between font-semibold"><span>Total</span><span>{analyseQuote.currency} {total.toLocaleString()}</span></div>
+              </div>
+            );
+          })()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAnalyseQuote(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
