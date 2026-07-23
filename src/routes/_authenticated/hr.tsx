@@ -35,6 +35,12 @@ function HRPage() {
     },
   });
 
+  const total = rows.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
+  const pageRows = paginate(rows as any[], page);
+
+
   async function remove(id: string) {
     const { error } = await supabase.from("employees").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
