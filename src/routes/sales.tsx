@@ -512,6 +512,7 @@ function LeadDialog({
 
   useEffect(() => {
     if (open) {
+      setCustomerMode("existing");
       setForm(
         lead ?? {
           lead_name: "",
