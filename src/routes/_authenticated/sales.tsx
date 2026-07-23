@@ -1472,6 +1472,30 @@ function QuotesList() {
         </DialogContent>
       </Dialog>
 
+      {/* Edit Probability */}
+      <Dialog open={!!probabilityQuote} onOpenChange={(o) => !o && setProbabilityQuote(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Probability — {probabilityQuote?.quote_number}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label className="text-sm">Probability</Label>
+            <Select value={probabilityValue} onValueChange={setProbabilityValue}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {PROBABILITY_LEVELS.map((p) => (
+                  <SelectItem key={p} value={p}>{p}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setProbabilityQuote(null)}>Cancel</Button>
+            <Button onClick={saveProbability}>Update</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Analyse */}
       <Dialog open={!!analyseQuote} onOpenChange={(o) => !o && setAnalyseQuote(null)}>
         <DialogContent className="max-w-md">
