@@ -1597,7 +1597,7 @@ function QuoteDialog({
         quote_date: new Date().toISOString().split("T")[0],
         expiry_date: "",
         customer_name: "",
-        status: "draft",
+        status: "Pending Quotation",
         currency: "AED",
         total: null as any,
         subtotal: null as any,
