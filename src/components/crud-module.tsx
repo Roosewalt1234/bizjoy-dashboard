@@ -33,6 +33,7 @@ type Props = {
   table: string;
   fields: FieldDef[];
   listColumns: string[];
+  createTitle?: string;
 };
 
 export function CrudModule({ title, description, table, fields, listColumns }: Props) {
