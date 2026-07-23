@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, ShoppingCart, UserCog, Wallet, FileText, FolderKanban, Calendar } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, LabelList } from "recharts";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, LabelList, PieChart, Pie, Legend } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 
@@ -320,6 +320,81 @@ function SalesFunnelChart() {
   );
 }
 
+const PROBABILITY_LEVELS = ["Low", "Medium", "High", "Very High", "Assured"] as const;
+const PROBABILITY_COLORS: Record<string, string> = {
+  Low: "#94a3b8",
+  Medium: "#38bdf8",
+  High: "#f59e0b",
+  "Very High": "#8b5cf6",
+  Assured: "#10b981",
+  Unset: "#e5e7eb",
+};
+
+function ProbabilityPieChart() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["quote-probability-summary"],
+    queryFn: async () => {
+      const { data: rows } = await (supabase.from as any)("quotes").select("probability, total");
+      const list = (rows ?? []) as { probability: string | null; total: number | null }[];
+      const buckets: Record<string, { name: string; count: number; value: number }> = {};
+      [...PROBABILITY_LEVELS, "Unset"].forEach((k) => (buckets[k] = { name: k, count: 0, value: 0 }));
+      list.forEach((r) => {
+        const key = r.probability && PROBABILITY_LEVELS.includes(r.probability as any) ? r.probability : "Unset";
+        buckets[key!].count += 1;
+        buckets[key!].value += Number(r.total) || 0;
+      });
+      return Object.values(buckets).filter((b) => b.count > 0);
+    },
+  });
+
+  const total = data?.reduce((s, d) => s + d.count, 0) ?? 0;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Quote Probability</CardTitle>
+        <p className="text-sm text-muted-foreground mt-1">Distribution of quotes by win probability</p>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="h-[420px] flex items-center justify-center text-muted-foreground">Loading…</div>
+        ) : total === 0 ? (
+          <div className="h-[420px] flex items-center justify-center text-muted-foreground">No quotes yet</div>
+        ) : (
+          <div className="w-full h-[420px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data}
+                  dataKey="count"
+                  nameKey="name"
+                  cx="50%"
+                  cy="45%"
+                  outerRadius={120}
+                  innerRadius={60}
+                  paddingAngle={2}
+                  label={(entry: any) => `${entry.name}: ${entry.count}`}
+                >
+                  {data?.map((entry) => (
+                    <Cell key={entry.name} fill={PROBABILITY_COLORS[entry.name]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(val: any, _n: any, props: any) => [
+                    `${val} quotes · AED ${props.payload.value.toLocaleString()}`,
+                    props.payload.name,
+                  ]}
+                />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function Dashboard() {
   const customers = useCount("customers");
   const sales = useCount("sales_orders");
@@ -329,12 +404,12 @@ function Dashboard() {
   const projects = useCount("projects");
 
   return (
-    <div className="p-6 max-w-[1400px] mx-auto space-y-6">
+    <div className="p-6 max-w-[1600px] mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground mt-1">Overview of your business modules.</p>
       </div>
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-[280px_1fr]">
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-[240px_1fr_1fr]">
         <div className="flex flex-col gap-4">
           <StatCard title="Customers" count={customers.data} icon={Users} to="/customers" color="bg-blue-600" />
           <StatCard title="Sales Orders" count={sales.data} icon={ShoppingCart} to="/sales" color="bg-emerald-600" />
@@ -344,6 +419,7 @@ function Dashboard() {
           <StatCard title="Projects" count={projects.data} icon={FolderKanban} to="/projects" color="bg-cyan-600" />
         </div>
         <SalesFunnelChart />
+        <ProbabilityPieChart />
       </div>
 
     </div>
