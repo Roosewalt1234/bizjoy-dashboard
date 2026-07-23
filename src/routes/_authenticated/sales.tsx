@@ -168,7 +168,19 @@ interface Quote {
   terms: string | null;
   purchase_order: string | null;
   quote_type: string | null;
+  probability: string | null;
 }
+
+const PROBABILITY_LEVELS = ["Low", "Medium", "High", "Very High", "Assured"] as const;
+type Probability = (typeof PROBABILITY_LEVELS)[number];
+
+const PROBABILITY_COLORS: Record<Probability, string> = {
+  Low: "bg-slate-100 text-slate-700 border-slate-300",
+  Medium: "bg-blue-100 text-blue-700 border-blue-300",
+  High: "bg-amber-100 text-amber-700 border-amber-300",
+  "Very High": "bg-orange-100 text-orange-700 border-orange-300",
+  Assured: "bg-emerald-100 text-emerald-700 border-emerald-300",
+};
 
 interface QuoteItem {
   id?: string;
