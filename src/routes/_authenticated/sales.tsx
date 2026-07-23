@@ -1119,13 +1119,12 @@ function QuotesList() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All statuses</SelectItem>
-            {["draft", "sent", "accepted", "invoiced", "rejected", "expired"].map(
-              (s) => (
-                <SelectItem key={s} value={s}>
-                  {s}
-                </SelectItem>
-              ),
-            )}
+            {STAGES.map((s) => (
+              <SelectItem key={s} value={s}>
+                {s}
+              </SelectItem>
+            ))}
+
           </SelectContent>
         </Select>
         <Button
