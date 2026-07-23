@@ -18,6 +18,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar";
+import { useEffect } from "react";
 
 export type FieldDef = {
   key: string;
