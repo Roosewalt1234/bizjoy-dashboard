@@ -1354,6 +1354,7 @@ function QuotesList() {
             )}
           </TableBody>
         </Table>
+        <PaginationBar page={page} total={total} onPageChange={setPage} />
       </div>
 
       <PickLeadForQuoteDialog
