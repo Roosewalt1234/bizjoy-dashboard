@@ -28,6 +28,8 @@ function CustomersList() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [typeFilter, setTypeFilter] = useState<"all" | "Individual" | "Business">("all");
+  const [page, setPage] = useState(1);
+
 
   const { data: customers = [], isLoading } = useQuery({
     queryKey: ["customers"],
