@@ -976,7 +976,9 @@ function QuotesList() {
   }, [followupQuote]);
   useEffect(() => {
     if (statusQuote) {
-      setStatusValue(statusQuote.status ?? "draft");
+      const raw = statusQuote.status ?? "";
+      setStatusValue(QUOTE_STATUS_TO_STAGE[raw.toLowerCase()] ?? raw ?? "Pending Quotation");
+
       setStatusRemarks("");
     }
   }, [statusQuote]);
