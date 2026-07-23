@@ -29,7 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Pencil, Trash2, Eye, MoreHorizontal, MessageSquare, ArrowRightCircle, BarChart3 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye, MoreHorizontal, MessageSquare, ArrowRightCircle, BarChart3, Percent } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
