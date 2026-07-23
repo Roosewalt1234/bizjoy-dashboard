@@ -1237,7 +1237,7 @@ function QuotesList() {
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((q) => (
+              pageRows.map((q) => (
                 <TableRow key={q.id}>
                   <TableCell className="font-medium">
                     {q.quote_number}
