@@ -967,7 +967,10 @@ function QuotesList() {
     if (followupQuote) setFollowupText(followupQuote.notes ?? "");
   }, [followupQuote]);
   useEffect(() => {
-    if (statusQuote) setStatusValue(statusQuote.status ?? "draft");
+    if (statusQuote) {
+      setStatusValue(statusQuote.status ?? "draft");
+      setStatusNotes(statusQuote.notes ?? "");
+    }
   }, [statusQuote]);
 
   async function saveFollowup() {
