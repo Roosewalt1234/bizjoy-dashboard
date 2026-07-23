@@ -961,7 +961,7 @@ function QuotesList() {
   const [followupList, setFollowupList] = useState<Array<{ id: string; remark: string; user_name: string | null; created_at: string }>>([]);
   const [followupLoading, setFollowupLoading] = useState(false);
   const [statusQuote, setStatusQuote] = useState<Quote | null>(null);
-  const [statusValue, setStatusValue] = useState<string>("draft");
+  const [statusValue, setStatusValue] = useState<string>("Pending Quotation");
   const [statusRemarks, setStatusRemarks] = useState<string>("");
   const [analyseQuote, setAnalyseQuote] = useState<Quote | null>(null);
 
