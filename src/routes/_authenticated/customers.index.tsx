@@ -129,7 +129,7 @@ function CustomersList() {
               <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
             ) : filtered.length === 0 ? (
               <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">No customers match the current filters.</TableCell></TableRow>
-            ) : filtered.map((c: any) => (
+            ) : pageRows.map((c: any) => (
               <TableRow key={c.id}>
                 <TableCell className="font-medium">
                   <Link to="/customers/$id" params={{ id: c.id }} className="hover:underline">
@@ -177,6 +177,7 @@ function CustomersList() {
             ))}
           </TableBody>
         </Table>
+        <PaginationBar page={page} total={total} onPageChange={setPage} />
       </Card>
     </div>
   );
