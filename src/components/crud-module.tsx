@@ -43,6 +43,8 @@ export function CrudModule({ title, description, table, fields, listColumns, cre
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
   const [form, setForm] = useState<any>({});
+  const [page, setPage] = useState(1);
+
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: [table],
