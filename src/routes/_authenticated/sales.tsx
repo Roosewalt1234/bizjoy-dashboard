@@ -960,6 +960,7 @@ function QuotesList() {
   const [followupText, setFollowupText] = useState("");
   const [statusQuote, setStatusQuote] = useState<Quote | null>(null);
   const [statusValue, setStatusValue] = useState<string>("draft");
+  const [statusNotes, setStatusNotes] = useState<string>("");
   const [analyseQuote, setAnalyseQuote] = useState<Quote | null>(null);
 
   useEffect(() => {
