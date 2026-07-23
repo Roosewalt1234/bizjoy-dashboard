@@ -1688,7 +1688,7 @@ function QuoteDialog({
       quote_date: form.quote_date || null,
       expiry_date: form.expiry_date || null,
       customer_name: form.customer_name,
-      status: form.status || "draft",
+      status: form.status || "Pending Quotation",
       currency: form.currency || "AED",
       subtotal,
       vat_amount: vat,
