@@ -323,6 +323,36 @@ export type Database = {
         }
         Relationships: []
       }
+      followup_remarks: {
+        Row: {
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          remark: string
+          user_id: string
+          user_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          remark: string
+          user_id: string
+          user_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          remark?: string
+          user_id?: string
+          user_name?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

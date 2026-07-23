@@ -958,13 +958,21 @@ function QuotesList() {
   const [pickLeadOpen, setPickLeadOpen] = useState(false);
   const [followupQuote, setFollowupQuote] = useState<Quote | null>(null);
   const [followupText, setFollowupText] = useState("");
+  const [followupList, setFollowupList] = useState<Array<{ id: string; remark: string; user_name: string | null; created_at: string }>>([]);
+  const [followupLoading, setFollowupLoading] = useState(false);
   const [statusQuote, setStatusQuote] = useState<Quote | null>(null);
   const [statusValue, setStatusValue] = useState<string>("draft");
   const [statusNotes, setStatusNotes] = useState<string>("");
   const [analyseQuote, setAnalyseQuote] = useState<Quote | null>(null);
 
   useEffect(() => {
-    if (followupQuote) setFollowupText(followupQuote.notes ?? "");
+    if (followupQuote) {
+      setFollowupText("");
+      loadFollowups(followupQuote.id);
+    } else {
+      setFollowupList([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [followupQuote]);
   useEffect(() => {
     if (statusQuote) {
@@ -973,16 +981,43 @@ function QuotesList() {
     }
   }, [statusQuote]);
 
+  async function loadFollowups(quoteId: string) {
+    setFollowupLoading(true);
+    const { data, error } = await (supabase.from as any)("followup_remarks")
+      .select("id, remark, user_name, created_at")
+      .eq("entity_type", "quote")
+      .eq("entity_id", quoteId)
+      .order("created_at", { ascending: false });
+    setFollowupLoading(false);
+    if (error) return toast.error(error.message);
+    setFollowupList(data ?? []);
+  }
+
   async function saveFollowup() {
     if (!followupQuote) return;
-    const { error } = await (supabase.from as any)("quotes")
-      .update({ notes: followupText })
-      .eq("id", followupQuote.id);
+    const text = followupText.trim();
+    if (!text) return toast.error("Enter a remark");
+    const { data: userData } = await supabase.auth.getUser();
+    const user = userData.user;
+    if (!user) return toast.error("Not signed in");
+    const name =
+      (user.user_metadata as any)?.full_name ||
+      (user.user_metadata as any)?.name ||
+      user.email ||
+      "Unknown";
+    const { error } = await (supabase.from as any)("followup_remarks").insert({
+      entity_type: "quote",
+      entity_id: followupQuote.id,
+      remark: text,
+      user_id: user.id,
+      user_name: name,
+    });
     if (error) return toast.error(error.message);
-    toast.success("Followup saved");
-    setFollowupQuote(null);
-    load();
+    toast.success("Remark added");
+    setFollowupText("");
+    loadFollowups(followupQuote.id);
   }
+
 
   async function saveStatus() {
     if (!statusQuote) return;
@@ -1183,7 +1218,7 @@ function QuotesList() {
                           <Eye className="h-4 w-4 mr-2" /> View
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setFollowupQuote(q)}>
-                          <MessageSquare className="h-4 w-4 mr-2" /> Followup notes
+                          <MessageSquare className="h-4 w-4 mr-2" /> Followup remarks
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setStatusQuote(q)}>
                           <ArrowRightCircle className="h-4 w-4 mr-2" /> Change Status
@@ -1249,24 +1284,61 @@ function QuotesList() {
         }}
       />
 
-      {/* Followup notes */}
+      {/* Followup remarks */}
       <Dialog open={!!followupQuote} onOpenChange={(o) => !o && setFollowupQuote(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Followup notes — {followupQuote?.quote_number}</DialogTitle>
+            <DialogTitle>Followup remarks — {followupQuote?.quote_number}</DialogTitle>
           </DialogHeader>
-          <Textarea
-            rows={8}
-            value={followupText}
-            onChange={(e) => setFollowupText(e.target.value)}
-            placeholder="Add followup notes, next steps, call outcomes…"
-          />
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label className="text-sm">Add new remark</Label>
+              <Textarea
+                rows={3}
+                value={followupText}
+                onChange={(e) => setFollowupText(e.target.value)}
+                placeholder="Enter remark, next steps, call outcomes…"
+              />
+              <div className="flex justify-end">
+                <Button size="sm" onClick={saveFollowup}>Add remark</Button>
+              </div>
+            </div>
+            <div className="border-t pt-3">
+              <Label className="text-sm mb-2 block">History</Label>
+              <div className="max-h-80 overflow-y-auto border rounded-md">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-40">Date & Time</TableHead>
+                      <TableHead className="w-40">User</TableHead>
+                      <TableHead>Remark</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {followupLoading ? (
+                      <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground">Loading…</TableCell></TableRow>
+                    ) : followupList.length === 0 ? (
+                      <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground">No remarks yet</TableCell></TableRow>
+                    ) : (
+                      followupList.map((r) => (
+                        <TableRow key={r.id}>
+                          <TableCell className="text-xs whitespace-nowrap">{new Date(r.created_at).toLocaleString()}</TableCell>
+                          <TableCell className="text-xs whitespace-nowrap">{r.user_name ?? "—"}</TableCell>
+                          <TableCell className="text-sm whitespace-pre-wrap">{r.remark}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setFollowupQuote(null)}>Cancel</Button>
-            <Button onClick={saveFollowup}>Save</Button>
+            <Button variant="outline" onClick={() => setFollowupQuote(null)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
 
       {/* Change status */}
       <Dialog open={!!statusQuote} onOpenChange={(o) => !o && setStatusQuote(null)}>
