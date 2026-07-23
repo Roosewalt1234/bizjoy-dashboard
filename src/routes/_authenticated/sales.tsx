@@ -1196,6 +1196,7 @@ function QuotesList() {
               <TableHead>Subject</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Probability</TableHead>
               <TableHead className="text-right">Total</TableHead>
               <TableHead className="w-28 text-right">Actions</TableHead>
             </TableRow>
