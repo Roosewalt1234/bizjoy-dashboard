@@ -958,13 +958,21 @@ function QuotesList() {
   const [pickLeadOpen, setPickLeadOpen] = useState(false);
   const [followupQuote, setFollowupQuote] = useState<Quote | null>(null);
   const [followupText, setFollowupText] = useState("");
+  const [followupList, setFollowupList] = useState<Array<{ id: string; remark: string; user_name: string | null; created_at: string }>>([]);
+  const [followupLoading, setFollowupLoading] = useState(false);
   const [statusQuote, setStatusQuote] = useState<Quote | null>(null);
   const [statusValue, setStatusValue] = useState<string>("draft");
   const [statusNotes, setStatusNotes] = useState<string>("");
   const [analyseQuote, setAnalyseQuote] = useState<Quote | null>(null);
 
   useEffect(() => {
-    if (followupQuote) setFollowupText(followupQuote.notes ?? "");
+    if (followupQuote) {
+      setFollowupText("");
+      loadFollowups(followupQuote.id);
+    } else {
+      setFollowupList([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [followupQuote]);
   useEffect(() => {
     if (statusQuote) {
@@ -973,16 +981,43 @@ function QuotesList() {
     }
   }, [statusQuote]);
 
+  async function loadFollowups(quoteId: string) {
+    setFollowupLoading(true);
+    const { data, error } = await (supabase.from as any)("followup_remarks")
+      .select("id, remark, user_name, created_at")
+      .eq("entity_type", "quote")
+      .eq("entity_id", quoteId)
+      .order("created_at", { ascending: false });
+    setFollowupLoading(false);
+    if (error) return toast.error(error.message);
+    setFollowupList(data ?? []);
+  }
+
   async function saveFollowup() {
     if (!followupQuote) return;
-    const { error } = await (supabase.from as any)("quotes")
-      .update({ notes: followupText })
-      .eq("id", followupQuote.id);
+    const text = followupText.trim();
+    if (!text) return toast.error("Enter a remark");
+    const { data: userData } = await supabase.auth.getUser();
+    const user = userData.user;
+    if (!user) return toast.error("Not signed in");
+    const name =
+      (user.user_metadata as any)?.full_name ||
+      (user.user_metadata as any)?.name ||
+      user.email ||
+      "Unknown";
+    const { error } = await (supabase.from as any)("followup_remarks").insert({
+      entity_type: "quote",
+      entity_id: followupQuote.id,
+      remark: text,
+      user_id: user.id,
+      user_name: name,
+    });
     if (error) return toast.error(error.message);
-    toast.success("Followup saved");
-    setFollowupQuote(null);
-    load();
+    toast.success("Remark added");
+    setFollowupText("");
+    loadFollowups(followupQuote.id);
   }
+
 
   async function saveStatus() {
     if (!statusQuote) return;
