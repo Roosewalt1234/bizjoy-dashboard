@@ -458,7 +458,7 @@ function FunnelBoard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {selectedLeads.map((lead) => (
+                  {leadSlice.map((lead) => (
                     <TableRow key={`l-${lead.id}`}>
                       <TableCell>
                         <Badge variant="outline" className="text-[10px]">LEAD</Badge>
