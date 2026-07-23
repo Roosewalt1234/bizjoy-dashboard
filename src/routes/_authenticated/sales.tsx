@@ -322,11 +322,14 @@ function FunnelBoard() {
     return acc;
   }, {});
   const quotesByStage = STAGES.reduce<Record<string, Quote[]>>((acc, s) => {
-    acc[s] = filteredQuotes.filter(
-      (q) => QUOTE_STATUS_TO_STAGE[(q.status ?? "").toLowerCase()] === s,
-    );
+    acc[s] = filteredQuotes.filter((q) => {
+      const raw = (q.status ?? "").toLowerCase();
+      const mapped = QUOTE_STATUS_TO_STAGE[raw] ?? q.status;
+      return mapped === s;
+    });
     return acc;
   }, {});
+
   const totalsByStage = STAGES.reduce<Record<string, number>>((acc, s) => {
     const leadTotal = leadsByStage[s].reduce((sum, l) => sum + (l.estimated_value ?? 0), 0);
     const quoteTotal = quotesByStage[s].reduce((sum, q) => sum + (Number(q.total) || 0), 0);
