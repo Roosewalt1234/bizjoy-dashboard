@@ -358,6 +358,13 @@ function FunnelBoard() {
 
   const selectedLeads = leadsByStage[selectedStage] ?? [];
   const selectedQuotes = quotesByStage[selectedStage] ?? [];
+  const stageTotal = selectedLeads.length + selectedQuotes.length;
+  const stageStart = (stagePage - 1) * PAGE_SIZE;
+  const stageEnd = stageStart + PAGE_SIZE;
+  const leadSlice = selectedLeads.slice(Math.min(stageStart, selectedLeads.length), Math.min(stageEnd, selectedLeads.length));
+  const qOffset = Math.max(0, stageStart - selectedLeads.length);
+  const qEnd = Math.max(0, stageEnd - selectedLeads.length);
+  const quoteSlice = selectedQuotes.slice(qOffset, qEnd);
 
   return (
     <>
