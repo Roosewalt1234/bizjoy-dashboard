@@ -1076,7 +1076,7 @@ function QuotesList() {
     setLoading(true);
     const { data, error } = await (supabase.from as any)("quotes")
       .select(
-        "id, quote_number, quote_date, expiry_date, customer_name, status, currency, total, subject, salesperson, project_name, subtotal, vat_amount, notes, terms, purchase_order, quote_type",
+        "id, quote_number, quote_date, expiry_date, customer_name, status, currency, total, subject, salesperson, project_name, subtotal, vat_amount, notes, terms, purchase_order, quote_type, probability",
       )
       .order("quote_date", { ascending: false })
       .limit(1000);
