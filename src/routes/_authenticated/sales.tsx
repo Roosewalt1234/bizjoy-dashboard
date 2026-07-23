@@ -322,11 +322,14 @@ function FunnelBoard() {
     return acc;
   }, {});
   const quotesByStage = STAGES.reduce<Record<string, Quote[]>>((acc, s) => {
-    acc[s] = filteredQuotes.filter(
-      (q) => QUOTE_STATUS_TO_STAGE[(q.status ?? "").toLowerCase()] === s,
-    );
+    acc[s] = filteredQuotes.filter((q) => {
+      const raw = (q.status ?? "").toLowerCase();
+      const mapped = QUOTE_STATUS_TO_STAGE[raw] ?? q.status;
+      return mapped === s;
+    });
     return acc;
   }, {});
+
   const totalsByStage = STAGES.reduce<Record<string, number>>((acc, s) => {
     const leadTotal = leadsByStage[s].reduce((sum, l) => sum + (l.estimated_value ?? 0), 0);
     const quoteTotal = quotesByStage[s].reduce((sum, q) => sum + (Number(q.total) || 0), 0);
@@ -961,7 +964,7 @@ function QuotesList() {
   const [followupList, setFollowupList] = useState<Array<{ id: string; remark: string; user_name: string | null; created_at: string }>>([]);
   const [followupLoading, setFollowupLoading] = useState(false);
   const [statusQuote, setStatusQuote] = useState<Quote | null>(null);
-  const [statusValue, setStatusValue] = useState<string>("draft");
+  const [statusValue, setStatusValue] = useState<string>("Pending Quotation");
   const [statusRemarks, setStatusRemarks] = useState<string>("");
   const [analyseQuote, setAnalyseQuote] = useState<Quote | null>(null);
 
@@ -976,7 +979,9 @@ function QuotesList() {
   }, [followupQuote]);
   useEffect(() => {
     if (statusQuote) {
-      setStatusValue(statusQuote.status ?? "draft");
+      const raw = statusQuote.status ?? "";
+      setStatusValue(QUOTE_STATUS_TO_STAGE[raw.toLowerCase()] ?? raw ?? "Pending Quotation");
+
       setStatusRemarks("");
     }
   }, [statusQuote]);
@@ -1085,7 +1090,9 @@ function QuotesList() {
   }
 
   const filtered = quotes.filter((q) => {
-    if (status !== "all" && q.status !== status) return false;
+    const qStage = QUOTE_STATUS_TO_STAGE[(q.status ?? "").toLowerCase()] ?? q.status;
+    if (status !== "all" && qStage !== status) return false;
+
     if (!search) return true;
     const s = search.toLowerCase();
     return (
@@ -1112,18 +1119,18 @@ function QuotesList() {
           />
         </div>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-56">
+
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All statuses</SelectItem>
-            {["draft", "sent", "accepted", "invoiced", "rejected", "expired"].map(
-              (s) => (
-                <SelectItem key={s} value={s}>
-                  {s}
-                </SelectItem>
-              ),
-            )}
+            {STAGES.map((s) => (
+              <SelectItem key={s} value={s}>
+                {s}
+              </SelectItem>
+            ))}
+
           </SelectContent>
         </Select>
         <Button
@@ -1387,16 +1394,14 @@ function QuotesList() {
               <Select value={statusValue} onValueChange={setStatusValue}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {["draft", "sent", "accepted", "invoiced", "rejected", "expired"].map((s) => (
+                  {STAGES.map((s) => (
                     <SelectItem key={s} value={s}>
-                      {QUOTE_STATUS_TO_STAGE[s] ?? s}
+                      {s}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
-                Maps to funnel stage: <span className="font-medium">{QUOTE_STATUS_TO_STAGE[statusValue] ?? statusValue}</span>
-              </p>
+
             </div>
             <div className="space-y-2">
               <Label className="text-sm">Remarks</Label>
@@ -1597,7 +1602,7 @@ function QuoteDialog({
         quote_date: new Date().toISOString().split("T")[0],
         expiry_date: "",
         customer_name: "",
-        status: "draft",
+        status: "Pending Quotation",
         currency: "AED",
         total: null as any,
         subtotal: null as any,
@@ -1610,14 +1615,24 @@ function QuoteDialog({
         purchase_order: "",
         quote_type: "",
       };
+      const normalizedQuote = quote
+        ? {
+            ...quote,
+            status:
+              QUOTE_STATUS_TO_STAGE[(quote.status ?? "").toLowerCase()] ??
+              quote.status ??
+              "Pending Quotation",
+          }
+        : null;
       setForm(
-        quote ?? {
+        normalizedQuote ?? {
           ...base,
           ...(prefill ?? {}),
           notes: base.notes,
           terms: base.terms,
         },
       );
+
       (supabase.from as any)("customers")
         .select("id, display_name, company_name")
         .order("display_name", { ascending: true })
@@ -1688,7 +1703,7 @@ function QuoteDialog({
       quote_date: form.quote_date || null,
       expiry_date: form.expiry_date || null,
       customer_name: form.customer_name,
-      status: form.status || "draft",
+      status: form.status || "Pending Quotation",
       currency: form.currency || "AED",
       subtotal,
       vat_amount: vat,
@@ -1778,18 +1793,19 @@ function QuoteDialog({
               <Label>Status</Label>
               <Select
                 disabled={viewOnly}
-                value={form.status ?? "draft"}
+                value={form.status ?? "Pending Quotation"}
                 onValueChange={(v) => setForm({ ...form, status: v })}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {["draft", "sent", "accepted", "invoiced", "rejected", "expired"].map((s) => (
+                  {STAGES.map((s) => (
                     <SelectItem key={s} value={s}>
                       {s}
                     </SelectItem>
                   ))}
+
                 </SelectContent>
               </Select>
             </div>
