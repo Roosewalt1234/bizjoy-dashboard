@@ -409,8 +409,8 @@ function Dashboard() {
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground mt-1">Overview of your business modules.</p>
       </div>
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-[120px_1fr_1fr]">
-        <div className="flex flex-col gap-4">
+      <div className="space-y-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           <StatCard title="Customers" count={customers.data} icon={Users} to="/customers" color="bg-blue-600" />
           <StatCard title="Sales Orders" count={sales.data} icon={ShoppingCart} to="/sales" color="bg-emerald-600" />
           <StatCard title="Employees" count={hr.data} icon={UserCog} to="/hr" color="bg-purple-600" />
@@ -418,8 +418,10 @@ function Dashboard() {
           <StatCard title="Contracts" count={contracts.data} icon={FileText} to="/contracts" color="bg-rose-600" />
           <StatCard title="Projects" count={projects.data} icon={FolderKanban} to="/projects" color="bg-cyan-600" />
         </div>
-        <SalesFunnelChart />
-        <ProbabilityPieChart />
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+          <SalesFunnelChart />
+          <ProbabilityPieChart />
+        </div>
       </div>
 
     </div>
