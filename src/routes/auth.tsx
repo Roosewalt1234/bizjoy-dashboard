@@ -66,7 +66,7 @@ function AuthPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-2">
-            <img src="/fizfix-logo.jpeg" alt="Fiz Fix ERP" className="h-12 w-12 object-contain" />
+            <img src="/fizfix-logo.jpeg" alt="Fiz Fix ERP" className="h-24 w-24 object-contain" />
           </div>
           <CardTitle className="text-2xl">Fiz Fix ERP</CardTitle>
           <CardDescription>Sign in to your account</CardDescription>

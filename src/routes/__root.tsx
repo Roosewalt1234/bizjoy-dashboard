@@ -154,7 +154,7 @@ function RootComponent() {
               <header className="h-14 flex items-center gap-3 border-b bg-card px-4">
                 <SidebarTrigger />
                 <div className="flex items-center gap-2">
-                  <img src="/fizfix-logo.jpeg" alt="Fiz Fix ERP" className="h-6 w-6 object-contain" />
+                  <img src="/fizfix-logo.jpeg" alt="Fiz Fix ERP" className="h-12 w-12 object-contain" />
                   <h1 className="text-sm font-medium text-muted-foreground">Fiz Fix ERP</h1>
                 </div>
               </header>
