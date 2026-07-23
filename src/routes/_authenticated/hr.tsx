@@ -75,7 +75,7 @@ function HRPage() {
             ) : rows.map((r: any) => (
               <TableRow key={r.id}>
                 <TableCell>{r.employee_id ?? "—"}</TableCell>
-                <TableCell>{r.full_name ?? [r.first_name, r.last_name].filter(Boolean).join(" ") || "—"}</TableCell>
+                <TableCell>{r.full_name ?? ([r.first_name, r.last_name].filter(Boolean).join(" ") || "—")}</TableCell>
                 <TableCell>{r.position ?? "—"}</TableCell>
                 <TableCell>{r.nationality ?? "—"}</TableCell>
                 <TableCell>{r.phone ?? "—"}</TableCell>
