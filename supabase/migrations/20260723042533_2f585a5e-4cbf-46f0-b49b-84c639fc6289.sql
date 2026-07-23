@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Authenticated manage accounts" ON public.accounts_transactions;
