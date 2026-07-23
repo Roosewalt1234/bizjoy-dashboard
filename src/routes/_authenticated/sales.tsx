@@ -1778,18 +1778,19 @@ function QuoteDialog({
               <Label>Status</Label>
               <Select
                 disabled={viewOnly}
-                value={form.status ?? "draft"}
+                value={form.status ?? "Pending Quotation"}
                 onValueChange={(v) => setForm({ ...form, status: v })}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {["draft", "sent", "accepted", "invoiced", "rejected", "expired"].map((s) => (
+                  {STAGES.map((s) => (
                     <SelectItem key={s} value={s}>
                       {s}
                     </SelectItem>
                   ))}
+
                 </SelectContent>
               </Select>
             </div>
