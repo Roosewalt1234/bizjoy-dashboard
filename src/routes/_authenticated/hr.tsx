@@ -80,7 +80,7 @@ function HRPage() {
               <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
             ) : rows.length === 0 ? (
               <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No employees yet.</TableCell></TableRow>
-            ) : rows.map((r: any) => (
+            ) : pageRows.map((r: any) => (
               <TableRow key={r.id}>
                 <TableCell>{r.employee_id ?? "—"}</TableCell>
                 <TableCell>{r.full_name ?? ([r.first_name, r.last_name].filter(Boolean).join(" ") || "—")}</TableCell>
@@ -112,6 +112,7 @@ function HRPage() {
             ))}
           </TableBody>
         </Table>
+        <PaginationBar page={page} total={total} onPageChange={setPage} />
       </Card>
 
       <Dialog open={open} onOpenChange={setOpen}>
