@@ -584,6 +584,37 @@ function LeadDialog({
           <DialogTitle>{lead ? "Edit Lead" : "New Lead"}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-3">
+          <div className="grid gap-1.5">
+            <Label>Customer</Label>
+            <div className="flex gap-2 items-center">
+              <div className="inline-flex rounded-md border p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setCustomerMode("existing")}
+                  className={`px-3 py-1 text-xs rounded-sm ${customerMode === "existing" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                >
+                  Existing customer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCustomerMode("new")}
+                  className={`px-3 py-1 text-xs rounded-sm ${customerMode === "new" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                >
+                  New customer
+                </button>
+              </div>
+              {customerMode === "new" && (
+                <a
+                  href="/customers/new"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs text-primary underline underline-offset-2"
+                >
+                  Register in Customers →
+                </a>
+              )}
+            </div>
+          </div>
           <div className="grid gap-1.5 relative">
             <Label>Lead name *</Label>
             <Input
@@ -594,10 +625,10 @@ function LeadDialog({
               }}
               onFocus={() => setShowSuggest(true)}
               onBlur={() => setTimeout(() => setShowSuggest(false), 150)}
-              placeholder="Type to search customers…"
+              placeholder={customerMode === "existing" ? "Type to search customers…" : "Enter new customer / lead name"}
               autoComplete="off"
             />
-            {showSuggest && suggestions.length > 0 && (
+            {customerMode === "existing" && showSuggest && suggestions.length > 0 && (
               <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-64 overflow-auto rounded-md border bg-popover shadow-md">
                 {suggestions.map((c) => (
                   <button
