@@ -253,6 +253,7 @@ function ContractDialog({
   const [sparePartsAmount, setSparePartsAmount] = useState<string>(
     editing?.spare_parts_amount != null ? String(editing.spare_parts_amount) : String(SPARE_PARTS_BY_TYPE[(editing?.contract_type as ContractType) ?? "Standard"])
   );
+  const [amcRefNo, setAmcRefNo] = useState<string>(editing?.amc_ref_no ?? "");
   const [value, setValue] = useState<string>(editing?.value != null ? String(editing.value) : "");
   const [startDate, setStartDate] = useState(editing?.start_date ?? "");
   const [endDate, setEndDate] = useState(editing?.end_date ?? "");
