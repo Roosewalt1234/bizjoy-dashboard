@@ -1186,11 +1186,11 @@ function LeadDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{lead ? "Edit Lead" : "New Lead"}</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-3">
+        <div className="grid gap-4">
           <div className="grid gap-1.5">
             <Label>Customer</Label>
             <div className="flex gap-2 items-center">
@@ -1222,56 +1222,50 @@ function LeadDialog({
               )}
             </div>
           </div>
-          <div className="grid gap-1.5 relative">
-            <Label>Lead name *</Label>
-            <Input
-              value={form.lead_name ?? ""}
-              onChange={(e) => {
-                setForm({ ...form, lead_name: e.target.value });
-                setShowSuggest(true);
-              }}
-              onFocus={() => setShowSuggest(true)}
-              onBlur={() => setTimeout(() => setShowSuggest(false), 150)}
-              placeholder={customerMode === "existing" ? "Type to search customers…" : "Enter new customer / lead name"}
-              autoComplete="off"
-            />
-            {customerMode === "existing" && showSuggest && suggestions.length > 0 && (
-              <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-64 overflow-auto rounded-md border bg-popover shadow-md">
-                {suggestions.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-accent border-b last:border-b-0"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => {
-                      setForm({
-                        ...form,
-                        lead_name: c.display_name ?? "",
-                        company: c.company_name ?? form.company ?? "",
-                        email: c.email ?? form.email ?? "",
-                        phone: c.mobile ?? c.phone ?? form.phone ?? "",
-                      });
-                      setShowSuggest(false);
-                    }}
-                  >
-                    <div className="font-medium truncate">{c.display_name}</div>
-                    {c.company_name && (
-                      <div className="text-xs text-muted-foreground truncate">
-                        {c.company_name}
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="grid gap-1.5">
-              <Label>Company</Label>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="grid gap-1.5 relative col-span-1">
+              <Label>Lead name *</Label>
               <Input
-                value={form.company ?? ""}
-                onChange={(e) => setForm({ ...form, company: e.target.value })}
+                value={form.lead_name ?? ""}
+                onChange={(e) => {
+                  setForm({ ...form, lead_name: e.target.value });
+                  setShowSuggest(true);
+                }}
+                onFocus={() => setShowSuggest(true)}
+                onBlur={() => setTimeout(() => setShowSuggest(false), 150)}
+                placeholder={customerMode === "existing" ? "Type to search customers…" : "Enter new customer / lead name"}
+                autoComplete="off"
               />
+              {customerMode === "existing" && showSuggest && suggestions.length > 0 && (
+                <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-64 overflow-auto rounded-md border bg-popover shadow-md">
+                  {suggestions.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-accent border-b last:border-b-0"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setForm({
+                          ...form,
+                          lead_name: c.display_name ?? "",
+                          company: c.company_name ?? form.company ?? "",
+                          email: c.email ?? form.email ?? "",
+                          phone: c.mobile ?? c.phone ?? form.phone ?? "",
+                        });
+                        setShowSuggest(false);
+                      }}
+                    >
+                      <div className="font-medium truncate">{c.display_name}</div>
+                      {c.company_name && (
+                        <div className="text-xs text-muted-foreground truncate">
+                          {c.company_name}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="grid gap-1.5">
               <Label>Stage</Label>
@@ -1284,9 +1278,7 @@ function LeadDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {STAGES.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {s}
-                    </SelectItem>
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -1302,15 +1294,31 @@ function LeadDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {LEAD_TYPES.map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {t}
-                    </SelectItem>
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-1.5">
+              <Label>Company</Label>
+              <Input
+                value={form.company ?? ""}
+                onChange={(e) => setForm({ ...form, company: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label>Salesperson</Label>
+              <Input
+                value={form.salesperson ?? ""}
+                onChange={(e) => setForm({ ...form, salesperson: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-1.5">
               <Label>Email</Label>
               <Input
@@ -1327,7 +1335,8 @@ function LeadDialog({
               />
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-3">
+
+          <div className="grid grid-cols-3 gap-4">
             <div className="grid gap-1.5 col-span-2">
               <Label>Estimated value</Label>
               <Input
@@ -1355,7 +1364,8 @@ function LeadDialog({
               </Select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+
+          <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-1.5">
               <Label>Expected close date</Label>
               <Input
@@ -1375,21 +1385,14 @@ function LeadDialog({
               />
             </div>
           </div>
+
           <div className="grid gap-1.5">
-            <Label>Salesperson</Label>
-            <Input
-              value={form.salesperson ?? ""}
-              onChange={(e) =>
-                setForm({ ...form, salesperson: e.target.value })
-              }
-            />
-          </div>
-          <div className="grid gap-1.5">
-            <Label>Notes</Label>
+            <Label>Remarks</Label>
             <Textarea
-              rows={3}
+              rows={4}
               value={form.notes ?? ""}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              placeholder="Add any remarks for this lead…"
             />
           </div>
         </div>
