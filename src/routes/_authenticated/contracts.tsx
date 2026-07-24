@@ -44,6 +44,7 @@ const PPM_SERVICES: { key: string; label: string; standard: number; premium: num
   { key: "electrical", label: "Fixed Electrical Fittings", standard: 2, premium: 3 },
   { key: "plumbing", label: "Plumbing Units", standard: 2, premium: 3 },
   { key: "solar", label: "Solar Water Heater", standard: 2, premium: 2 },
+  { key: "water_tank", label: "Water Tank Cleaning", standard: 1, premium: 2 },
 ];
 function freqFor(type: ContractType, key: string): number {
   const s = PPM_SERVICES.find((x) => x.key === key);
@@ -60,16 +61,31 @@ function subsetDates(anchors: string[], n: number): string[] {
   if (n <= 1) return anchors.slice(0, n);
   return [...anchors.slice(0, n - 1), anchors[anchors.length - 1]];
 }
+function waterTankDates(anchors: string[], type: ContractType): string[] {
+  // Standard: once/year aligned with 1st PPM. Premium: twice/year — 1st PPM and 3rd PPM.
+  if (!anchors.length) return type === "Premium" ? ["", ""] : [""];
+  if (type === "Premium") {
+    const first = anchors[0];
+    const third = anchors[2] ?? anchors[anchors.length - 1];
+    return [first, third];
+  }
+  return [anchors[0]];
+}
 function generatePpmSchedule(start: string, type: ContractType): Record<string, string[]> {
   const max = type === "Premium" ? 4 : 3;
   const anchors = anchorDates(start, max);
   const out: Record<string, string[]> = {};
   for (const s of PPM_SERVICES) {
     const freq = type === "Premium" ? s.premium : s.standard;
-    out[s.key] = start ? subsetDates(anchors, freq) : Array(freq).fill("");
+    if (s.key === "water_tank") {
+      out[s.key] = start ? waterTankDates(anchors, type) : Array(freq).fill("");
+    } else {
+      out[s.key] = start ? subsetDates(anchors, freq) : Array(freq).fill("");
+    }
   }
   return out;
 }
+
 
 type PaymentRow = {
   id?: string;
