@@ -35,6 +35,24 @@ type PaymentTerm = typeof PAYMENT_TERMS[number];
 const STATUS_OPTIONS = ["Draft", "Active", "Expired", "Terminated"];
 const PAY_STATUS = ["Pending", "Due", "Received"] as const;
 const WATER_STATUS = ["Pending", "Scheduled", "Completed"] as const;
+const CONTRACT_TYPES = ["Standard", "Premium"] as const;
+type ContractType = typeof CONTRACT_TYPES[number];
+const PPM_MATRIX: { service: string; standard: string; premium: string }[] = [
+  { service: "AC Units", standard: "3 Times/year", premium: "4 Times/year" },
+  { service: "Water Pumps & Motors", standard: "3 Times/year", premium: "4 Times/year" },
+  { service: "Fixed Electrical Fittings", standard: "2 Times/year", premium: "3 Times/year" },
+  { service: "Plumbing Units", standard: "2 Times/year", premium: "3 Times/year" },
+  { service: "Solar Water Heater", standard: "2 Times/year", premium: "2 Times/year" },
+  { service: "Minor Masonry Works", standard: "Included", premium: "Included" },
+  { service: "Minor Carpentry Works (Fixed wood, no loose furniture)", standard: "Included", premium: "Included" },
+  { service: "Handyman Callouts (Manpower only)", standard: "30 visits/year Max 2Hrs/visit (Included)", premium: "30 visits/year Max 3Hrs/visit (Included)" },
+  { service: "Water Tank Cleaning", standard: "1 Time/year", premium: "1 Time/year" },
+  { service: "AC Duct Cleaning", standard: "NA", premium: "1 Time/year" },
+  { service: "Emergency Callouts", standard: "24/7", premium: "24/7" },
+  { service: "Consumables required for PPM", standard: "Included", premium: "Included" },
+  { service: "Spare Parts", standard: "0.00 AED", premium: "1,000.00 AED" },
+];
+const SPARE_PARTS_BY_TYPE: Record<ContractType, number> = { Standard: 0, Premium: 1000 };
 
 type PaymentRow = {
   id?: string;
@@ -66,7 +84,7 @@ function computeStatus(payment_date: string, received_date: string): string {
   if (received_date) return "Received";
   if (!payment_date) return "Pending";
   const today = new Date().toISOString().slice(0, 10);
-  return payment_date < today ? "Pending" : "Due";
+  return payment_date > today ? "Pending" : "Due";
 }
 function generateSchedule(start: string, term: PaymentTerm, total: number): PaymentRow[] {
   if (!start || !term) return [];
@@ -198,6 +216,10 @@ function ContractDialog({
   const [customerId, setCustomerId] = useState<string | null>(editing?.customer_id ?? null);
   const [customerName, setCustomerName] = useState<string>(editing?.customer_name ?? "");
   const [title, setTitle] = useState(editing?.title ?? "");
+  const [contractType, setContractType] = useState<ContractType>((editing?.contract_type as ContractType) ?? "Standard");
+  const [sparePartsAmount, setSparePartsAmount] = useState<string>(
+    editing?.spare_parts_amount != null ? String(editing.spare_parts_amount) : String(SPARE_PARTS_BY_TYPE[(editing?.contract_type as ContractType) ?? "Standard"])
+  );
   const [value, setValue] = useState<string>(editing?.value != null ? String(editing.value) : "");
   const [startDate, setStartDate] = useState(editing?.start_date ?? "");
   const [endDate, setEndDate] = useState(editing?.end_date ?? "");
@@ -330,6 +352,8 @@ function ContractDialog({
     try {
       const payload: any = {
         title,
+        contract_type: contractType,
+        spare_parts_amount: sparePartsAmount ? Number(sparePartsAmount) : 0,
         customer_id: customerId,
         customer_name: customerName,
         start_date: startDate || null,
@@ -432,9 +456,65 @@ function ContractDialog({
             </div>
             <div className="space-y-1">
               <Label>Contract Title *</Label>
-              <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Villa AMC 2026" />
+              <div className="flex flex-col gap-2">
+                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Villa AMC 2026" />
+                <div className="flex gap-4 items-center pt-1">
+                  {CONTRACT_TYPES.map((t) => (
+                    <label key={t} className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input
+                        type="radio"
+                        name="contract_type"
+                        value={t}
+                        checked={contractType === t}
+                        onChange={() => {
+                          setContractType(t);
+                          setSparePartsAmount(String(SPARE_PARTS_BY_TYPE[t]));
+                        }}
+                      />
+                      {t} Contract
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
+
+          {/* PPM Service Matrix */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Planned Preventive Maintenance — {contractType}</Label>
+            <Card className="overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-1/2">Service</TableHead>
+                    <TableHead className={contractType === "Standard" ? "bg-primary/10" : ""}>Standard</TableHead>
+                    <TableHead className={contractType === "Premium" ? "bg-primary/10" : ""}>Premium</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {PPM_MATRIX.map((r) => (
+                    <TableRow key={r.service}>
+                      <TableCell className="text-sm">{r.service}</TableCell>
+                      <TableCell className={cn("text-sm", contractType === "Standard" && "bg-primary/5 font-medium")}>{r.standard}</TableCell>
+                      <TableCell className={cn("text-sm", contractType === "Premium" && "bg-primary/5 font-medium")}>{r.premium}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-1">
+                <Label>Spare Parts Amount (AED)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={sparePartsAmount}
+                  onChange={(e) => setSparePartsAmount(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
 
           {/* Quotes for customer */}
           {customerName && (

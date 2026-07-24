@@ -90,6 +90,7 @@ export type Database = {
       }
       contracts: {
         Row: {
+          contract_type: string | null
           created_at: string
           customer_id: string | null
           customer_name: string | null
@@ -102,6 +103,7 @@ export type Database = {
           ppm_3_date: string | null
           ppm_4_date: string | null
           remark: string | null
+          spare_parts_amount: number | null
           start_date: string | null
           status: string | null
           title: string
@@ -110,6 +112,7 @@ export type Database = {
           water_tank_cleaning_status: string | null
         }
         Insert: {
+          contract_type?: string | null
           created_at?: string
           customer_id?: string | null
           customer_name?: string | null
@@ -122,6 +125,7 @@ export type Database = {
           ppm_3_date?: string | null
           ppm_4_date?: string | null
           remark?: string | null
+          spare_parts_amount?: number | null
           start_date?: string | null
           status?: string | null
           title: string
@@ -130,6 +134,7 @@ export type Database = {
           water_tank_cleaning_status?: string | null
         }
         Update: {
+          contract_type?: string | null
           created_at?: string
           customer_id?: string | null
           customer_name?: string | null
@@ -142,6 +147,7 @@ export type Database = {
           ppm_3_date?: string | null
           ppm_4_date?: string | null
           remark?: string | null
+          spare_parts_amount?: number | null
           start_date?: string | null
           status?: string | null
           title?: string
