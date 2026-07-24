@@ -242,12 +242,13 @@ function ContractDialog({
   const [endDate, setEndDate] = useState(editing?.end_date ?? "");
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerm | "">(editing?.payment_terms ?? "");
   const [status, setStatus] = useState(editing?.status ?? "Draft");
-  const [ppm1, setPpm1] = useState(editing?.ppm_1_date ?? "");
-  const [ppm2, setPpm2] = useState(editing?.ppm_2_date ?? "");
-  const [ppm3, setPpm3] = useState(editing?.ppm_3_date ?? "");
-  const [ppm4, setPpm4] = useState(editing?.ppm_4_date ?? "");
+  const [ppmSchedule, setPpmSchedule] = useState<Record<string, string[]>>(
+    (editing?.ppm_schedule as Record<string, string[]>) ?? {},
+  );
   const [wtcDate, setWtcDate] = useState(editing?.water_tank_cleaning_date ?? "");
   const [wtcStatus, setWtcStatus] = useState(editing?.water_tank_cleaning_status ?? "");
+  const [acDuctDate, setAcDuctDate] = useState(editing?.ac_duct_cleaning_date ?? "");
+  const [acDuctStatus, setAcDuctStatus] = useState(editing?.ac_duct_cleaning_status ?? "");
   const [remark, setRemark] = useState(editing?.remark ?? "");
   const [payments, setPayments] = useState<PaymentRow[]>([]);
   const [customerPickerOpen, setCustomerPickerOpen] = useState(false);
