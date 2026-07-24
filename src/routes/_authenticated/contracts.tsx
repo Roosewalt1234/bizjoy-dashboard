@@ -419,6 +419,13 @@ function ContractDialog({
       return { ...prev, [key]: arr };
     });
   }
+  function updatePpmStatus(key: string, idx: number, val: string) {
+    setPpmStatus((prev) => {
+      const arr = (prev[key] ?? []).slice();
+      arr[idx] = val === "Auto" ? "" : val;
+      return { ...prev, [key]: arr };
+    });
+  }
 
   async function save() {
     if (!customerName) { toast.error("Select a customer"); return; }
