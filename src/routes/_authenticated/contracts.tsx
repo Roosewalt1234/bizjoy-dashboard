@@ -39,14 +39,37 @@ const WATER_STATUS = ["Pending", "Scheduled", "Completed"] as const;
 const CONTRACT_TYPES = ["Standard", "Premium"] as const;
 type ContractType = typeof CONTRACT_TYPES[number];
 const SPARE_PARTS_BY_TYPE: Record<ContractType, number> = { Standard: 0, Premium: 1000 };
-const PPM_SERVICES: { key: string; label: string; standard: number; premium: number }[] = [
-  { key: "ac_units", label: "AC Units", standard: 3, premium: 4 },
-  { key: "water_pumps", label: "Water Pumps & Motors", standard: 3, premium: 4 },
-  { key: "electrical", label: "Fixed Electrical Fittings", standard: 2, premium: 3 },
-  { key: "plumbing", label: "Plumbing Units", standard: 2, premium: 3 },
-  { key: "solar", label: "Solar Water Heater", standard: 2, premium: 2 },
-  { key: "water_tank", label: "Water Tank Cleaning", standard: 1, premium: 2 },
+const PPM_SERVICES: { key: string; label: string; standard: number; premium: number; Icon: any }[] = [
+  { key: "ac_units", label: "AC Units", standard: 3, premium: 4, Icon: Wind },
+  { key: "water_pumps", label: "Water Pumps & Motors", standard: 3, premium: 4, Icon: Fan },
+  { key: "electrical", label: "Fixed Electrical Fittings", standard: 2, premium: 3, Icon: Zap },
+  { key: "plumbing", label: "Plumbing Units", standard: 2, premium: 3, Icon: Wrench },
+  { key: "solar", label: "Solar Water Heater", standard: 2, premium: 2, Icon: Sun },
+  { key: "water_tank", label: "Water Tank Cleaning", standard: 1, premium: 2, Icon: Droplets },
 ];
+
+const PPM_STATUS_OPTIONS = ["Auto", "Scheduled", "Completed"] as const;
+function computePpmStatus(date: string, override: string): "Not Yet Due" | "Due" | "Overdue" | "Scheduled" | "Completed" {
+  if (override === "Completed") return "Completed";
+  if (override === "Scheduled") return "Scheduled";
+  if (!date) return "Not Yet Due";
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const target = new Date(date); target.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((today.getTime() - target.getTime()) / 86400000);
+  // diffDays > 0 means today is past scheduled date
+  if (diffDays <= 0) return "Not Yet Due";
+  if (diffDays <= 15) return "Due";
+  return "Overdue";
+}
+function ppmStatusClasses(s: string): string {
+  switch (s) {
+    case "Completed": return "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-200";
+    case "Scheduled": return "bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-900/40 dark:text-sky-200";
+    case "Due":       return "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/40 dark:text-amber-200";
+    case "Overdue":   return "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/40 dark:text-red-200";
+    default:          return "bg-muted text-muted-foreground border-border";
+  }
+}
 function freqFor(type: ContractType, key: string): number {
   const s = PPM_SERVICES.find((x) => x.key === key);
   if (!s) return 0;
