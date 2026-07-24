@@ -720,9 +720,15 @@ function ContractDialog({
                       </TableCell>
                       <TableCell>
                         <Select value={p.status} onValueChange={(v) => updatePayment(i, { status: v })}>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectTrigger className={cn("h-8 font-medium border", payStatusClasses(p.status))}>
+                            <SelectValue />
+                          </SelectTrigger>
                           <SelectContent>
-                            {PAY_STATUS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                            {PAY_STATUS.map((s) => (
+                              <SelectItem key={s} value={s}>
+                                <span className={cn("inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium", payStatusClasses(s))}>{s}</span>
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </TableCell>
