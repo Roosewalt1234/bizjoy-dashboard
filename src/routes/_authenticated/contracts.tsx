@@ -253,6 +253,7 @@ function ContractDialog({
   const [sparePartsAmount, setSparePartsAmount] = useState<string>(
     editing?.spare_parts_amount != null ? String(editing.spare_parts_amount) : String(SPARE_PARTS_BY_TYPE[(editing?.contract_type as ContractType) ?? "Standard"])
   );
+  const [amcRefNo, setAmcRefNo] = useState<string>(editing?.amc_ref_no ?? "");
   const [value, setValue] = useState<string>(editing?.value != null ? String(editing.value) : "");
   const [startDate, setStartDate] = useState(editing?.start_date ?? "");
   const [endDate, setEndDate] = useState(editing?.end_date ?? "");
@@ -397,6 +398,7 @@ function ContractDialog({
         title: finalTitle,
         contract_type: contractType,
         spare_parts_amount: sparePartsAmount ? Number(sparePartsAmount) : 0,
+        amc_ref_no: amcRefNo || null,
         customer_id: customerId,
         customer_name: customerName,
         start_date: startDate || null,
@@ -518,8 +520,8 @@ function ContractDialog({
             </div>
           </div>
 
-          {/* Spare parts + status */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Spare parts + AMC Ref No + status */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
               <Label>Spare Parts Amount (AED)</Label>
               <Input
@@ -531,6 +533,14 @@ function ContractDialog({
               <p className="text-xs text-muted-foreground">
                 Auto-set by contract type ({contractType} = AED {SPARE_PARTS_BY_TYPE[contractType].toLocaleString()}).
               </p>
+            </div>
+            <div className="space-y-1">
+              <Label>AMC Ref No.</Label>
+              <Input
+                placeholder="e.g. AMC-2026-0001"
+                value={amcRefNo}
+                onChange={(e) => setAmcRefNo(e.target.value)}
+              />
             </div>
             <div className="space-y-1">
               <Label>Contract Status</Label>
