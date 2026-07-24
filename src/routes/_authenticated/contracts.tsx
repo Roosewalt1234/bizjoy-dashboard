@@ -504,39 +504,19 @@ function ContractDialog({
             </div>
           </div>
 
-          {/* PPM Service Matrix */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Planned Preventive Maintenance — {contractType}</Label>
-            <Card className="overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-1/2">Service</TableHead>
-                    <TableHead className={contractType === "Standard" ? "bg-primary/10" : ""}>Standard</TableHead>
-                    <TableHead className={contractType === "Premium" ? "bg-primary/10" : ""}>Premium</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {PPM_MATRIX.map((r) => (
-                    <TableRow key={r.service}>
-                      <TableCell className="text-sm">{r.service}</TableCell>
-                      <TableCell className={cn("text-sm", contractType === "Standard" && "bg-primary/5 font-medium")}>{r.standard}</TableCell>
-                      <TableCell className={cn("text-sm", contractType === "Premium" && "bg-primary/5 font-medium")}>{r.premium}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-1">
-                <Label>Spare Parts Amount (AED)</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={sparePartsAmount}
-                  onChange={(e) => setSparePartsAmount(e.target.value)}
-                />
-              </div>
+          {/* Spare parts */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <Label>Spare Parts Amount (AED)</Label>
+              <Input
+                type="number"
+                step="0.01"
+                value={sparePartsAmount}
+                onChange={(e) => setSparePartsAmount(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Auto-set by contract type ({contractType} = AED {SPARE_PARTS_BY_TYPE[contractType].toLocaleString()}).
+              </p>
             </div>
           </div>
 
