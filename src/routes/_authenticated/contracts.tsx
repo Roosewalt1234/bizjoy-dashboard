@@ -55,17 +55,33 @@ function addMonths(iso: string, m: number): string {
   d.setMonth(d.getMonth() + m);
   return d.toISOString().slice(0, 10);
 }
+function addYearMinusDay(iso: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  d.setFullYear(d.getFullYear() + 1);
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+function computeStatus(payment_date: string, received_date: string): string {
+  if (received_date) return "Received";
+  if (!payment_date) return "Pending";
+  const today = new Date().toISOString().slice(0, 10);
+  return payment_date < today ? "Pending" : "Due";
+}
 function generateSchedule(start: string, term: PaymentTerm, total: number): PaymentRow[] {
   if (!start || !term) return [];
   const n = termCount(term);
   const step = monthStep(term);
   const per = total && n ? +(total / n).toFixed(2) : 0;
-  return Array.from({ length: n }, (_, i) => ({
-    payment_date: step ? addMonths(start, i * step) : start,
-    value: per ? String(per) : "",
-    status: "Pending",
-    received_date: "",
-  }));
+  return Array.from({ length: n }, (_, i) => {
+    const payment_date = step ? addMonths(start, i * step) : start;
+    return {
+      payment_date,
+      value: per ? String(per) : "",
+      status: computeStatus(payment_date, ""),
+      received_date: "",
+    };
+  });
 }
 
 function ContractsPage() {
