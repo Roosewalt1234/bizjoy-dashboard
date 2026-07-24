@@ -230,7 +230,7 @@ function ContractDialog({
         quote_date: newQuote.quote_date || null,
         total: newQuote.total ? Number(newQuote.total) : null,
         status: newQuote.status || "Draft",
-      });
+      } as any);
       if (error) throw error;
       toast.success("Quotation added");
       setNewQuote({ quote_number: "", subject: "", quote_date: "", total: "", status: "Draft" });
