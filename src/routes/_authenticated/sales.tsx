@@ -268,6 +268,144 @@ function FunnelBoard() {
   const [stagePage, setStagePage] = useState(1);
   useEffect(() => { setStagePage(1); }, [selectedStage, period]);
 
+  // Row action dialog state (shared for leads & quotes)
+  const [quoteDialogOpen, setQuoteDialogOpen] = useState(false);
+  const [editingQuote, setEditingQuote] = useState<Quote | null>(null);
+  const [viewQuote, setViewQuote] = useState<Quote | null>(null);
+  type EntityRef = { type: "lead" | "quote"; id: string; label: string };
+  const [followupEntity, setFollowupEntity] = useState<EntityRef | null>(null);
+  const [followupText, setFollowupText] = useState("");
+  const [followupList, setFollowupList] = useState<Array<{ id: string; remark: string; user_name: string | null; created_at: string }>>([]);
+  const [followupLoading, setFollowupLoading] = useState(false);
+  const [statusEntity, setStatusEntity] = useState<(EntityRef & { current: string }) | null>(null);
+  const [statusValue, setStatusValue] = useState<string>("New Lead / Inquiry");
+  const [statusRemarks, setStatusRemarks] = useState<string>("");
+  const [analyseQuote, setAnalyseQuote] = useState<Quote | null>(null);
+  const [analyseLead, setAnalyseLead] = useState<Lead | null>(null);
+  const [probabilityQuote, setProbabilityQuote] = useState<Quote | null>(null);
+  const [probabilityValue, setProbabilityValue] = useState<string>("Medium");
+
+  useEffect(() => {
+    if (probabilityQuote) setProbabilityValue((probabilityQuote.probability as string) ?? "Medium");
+  }, [probabilityQuote]);
+
+  useEffect(() => {
+    if (followupEntity) {
+      setFollowupText("");
+      loadFollowups(followupEntity);
+    } else {
+      setFollowupList([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [followupEntity]);
+
+  useEffect(() => {
+    if (statusEntity) {
+      const raw = statusEntity.current ?? "";
+      const mapped =
+        statusEntity.type === "quote"
+          ? (QUOTE_STATUS_TO_STAGE[raw.toLowerCase()] ?? raw ?? "Pending Quotation")
+          : (raw || "New Lead / Inquiry");
+      setStatusValue(mapped);
+      setStatusRemarks("");
+    }
+  }, [statusEntity]);
+
+  async function loadFollowups(entity: EntityRef) {
+    setFollowupLoading(true);
+    const { data, error } = await (supabase.from as any)("followup_remarks")
+      .select("id, remark, user_name, created_at")
+      .eq("entity_type", entity.type)
+      .eq("entity_id", entity.id)
+      .order("created_at", { ascending: false });
+    setFollowupLoading(false);
+    if (error) return toast.error(error.message);
+    setFollowupList(data ?? []);
+  }
+
+  async function saveFollowup() {
+    if (!followupEntity) return;
+    const text = followupText.trim();
+    if (!text) return toast.error("Enter a remark");
+    const { data: userData } = await supabase.auth.getUser();
+    const user = userData.user;
+    if (!user) return toast.error("Not signed in");
+    const name =
+      (user.user_metadata as any)?.full_name ||
+      (user.user_metadata as any)?.name ||
+      user.email ||
+      "Unknown";
+    const { error } = await (supabase.from as any)("followup_remarks").insert({
+      entity_type: followupEntity.type,
+      entity_id: followupEntity.id,
+      remark: text,
+      user_id: user.id,
+      user_name: name,
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Remark added");
+    setFollowupText("");
+    loadFollowups(followupEntity);
+  }
+
+  async function saveStatus() {
+    if (!statusEntity) return;
+    if (statusEntity.type === "quote") {
+      const { error } = await (supabase.from as any)("quotes")
+        .update({ status: statusValue })
+        .eq("id", statusEntity.id);
+      if (error) return toast.error(error.message);
+    } else {
+      const { error } = await (supabase.from as any)("sales_leads")
+        .update({ stage: statusValue })
+        .eq("id", statusEntity.id);
+      if (error) return toast.error(error.message);
+    }
+    const remarkText = statusRemarks.trim();
+    if (remarkText) {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData.user;
+      if (user) {
+        const name =
+          (user.user_metadata as any)?.full_name ||
+          (user.user_metadata as any)?.name ||
+          user.email ||
+          "Unknown";
+        await (supabase.from as any)("followup_remarks").insert({
+          entity_type: statusEntity.type,
+          entity_id: statusEntity.id,
+          remark: `Status changed to "${statusValue}" — ${remarkText}`,
+          user_id: user.id,
+          user_name: name,
+        });
+      }
+    }
+    toast.success("Status updated");
+    setStatusEntity(null);
+    load();
+  }
+
+  async function saveProbability() {
+    if (!probabilityQuote) return;
+    const { error } = await (supabase.from as any)("quotes")
+      .update({ probability: probabilityValue })
+      .eq("id", probabilityQuote.id);
+    if (error) return toast.error(error.message);
+    toast.success("Probability updated");
+    setProbabilityQuote(null);
+    load();
+  }
+
+  async function removeQuote(id: string) {
+    if (!confirm("Delete this quote?")) return;
+    const { error } = await (supabase.from as any)("quotes").delete().eq("id", id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Deleted");
+      load();
+    }
+  }
+
   async function load() {
     setLoading(true);
     const [leadsRes, quotesRes] = await Promise.all([
@@ -490,17 +628,52 @@ function FunnelBoard() {
                           : "—"}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => openEdit(lead)}>
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 px-2 text-destructive"
-                          onClick={() => remove(lead.id)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="icon" variant="ghost" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-44">
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => openEdit(lead)}
+                            >
+                              <Pencil className="h-4 w-4 mr-2" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => openEdit(lead)}
+                            >
+                              <Eye className="h-4 w-4 mr-2" /> View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => setFollowupEntity({ type: "lead", id: lead.id, label: lead.lead_name })}
+                            >
+                              <MessageSquare className="h-4 w-4 mr-2" /> Followup remarks
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => setStatusEntity({ type: "lead", id: lead.id, label: lead.lead_name, current: lead.stage })}
+                            >
+                              <ArrowRightCircle className="h-4 w-4 mr-2" /> Change Status
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => setAnalyseLead(lead)}
+                            >
+                              <BarChart3 className="h-4 w-4 mr-2" /> Analyse
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+                              onClick={() => remove(lead.id)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -535,8 +708,67 @@ function FunnelBoard() {
                           ? `${q.currency ?? "AED"} ${Number(q.total).toLocaleString()}`
                           : "—"}
                       </TableCell>
-                      <TableCell className="text-right text-xs text-muted-foreground">
-                        —
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="icon" variant="ghost" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-44">
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => {
+                                setViewQuote(null);
+                                setEditingQuote(q);
+                                setQuoteDialogOpen(true);
+                              }}
+                            >
+                              <Pencil className="h-4 w-4 mr-2" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => {
+                                setEditingQuote(null);
+                                setViewQuote(q);
+                                setQuoteDialogOpen(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4 mr-2" /> View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => setFollowupEntity({ type: "quote", id: q.id, label: q.quote_number ?? "" })}
+                            >
+                              <MessageSquare className="h-4 w-4 mr-2" /> Followup remarks
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => setStatusEntity({ type: "quote", id: q.id, label: q.quote_number ?? "", current: q.status ?? "" })}
+                            >
+                              <ArrowRightCircle className="h-4 w-4 mr-2" /> Change Status
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => setAnalyseQuote(q)}
+                            >
+                              <BarChart3 className="h-4 w-4 mr-2" /> Analyse
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => setProbabilityQuote(q)}
+                            >
+                              <Percent className="h-4 w-4 mr-2" /> Edit Probability
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+                              onClick={() => removeQuote(q.id)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -572,6 +804,218 @@ function FunnelBoard() {
           setAdvanceOpen(false);
         }}
       />
+
+      <QuoteDialog
+        open={quoteDialogOpen}
+        onOpenChange={setQuoteDialogOpen}
+        quote={viewQuote ?? editingQuote}
+        prefill={null}
+        leadId={null}
+        viewOnly={!!viewQuote}
+        onSaved={() => {
+          setQuoteDialogOpen(false);
+          setEditingQuote(null);
+          setViewQuote(null);
+          load();
+        }}
+      />
+
+      {/* Followup remarks */}
+      <Dialog open={!!followupEntity} onOpenChange={(o) => !o && setFollowupEntity(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Followup remarks — {followupEntity?.label}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label className="text-sm">Add new remark</Label>
+              <Textarea
+                rows={3}
+                value={followupText}
+                onChange={(e) => setFollowupText(e.target.value)}
+                placeholder="Enter remark, next steps, call outcomes…"
+              />
+              <div className="flex justify-end">
+                <Button size="sm" onClick={saveFollowup}>Add remark</Button>
+              </div>
+            </div>
+            <div className="border-t pt-3">
+              <Label className="text-sm mb-2 block">History</Label>
+              <div className="max-h-80 overflow-y-auto border rounded-md">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-40">Date & Time</TableHead>
+                      <TableHead className="w-40">User</TableHead>
+                      <TableHead>Remark</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {followupLoading ? (
+                      <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground">Loading…</TableCell></TableRow>
+                    ) : followupList.length === 0 ? (
+                      <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground">No remarks yet</TableCell></TableRow>
+                    ) : (
+                      followupList.map((r) => (
+                        <TableRow key={r.id}>
+                          <TableCell className="text-xs whitespace-nowrap">{new Date(r.created_at).toLocaleString()}</TableCell>
+                          <TableCell className="text-xs whitespace-nowrap">{r.user_name ?? "—"}</TableCell>
+                          <TableCell className="text-sm whitespace-pre-wrap">{r.remark}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFollowupEntity(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change status */}
+      <Dialog open={!!statusEntity} onOpenChange={(o) => !o && setStatusEntity(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Change status — {statusEntity?.label}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm">Status</Label>
+              <Select value={statusValue} onValueChange={setStatusValue}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {STAGES.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm">Remarks</Label>
+              <Textarea
+                rows={5}
+                value={statusRemarks}
+                onChange={(e) => setStatusRemarks(e.target.value)}
+                placeholder="Enter remarks for this status change. This will be logged in the followup remarks with date, time and user."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setStatusEntity(null)}>Cancel</Button>
+            <Button onClick={saveStatus}>Update</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Probability */}
+      <Dialog open={!!probabilityQuote} onOpenChange={(o) => !o && setProbabilityQuote(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Probability — {probabilityQuote?.quote_number}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label className="text-sm">Probability</Label>
+            <Select value={probabilityValue} onValueChange={setProbabilityValue}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {PROBABILITY_LEVELS.map((p) => (
+                  <SelectItem key={p} value={p}>{p}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setProbabilityQuote(null)}>Cancel</Button>
+            <Button onClick={saveProbability}>Update</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Analyse Quote */}
+      <Dialog open={!!analyseQuote} onOpenChange={(o) => !o && setAnalyseQuote(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Analyse — {analyseQuote?.quote_number}</DialogTitle>
+          </DialogHeader>
+          {analyseQuote && (() => {
+            const subtotal = Number(analyseQuote.subtotal ?? 0);
+            const vat = Number(analyseQuote.vat_amount ?? 0);
+            const total = Number(analyseQuote.total ?? 0);
+            const stage = QUOTE_STATUS_TO_STAGE[(analyseQuote.status ?? "").toLowerCase()] ?? analyseQuote.status;
+            const daysOpen = analyseQuote.quote_date
+              ? Math.max(0, Math.floor((Date.now() - new Date(analyseQuote.quote_date).getTime()) / 86400000))
+              : null;
+            const daysToExpiry = analyseQuote.expiry_date
+              ? Math.floor((new Date(analyseQuote.expiry_date).getTime() - Date.now()) / 86400000)
+              : null;
+            return (
+              <div className="text-sm space-y-2">
+                <div className="flex justify-between"><span className="text-muted-foreground">Customer</span><span>{analyseQuote.customer_name ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Type</span><span>{analyseQuote.quote_type ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Funnel stage</span><span>{stage ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Quote date</span><span>{analyseQuote.quote_date ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Expiry</span><span>{analyseQuote.expiry_date ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Days open</span><span>{daysOpen ?? "—"}</span></div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Days to expiry</span>
+                  <span className={daysToExpiry != null && daysToExpiry < 0 ? "text-destructive" : ""}>
+                    {daysToExpiry ?? "—"}
+                  </span>
+                </div>
+                <div className="border-t pt-2 flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{analyseQuote.currency} {subtotal.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">VAT (5%)</span><span>{analyseQuote.currency} {vat.toLocaleString()}</span></div>
+                <div className="flex justify-between font-semibold"><span>Total</span><span>{analyseQuote.currency} {total.toLocaleString()}</span></div>
+              </div>
+            );
+          })()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAnalyseQuote(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Analyse Lead */}
+      <Dialog open={!!analyseLead} onOpenChange={(o) => !o && setAnalyseLead(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Analyse — {analyseLead?.lead_name}</DialogTitle>
+          </DialogHeader>
+          {analyseLead && (() => {
+            const value = Number(analyseLead.estimated_value ?? 0);
+            const created = (analyseLead as any).created_at;
+            const daysOpen = created
+              ? Math.max(0, Math.floor((Date.now() - new Date(created).getTime()) / 86400000))
+              : null;
+            const daysToClose = analyseLead.expected_close_date
+              ? Math.floor((new Date(analyseLead.expected_close_date).getTime() - Date.now()) / 86400000)
+              : null;
+            return (
+              <div className="text-sm space-y-2">
+                <div className="flex justify-between"><span className="text-muted-foreground">Company</span><span>{analyseLead.company ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Type</span><span>{analyseLead.lead_type ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Funnel stage</span><span>{analyseLead.stage}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Source</span><span>{analyseLead.source ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Salesperson</span><span>{analyseLead.salesperson ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Expected close</span><span>{analyseLead.expected_close_date ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Days open</span><span>{daysOpen ?? "—"}</span></div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Days to close</span>
+                  <span className={daysToClose != null && daysToClose < 0 ? "text-destructive" : ""}>
+                    {daysToClose ?? "—"}
+                  </span>
+                </div>
+                <div className="border-t pt-2 flex justify-between font-semibold"><span>Estimated value</span><span>{analyseLead.currency ?? "AED"} {value.toLocaleString()}</span></div>
+              </div>
+            );
+          })()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAnalyseLead(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
