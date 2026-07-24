@@ -708,8 +708,67 @@ function FunnelBoard() {
                           ? `${q.currency ?? "AED"} ${Number(q.total).toLocaleString()}`
                           : "—"}
                       </TableCell>
-                      <TableCell className="text-right text-xs text-muted-foreground">
-                        —
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="icon" variant="ghost" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-44">
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => {
+                                setViewQuote(null);
+                                setEditingQuote(q);
+                                setQuoteDialogOpen(true);
+                              }}
+                            >
+                              <Pencil className="h-4 w-4 mr-2" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => {
+                                setEditingQuote(null);
+                                setViewQuote(q);
+                                setQuoteDialogOpen(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4 mr-2" /> View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => setFollowupEntity({ type: "quote", id: q.id, label: q.quote_number ?? "" })}
+                            >
+                              <MessageSquare className="h-4 w-4 mr-2" /> Followup remarks
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => setStatusEntity({ type: "quote", id: q.id, label: q.quote_number ?? "", current: q.status ?? "" })}
+                            >
+                              <ArrowRightCircle className="h-4 w-4 mr-2" /> Change Status
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => setAnalyseQuote(q)}
+                            >
+                              <BarChart3 className="h-4 w-4 mr-2" /> Analyse
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => setProbabilityQuote(q)}
+                            >
+                              <Percent className="h-4 w-4 mr-2" /> Edit Probability
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+                              onClick={() => removeQuote(q.id)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}
