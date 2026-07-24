@@ -520,8 +520,8 @@ function ContractDialog({
             </div>
           </div>
 
-          {/* Spare parts + status */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Spare parts + AMC Ref No + status */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
               <Label>Spare Parts Amount (AED)</Label>
               <Input
@@ -533,6 +533,14 @@ function ContractDialog({
               <p className="text-xs text-muted-foreground">
                 Auto-set by contract type ({contractType} = AED {SPARE_PARTS_BY_TYPE[contractType].toLocaleString()}).
               </p>
+            </div>
+            <div className="space-y-1">
+              <Label>AMC Ref No.</Label>
+              <Input
+                placeholder="e.g. AMC-2026-0001"
+                value={amcRefNo}
+                onChange={(e) => setAmcRefNo(e.target.value)}
+              />
             </div>
             <div className="space-y-1">
               <Label>Contract Status</Label>
