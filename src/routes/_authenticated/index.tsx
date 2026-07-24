@@ -296,6 +296,7 @@ function SalesFunnelChart() {
                   innerRadius={70}
                   paddingAngle={2}
                   label={(entry: any) => `${entry.stage}: ${entry.count}`}
+                  labelStyle={{ fontSize: 11, fontWeight: 500 }}
                 >
                   {data?.map((entry) => (
                     <Cell key={entry.stage} fill={STAGE_COLORS[entry.stage]} />
@@ -307,7 +308,7 @@ function SalesFunnelChart() {
                     props.payload.stage,
                   ]}
                 />
-                <Legend />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
