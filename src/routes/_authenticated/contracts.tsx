@@ -444,7 +444,7 @@ function ContractDialog({
         value: value ? Number(value) : null,
         payment_terms: paymentTerms || null,
         status,
-        ppm_schedule: ppmSchedule,
+        ppm_schedule: { dates: ppmSchedule, status: ppmStatus },
         water_tank_cleaning_date: null,
         water_tank_cleaning_status: null,
         ac_duct_cleaning_date: acDuctDate || null,
