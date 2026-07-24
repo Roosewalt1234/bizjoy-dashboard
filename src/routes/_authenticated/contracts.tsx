@@ -518,8 +518,8 @@ function ContractDialog({
             </div>
           </div>
 
-          {/* Spare parts */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Spare parts + status */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label>Spare Parts Amount (AED)</Label>
               <Input
@@ -532,7 +532,17 @@ function ContractDialog({
                 Auto-set by contract type ({contractType} = AED {SPARE_PARTS_BY_TYPE[contractType].toLocaleString()}).
               </p>
             </div>
+            <div className="space-y-1">
+              <Label>Contract Status</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {STATUS_OPTIONS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+
 
 
           {/* Quotes for customer */}
@@ -713,18 +723,8 @@ function ContractDialog({
             </Card>
           </div>
 
-          {/* AC duct + contract status */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-1">
-              <Label>Contract Status</Label>
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {STATUS_OPTIONS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          {/* AC duct */}
+
 
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
