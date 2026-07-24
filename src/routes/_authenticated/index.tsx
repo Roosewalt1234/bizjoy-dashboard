@@ -295,7 +295,19 @@ function SalesFunnelChart() {
                   outerRadius={135}
                   innerRadius={70}
                   paddingAngle={2}
-                  label={(entry: any) => `${entry.stage}: ${entry.count}`}
+                  label={(props: any) => (
+                    <text
+                      x={props.x}
+                      y={props.y}
+                      textAnchor={props.textAnchor}
+                      dominantBaseline={props.dominantBaseline}
+                      fill="hsl(var(--foreground))"
+                      fontSize={11}
+                      fontWeight={500}
+                    >
+                      {props.name}: {props.value}
+                    </text>
+                  )}
                 >
                   {data?.map((entry) => (
                     <Cell key={entry.stage} fill={STAGE_COLORS[entry.stage]} />
@@ -307,7 +319,7 @@ function SalesFunnelChart() {
                     props.payload.stage,
                   ]}
                 />
-                <Legend />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -370,7 +382,19 @@ function ProbabilityPieChart() {
                   outerRadius={120}
                   innerRadius={60}
                   paddingAngle={2}
-                  label={(entry: any) => `${entry.name}: ${entry.count}`}
+                  label={(props: any) => (
+                    <text
+                      x={props.x}
+                      y={props.y}
+                      textAnchor={props.textAnchor}
+                      dominantBaseline={props.dominantBaseline}
+                      fill="hsl(var(--foreground))"
+                      fontSize={11}
+                      fontWeight={500}
+                    >
+                      {props.name}: {props.value}
+                    </text>
+                  )}
                 >
                   {data?.map((entry) => (
                     <Cell key={entry.name} fill={PROBABILITY_COLORS[entry.name]} />
@@ -382,7 +406,7 @@ function ProbabilityPieChart() {
                     props.payload.name,
                   ]}
                 />
-                <Legend />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
