@@ -21,7 +21,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Plus, Pencil, Trash2, Check, ChevronsUpDown } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Pencil, Trash2, Check, ChevronsUpDown, Wrench, Droplets, Zap, Wind, Sun, Fan } from "lucide-react";
 import { toast } from "sonner";
 import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar";
 import { cn } from "@/lib/utils";
