@@ -398,6 +398,7 @@ function ContractDialog({
         title: finalTitle,
         contract_type: contractType,
         spare_parts_amount: sparePartsAmount ? Number(sparePartsAmount) : 0,
+        amc_ref_no: amcRefNo || null,
         customer_id: customerId,
         customer_name: customerName,
         start_date: startDate || null,
