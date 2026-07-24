@@ -352,6 +352,8 @@ function ContractDialog({
     try {
       const payload: any = {
         title,
+        contract_type: contractType,
+        spare_parts_amount: sparePartsAmount ? Number(sparePartsAmount) : 0,
         customer_id: customerId,
         customer_name: customerName,
         start_date: startDate || null,
