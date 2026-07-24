@@ -35,6 +35,24 @@ type PaymentTerm = typeof PAYMENT_TERMS[number];
 const STATUS_OPTIONS = ["Draft", "Active", "Expired", "Terminated"];
 const PAY_STATUS = ["Pending", "Due", "Received"] as const;
 const WATER_STATUS = ["Pending", "Scheduled", "Completed"] as const;
+const CONTRACT_TYPES = ["Standard", "Premium"] as const;
+type ContractType = typeof CONTRACT_TYPES[number];
+const PPM_MATRIX: { service: string; standard: string; premium: string }[] = [
+  { service: "AC Units", standard: "3 Times/year", premium: "4 Times/year" },
+  { service: "Water Pumps & Motors", standard: "3 Times/year", premium: "4 Times/year" },
+  { service: "Fixed Electrical Fittings", standard: "2 Times/year", premium: "3 Times/year" },
+  { service: "Plumbing Units", standard: "2 Times/year", premium: "3 Times/year" },
+  { service: "Solar Water Heater", standard: "2 Times/year", premium: "2 Times/year" },
+  { service: "Minor Masonry Works", standard: "Included", premium: "Included" },
+  { service: "Minor Carpentry Works (Fixed wood, no loose furniture)", standard: "Included", premium: "Included" },
+  { service: "Handyman Callouts (Manpower only)", standard: "30 visits/year Max 2Hrs/visit (Included)", premium: "30 visits/year Max 3Hrs/visit (Included)" },
+  { service: "Water Tank Cleaning", standard: "1 Time/year", premium: "1 Time/year" },
+  { service: "AC Duct Cleaning", standard: "NA", premium: "1 Time/year" },
+  { service: "Emergency Callouts", standard: "24/7", premium: "24/7" },
+  { service: "Consumables required for PPM", standard: "Included", premium: "Included" },
+  { service: "Spare Parts", standard: "0.00 AED", premium: "1,000.00 AED" },
+];
+const SPARE_PARTS_BY_TYPE: Record<ContractType, number> = { Standard: 0, Premium: 1000 };
 
 type PaymentRow = {
   id?: string;
