@@ -482,7 +482,7 @@ function ContractDialog({
             contract_id: contractId,
             payment_date: p.payment_date || null,
             value: p.value ? Number(p.value) : null,
-            status: p.status || "Pending",
+            status: p.status || "Not Yet Due",
             received_date: p.received_date || null,
             sort_order: idx,
           }));
