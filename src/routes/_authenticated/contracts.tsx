@@ -55,17 +55,33 @@ function addMonths(iso: string, m: number): string {
   d.setMonth(d.getMonth() + m);
   return d.toISOString().slice(0, 10);
 }
+function addYearMinusDay(iso: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  d.setFullYear(d.getFullYear() + 1);
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+function computeStatus(payment_date: string, received_date: string): string {
+  if (received_date) return "Received";
+  if (!payment_date) return "Pending";
+  const today = new Date().toISOString().slice(0, 10);
+  return payment_date < today ? "Pending" : "Due";
+}
 function generateSchedule(start: string, term: PaymentTerm, total: number): PaymentRow[] {
   if (!start || !term) return [];
   const n = termCount(term);
   const step = monthStep(term);
   const per = total && n ? +(total / n).toFixed(2) : 0;
-  return Array.from({ length: n }, (_, i) => ({
-    payment_date: step ? addMonths(start, i * step) : start,
-    value: per ? String(per) : "",
-    status: "Pending",
-    received_date: "",
-  }));
+  return Array.from({ length: n }, (_, i) => {
+    const payment_date = step ? addMonths(start, i * step) : start;
+    return {
+      payment_date,
+      value: per ? String(per) : "",
+      status: computeStatus(payment_date, ""),
+      received_date: "",
+    };
+  });
 }
 
 function ContractsPage() {
@@ -197,6 +213,34 @@ function ContractDialog({
   const [payments, setPayments] = useState<PaymentRow[]>([]);
   const [customerPickerOpen, setCustomerPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const qc = useQueryClient();
+  const [newQuote, setNewQuote] = useState({ quote_number: "", subject: "", quote_date: "", total: "", status: "Draft" });
+  const [addingQuote, setAddingQuote] = useState(false);
+
+  async function addQuotation() {
+    if (!customerName) { toast.error("Select a customer first"); return; }
+    if (!newQuote.quote_number && !newQuote.subject) { toast.error("Enter quote number or subject"); return; }
+    setAddingQuote(true);
+    try {
+      const { error } = await supabase.from("quotes").insert({
+        customer_id: customerId,
+        customer_name: customerName,
+        quote_number: newQuote.quote_number || null,
+        subject: newQuote.subject || null,
+        quote_date: newQuote.quote_date || null,
+        total: newQuote.total ? Number(newQuote.total) : null,
+        status: newQuote.status || "Draft",
+      } as any);
+      if (error) throw error;
+      toast.success("Quotation added");
+      setNewQuote({ quote_number: "", subject: "", quote_date: "", total: "", status: "Draft" });
+      qc.invalidateQueries({ queryKey: ["customer-quotes", customerName] });
+    } catch (e: any) {
+      toast.error(e.message ?? "Failed to add quotation");
+    } finally {
+      setAddingQuote(false);
+    }
+  }
 
   const { data: customers = [] } = useQuery({
     queryKey: ["customers-lookup"],
@@ -257,7 +301,26 @@ function ContractDialog({
   }, [paymentTerms, startDate, value]);
 
   function updatePayment(i: number, patch: Partial<PaymentRow>) {
-    setPayments((prev) => prev.map((p, idx) => (idx === i ? { ...p, ...patch } : p)));
+    setPayments((prev) => prev.map((p, idx) => {
+      if (idx !== i) return p;
+      const merged = { ...p, ...patch };
+      if ("payment_date" in patch || "received_date" in patch) {
+        merged.status = computeStatus(merged.payment_date, merged.received_date);
+      }
+      return merged;
+    }));
+  }
+
+  // Auto-fill end date (+1 year -1 day) and PPM dates when start date changes
+  function handleStartDateChange(v: string) {
+    setStartDate(v);
+    if (v) {
+      if (!endDate) setEndDate(addYearMinusDay(v));
+      setPpm1((prev: string) => prev || addMonths(v, 3));
+      setPpm2((prev: string) => prev || addMonths(v, 6));
+      setPpm3((prev: string) => prev || addMonths(v, 9));
+      setPpm4((prev: string) => prev || addMonths(v, 12));
+    }
   }
 
   async function save() {
@@ -377,9 +440,28 @@ function ContractDialog({
           {customerName && (
             <div className="space-y-2">
               <Label className="text-sm">Quotations for {customerName}</Label>
-              <Card className="max-h-56 overflow-y-auto">
+              <Card className="max-h-72 overflow-y-auto">
                 {customerQuotes.length === 0 ? (
-                  <div className="p-4 text-sm text-muted-foreground text-center">No quotations found.</div>
+                  <div className="p-4 space-y-3">
+                    <div className="text-sm text-muted-foreground text-center">No quotations found. Add one below.</div>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                      <Input placeholder="Quote #" value={newQuote.quote_number}
+                        onChange={(e) => setNewQuote({ ...newQuote, quote_number: e.target.value })} />
+                      <Input placeholder="Subject" value={newQuote.subject}
+                        onChange={(e) => setNewQuote({ ...newQuote, subject: e.target.value })} />
+                      <Input type="date" value={newQuote.quote_date}
+                        onChange={(e) => setNewQuote({ ...newQuote, quote_date: e.target.value })} />
+                      <Input type="number" step="0.01" placeholder="Total" value={newQuote.total}
+                        onChange={(e) => setNewQuote({ ...newQuote, total: e.target.value })} />
+                      <Input placeholder="Status" value={newQuote.status}
+                        onChange={(e) => setNewQuote({ ...newQuote, status: e.target.value })} />
+                    </div>
+                    <div className="flex justify-end">
+                      <Button type="button" size="sm" onClick={addQuotation} disabled={addingQuote}>
+                        {addingQuote ? "Adding..." : "Add Quotation"}
+                      </Button>
+                    </div>
+                  </div>
                 ) : (
                   <Table>
                     <TableHeader>
@@ -416,7 +498,7 @@ function ContractDialog({
             </div>
             <div className="space-y-1">
               <Label>Start Date</Label>
-              <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+              <Input type="date" value={startDate} onChange={(e) => handleStartDateChange(e.target.value)} />
             </div>
             <div className="space-y-1">
               <Label>End Date</Label>
