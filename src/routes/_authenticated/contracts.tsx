@@ -37,22 +37,39 @@ const PAY_STATUS = ["Pending", "Due", "Received"] as const;
 const WATER_STATUS = ["Pending", "Scheduled", "Completed"] as const;
 const CONTRACT_TYPES = ["Standard", "Premium"] as const;
 type ContractType = typeof CONTRACT_TYPES[number];
-const PPM_MATRIX: { service: string; standard: string; premium: string }[] = [
-  { service: "AC Units", standard: "3 Times/year", premium: "4 Times/year" },
-  { service: "Water Pumps & Motors", standard: "3 Times/year", premium: "4 Times/year" },
-  { service: "Fixed Electrical Fittings", standard: "2 Times/year", premium: "3 Times/year" },
-  { service: "Plumbing Units", standard: "2 Times/year", premium: "3 Times/year" },
-  { service: "Solar Water Heater", standard: "2 Times/year", premium: "2 Times/year" },
-  { service: "Minor Masonry Works", standard: "Included", premium: "Included" },
-  { service: "Minor Carpentry Works (Fixed wood, no loose furniture)", standard: "Included", premium: "Included" },
-  { service: "Handyman Callouts (Manpower only)", standard: "30 visits/year Max 2Hrs/visit (Included)", premium: "30 visits/year Max 3Hrs/visit (Included)" },
-  { service: "Water Tank Cleaning", standard: "1 Time/year", premium: "1 Time/year" },
-  { service: "AC Duct Cleaning", standard: "NA", premium: "1 Time/year" },
-  { service: "Emergency Callouts", standard: "24/7", premium: "24/7" },
-  { service: "Consumables required for PPM", standard: "Included", premium: "Included" },
-  { service: "Spare Parts", standard: "0.00 AED", premium: "1,000.00 AED" },
-];
 const SPARE_PARTS_BY_TYPE: Record<ContractType, number> = { Standard: 0, Premium: 1000 };
+const PPM_SERVICES: { key: string; label: string; standard: number; premium: number }[] = [
+  { key: "ac_units", label: "AC Units", standard: 3, premium: 4 },
+  { key: "water_pumps", label: "Water Pumps & Motors", standard: 3, premium: 4 },
+  { key: "electrical", label: "Fixed Electrical Fittings", standard: 2, premium: 3 },
+  { key: "plumbing", label: "Plumbing Units", standard: 2, premium: 3 },
+  { key: "solar", label: "Solar Water Heater", standard: 2, premium: 2 },
+];
+function freqFor(type: ContractType, key: string): number {
+  const s = PPM_SERVICES.find((x) => x.key === key);
+  if (!s) return 0;
+  return type === "Premium" ? s.premium : s.standard;
+}
+function anchorDates(start: string, max: number): string[] {
+  if (!start || max <= 0) return [];
+  const step = 12 / max;
+  return Array.from({ length: max }, (_, i) => addMonths(start, Math.round(i * step)));
+}
+function subsetDates(anchors: string[], n: number): string[] {
+  if (n >= anchors.length) return anchors.slice();
+  if (n <= 1) return anchors.slice(0, n);
+  return [...anchors.slice(0, n - 1), anchors[anchors.length - 1]];
+}
+function generatePpmSchedule(start: string, type: ContractType): Record<string, string[]> {
+  const max = type === "Premium" ? 4 : 3;
+  const anchors = anchorDates(start, max);
+  const out: Record<string, string[]> = {};
+  for (const s of PPM_SERVICES) {
+    const freq = type === "Premium" ? s.premium : s.standard;
+    out[s.key] = start ? subsetDates(anchors, freq) : Array(freq).fill("");
+  }
+  return out;
+}
 
 type PaymentRow = {
   id?: string;
@@ -225,12 +242,13 @@ function ContractDialog({
   const [endDate, setEndDate] = useState(editing?.end_date ?? "");
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerm | "">(editing?.payment_terms ?? "");
   const [status, setStatus] = useState(editing?.status ?? "Draft");
-  const [ppm1, setPpm1] = useState(editing?.ppm_1_date ?? "");
-  const [ppm2, setPpm2] = useState(editing?.ppm_2_date ?? "");
-  const [ppm3, setPpm3] = useState(editing?.ppm_3_date ?? "");
-  const [ppm4, setPpm4] = useState(editing?.ppm_4_date ?? "");
+  const [ppmSchedule, setPpmSchedule] = useState<Record<string, string[]>>(
+    (editing?.ppm_schedule as Record<string, string[]>) ?? {},
+  );
   const [wtcDate, setWtcDate] = useState(editing?.water_tank_cleaning_date ?? "");
   const [wtcStatus, setWtcStatus] = useState(editing?.water_tank_cleaning_status ?? "");
+  const [acDuctDate, setAcDuctDate] = useState(editing?.ac_duct_cleaning_date ?? "");
+  const [acDuctStatus, setAcDuctStatus] = useState(editing?.ac_duct_cleaning_status ?? "");
   const [remark, setRemark] = useState(editing?.remark ?? "");
   const [payments, setPayments] = useState<PaymentRow[]>([]);
   const [customerPickerOpen, setCustomerPickerOpen] = useState(false);
@@ -333,25 +351,36 @@ function ContractDialog({
     }));
   }
 
-  // Auto-fill end date (+1 year -1 day) and PPM dates when start date changes
+  // Auto-fill end date (+1 year -1 day) and PPM schedule when start date changes
   function handleStartDateChange(v: string) {
     setStartDate(v);
     if (v) {
       if (!endDate) setEndDate(addYearMinusDay(v));
-      setPpm1((prev: string) => prev || addMonths(v, 3));
-      setPpm2((prev: string) => prev || addMonths(v, 6));
-      setPpm3((prev: string) => prev || addMonths(v, 9));
-      setPpm4((prev: string) => prev || addMonths(v, 12));
+      setPpmSchedule(generatePpmSchedule(v, contractType));
     }
+  }
+
+  // Regenerate PPM schedule when contract type changes (only if start date set)
+  useEffect(() => {
+    if (startDate) setPpmSchedule(generatePpmSchedule(startDate, contractType));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contractType]);
+
+  function updatePpmDate(key: string, idx: number, val: string) {
+    setPpmSchedule((prev) => {
+      const arr = (prev[key] ?? []).slice();
+      arr[idx] = val;
+      return { ...prev, [key]: arr };
+    });
   }
 
   async function save() {
     if (!customerName) { toast.error("Select a customer"); return; }
-    if (!title) { toast.error("Enter a contract title"); return; }
+    const finalTitle = title || `${customerName} – ${contractType} Contract`;
     setSaving(true);
     try {
       const payload: any = {
-        title,
+        title: finalTitle,
         contract_type: contractType,
         spare_parts_amount: sparePartsAmount ? Number(sparePartsAmount) : 0,
         customer_id: customerId,
@@ -361,12 +390,11 @@ function ContractDialog({
         value: value ? Number(value) : null,
         payment_terms: paymentTerms || null,
         status,
-        ppm_1_date: ppm1 || null,
-        ppm_2_date: ppm2 || null,
-        ppm_3_date: ppm3 || null,
-        ppm_4_date: ppm4 || null,
+        ppm_schedule: ppmSchedule,
         water_tank_cleaning_date: wtcDate || null,
         water_tank_cleaning_status: wtcStatus || null,
+        ac_duct_cleaning_date: acDuctDate || null,
+        ac_duct_cleaning_status: acDuctStatus || null,
         remark: remark || null,
       };
 
@@ -456,62 +484,39 @@ function ContractDialog({
             </div>
             <div className="space-y-1">
               <Label>Contract Title *</Label>
-              <div className="flex flex-col gap-2">
-                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Villa AMC 2026" />
-                <div className="flex gap-4 items-center pt-1">
-                  {CONTRACT_TYPES.map((t) => (
-                    <label key={t} className="flex items-center gap-2 text-sm cursor-pointer">
-                      <input
-                        type="radio"
-                        name="contract_type"
-                        value={t}
-                        checked={contractType === t}
-                        onChange={() => {
-                          setContractType(t);
-                          setSparePartsAmount(String(SPARE_PARTS_BY_TYPE[t]));
-                        }}
-                      />
-                      {t} Contract
-                    </label>
-                  ))}
-                </div>
+              <div className="flex gap-4 items-center pt-1">
+                {CONTRACT_TYPES.map((t) => (
+                  <label key={t} className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input
+                      type="radio"
+                      name="contract_type"
+                      value={t}
+                      checked={contractType === t}
+                      onChange={() => {
+                        setContractType(t);
+                        setSparePartsAmount(String(SPARE_PARTS_BY_TYPE[t]));
+                      }}
+                    />
+                    {t} Contract
+                  </label>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* PPM Service Matrix */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Planned Preventive Maintenance — {contractType}</Label>
-            <Card className="overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-1/2">Service</TableHead>
-                    <TableHead className={contractType === "Standard" ? "bg-primary/10" : ""}>Standard</TableHead>
-                    <TableHead className={contractType === "Premium" ? "bg-primary/10" : ""}>Premium</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {PPM_MATRIX.map((r) => (
-                    <TableRow key={r.service}>
-                      <TableCell className="text-sm">{r.service}</TableCell>
-                      <TableCell className={cn("text-sm", contractType === "Standard" && "bg-primary/5 font-medium")}>{r.standard}</TableCell>
-                      <TableCell className={cn("text-sm", contractType === "Premium" && "bg-primary/5 font-medium")}>{r.premium}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-1">
-                <Label>Spare Parts Amount (AED)</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={sparePartsAmount}
-                  onChange={(e) => setSparePartsAmount(e.target.value)}
-                />
-              </div>
+          {/* Spare parts */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <Label>Spare Parts Amount (AED)</Label>
+              <Input
+                type="number"
+                step="0.01"
+                value={sparePartsAmount}
+                onChange={(e) => setSparePartsAmount(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Auto-set by contract type ({contractType} = AED {SPARE_PARTS_BY_TYPE[contractType].toLocaleString()}).
+              </p>
             </div>
           </div>
 
@@ -646,18 +651,55 @@ function ContractDialog({
             </Card>
           </div>
 
-          {/* PPM dates */}
+          {/* PPM service schedule */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">PPM Dates</Label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="space-y-1"><Label className="text-xs">1st PPM</Label><Input type="date" value={ppm1} onChange={(e) => setPpm1(e.target.value)} /></div>
-              <div className="space-y-1"><Label className="text-xs">2nd PPM</Label><Input type="date" value={ppm2} onChange={(e) => setPpm2(e.target.value)} /></div>
-              <div className="space-y-1"><Label className="text-xs">3rd PPM</Label><Input type="date" value={ppm3} onChange={(e) => setPpm3(e.target.value)} /></div>
-              <div className="space-y-1"><Label className="text-xs">4th PPM</Label><Input type="date" value={ppm4} onChange={(e) => setPpm4(e.target.value)} /></div>
-            </div>
+            <Label className="text-sm font-medium">
+              PPM Service Schedule — {contractType}
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Dates auto-generated from start date. Lower-frequency services share dates with the max-frequency anchor so technicians visit together.
+            </p>
+            <Card className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[220px]">Service</TableHead>
+                    <TableHead className="w-16 text-center">Freq</TableHead>
+                    {[1, 2, 3, 4].map((n) => (
+                      <TableHead key={n}>Visit {n}</TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {PPM_SERVICES.map((s) => {
+                    const freq = freqFor(contractType, s.key);
+                    const dates = ppmSchedule[s.key] ?? [];
+                    return (
+                      <TableRow key={s.key}>
+                        <TableCell className="text-sm font-medium">{s.label}</TableCell>
+                        <TableCell className="text-center text-sm">{freq}/yr</TableCell>
+                        {[0, 1, 2, 3].map((i) => (
+                          <TableCell key={i}>
+                            {i < freq ? (
+                              <Input
+                                type="date"
+                                value={dates[i] ?? ""}
+                                onChange={(e) => updatePpmDate(s.key, i, e.target.value)}
+                              />
+                            ) : (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </Card>
           </div>
 
-          {/* Water tank cleaning + status */}
+          {/* Water tank + AC duct + contract status */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
               <Label>Water Tank Cleaning Date</Label>
@@ -678,6 +720,32 @@ function ContractDialog({
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {STATUS_OPTIONS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label>
+                AC Duct Cleaning Date
+                {contractType === "Standard" && (
+                  <span className="ml-2 text-xs text-muted-foreground">(not included in Standard)</span>
+                )}
+              </Label>
+              <Input
+                type="date"
+                value={acDuctDate}
+                onChange={(e) => setAcDuctDate(e.target.value)}
+                disabled={contractType === "Standard"}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>AC Duct Cleaning Status</Label>
+              <Select value={acDuctStatus} onValueChange={setAcDuctStatus} disabled={contractType === "Standard"}>
+                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                <SelectContent>
+                  {WATER_STATUS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

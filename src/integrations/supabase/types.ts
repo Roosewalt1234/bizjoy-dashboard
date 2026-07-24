@@ -90,6 +90,8 @@ export type Database = {
       }
       contracts: {
         Row: {
+          ac_duct_cleaning_date: string | null
+          ac_duct_cleaning_status: string | null
           contract_type: string | null
           created_at: string
           customer_id: string | null
@@ -102,6 +104,7 @@ export type Database = {
           ppm_2_date: string | null
           ppm_3_date: string | null
           ppm_4_date: string | null
+          ppm_schedule: Json | null
           remark: string | null
           spare_parts_amount: number | null
           start_date: string | null
@@ -112,6 +115,8 @@ export type Database = {
           water_tank_cleaning_status: string | null
         }
         Insert: {
+          ac_duct_cleaning_date?: string | null
+          ac_duct_cleaning_status?: string | null
           contract_type?: string | null
           created_at?: string
           customer_id?: string | null
@@ -124,6 +129,7 @@ export type Database = {
           ppm_2_date?: string | null
           ppm_3_date?: string | null
           ppm_4_date?: string | null
+          ppm_schedule?: Json | null
           remark?: string | null
           spare_parts_amount?: number | null
           start_date?: string | null
@@ -134,6 +140,8 @@ export type Database = {
           water_tank_cleaning_status?: string | null
         }
         Update: {
+          ac_duct_cleaning_date?: string | null
+          ac_duct_cleaning_status?: string | null
           contract_type?: string | null
           created_at?: string
           customer_id?: string | null
@@ -146,6 +154,7 @@ export type Database = {
           ppm_2_date?: string | null
           ppm_3_date?: string | null
           ppm_4_date?: string | null
+          ppm_schedule?: Json | null
           remark?: string | null
           spare_parts_amount?: number | null
           start_date?: string | null
