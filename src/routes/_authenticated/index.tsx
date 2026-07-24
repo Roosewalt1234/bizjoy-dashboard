@@ -280,38 +280,35 @@ function SalesFunnelChart() {
       <CardContent>
         {isLoading ? (
           <div className="h-[420px] flex items-center justify-center text-muted-foreground">Loading…</div>
+        ) : totalLeads === 0 ? (
+          <div className="h-[420px] flex items-center justify-center text-muted-foreground">No leads or quotes for this period</div>
         ) : (
           <div className="w-full h-[420px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data} layout="vertical" margin={{ top: 8, right: 60, left: 20, bottom: 8 }} barCategoryGap={6}>
-                <XAxis type="number" hide />
-                <YAxis
-                  type="category"
-                  dataKey="stage"
-                  width={170}
-                  tick={{ fontSize: 12 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip
-                  formatter={(val: any, name: any, props: any) => {
-                    if (name === "count") return [`${val} leads · AED ${props.payload.value.toLocaleString()}`, props.payload.stage];
-                    return [val, name];
-                  }}
-                  cursor={{ fill: "hsl(var(--muted))" }}
-                />
-                <Bar dataKey="count" radius={[4, 4, 4, 4]}>
+              <PieChart>
+                <Pie
+                  data={data?.filter((d) => d.count > 0)}
+                  dataKey="count"
+                  nameKey="stage"
+                  cx="50%"
+                  cy="45%"
+                  outerRadius={135}
+                  innerRadius={70}
+                  paddingAngle={2}
+                  label={(entry: any) => `${entry.stage}: ${entry.count}`}
+                >
                   {data?.map((entry) => (
                     <Cell key={entry.stage} fill={STAGE_COLORS[entry.stage]} />
                   ))}
-                  <LabelList
-                    dataKey="count"
-                    position="right"
-                    formatter={(v: any) => (v > 0 ? v : "")}
-                    style={{ fill: "hsl(var(--foreground))", fontSize: 12, fontWeight: 600 }}
-                  />
-                </Bar>
-              </BarChart>
+                </Pie>
+                <Tooltip
+                  formatter={(val: any, _n: any, props: any) => [
+                    `${val} leads · AED ${props.payload.value.toLocaleString()}`,
+                    props.payload.stage,
+                  ]}
+                />
+                <Legend />
+              </PieChart>
             </ResponsiveContainer>
           </div>
         )}
