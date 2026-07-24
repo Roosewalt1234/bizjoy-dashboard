@@ -21,7 +21,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Plus, Pencil, Trash2, Check, ChevronsUpDown } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Pencil, Trash2, Check, ChevronsUpDown, Wrench, Droplets, Zap, Wind, Sun, Fan } from "lucide-react";
 import { toast } from "sonner";
 import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar";
 import { cn } from "@/lib/utils";
@@ -38,14 +39,37 @@ const WATER_STATUS = ["Pending", "Scheduled", "Completed"] as const;
 const CONTRACT_TYPES = ["Standard", "Premium"] as const;
 type ContractType = typeof CONTRACT_TYPES[number];
 const SPARE_PARTS_BY_TYPE: Record<ContractType, number> = { Standard: 0, Premium: 1000 };
-const PPM_SERVICES: { key: string; label: string; standard: number; premium: number }[] = [
-  { key: "ac_units", label: "AC Units", standard: 3, premium: 4 },
-  { key: "water_pumps", label: "Water Pumps & Motors", standard: 3, premium: 4 },
-  { key: "electrical", label: "Fixed Electrical Fittings", standard: 2, premium: 3 },
-  { key: "plumbing", label: "Plumbing Units", standard: 2, premium: 3 },
-  { key: "solar", label: "Solar Water Heater", standard: 2, premium: 2 },
-  { key: "water_tank", label: "Water Tank Cleaning", standard: 1, premium: 2 },
+const PPM_SERVICES: { key: string; label: string; standard: number; premium: number; Icon: any }[] = [
+  { key: "ac_units", label: "AC Units", standard: 3, premium: 4, Icon: Wind },
+  { key: "water_pumps", label: "Water Pumps & Motors", standard: 3, premium: 4, Icon: Fan },
+  { key: "electrical", label: "Fixed Electrical Fittings", standard: 2, premium: 3, Icon: Zap },
+  { key: "plumbing", label: "Plumbing Units", standard: 2, premium: 3, Icon: Wrench },
+  { key: "solar", label: "Solar Water Heater", standard: 2, premium: 2, Icon: Sun },
+  { key: "water_tank", label: "Water Tank Cleaning", standard: 1, premium: 2, Icon: Droplets },
 ];
+
+const PPM_STATUS_OPTIONS = ["Auto", "Scheduled", "Completed"] as const;
+function computePpmStatus(date: string, override: string): "Not Yet Due" | "Due" | "Overdue" | "Scheduled" | "Completed" {
+  if (override === "Completed") return "Completed";
+  if (override === "Scheduled") return "Scheduled";
+  if (!date) return "Not Yet Due";
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const target = new Date(date); target.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((today.getTime() - target.getTime()) / 86400000);
+  // diffDays > 0 means today is past scheduled date
+  if (diffDays <= 0) return "Not Yet Due";
+  if (diffDays <= 15) return "Due";
+  return "Overdue";
+}
+function ppmStatusClasses(s: string): string {
+  switch (s) {
+    case "Completed": return "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-200";
+    case "Scheduled": return "bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-900/40 dark:text-sky-200";
+    case "Due":       return "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/40 dark:text-amber-200";
+    case "Overdue":   return "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/40 dark:text-red-200";
+    default:          return "bg-muted text-muted-foreground border-border";
+  }
+}
 function freqFor(type: ContractType, key: string): number {
   const s = PPM_SERVICES.find((x) => x.key === key);
   if (!s) return 0;
@@ -259,9 +283,16 @@ function ContractDialog({
   const [endDate, setEndDate] = useState(editing?.end_date ?? "");
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerm | "">(editing?.payment_terms ?? "");
   const [status, setStatus] = useState(editing?.status ?? "Draft");
-  const [ppmSchedule, setPpmSchedule] = useState<Record<string, string[]>>(
-    (editing?.ppm_schedule as Record<string, string[]>) ?? {},
-  );
+  // Normalize legacy ppm_schedule (Record<string,string[]>) → { dates, status }
+  const _initialPpm = (() => {
+    const raw = editing?.ppm_schedule ?? {};
+    if (raw && typeof raw === "object" && ("dates" in raw || "status" in raw)) {
+      return { dates: (raw.dates ?? {}) as Record<string, string[]>, status: (raw.status ?? {}) as Record<string, string[]> };
+    }
+    return { dates: (raw ?? {}) as Record<string, string[]>, status: {} as Record<string, string[]> };
+  })();
+  const [ppmSchedule, setPpmSchedule] = useState<Record<string, string[]>>(_initialPpm.dates);
+  const [ppmStatus, setPpmStatus] = useState<Record<string, string[]>>(_initialPpm.status);
   const [acDuctDate, setAcDuctDate] = useState(editing?.ac_duct_cleaning_date ?? "");
   const [acDuctStatus, setAcDuctStatus] = useState(editing?.ac_duct_cleaning_status ?? "");
   const [remark, setRemark] = useState(editing?.remark ?? "");
@@ -388,6 +419,13 @@ function ContractDialog({
       return { ...prev, [key]: arr };
     });
   }
+  function updatePpmStatus(key: string, idx: number, val: string) {
+    setPpmStatus((prev) => {
+      const arr = (prev[key] ?? []).slice();
+      arr[idx] = val === "Auto" ? "" : val;
+      return { ...prev, [key]: arr };
+    });
+  }
 
   async function save() {
     if (!customerName) { toast.error("Select a customer"); return; }
@@ -406,7 +444,7 @@ function ContractDialog({
         value: value ? Number(value) : null,
         payment_terms: paymentTerms || null,
         status,
-        ppm_schedule: ppmSchedule,
+        ppm_schedule: { dates: ppmSchedule, status: ppmStatus },
         water_tank_cleaning_date: null,
         water_tank_cleaning_status: null,
         ac_duct_cleaning_date: acDuctDate || null,
@@ -686,52 +724,82 @@ function ContractDialog({
           </div>
 
           {/* PPM service schedule */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">
-              PPM Service Schedule — {contractType}
-            </Label>
-            <p className="text-xs text-muted-foreground">
-              Dates auto-generated from start date. Lower-frequency services share dates with the max-frequency anchor so technicians visit together.
-            </p>
-            <Card className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[220px]">Service</TableHead>
-                    <TableHead className="w-16 text-center">Freq</TableHead>
-                    {[1, 2, 3, 4].map((n) => (
-                      <TableHead key={n}>Visit {n}</TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {PPM_SERVICES.map((s) => {
-                    const freq = freqFor(contractType, s.key);
-                    const dates = ppmSchedule[s.key] ?? [];
-                    return (
-                      <TableRow key={s.key}>
-                        <TableCell className="text-sm font-medium">{s.label}</TableCell>
-                        <TableCell className="text-center text-sm">{freq}/yr</TableCell>
-                        {[0, 1, 2, 3].map((i) => (
-                          <TableCell key={i}>
-                            {i < freq ? (
-                              <Input
-                                type="date"
-                                value={dates[i] ?? ""}
-                                onChange={(e) => updatePpmDate(s.key, i, e.target.value)}
-                              />
-                            ) : (
-                              <span className="text-xs text-muted-foreground">—</span>
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </Card>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <Label className="text-sm font-medium">PPM Service Schedule</Label>
+                <p className="text-xs text-muted-foreground">
+                  {contractType} package • dates auto-generated from start date. Status auto-computes from today; override to Scheduled or Completed as needed.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className={cn("inline-flex items-center rounded-md border px-2 py-0.5", ppmStatusClasses("Not Yet Due"))}>Not Yet Due</span>
+                <span className={cn("inline-flex items-center rounded-md border px-2 py-0.5", ppmStatusClasses("Due"))}>Due ≤15d</span>
+                <span className={cn("inline-flex items-center rounded-md border px-2 py-0.5", ppmStatusClasses("Overdue"))}>Overdue</span>
+                <span className={cn("inline-flex items-center rounded-md border px-2 py-0.5", ppmStatusClasses("Scheduled"))}>Scheduled</span>
+                <span className={cn("inline-flex items-center rounded-md border px-2 py-0.5", ppmStatusClasses("Completed"))}>Completed</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {PPM_SERVICES.map((s) => {
+                const freq = freqFor(contractType, s.key);
+                const dates = ppmSchedule[s.key] ?? [];
+                const overrides = ppmStatus[s.key] ?? [];
+                const Icon = s.Icon;
+                return (
+                  <Card key={s.key} className="p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-md bg-primary/10 text-primary flex items-center justify-center">
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-semibold leading-tight">{s.label}</div>
+                          <div className="text-xs text-muted-foreground">{freq} visit{freq > 1 ? "s" : ""} / year</div>
+                        </div>
+                      </div>
+                      <Badge variant="secondary" className="text-[10px]">{freq}/yr</Badge>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {Array.from({ length: freq }).map((_, i) => {
+                        const date = dates[i] ?? "";
+                        const override = overrides[i] ?? "";
+                        const computed = computePpmStatus(date, override);
+                        return (
+                          <div key={i} className="rounded-md border bg-card/50 p-2.5 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Visit {i + 1}</span>
+                              <span className={cn("inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] font-medium", ppmStatusClasses(computed))}>
+                                {computed}
+                              </span>
+                            </div>
+                            <Input
+                              type="date"
+                              className="h-8 text-sm"
+                              value={date}
+                              onChange={(e) => updatePpmDate(s.key, i, e.target.value)}
+                            />
+                            <Select value={override || "Auto"} onValueChange={(v) => updatePpmStatus(s.key, i, v)}>
+                              <SelectTrigger className="h-7 text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {PPM_STATUS_OPTIONS.map((o) => (
+                                  <SelectItem key={o} value={o} className="text-xs">{o}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
+
 
           {/* AC duct */}
 
