@@ -34,7 +34,16 @@ export const Route = createFileRoute("/_authenticated/contracts")({
 const PAYMENT_TERMS = ["Monthly", "Quarterly", "Half Yearly", "Single Payment"] as const;
 type PaymentTerm = typeof PAYMENT_TERMS[number];
 const STATUS_OPTIONS = ["Draft", "Active", "Expired", "Terminated"];
-const PAY_STATUS = ["Pending", "Due", "Received"] as const;
+const PAY_STATUS = ["Not Yet Due", "Due", "Overdue", "Received"] as const;
+function payStatusClasses(s: string): string {
+  switch (s) {
+    case "Received":    return "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-200";
+    case "Due":         return "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/40 dark:text-amber-200";
+    case "Overdue":     return "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/40 dark:text-red-200";
+    case "Not Yet Due": return "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800/60 dark:text-slate-200";
+    default:            return "bg-muted text-muted-foreground border-border";
+  }
+}
 const WATER_STATUS = ["Pending", "Scheduled", "Completed"] as const;
 const CONTRACT_TYPES = ["Standard", "Premium"] as const;
 type ContractType = typeof CONTRACT_TYPES[number];
@@ -139,9 +148,13 @@ function addYearMinusDay(iso: string): string {
 }
 function computeStatus(payment_date: string, received_date: string): string {
   if (received_date) return "Received";
-  if (!payment_date) return "Pending";
-  const today = new Date().toISOString().slice(0, 10);
-  return payment_date > today ? "Pending" : "Due";
+  if (!payment_date) return "Not Yet Due";
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const target = new Date(payment_date); target.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((today.getTime() - target.getTime()) / 86400000);
+  if (diffDays <= 0) return "Not Yet Due";
+  if (diffDays <= 15) return "Due";
+  return "Overdue";
 }
 function generateSchedule(start: string, term: PaymentTerm, total: number): PaymentRow[] {
   if (!start || !term) return [];
@@ -369,7 +382,7 @@ function ContractDialog({
         id: p.id,
         payment_date: p.payment_date ?? "",
         value: p.value != null ? String(p.value) : "",
-        status: p.status ?? "Pending",
+        status: computeStatus(p.payment_date ?? "", p.received_date ?? ""),
         received_date: p.received_date ?? "",
       })));
     })();
@@ -469,7 +482,7 @@ function ContractDialog({
             contract_id: contractId,
             payment_date: p.payment_date || null,
             value: p.value ? Number(p.value) : null,
-            status: p.status || "Pending",
+            status: p.status || "Not Yet Due",
             received_date: p.received_date || null,
             sort_order: idx,
           }));
@@ -707,9 +720,15 @@ function ContractDialog({
                       </TableCell>
                       <TableCell>
                         <Select value={p.status} onValueChange={(v) => updatePayment(i, { status: v })}>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectTrigger className={cn("h-8 font-medium border", payStatusClasses(p.status))}>
+                            <SelectValue />
+                          </SelectTrigger>
                           <SelectContent>
-                            {PAY_STATUS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                            {PAY_STATUS.map((s) => (
+                              <SelectItem key={s} value={s}>
+                                <span className={cn("inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium", payStatusClasses(s))}>{s}</span>
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </TableCell>
