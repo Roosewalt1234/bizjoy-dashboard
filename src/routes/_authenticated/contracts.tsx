@@ -273,7 +273,26 @@ function ContractDialog({
   }, [paymentTerms, startDate, value]);
 
   function updatePayment(i: number, patch: Partial<PaymentRow>) {
-    setPayments((prev) => prev.map((p, idx) => (idx === i ? { ...p, ...patch } : p)));
+    setPayments((prev) => prev.map((p, idx) => {
+      if (idx !== i) return p;
+      const merged = { ...p, ...patch };
+      if ("payment_date" in patch || "received_date" in patch) {
+        merged.status = computeStatus(merged.payment_date, merged.received_date);
+      }
+      return merged;
+    }));
+  }
+
+  // Auto-fill end date (+1 year -1 day) and PPM dates when start date changes
+  function handleStartDateChange(v: string) {
+    setStartDate(v);
+    if (v) {
+      if (!endDate) setEndDate(addYearMinusDay(v));
+      setPpm1((prev: string) => prev || addMonths(v, 3));
+      setPpm2((prev: string) => prev || addMonths(v, 6));
+      setPpm3((prev: string) => prev || addMonths(v, 9));
+      setPpm4((prev: string) => prev || addMonths(v, 12));
+    }
   }
 
   async function save() {
