@@ -34,7 +34,16 @@ export const Route = createFileRoute("/_authenticated/contracts")({
 const PAYMENT_TERMS = ["Monthly", "Quarterly", "Half Yearly", "Single Payment"] as const;
 type PaymentTerm = typeof PAYMENT_TERMS[number];
 const STATUS_OPTIONS = ["Draft", "Active", "Expired", "Terminated"];
-const PAY_STATUS = ["Pending", "Due", "Received"] as const;
+const PAY_STATUS = ["Not Yet Due", "Due", "Overdue", "Received"] as const;
+function payStatusClasses(s: string): string {
+  switch (s) {
+    case "Received":    return "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-200";
+    case "Due":         return "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/40 dark:text-amber-200";
+    case "Overdue":     return "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/40 dark:text-red-200";
+    case "Not Yet Due": return "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800/60 dark:text-slate-200";
+    default:            return "bg-muted text-muted-foreground border-border";
+  }
+}
 const WATER_STATUS = ["Pending", "Scheduled", "Completed"] as const;
 const CONTRACT_TYPES = ["Standard", "Premium"] as const;
 type ContractType = typeof CONTRACT_TYPES[number];
