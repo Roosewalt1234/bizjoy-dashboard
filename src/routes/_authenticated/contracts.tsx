@@ -213,6 +213,34 @@ function ContractDialog({
   const [payments, setPayments] = useState<PaymentRow[]>([]);
   const [customerPickerOpen, setCustomerPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const qc = useQueryClient();
+  const [newQuote, setNewQuote] = useState({ quote_number: "", subject: "", quote_date: "", total: "", status: "Draft" });
+  const [addingQuote, setAddingQuote] = useState(false);
+
+  async function addQuotation() {
+    if (!customerName) { toast.error("Select a customer first"); return; }
+    if (!newQuote.quote_number && !newQuote.subject) { toast.error("Enter quote number or subject"); return; }
+    setAddingQuote(true);
+    try {
+      const { error } = await supabase.from("quotes").insert({
+        customer_id: customerId,
+        customer_name: customerName,
+        quote_number: newQuote.quote_number || null,
+        subject: newQuote.subject || null,
+        quote_date: newQuote.quote_date || null,
+        total: newQuote.total ? Number(newQuote.total) : null,
+        status: newQuote.status || "Draft",
+      });
+      if (error) throw error;
+      toast.success("Quotation added");
+      setNewQuote({ quote_number: "", subject: "", quote_date: "", total: "", status: "Draft" });
+      qc.invalidateQueries({ queryKey: ["customer-quotes", customerName] });
+    } catch (e: any) {
+      toast.error(e.message ?? "Failed to add quotation");
+    } finally {
+      setAddingQuote(false);
+    }
+  }
 
   const { data: customers = [] } = useQuery({
     queryKey: ["customers-lookup"],
