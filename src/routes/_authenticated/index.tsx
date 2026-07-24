@@ -295,8 +295,19 @@ function SalesFunnelChart() {
                   outerRadius={135}
                   innerRadius={70}
                   paddingAngle={2}
-                  label={(entry: any) => `${entry.stage}: ${entry.count}`}
-                  labelStyle={{ fontSize: 11, fontWeight: 500 }}
+                  label={(props: any) => (
+                    <text
+                      x={props.x}
+                      y={props.y}
+                      textAnchor={props.textAnchor}
+                      dominantBaseline={props.dominantBaseline}
+                      fill="hsl(var(--foreground))"
+                      fontSize={11}
+                      fontWeight={500}
+                    >
+                      {props.name}: {props.value}
+                    </text>
+                  )}
                 >
                   {data?.map((entry) => (
                     <Cell key={entry.stage} fill={STAGE_COLORS[entry.stage]} />
