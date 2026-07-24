@@ -451,7 +451,7 @@ function ContractDialog({
             </div>
             <div className="space-y-1">
               <Label>Start Date</Label>
-              <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+              <Input type="date" value={startDate} onChange={(e) => handleStartDateChange(e.target.value)} />
             </div>
             <div className="space-y-1">
               <Label>End Date</Label>
