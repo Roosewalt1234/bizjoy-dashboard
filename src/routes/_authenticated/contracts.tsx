@@ -212,13 +212,15 @@ function ContractDialog({
   });
 
   const { data: customerQuotes = [] } = useQuery({
-    queryKey: ["customer-quotes", customerId, customerName],
-    enabled: !!(customerId || customerName),
+    queryKey: ["customer-quotes", customerName],
+    enabled: !!customerName,
     queryFn: async () => {
-      let q = supabase.from("quotes").select("id, quote_number, subject, total, status, quote_date");
-      if (customerId) q = q.eq("customer_id", customerId);
-      else q = q.eq("customer_name", customerName);
-      const { data, error } = await q.order("quote_date", { ascending: false }).limit(200);
+      const { data, error } = await supabase
+        .from("quotes")
+        .select("id, quote_number, subject, total, status, quote_date")
+        .eq("customer_name", customerName)
+        .order("quote_date", { ascending: false })
+        .limit(200);
       if (error) throw error;
       return data ?? [];
     },
