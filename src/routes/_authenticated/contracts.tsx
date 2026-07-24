@@ -724,52 +724,82 @@ function ContractDialog({
           </div>
 
           {/* PPM service schedule */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">
-              PPM Service Schedule — {contractType}
-            </Label>
-            <p className="text-xs text-muted-foreground">
-              Dates auto-generated from start date. Lower-frequency services share dates with the max-frequency anchor so technicians visit together.
-            </p>
-            <Card className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[220px]">Service</TableHead>
-                    <TableHead className="w-16 text-center">Freq</TableHead>
-                    {[1, 2, 3, 4].map((n) => (
-                      <TableHead key={n}>Visit {n}</TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {PPM_SERVICES.map((s) => {
-                    const freq = freqFor(contractType, s.key);
-                    const dates = ppmSchedule[s.key] ?? [];
-                    return (
-                      <TableRow key={s.key}>
-                        <TableCell className="text-sm font-medium">{s.label}</TableCell>
-                        <TableCell className="text-center text-sm">{freq}/yr</TableCell>
-                        {[0, 1, 2, 3].map((i) => (
-                          <TableCell key={i}>
-                            {i < freq ? (
-                              <Input
-                                type="date"
-                                value={dates[i] ?? ""}
-                                onChange={(e) => updatePpmDate(s.key, i, e.target.value)}
-                              />
-                            ) : (
-                              <span className="text-xs text-muted-foreground">—</span>
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </Card>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <Label className="text-sm font-medium">PPM Service Schedule</Label>
+                <p className="text-xs text-muted-foreground">
+                  {contractType} package • dates auto-generated from start date. Status auto-computes from today; override to Scheduled or Completed as needed.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className={cn("inline-flex items-center rounded-md border px-2 py-0.5", ppmStatusClasses("Not Yet Due"))}>Not Yet Due</span>
+                <span className={cn("inline-flex items-center rounded-md border px-2 py-0.5", ppmStatusClasses("Due"))}>Due ≤15d</span>
+                <span className={cn("inline-flex items-center rounded-md border px-2 py-0.5", ppmStatusClasses("Overdue"))}>Overdue</span>
+                <span className={cn("inline-flex items-center rounded-md border px-2 py-0.5", ppmStatusClasses("Scheduled"))}>Scheduled</span>
+                <span className={cn("inline-flex items-center rounded-md border px-2 py-0.5", ppmStatusClasses("Completed"))}>Completed</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {PPM_SERVICES.map((s) => {
+                const freq = freqFor(contractType, s.key);
+                const dates = ppmSchedule[s.key] ?? [];
+                const overrides = ppmStatus[s.key] ?? [];
+                const Icon = s.Icon;
+                return (
+                  <Card key={s.key} className="p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-md bg-primary/10 text-primary flex items-center justify-center">
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-semibold leading-tight">{s.label}</div>
+                          <div className="text-xs text-muted-foreground">{freq} visit{freq > 1 ? "s" : ""} / year</div>
+                        </div>
+                      </div>
+                      <Badge variant="secondary" className="text-[10px]">{freq}/yr</Badge>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {Array.from({ length: freq }).map((_, i) => {
+                        const date = dates[i] ?? "";
+                        const override = overrides[i] ?? "";
+                        const computed = computePpmStatus(date, override);
+                        return (
+                          <div key={i} className="rounded-md border bg-card/50 p-2.5 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Visit {i + 1}</span>
+                              <span className={cn("inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] font-medium", ppmStatusClasses(computed))}>
+                                {computed}
+                              </span>
+                            </div>
+                            <Input
+                              type="date"
+                              className="h-8 text-sm"
+                              value={date}
+                              onChange={(e) => updatePpmDate(s.key, i, e.target.value)}
+                            />
+                            <Select value={override || "Auto"} onValueChange={(v) => updatePpmStatus(s.key, i, v)}>
+                              <SelectTrigger className="h-7 text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {PPM_STATUS_OPTIONS.map((o) => (
+                                  <SelectItem key={o} value={o} className="text-xs">{o}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
+
 
           {/* AC duct */}
 
