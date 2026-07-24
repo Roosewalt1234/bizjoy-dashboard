@@ -456,9 +456,65 @@ function ContractDialog({
             </div>
             <div className="space-y-1">
               <Label>Contract Title *</Label>
-              <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Villa AMC 2026" />
+              <div className="flex flex-col gap-2">
+                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Villa AMC 2026" />
+                <div className="flex gap-4 items-center pt-1">
+                  {CONTRACT_TYPES.map((t) => (
+                    <label key={t} className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input
+                        type="radio"
+                        name="contract_type"
+                        value={t}
+                        checked={contractType === t}
+                        onChange={() => {
+                          setContractType(t);
+                          setSparePartsAmount(String(SPARE_PARTS_BY_TYPE[t]));
+                        }}
+                      />
+                      {t} Contract
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
+
+          {/* PPM Service Matrix */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Planned Preventive Maintenance — {contractType}</Label>
+            <Card className="overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-1/2">Service</TableHead>
+                    <TableHead className={contractType === "Standard" ? "bg-primary/10" : ""}>Standard</TableHead>
+                    <TableHead className={contractType === "Premium" ? "bg-primary/10" : ""}>Premium</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {PPM_MATRIX.map((r) => (
+                    <TableRow key={r.service}>
+                      <TableCell className="text-sm">{r.service}</TableCell>
+                      <TableCell className={cn("text-sm", contractType === "Standard" && "bg-primary/5 font-medium")}>{r.standard}</TableCell>
+                      <TableCell className={cn("text-sm", contractType === "Premium" && "bg-primary/5 font-medium")}>{r.premium}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-1">
+                <Label>Spare Parts Amount (AED)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={sparePartsAmount}
+                  onChange={(e) => setSparePartsAmount(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
 
           {/* Quotes for customer */}
           {customerName && (
