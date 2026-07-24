@@ -47,6 +47,47 @@ export type Database = {
         }
         Relationships: []
       }
+      contract_payments: {
+        Row: {
+          contract_id: string
+          created_at: string
+          id: string
+          payment_date: string | null
+          received_date: string | null
+          sort_order: number | null
+          status: string | null
+          value: number | null
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          id?: string
+          payment_date?: string | null
+          received_date?: string | null
+          sort_order?: number | null
+          status?: string | null
+          value?: number | null
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          id?: string
+          payment_date?: string | null
+          received_date?: string | null
+          sort_order?: number | null
+          status?: string | null
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_payments_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contracts: {
         Row: {
           created_at: string
@@ -55,10 +96,18 @@ export type Database = {
           end_date: string | null
           id: string
           notes: string | null
+          payment_terms: string | null
+          ppm_1_date: string | null
+          ppm_2_date: string | null
+          ppm_3_date: string | null
+          ppm_4_date: string | null
+          remark: string | null
           start_date: string | null
           status: string | null
           title: string
           value: number | null
+          water_tank_cleaning_date: string | null
+          water_tank_cleaning_status: string | null
         }
         Insert: {
           created_at?: string
@@ -67,10 +116,18 @@ export type Database = {
           end_date?: string | null
           id?: string
           notes?: string | null
+          payment_terms?: string | null
+          ppm_1_date?: string | null
+          ppm_2_date?: string | null
+          ppm_3_date?: string | null
+          ppm_4_date?: string | null
+          remark?: string | null
           start_date?: string | null
           status?: string | null
           title: string
           value?: number | null
+          water_tank_cleaning_date?: string | null
+          water_tank_cleaning_status?: string | null
         }
         Update: {
           created_at?: string
@@ -79,10 +136,18 @@ export type Database = {
           end_date?: string | null
           id?: string
           notes?: string | null
+          payment_terms?: string | null
+          ppm_1_date?: string | null
+          ppm_2_date?: string | null
+          ppm_3_date?: string | null
+          ppm_4_date?: string | null
+          remark?: string | null
           start_date?: string | null
           status?: string | null
           title?: string
           value?: number | null
+          water_tank_cleaning_date?: string | null
+          water_tank_cleaning_status?: string | null
         }
         Relationships: [
           {
