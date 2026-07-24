@@ -128,6 +128,7 @@ function RootComponent() {
 
   useEffect(() => {
     let mounted = true;
+    let unsub: (() => void) | undefined;
     import("@/integrations/supabase/client").then(({ supabase }) => {
       if (!mounted) return;
       const { data: sub } = supabase.auth.onAuthStateChange((event) => {
@@ -135,10 +136,11 @@ function RootComponent() {
         router.invalidate();
         if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
       });
-      (mounted as unknown as { unsub?: () => void }).unsub = () => sub.subscription.unsubscribe();
+      unsub = () => sub.subscription.unsubscribe();
     });
     return () => {
       mounted = false;
+      unsub?.();
     };
   }, [router, queryClient]);
 
