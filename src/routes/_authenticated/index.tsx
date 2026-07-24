@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, ShoppingCart, UserCog, Wallet, FileText, FolderKanban, Calendar, TrendingUp, TrendingDown, Banknote } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { ResponsiveContainer, Tooltip, Cell, PieChart, Pie, Legend } from "recharts";
+import { ResponsiveContainer, Tooltip, Cell, PieChart, Pie, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 
@@ -466,6 +466,110 @@ function FinancialSummaryCards() {
   );
 }
 
+function NewCustomersChart() {
+  const [view, setView] = useState<"monthly" | "yearly">("monthly");
+  const [year, setYear] = useState(() => String(new Date().getFullYear()));
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["new-customers-chart", view, year],
+    queryFn: async () => {
+      const { data: rows, error } = await (supabase.from as any)("customers")
+        .select("created_at")
+        .range(0, 99999);
+      if (error) throw error;
+      const list = (rows ?? []) as { created_at: string | null }[];
+
+      if (view === "monthly") {
+        const y = parseInt(year, 10);
+        const buckets = MONTHS.map((m) => ({ label: m.label.slice(0, 3), count: 0 }));
+        list.forEach((r) => {
+          if (!r.created_at) return;
+          const d = new Date(r.created_at);
+          if (d.getFullYear() === y) buckets[d.getMonth()].count += 1;
+        });
+        return buckets;
+      }
+
+      const byYear: Record<string, number> = {};
+      list.forEach((r) => {
+        if (!r.created_at) return;
+        const y = new Date(r.created_at).getFullYear().toString();
+        byYear[y] = (byYear[y] ?? 0) + 1;
+      });
+      return Object.keys(byYear)
+        .sort()
+        .map((y) => ({ label: y, count: byYear[y] }));
+    },
+  });
+
+  const total = data?.reduce((s, d) => s + d.count, 0) ?? 0;
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <CardTitle>New Customers</CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              {view === "monthly" ? `Monthly breakdown for ${year}` : "Yearly totals"}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-muted/40 rounded-lg px-3 py-1.5">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Select value={view} onValueChange={(v) => setView(v as any)}>
+                <SelectTrigger className="w-[120px] border-0 bg-transparent shadow-none h-8 px-0 focus:ring-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                  <SelectItem value="yearly">Yearly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {view === "monthly" && (
+              <Select value={year} onValueChange={setYear}>
+                <SelectTrigger className="w-[100px] h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {getYearOptions().map((y) => (
+                    <SelectItem key={y} value={y}>{y}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            <div className="text-sm border-l pl-3">
+              <div className="text-muted-foreground">Total</div>
+              <div className="text-xl font-semibold">{total}</div>
+            </div>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="h-[320px] flex items-center justify-center text-muted-foreground">Loading…</div>
+        ) : total === 0 ? (
+          <div className="h-[320px] flex items-center justify-center text-muted-foreground">No new customers in this period</div>
+        ) : (
+          <div className="w-full h-[320px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                <Tooltip formatter={(val: any) => [`${val} customers`, "New"]} />
+                <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+
 function Dashboard() {
   const customers = useCount("customers");
   const sales = useCount("sales_orders");
@@ -494,6 +598,7 @@ function Dashboard() {
           <SalesFunnelChart />
           <ProbabilityPieChart />
         </div>
+        <NewCustomersChart />
       </div>
 
     </div>
