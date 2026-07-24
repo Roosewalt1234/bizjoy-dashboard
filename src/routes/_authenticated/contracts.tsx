@@ -351,25 +351,36 @@ function ContractDialog({
     }));
   }
 
-  // Auto-fill end date (+1 year -1 day) and PPM dates when start date changes
+  // Auto-fill end date (+1 year -1 day) and PPM schedule when start date changes
   function handleStartDateChange(v: string) {
     setStartDate(v);
     if (v) {
       if (!endDate) setEndDate(addYearMinusDay(v));
-      setPpm1((prev: string) => prev || addMonths(v, 3));
-      setPpm2((prev: string) => prev || addMonths(v, 6));
-      setPpm3((prev: string) => prev || addMonths(v, 9));
-      setPpm4((prev: string) => prev || addMonths(v, 12));
+      setPpmSchedule(generatePpmSchedule(v, contractType));
     }
+  }
+
+  // Regenerate PPM schedule when contract type changes (only if start date set)
+  useEffect(() => {
+    if (startDate) setPpmSchedule(generatePpmSchedule(startDate, contractType));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contractType]);
+
+  function updatePpmDate(key: string, idx: number, val: string) {
+    setPpmSchedule((prev) => {
+      const arr = (prev[key] ?? []).slice();
+      arr[idx] = val;
+      return { ...prev, [key]: arr };
+    });
   }
 
   async function save() {
     if (!customerName) { toast.error("Select a customer"); return; }
-    if (!title) { toast.error("Enter a contract title"); return; }
+    const finalTitle = title || `${customerName} – ${contractType} Contract`;
     setSaving(true);
     try {
       const payload: any = {
-        title,
+        title: finalTitle,
         contract_type: contractType,
         spare_parts_amount: sparePartsAmount ? Number(sparePartsAmount) : 0,
         customer_id: customerId,
@@ -379,12 +390,11 @@ function ContractDialog({
         value: value ? Number(value) : null,
         payment_terms: paymentTerms || null,
         status,
-        ppm_1_date: ppm1 || null,
-        ppm_2_date: ppm2 || null,
-        ppm_3_date: ppm3 || null,
-        ppm_4_date: ppm4 || null,
+        ppm_schedule: ppmSchedule,
         water_tank_cleaning_date: wtcDate || null,
         water_tank_cleaning_status: wtcStatus || null,
+        ac_duct_cleaning_date: acDuctDate || null,
+        ac_duct_cleaning_status: acDuctStatus || null,
         remark: remark || null,
       };
 
