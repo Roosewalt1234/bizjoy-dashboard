@@ -268,6 +268,144 @@ function FunnelBoard() {
   const [stagePage, setStagePage] = useState(1);
   useEffect(() => { setStagePage(1); }, [selectedStage, period]);
 
+  // Row action dialog state (shared for leads & quotes)
+  const [quoteDialogOpen, setQuoteDialogOpen] = useState(false);
+  const [editingQuote, setEditingQuote] = useState<Quote | null>(null);
+  const [viewQuote, setViewQuote] = useState<Quote | null>(null);
+  type EntityRef = { type: "lead" | "quote"; id: string; label: string };
+  const [followupEntity, setFollowupEntity] = useState<EntityRef | null>(null);
+  const [followupText, setFollowupText] = useState("");
+  const [followupList, setFollowupList] = useState<Array<{ id: string; remark: string; user_name: string | null; created_at: string }>>([]);
+  const [followupLoading, setFollowupLoading] = useState(false);
+  const [statusEntity, setStatusEntity] = useState<(EntityRef & { current: string }) | null>(null);
+  const [statusValue, setStatusValue] = useState<string>("New Lead / Inquiry");
+  const [statusRemarks, setStatusRemarks] = useState<string>("");
+  const [analyseQuote, setAnalyseQuote] = useState<Quote | null>(null);
+  const [analyseLead, setAnalyseLead] = useState<Lead | null>(null);
+  const [probabilityQuote, setProbabilityQuote] = useState<Quote | null>(null);
+  const [probabilityValue, setProbabilityValue] = useState<string>("Medium");
+
+  useEffect(() => {
+    if (probabilityQuote) setProbabilityValue((probabilityQuote.probability as string) ?? "Medium");
+  }, [probabilityQuote]);
+
+  useEffect(() => {
+    if (followupEntity) {
+      setFollowupText("");
+      loadFollowups(followupEntity);
+    } else {
+      setFollowupList([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [followupEntity]);
+
+  useEffect(() => {
+    if (statusEntity) {
+      const raw = statusEntity.current ?? "";
+      const mapped =
+        statusEntity.type === "quote"
+          ? (QUOTE_STATUS_TO_STAGE[raw.toLowerCase()] ?? raw ?? "Pending Quotation")
+          : (raw || "New Lead / Inquiry");
+      setStatusValue(mapped);
+      setStatusRemarks("");
+    }
+  }, [statusEntity]);
+
+  async function loadFollowups(entity: EntityRef) {
+    setFollowupLoading(true);
+    const { data, error } = await (supabase.from as any)("followup_remarks")
+      .select("id, remark, user_name, created_at")
+      .eq("entity_type", entity.type)
+      .eq("entity_id", entity.id)
+      .order("created_at", { ascending: false });
+    setFollowupLoading(false);
+    if (error) return toast.error(error.message);
+    setFollowupList(data ?? []);
+  }
+
+  async function saveFollowup() {
+    if (!followupEntity) return;
+    const text = followupText.trim();
+    if (!text) return toast.error("Enter a remark");
+    const { data: userData } = await supabase.auth.getUser();
+    const user = userData.user;
+    if (!user) return toast.error("Not signed in");
+    const name =
+      (user.user_metadata as any)?.full_name ||
+      (user.user_metadata as any)?.name ||
+      user.email ||
+      "Unknown";
+    const { error } = await (supabase.from as any)("followup_remarks").insert({
+      entity_type: followupEntity.type,
+      entity_id: followupEntity.id,
+      remark: text,
+      user_id: user.id,
+      user_name: name,
+    });
+    if (error) return toast.error(error.message);
+    toast.success("Remark added");
+    setFollowupText("");
+    loadFollowups(followupEntity);
+  }
+
+  async function saveStatus() {
+    if (!statusEntity) return;
+    if (statusEntity.type === "quote") {
+      const { error } = await (supabase.from as any)("quotes")
+        .update({ status: statusValue })
+        .eq("id", statusEntity.id);
+      if (error) return toast.error(error.message);
+    } else {
+      const { error } = await (supabase.from as any)("sales_leads")
+        .update({ stage: statusValue })
+        .eq("id", statusEntity.id);
+      if (error) return toast.error(error.message);
+    }
+    const remarkText = statusRemarks.trim();
+    if (remarkText) {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData.user;
+      if (user) {
+        const name =
+          (user.user_metadata as any)?.full_name ||
+          (user.user_metadata as any)?.name ||
+          user.email ||
+          "Unknown";
+        await (supabase.from as any)("followup_remarks").insert({
+          entity_type: statusEntity.type,
+          entity_id: statusEntity.id,
+          remark: `Status changed to "${statusValue}" — ${remarkText}`,
+          user_id: user.id,
+          user_name: name,
+        });
+      }
+    }
+    toast.success("Status updated");
+    setStatusEntity(null);
+    load();
+  }
+
+  async function saveProbability() {
+    if (!probabilityQuote) return;
+    const { error } = await (supabase.from as any)("quotes")
+      .update({ probability: probabilityValue })
+      .eq("id", probabilityQuote.id);
+    if (error) return toast.error(error.message);
+    toast.success("Probability updated");
+    setProbabilityQuote(null);
+    load();
+  }
+
+  async function removeQuote(id: string) {
+    if (!confirm("Delete this quote?")) return;
+    const { error } = await (supabase.from as any)("quotes").delete().eq("id", id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Deleted");
+      load();
+    }
+  }
+
   async function load() {
     setLoading(true);
     const [leadsRes, quotesRes] = await Promise.all([
