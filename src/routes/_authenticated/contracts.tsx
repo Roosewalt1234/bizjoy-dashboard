@@ -283,9 +283,16 @@ function ContractDialog({
   const [endDate, setEndDate] = useState(editing?.end_date ?? "");
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerm | "">(editing?.payment_terms ?? "");
   const [status, setStatus] = useState(editing?.status ?? "Draft");
-  const [ppmSchedule, setPpmSchedule] = useState<Record<string, string[]>>(
-    (editing?.ppm_schedule as Record<string, string[]>) ?? {},
-  );
+  // Normalize legacy ppm_schedule (Record<string,string[]>) → { dates, status }
+  const _initialPpm = (() => {
+    const raw = editing?.ppm_schedule ?? {};
+    if (raw && typeof raw === "object" && ("dates" in raw || "status" in raw)) {
+      return { dates: (raw.dates ?? {}) as Record<string, string[]>, status: (raw.status ?? {}) as Record<string, string[]> };
+    }
+    return { dates: (raw ?? {}) as Record<string, string[]>, status: {} as Record<string, string[]> };
+  })();
+  const [ppmSchedule, setPpmSchedule] = useState<Record<string, string[]>>(_initialPpm.dates);
+  const [ppmStatus, setPpmStatus] = useState<Record<string, string[]>>(_initialPpm.status);
   const [acDuctDate, setAcDuctDate] = useState(editing?.ac_duct_cleaning_date ?? "");
   const [acDuctStatus, setAcDuctStatus] = useState(editing?.ac_duct_cleaning_status ?? "");
   const [remark, setRemark] = useState(editing?.remark ?? "");
