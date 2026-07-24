@@ -37,22 +37,39 @@ const PAY_STATUS = ["Pending", "Due", "Received"] as const;
 const WATER_STATUS = ["Pending", "Scheduled", "Completed"] as const;
 const CONTRACT_TYPES = ["Standard", "Premium"] as const;
 type ContractType = typeof CONTRACT_TYPES[number];
-const PPM_MATRIX: { service: string; standard: string; premium: string }[] = [
-  { service: "AC Units", standard: "3 Times/year", premium: "4 Times/year" },
-  { service: "Water Pumps & Motors", standard: "3 Times/year", premium: "4 Times/year" },
-  { service: "Fixed Electrical Fittings", standard: "2 Times/year", premium: "3 Times/year" },
-  { service: "Plumbing Units", standard: "2 Times/year", premium: "3 Times/year" },
-  { service: "Solar Water Heater", standard: "2 Times/year", premium: "2 Times/year" },
-  { service: "Minor Masonry Works", standard: "Included", premium: "Included" },
-  { service: "Minor Carpentry Works (Fixed wood, no loose furniture)", standard: "Included", premium: "Included" },
-  { service: "Handyman Callouts (Manpower only)", standard: "30 visits/year Max 2Hrs/visit (Included)", premium: "30 visits/year Max 3Hrs/visit (Included)" },
-  { service: "Water Tank Cleaning", standard: "1 Time/year", premium: "1 Time/year" },
-  { service: "AC Duct Cleaning", standard: "NA", premium: "1 Time/year" },
-  { service: "Emergency Callouts", standard: "24/7", premium: "24/7" },
-  { service: "Consumables required for PPM", standard: "Included", premium: "Included" },
-  { service: "Spare Parts", standard: "0.00 AED", premium: "1,000.00 AED" },
-];
 const SPARE_PARTS_BY_TYPE: Record<ContractType, number> = { Standard: 0, Premium: 1000 };
+const PPM_SERVICES: { key: string; label: string; standard: number; premium: number }[] = [
+  { key: "ac_units", label: "AC Units", standard: 3, premium: 4 },
+  { key: "water_pumps", label: "Water Pumps & Motors", standard: 3, premium: 4 },
+  { key: "electrical", label: "Fixed Electrical Fittings", standard: 2, premium: 3 },
+  { key: "plumbing", label: "Plumbing Units", standard: 2, premium: 3 },
+  { key: "solar", label: "Solar Water Heater", standard: 2, premium: 2 },
+];
+function freqFor(type: ContractType, key: string): number {
+  const s = PPM_SERVICES.find((x) => x.key === key);
+  if (!s) return 0;
+  return type === "Premium" ? s.premium : s.standard;
+}
+function anchorDates(start: string, max: number): string[] {
+  if (!start || max <= 0) return [];
+  const step = 12 / max;
+  return Array.from({ length: max }, (_, i) => addMonths(start, Math.round(i * step)));
+}
+function subsetDates(anchors: string[], n: number): string[] {
+  if (n >= anchors.length) return anchors.slice();
+  if (n <= 1) return anchors.slice(0, n);
+  return [...anchors.slice(0, n - 1), anchors[anchors.length - 1]];
+}
+function generatePpmSchedule(start: string, type: ContractType): Record<string, string[]> {
+  const max = type === "Premium" ? 4 : 3;
+  const anchors = anchorDates(start, max);
+  const out: Record<string, string[]> = {};
+  for (const s of PPM_SERVICES) {
+    const freq = type === "Premium" ? s.premium : s.standard;
+    out[s.key] = start ? subsetDates(anchors, freq) : Array(freq).fill("");
+  }
+  return out;
+}
 
 type PaymentRow = {
   id?: string;
