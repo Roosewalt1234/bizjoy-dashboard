@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, ShoppingCart, UserCog, Wallet, FileText, FolderKanban, Calendar } from "lucide-react";
+import { Users, ShoppingCart, UserCog, Wallet, FileText, FolderKanban, Calendar, TrendingUp, TrendingDown, Banknote } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, LabelList, PieChart, Pie, Legend } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
