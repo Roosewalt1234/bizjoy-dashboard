@@ -494,6 +494,7 @@ function Dashboard() {
           <SalesFunnelChart />
           <ProbabilityPieChart />
         </div>
+        <NewCustomersChart />
       </div>
 
     </div>
