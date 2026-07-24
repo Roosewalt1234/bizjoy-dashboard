@@ -651,18 +651,55 @@ function ContractDialog({
             </Card>
           </div>
 
-          {/* PPM dates */}
+          {/* PPM service schedule */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">PPM Dates</Label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="space-y-1"><Label className="text-xs">1st PPM</Label><Input type="date" value={ppm1} onChange={(e) => setPpm1(e.target.value)} /></div>
-              <div className="space-y-1"><Label className="text-xs">2nd PPM</Label><Input type="date" value={ppm2} onChange={(e) => setPpm2(e.target.value)} /></div>
-              <div className="space-y-1"><Label className="text-xs">3rd PPM</Label><Input type="date" value={ppm3} onChange={(e) => setPpm3(e.target.value)} /></div>
-              <div className="space-y-1"><Label className="text-xs">4th PPM</Label><Input type="date" value={ppm4} onChange={(e) => setPpm4(e.target.value)} /></div>
-            </div>
+            <Label className="text-sm font-medium">
+              PPM Service Schedule — {contractType}
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Dates auto-generated from start date. Lower-frequency services share dates with the max-frequency anchor so technicians visit together.
+            </p>
+            <Card className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[220px]">Service</TableHead>
+                    <TableHead className="w-16 text-center">Freq</TableHead>
+                    {[1, 2, 3, 4].map((n) => (
+                      <TableHead key={n}>Visit {n}</TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {PPM_SERVICES.map((s) => {
+                    const freq = freqFor(contractType, s.key);
+                    const dates = ppmSchedule[s.key] ?? [];
+                    return (
+                      <TableRow key={s.key}>
+                        <TableCell className="text-sm font-medium">{s.label}</TableCell>
+                        <TableCell className="text-center text-sm">{freq}/yr</TableCell>
+                        {[0, 1, 2, 3].map((i) => (
+                          <TableCell key={i}>
+                            {i < freq ? (
+                              <Input
+                                type="date"
+                                value={dates[i] ?? ""}
+                                onChange={(e) => updatePpmDate(s.key, i, e.target.value)}
+                              />
+                            ) : (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </Card>
           </div>
 
-          {/* Water tank cleaning + status */}
+          {/* Water tank + AC duct + contract status */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
               <Label>Water Tank Cleaning Date</Label>
@@ -683,6 +720,32 @@ function ContractDialog({
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {STATUS_OPTIONS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label>
+                AC Duct Cleaning Date
+                {contractType === "Standard" && (
+                  <span className="ml-2 text-xs text-muted-foreground">(not included in Standard)</span>
+                )}
+              </Label>
+              <Input
+                type="date"
+                value={acDuctDate}
+                onChange={(e) => setAcDuctDate(e.target.value)}
+                disabled={contractType === "Standard"}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>AC Duct Cleaning Status</Label>
+              <Select value={acDuctStatus} onValueChange={setAcDuctStatus} disabled={contractType === "Standard"}>
+                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                <SelectContent>
+                  {WATER_STATUS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
