@@ -804,6 +804,218 @@ function FunnelBoard() {
           setAdvanceOpen(false);
         }}
       />
+
+      <QuoteDialog
+        open={quoteDialogOpen}
+        onOpenChange={setQuoteDialogOpen}
+        quote={viewQuote ?? editingQuote}
+        prefill={null}
+        leadId={null}
+        viewOnly={!!viewQuote}
+        onSaved={() => {
+          setQuoteDialogOpen(false);
+          setEditingQuote(null);
+          setViewQuote(null);
+          load();
+        }}
+      />
+
+      {/* Followup remarks */}
+      <Dialog open={!!followupEntity} onOpenChange={(o) => !o && setFollowupEntity(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Followup remarks — {followupEntity?.label}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label className="text-sm">Add new remark</Label>
+              <Textarea
+                rows={3}
+                value={followupText}
+                onChange={(e) => setFollowupText(e.target.value)}
+                placeholder="Enter remark, next steps, call outcomes…"
+              />
+              <div className="flex justify-end">
+                <Button size="sm" onClick={saveFollowup}>Add remark</Button>
+              </div>
+            </div>
+            <div className="border-t pt-3">
+              <Label className="text-sm mb-2 block">History</Label>
+              <div className="max-h-80 overflow-y-auto border rounded-md">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-40">Date & Time</TableHead>
+                      <TableHead className="w-40">User</TableHead>
+                      <TableHead>Remark</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {followupLoading ? (
+                      <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground">Loading…</TableCell></TableRow>
+                    ) : followupList.length === 0 ? (
+                      <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground">No remarks yet</TableCell></TableRow>
+                    ) : (
+                      followupList.map((r) => (
+                        <TableRow key={r.id}>
+                          <TableCell className="text-xs whitespace-nowrap">{new Date(r.created_at).toLocaleString()}</TableCell>
+                          <TableCell className="text-xs whitespace-nowrap">{r.user_name ?? "—"}</TableCell>
+                          <TableCell className="text-sm whitespace-pre-wrap">{r.remark}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFollowupEntity(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change status */}
+      <Dialog open={!!statusEntity} onOpenChange={(o) => !o && setStatusEntity(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Change status — {statusEntity?.label}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm">Status</Label>
+              <Select value={statusValue} onValueChange={setStatusValue}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {STAGES.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm">Remarks</Label>
+              <Textarea
+                rows={5}
+                value={statusRemarks}
+                onChange={(e) => setStatusRemarks(e.target.value)}
+                placeholder="Enter remarks for this status change. This will be logged in the followup remarks with date, time and user."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setStatusEntity(null)}>Cancel</Button>
+            <Button onClick={saveStatus}>Update</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Probability */}
+      <Dialog open={!!probabilityQuote} onOpenChange={(o) => !o && setProbabilityQuote(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Probability — {probabilityQuote?.quote_number}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label className="text-sm">Probability</Label>
+            <Select value={probabilityValue} onValueChange={setProbabilityValue}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {PROBABILITY_LEVELS.map((p) => (
+                  <SelectItem key={p} value={p}>{p}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setProbabilityQuote(null)}>Cancel</Button>
+            <Button onClick={saveProbability}>Update</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Analyse Quote */}
+      <Dialog open={!!analyseQuote} onOpenChange={(o) => !o && setAnalyseQuote(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Analyse — {analyseQuote?.quote_number}</DialogTitle>
+          </DialogHeader>
+          {analyseQuote && (() => {
+            const subtotal = Number(analyseQuote.subtotal ?? 0);
+            const vat = Number(analyseQuote.vat_amount ?? 0);
+            const total = Number(analyseQuote.total ?? 0);
+            const stage = QUOTE_STATUS_TO_STAGE[(analyseQuote.status ?? "").toLowerCase()] ?? analyseQuote.status;
+            const daysOpen = analyseQuote.quote_date
+              ? Math.max(0, Math.floor((Date.now() - new Date(analyseQuote.quote_date).getTime()) / 86400000))
+              : null;
+            const daysToExpiry = analyseQuote.expiry_date
+              ? Math.floor((new Date(analyseQuote.expiry_date).getTime() - Date.now()) / 86400000)
+              : null;
+            return (
+              <div className="text-sm space-y-2">
+                <div className="flex justify-between"><span className="text-muted-foreground">Customer</span><span>{analyseQuote.customer_name ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Type</span><span>{analyseQuote.quote_type ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Funnel stage</span><span>{stage ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Quote date</span><span>{analyseQuote.quote_date ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Expiry</span><span>{analyseQuote.expiry_date ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Days open</span><span>{daysOpen ?? "—"}</span></div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Days to expiry</span>
+                  <span className={daysToExpiry != null && daysToExpiry < 0 ? "text-destructive" : ""}>
+                    {daysToExpiry ?? "—"}
+                  </span>
+                </div>
+                <div className="border-t pt-2 flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{analyseQuote.currency} {subtotal.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">VAT (5%)</span><span>{analyseQuote.currency} {vat.toLocaleString()}</span></div>
+                <div className="flex justify-between font-semibold"><span>Total</span><span>{analyseQuote.currency} {total.toLocaleString()}</span></div>
+              </div>
+            );
+          })()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAnalyseQuote(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Analyse Lead */}
+      <Dialog open={!!analyseLead} onOpenChange={(o) => !o && setAnalyseLead(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Analyse — {analyseLead?.lead_name}</DialogTitle>
+          </DialogHeader>
+          {analyseLead && (() => {
+            const value = Number(analyseLead.estimated_value ?? 0);
+            const created = (analyseLead as any).created_at;
+            const daysOpen = created
+              ? Math.max(0, Math.floor((Date.now() - new Date(created).getTime()) / 86400000))
+              : null;
+            const daysToClose = analyseLead.expected_close_date
+              ? Math.floor((new Date(analyseLead.expected_close_date).getTime() - Date.now()) / 86400000)
+              : null;
+            return (
+              <div className="text-sm space-y-2">
+                <div className="flex justify-between"><span className="text-muted-foreground">Company</span><span>{analyseLead.company ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Type</span><span>{analyseLead.lead_type ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Funnel stage</span><span>{analyseLead.stage}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Source</span><span>{analyseLead.source ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Salesperson</span><span>{analyseLead.salesperson ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Expected close</span><span>{analyseLead.expected_close_date ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Days open</span><span>{daysOpen ?? "—"}</span></div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Days to close</span>
+                  <span className={daysToClose != null && daysToClose < 0 ? "text-destructive" : ""}>
+                    {daysToClose ?? "—"}
+                  </span>
+                </div>
+                <div className="border-t pt-2 flex justify-between font-semibold"><span>Estimated value</span><span>{analyseLead.currency ?? "AED"} {value.toLocaleString()}</span></div>
+              </div>
+            );
+          })()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAnalyseLead(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
