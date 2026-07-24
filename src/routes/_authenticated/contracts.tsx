@@ -382,7 +382,7 @@ function ContractDialog({
         id: p.id,
         payment_date: p.payment_date ?? "",
         value: p.value != null ? String(p.value) : "",
-        status: p.status ?? "Pending",
+        status: computeStatus(p.payment_date ?? "", p.received_date ?? ""),
         received_date: p.received_date ?? "",
       })));
     })();
