@@ -44,6 +44,7 @@ const PPM_SERVICES: { key: string; label: string; standard: number; premium: num
   { key: "electrical", label: "Fixed Electrical Fittings", standard: 2, premium: 3 },
   { key: "plumbing", label: "Plumbing Units", standard: 2, premium: 3 },
   { key: "solar", label: "Solar Water Heater", standard: 2, premium: 2 },
+  { key: "water_tank", label: "Water Tank Cleaning", standard: 1, premium: 2 },
 ];
 function freqFor(type: ContractType, key: string): number {
   const s = PPM_SERVICES.find((x) => x.key === key);
@@ -60,16 +61,31 @@ function subsetDates(anchors: string[], n: number): string[] {
   if (n <= 1) return anchors.slice(0, n);
   return [...anchors.slice(0, n - 1), anchors[anchors.length - 1]];
 }
+function waterTankDates(anchors: string[], type: ContractType): string[] {
+  // Standard: once/year aligned with 1st PPM. Premium: twice/year — 1st PPM and 3rd PPM.
+  if (!anchors.length) return type === "Premium" ? ["", ""] : [""];
+  if (type === "Premium") {
+    const first = anchors[0];
+    const third = anchors[2] ?? anchors[anchors.length - 1];
+    return [first, third];
+  }
+  return [anchors[0]];
+}
 function generatePpmSchedule(start: string, type: ContractType): Record<string, string[]> {
   const max = type === "Premium" ? 4 : 3;
   const anchors = anchorDates(start, max);
   const out: Record<string, string[]> = {};
   for (const s of PPM_SERVICES) {
     const freq = type === "Premium" ? s.premium : s.standard;
-    out[s.key] = start ? subsetDates(anchors, freq) : Array(freq).fill("");
+    if (s.key === "water_tank") {
+      out[s.key] = start ? waterTankDates(anchors, type) : Array(freq).fill("");
+    } else {
+      out[s.key] = start ? subsetDates(anchors, freq) : Array(freq).fill("");
+    }
   }
   return out;
 }
+
 
 type PaymentRow = {
   id?: string;
@@ -245,8 +261,6 @@ function ContractDialog({
   const [ppmSchedule, setPpmSchedule] = useState<Record<string, string[]>>(
     (editing?.ppm_schedule as Record<string, string[]>) ?? {},
   );
-  const [wtcDate, setWtcDate] = useState(editing?.water_tank_cleaning_date ?? "");
-  const [wtcStatus, setWtcStatus] = useState(editing?.water_tank_cleaning_status ?? "");
   const [acDuctDate, setAcDuctDate] = useState(editing?.ac_duct_cleaning_date ?? "");
   const [acDuctStatus, setAcDuctStatus] = useState(editing?.ac_duct_cleaning_status ?? "");
   const [remark, setRemark] = useState(editing?.remark ?? "");
@@ -391,8 +405,8 @@ function ContractDialog({
         payment_terms: paymentTerms || null,
         status,
         ppm_schedule: ppmSchedule,
-        water_tank_cleaning_date: wtcDate || null,
-        water_tank_cleaning_status: wtcStatus || null,
+        water_tank_cleaning_date: null,
+        water_tank_cleaning_status: null,
         ac_duct_cleaning_date: acDuctDate || null,
         ac_duct_cleaning_status: acDuctStatus || null,
         remark: remark || null,
@@ -699,21 +713,8 @@ function ContractDialog({
             </Card>
           </div>
 
-          {/* Water tank + AC duct + contract status */}
+          {/* AC duct + contract status */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-1">
-              <Label>Water Tank Cleaning Date</Label>
-              <Input type="date" value={wtcDate} onChange={(e) => setWtcDate(e.target.value)} />
-            </div>
-            <div className="space-y-1">
-              <Label>Water Tank Cleaning Status</Label>
-              <Select value={wtcStatus} onValueChange={setWtcStatus}>
-                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                <SelectContent>
-                  {WATER_STATUS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
             <div className="space-y-1">
               <Label>Contract Status</Label>
               <Select value={status} onValueChange={setStatus}>
@@ -724,6 +725,7 @@ function ContractDialog({
               </Select>
             </div>
           </div>
+
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
