@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, ShoppingCart, UserCog, Wallet, FileText, FolderKanban, Calendar, TrendingUp, TrendingDown, Banknote } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { ResponsiveContainer, Tooltip, Cell, PieChart, Pie, Legend } from "recharts";
+import { ResponsiveContainer, Tooltip, Cell, PieChart, Pie, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 
