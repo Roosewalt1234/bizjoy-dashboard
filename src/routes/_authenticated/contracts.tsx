@@ -715,21 +715,8 @@ function ContractDialog({
             </Card>
           </div>
 
-          {/* Water tank + AC duct + contract status */}
+          {/* AC duct + contract status */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-1">
-              <Label>Water Tank Cleaning Date</Label>
-              <Input type="date" value={wtcDate} onChange={(e) => setWtcDate(e.target.value)} />
-            </div>
-            <div className="space-y-1">
-              <Label>Water Tank Cleaning Status</Label>
-              <Select value={wtcStatus} onValueChange={setWtcStatus}>
-                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                <SelectContent>
-                  {WATER_STATUS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
             <div className="space-y-1">
               <Label>Contract Status</Label>
               <Select value={status} onValueChange={setStatus}>
@@ -740,6 +727,7 @@ function ContractDialog({
               </Select>
             </div>
           </div>
+
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
