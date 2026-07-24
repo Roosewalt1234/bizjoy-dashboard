@@ -216,6 +216,10 @@ function ContractDialog({
   const [customerId, setCustomerId] = useState<string | null>(editing?.customer_id ?? null);
   const [customerName, setCustomerName] = useState<string>(editing?.customer_name ?? "");
   const [title, setTitle] = useState(editing?.title ?? "");
+  const [contractType, setContractType] = useState<ContractType>((editing?.contract_type as ContractType) ?? "Standard");
+  const [sparePartsAmount, setSparePartsAmount] = useState<string>(
+    editing?.spare_parts_amount != null ? String(editing.spare_parts_amount) : String(SPARE_PARTS_BY_TYPE[(editing?.contract_type as ContractType) ?? "Standard"])
+  );
   const [value, setValue] = useState<string>(editing?.value != null ? String(editing.value) : "");
   const [startDate, setStartDate] = useState(editing?.start_date ?? "");
   const [endDate, setEndDate] = useState(editing?.end_date ?? "");
