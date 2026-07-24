@@ -66,7 +66,7 @@ function computeStatus(payment_date: string, received_date: string): string {
   if (received_date) return "Received";
   if (!payment_date) return "Pending";
   const today = new Date().toISOString().slice(0, 10);
-  return payment_date < today ? "Pending" : "Due";
+  return payment_date > today ? "Pending" : "Due";
 }
 function generateSchedule(start: string, term: PaymentTerm, total: number): PaymentRow[] {
   if (!start || !term) return [];
