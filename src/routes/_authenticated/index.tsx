@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, ShoppingCart, UserCog, Wallet, FileText, FolderKanban, Calendar } from "lucide-react";
+import { Users, ShoppingCart, UserCog, Wallet, FileText, FolderKanban, Calendar, TrendingUp, TrendingDown, Banknote } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, LabelList, PieChart, Pie, Legend } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -395,6 +395,56 @@ function ProbabilityPieChart() {
   );
 }
 
+function FinancialSummaryCards() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["financial-summary"],
+    queryFn: async () => {
+      const [txRes, ordersRes] = await Promise.all([
+        supabase.from("accounts_transactions").select("type, amount"),
+        supabase.from("sales_orders").select("status, amount"),
+      ]);
+      const txs = (txRes.data ?? []) as { type: string | null; amount: number | null }[];
+      const orders = (ordersRes.data ?? []) as { status: string | null; amount: number | null }[];
+      const receivables = txs
+        .filter((r) => r.type === "Income")
+        .reduce((s, r) => s + (Number(r.amount) || 0), 0);
+      const payables = txs
+        .filter((r) => r.type === "Expense")
+        .reduce((s, r) => s + (Number(r.amount) || 0), 0);
+      const collected = orders
+        .filter((r) => r.status?.toLowerCase() === "paid")
+        .reduce((s, r) => s + (Number(r.amount) || 0), 0);
+      return { receivables, payables, collected };
+    },
+  });
+
+  const summary = [
+    { title: "Total Receivables", value: data?.receivables, icon: TrendingUp, color: "bg-emerald-600" },
+    { title: "Total Payables", value: data?.payables, icon: TrendingDown, color: "bg-rose-600" },
+    { title: "Payment Collected", value: data?.collected, icon: Banknote, color: "bg-blue-600" },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {summary.map((item) => (
+        <Card key={item.title} className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-2 pb-1">
+            <CardTitle className="text-xs font-medium text-muted-foreground">{item.title}</CardTitle>
+            <div className={`h-7 w-7 rounded-md flex items-center justify-center ${item.color}`}>
+              <item.icon className="h-3.5 w-3.5 text-white" />
+            </div>
+          </CardHeader>
+          <CardContent className="p-2 pt-0">
+            <div className="text-xl font-bold">
+              {isLoading ? "—" : `AED ${item.value?.toLocaleString() ?? "0"}`}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
 function Dashboard() {
   const customers = useCount("customers");
   const sales = useCount("sales_orders");
@@ -418,6 +468,7 @@ function Dashboard() {
           <StatCard title="Contracts" count={contracts.data} icon={FileText} to="/contracts" color="bg-rose-600" />
           <StatCard title="Projects" count={projects.data} icon={FolderKanban} to="/projects" color="bg-cyan-600" />
         </div>
+        <FinancialSummaryCards />
         <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
           <SalesFunnelChart />
           <ProbabilityPieChart />
