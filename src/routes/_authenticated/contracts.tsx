@@ -440,9 +440,28 @@ function ContractDialog({
           {customerName && (
             <div className="space-y-2">
               <Label className="text-sm">Quotations for {customerName}</Label>
-              <Card className="max-h-56 overflow-y-auto">
+              <Card className="max-h-72 overflow-y-auto">
                 {customerQuotes.length === 0 ? (
-                  <div className="p-4 text-sm text-muted-foreground text-center">No quotations found.</div>
+                  <div className="p-4 space-y-3">
+                    <div className="text-sm text-muted-foreground text-center">No quotations found. Add one below.</div>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                      <Input placeholder="Quote #" value={newQuote.quote_number}
+                        onChange={(e) => setNewQuote({ ...newQuote, quote_number: e.target.value })} />
+                      <Input placeholder="Subject" value={newQuote.subject}
+                        onChange={(e) => setNewQuote({ ...newQuote, subject: e.target.value })} />
+                      <Input type="date" value={newQuote.quote_date}
+                        onChange={(e) => setNewQuote({ ...newQuote, quote_date: e.target.value })} />
+                      <Input type="number" step="0.01" placeholder="Total" value={newQuote.total}
+                        onChange={(e) => setNewQuote({ ...newQuote, total: e.target.value })} />
+                      <Input placeholder="Status" value={newQuote.status}
+                        onChange={(e) => setNewQuote({ ...newQuote, status: e.target.value })} />
+                    </div>
+                    <div className="flex justify-end">
+                      <Button type="button" size="sm" onClick={addQuotation} disabled={addingQuote}>
+                        {addingQuote ? "Adding..." : "Add Quotation"}
+                      </Button>
+                    </div>
+                  </div>
                 ) : (
                   <Table>
                     <TableHeader>
