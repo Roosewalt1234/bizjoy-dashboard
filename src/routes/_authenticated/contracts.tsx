@@ -469,15 +469,23 @@ function ContractDialog({
     setStartDate(v);
     if (v) {
       if (!endDate) setEndDate(addYearMinusDay(v));
-      setPpmSchedule(generatePpmSchedule(v, contractType));
+      setPpmSchedule(generatePpmSchedule(v, contractType, bespokeFreq));
     }
   }
 
-  // Regenerate PPM schedule when contract type changes (only if start date set)
+  // Regenerate PPM schedule when contract type or bespoke frequencies change
   useEffect(() => {
-    if (startDate) setPpmSchedule(generatePpmSchedule(startDate, contractType));
+    if (startDate) setPpmSchedule(generatePpmSchedule(startDate, contractType, bespokeFreq));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contractType]);
+  }, [contractType, bespokeFreq]);
+
+  function adjustBespokeFreq(key: string, delta: number) {
+    setBespokeFreq((prev) => {
+      const current = prev[key] ?? 0;
+      const next = Math.max(0, Math.min(24, current + delta));
+      return { ...prev, [key]: next };
+    });
+  }
 
   function updatePpmDate(key: string, idx: number, val: string) {
     setPpmSchedule((prev) => {
