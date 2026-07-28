@@ -1,0 +1,1 @@
+ALTER TABLE public.contracts ADD COLUMN IF NOT EXISTS handyman_hours numeric NOT NULL DEFAULT 60;
