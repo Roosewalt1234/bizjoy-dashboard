@@ -81,7 +81,13 @@ function ppmStatusClasses(s: string): string {
     default:          return "bg-muted text-muted-foreground border-border";
   }
 }
-function freqFor(type: ContractType, key: string): number {
+function freqFor(type: ContractType, key: string, bespokeFreq?: Record<string, number>): number {
+  if (type === "Bespoke") {
+    const v = bespokeFreq?.[key];
+    if (typeof v === "number" && v >= 0) return v;
+    const s = PPM_SERVICES.find((x) => x.key === key);
+    return s ? s.standard : 0;
+  }
   const s = PPM_SERVICES.find((x) => x.key === key);
   if (!s) return 0;
   return type === "Premium" ? s.premium : s.standard;
@@ -97,7 +103,6 @@ function subsetDates(anchors: string[], n: number): string[] {
   return [...anchors.slice(0, n - 1), anchors[anchors.length - 1]];
 }
 function waterTankDates(anchors: string[], type: ContractType): string[] {
-  // Standard: once/year aligned with 1st PPM. Premium: twice/year — 1st PPM and 3rd PPM.
   if (!anchors.length) return type === "Premium" ? ["", ""] : [""];
   if (type === "Premium") {
     const first = anchors[0];
@@ -106,16 +111,22 @@ function waterTankDates(anchors: string[], type: ContractType): string[] {
   }
   return [anchors[0]];
 }
-function generatePpmSchedule(start: string, type: ContractType): Record<string, string[]> {
-  const max = type === "Premium" ? 4 : 3;
-  const anchors = anchorDates(start, max);
+function generatePpmSchedule(
+  start: string,
+  type: ContractType,
+  bespokeFreq?: Record<string, number>,
+): Record<string, string[]> {
   const out: Record<string, string[]> = {};
   for (const s of PPM_SERVICES) {
-    const freq = type === "Premium" ? s.premium : s.standard;
-    if (s.key === "water_tank") {
+    const freq = freqFor(type, s.key, bespokeFreq);
+    if (freq <= 0) { out[s.key] = []; continue; }
+    if (type !== "Bespoke" && s.key === "water_tank") {
+      const max = type === "Premium" ? 4 : 3;
+      const anchors = anchorDates(start, max);
       out[s.key] = start ? waterTankDates(anchors, type) : Array(freq).fill("");
     } else {
-      out[s.key] = start ? subsetDates(anchors, freq) : Array(freq).fill("");
+      const anchors = anchorDates(start, freq);
+      out[s.key] = start ? anchors : Array(freq).fill("");
     }
   }
   return out;
