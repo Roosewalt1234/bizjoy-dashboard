@@ -634,8 +634,8 @@ function ContractDialog({
             </div>
           </div>
 
-          {/* Spare parts + AMC Ref No + status */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Spare parts + AMC Ref No + Handyman Hours + status */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-1">
               <Label>Spare Parts Amount (AED)</Label>
               <Input
