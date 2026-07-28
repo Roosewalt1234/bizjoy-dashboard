@@ -17,6 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { ExportMenu } from "@/components/export-menu";
 
 export const Route = createFileRoute("/_authenticated/customers/")({
   component: CustomersList,
