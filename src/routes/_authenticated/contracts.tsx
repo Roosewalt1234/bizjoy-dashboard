@@ -334,16 +334,32 @@ function ContractDialog({
   const [endDate, setEndDate] = useState(editing?.end_date ?? "");
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerm | "">(editing?.payment_terms ?? "");
   const [status, setStatus] = useState(editing?.status ?? "Draft");
-  // Normalize legacy ppm_schedule (Record<string,string[]>) → { dates, status }
+  // Normalize legacy ppm_schedule (Record<string,string[]>) → { dates, status, freq }
   const _initialPpm = (() => {
     const raw = editing?.ppm_schedule ?? {};
-    if (raw && typeof raw === "object" && ("dates" in raw || "status" in raw)) {
-      return { dates: (raw.dates ?? {}) as Record<string, string[]>, status: (raw.status ?? {}) as Record<string, string[]> };
+    if (raw && typeof raw === "object" && ("dates" in raw || "status" in raw || "freq" in raw)) {
+      return {
+        dates: (raw.dates ?? {}) as Record<string, string[]>,
+        status: (raw.status ?? {}) as Record<string, string[]>,
+        freq: (raw.freq ?? {}) as Record<string, number>,
+      };
     }
-    return { dates: (raw ?? {}) as Record<string, string[]>, status: {} as Record<string, string[]> };
+    return { dates: (raw ?? {}) as Record<string, string[]>, status: {} as Record<string, string[]>, freq: {} as Record<string, number> };
   })();
   const [ppmSchedule, setPpmSchedule] = useState<Record<string, string[]>>(_initialPpm.dates);
   const [ppmStatus, setPpmStatus] = useState<Record<string, string[]>>(_initialPpm.status);
+  const [bespokeFreq, setBespokeFreq] = useState<Record<string, number>>(() => {
+    const seed: Record<string, number> = {};
+    for (const s of PPM_SERVICES) {
+      const fromFreq = _initialPpm.freq[s.key];
+      const fromDates = _initialPpm.dates[s.key]?.length;
+      seed[s.key] = typeof fromFreq === "number" ? fromFreq : (fromDates ?? s.standard);
+    }
+    return seed;
+  });
+  const [handymanHours, setHandymanHours] = useState<string>(
+    editing?.handyman_hours != null ? String(editing.handyman_hours) : String(DEFAULT_HANDYMAN_HOURS),
+  );
   const [acDuctDate, setAcDuctDate] = useState(editing?.ac_duct_cleaning_date ?? "");
   const [acDuctStatus, setAcDuctStatus] = useState(editing?.ac_duct_cleaning_status ?? "");
   const [remark, setRemark] = useState(editing?.remark ?? "");
