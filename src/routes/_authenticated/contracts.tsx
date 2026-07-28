@@ -836,10 +836,11 @@ function ContractDialog({
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               {PPM_SERVICES.map((s) => {
-                const freq = freqFor(contractType, s.key);
+                const freq = freqFor(contractType, s.key, bespokeFreq);
                 const dates = ppmSchedule[s.key] ?? [];
                 const overrides = ppmStatus[s.key] ?? [];
                 const Icon = s.Icon;
+                const isBespoke = contractType === "Bespoke";
                 return (
                   <Card key={s.key} className="p-4 space-y-3">
                     <div className="flex items-center justify-between">
@@ -849,11 +850,22 @@ function ContractDialog({
                         </div>
                         <div>
                           <div className="text-sm font-semibold leading-tight">{s.label}</div>
-                          <div className="text-xs text-muted-foreground">{freq} visit{freq > 1 ? "s" : ""} / year</div>
+                          <div className="text-xs text-muted-foreground">{freq} visit{freq === 1 ? "" : "s"} / year</div>
                         </div>
                       </div>
-                      <Badge variant="secondary" className="text-[10px]">{freq}/yr</Badge>
+                      {isBespoke ? (
+                        <div className="flex items-center gap-1">
+                          <Button type="button" size="icon" variant="outline" className="h-7 w-7" onClick={() => adjustBespokeFreq(s.key, -1)} disabled={freq <= 0}>−</Button>
+                          <span className="min-w-8 text-center text-sm font-semibold tabular-nums">{freq}</span>
+                          <Button type="button" size="icon" variant="outline" className="h-7 w-7" onClick={() => adjustBespokeFreq(s.key, +1)}>+</Button>
+                        </div>
+                      ) : (
+                        <Badge variant="secondary" className="text-[10px]">{freq}/yr</Badge>
+                      )}
                     </div>
+                    {freq === 0 && (
+                      <div className="text-xs text-muted-foreground italic">Not included in this contract.</div>
+                    )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {Array.from({ length: freq }).map((_, i) => {
                         const date = dates[i] ?? "";
