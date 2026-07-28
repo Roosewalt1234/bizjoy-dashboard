@@ -666,6 +666,7 @@ function ContractDialog({
                 onChange={(e) => setHandymanHours(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">Default {DEFAULT_HANDYMAN_HOURS} hours/year.</p>
+            </div>
             <div className="space-y-1">
               <Label>Contract Status</Label>
               <Select value={status} onValueChange={setStatus}>
