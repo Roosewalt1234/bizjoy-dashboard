@@ -9,6 +9,7 @@ import {
   FileText,
   FolderKanban,
   LogOut,
+  History,
 } from "lucide-react";
 import {
   Sidebar,
@@ -35,7 +36,9 @@ const items = [
   { title: "Accounts", url: "/accounts", icon: Wallet },
   { title: "Contracts", url: "/contracts", icon: FileText },
   { title: "Projects", url: "/projects", icon: FolderKanban },
+  { title: "Audit Log", url: "/audit", icon: History },
 ];
+
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
