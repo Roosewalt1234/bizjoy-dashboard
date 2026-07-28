@@ -15,6 +15,7 @@ import {
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { EmployeeForm } from "@/components/employee-form";
+import { ExportMenu } from "@/components/export-menu";
 
 export const Route = createFileRoute("/_authenticated/hr")({
   component: HRPage,
@@ -59,7 +60,32 @@ function HRPage() {
           <h1 className="text-3xl font-bold tracking-tight">Human Resources</h1>
           <p className="text-muted-foreground">Manage employees and staff.</p>
         </div>
-        <Button onClick={openNew}><Plus className="h-4 w-4 mr-2" /> Add</Button>
+        <div className="flex items-center gap-2">
+          <ExportMenu
+            filename="employees"
+            sheetName="Employees"
+            rows={rows as any[]}
+            columns={[
+              { key: "employee_id", label: "Employee ID" },
+              { key: "full_name", label: "Full Name", format: (v, r) => v ?? [r.first_name, r.last_name].filter(Boolean).join(" ") },
+              { key: "position", label: "Position" },
+              { key: "department", label: "Department" },
+              { key: "nationality", label: "Nationality" },
+              { key: "email", label: "Email" },
+              { key: "phone", label: "Phone" },
+              { key: "employment_type", label: "Employment Type" },
+              { key: "hire_date", label: "Hire Date" },
+              { key: "salary", label: "Salary" },
+              { key: "status", label: "Status" },
+              { key: "passport_number", label: "Passport #" },
+              { key: "passport_expiry_date", label: "Passport Expiry" },
+              { key: "visa_expiry_date", label: "Visa Expiry" },
+              { key: "emirates_id_number", label: "Emirates ID" },
+              { key: "emirates_id_expiry_date", label: "Emirates ID Expiry" },
+            ]}
+          />
+          <Button onClick={openNew}><Plus className="h-4 w-4 mr-2" /> Add</Button>
+        </div>
       </div>
 
       <Card>

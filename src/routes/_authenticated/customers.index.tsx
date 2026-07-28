@@ -17,6 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { ExportMenu } from "@/components/export-menu";
 
 export const Route = createFileRoute("/_authenticated/customers/")({
   component: CustomersList,
@@ -88,9 +89,31 @@ function CustomersList() {
           <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
           <p className="text-muted-foreground">Manage your customer database.</p>
         </div>
-        <Button onClick={() => navigate({ to: "/customers/new" })}>
-          <Plus className="h-4 w-4 mr-2" /> Add Customer
-        </Button>
+        <div className="flex items-center gap-2">
+          <ExportMenu
+            filename="customers"
+            rows={filtered}
+            sheetName="Customers"
+            columns={[
+              { key: "display_name", label: "Display Name" },
+              { key: "customer_type", label: "Type" },
+              { key: "company_name", label: "Company" },
+              { key: "email", label: "Email" },
+              { key: "phone", label: "Phone" },
+              { key: "mobile", label: "Mobile" },
+              { key: "work_phone", label: "Work Phone" },
+              { key: "currency", label: "Currency" },
+              { key: "payment_terms", label: "Payment Terms" },
+              { key: "address_city", label: "City" },
+              { key: "address_country", label: "Country" },
+              { key: "is_active", label: "Status", format: (v) => (v === false ? "Inactive" : "Active") },
+              { key: "created_at", label: "Created" },
+            ]}
+          />
+          <Button onClick={() => navigate({ to: "/customers/new" })}>
+            <Plus className="h-4 w-4 mr-2" /> Add Customer
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">

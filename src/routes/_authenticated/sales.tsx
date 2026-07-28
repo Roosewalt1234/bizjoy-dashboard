@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar";
+import { ExportMenu } from "@/components/export-menu";
 
 export const Route = createFileRoute("/_authenticated/sales")({
   component: SalesPage,
@@ -1630,6 +1631,30 @@ function QuotesList() {
 
           </SelectContent>
         </Select>
+        <ExportMenu
+          filename="quotes"
+          sheetName="Quotes"
+          rows={filtered.map((q) => ({
+            ...q,
+            _stage: QUOTE_STATUS_TO_STAGE[(q.status ?? "").toLowerCase()] ?? q.status,
+          }))}
+          columns={[
+            { key: "quote_number", label: "Quote #" },
+            { key: "quote_date", label: "Date" },
+            { key: "expiry_date", label: "Expiry" },
+            { key: "customer_name", label: "Customer" },
+            { key: "subject", label: "Subject" },
+            { key: "quote_type", label: "Type" },
+            { key: "_stage", label: "Status" },
+            { key: "probability", label: "Probability" },
+            { key: "salesperson", label: "Salesperson" },
+            { key: "project_name", label: "Project" },
+            { key: "subtotal", label: "Subtotal" },
+            { key: "vat_amount", label: "VAT" },
+            { key: "total", label: "Total" },
+            { key: "currency", label: "Currency" },
+          ]}
+        />
         <Button
           size="sm"
           onClick={() => {

@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Check, ChevronsUpDown, Wrench, Droplets, Zap, Wind, Sun, Fan } from "lucide-react";
 import { toast } from "sonner";
 import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar";
+import { ExportMenu } from "@/components/export-menu";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/contracts")({
@@ -206,10 +207,35 @@ function ContractsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Contracts</h1>
           <p className="text-muted-foreground">Manage customer contracts.</p>
         </div>
-        <Button onClick={() => { setEditing(null); setOpen(true); }}>
-          <Plus className="h-4 w-4 mr-2" /> New Contract
-        </Button>
+        <div className="flex items-center gap-2">
+          <ExportMenu
+            filename="contracts"
+            sheetName="Contracts"
+            rows={rows as any[]}
+            columns={[
+              { key: "amc_ref_no", label: "AMC Ref No" },
+              { key: "title", label: "Title" },
+              { key: "customer_name", label: "Customer" },
+              { key: "contract_type", label: "Type" },
+              { key: "start_date", label: "Start Date" },
+              { key: "end_date", label: "End Date" },
+              { key: "value", label: "Value" },
+              { key: "spare_parts_amount", label: "Spare Parts (AED)" },
+              { key: "payment_terms", label: "Payment Terms" },
+              { key: "status", label: "Status" },
+              { key: "water_tank_cleaning_date", label: "Water Tank Cleaning Date" },
+              { key: "water_tank_cleaning_status", label: "Water Tank Status" },
+              { key: "ac_duct_cleaning_date", label: "AC Duct Cleaning Date" },
+              { key: "ac_duct_cleaning_status", label: "AC Duct Status" },
+              { key: "remark", label: "Remark" },
+            ]}
+          />
+          <Button onClick={() => { setEditing(null); setOpen(true); }}>
+            <Plus className="h-4 w-4 mr-2" /> New Contract
+          </Button>
+        </div>
       </div>
+
 
       <Card>
         <Table>
