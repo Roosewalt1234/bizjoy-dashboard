@@ -117,11 +117,18 @@ export function CrudModule({ title, description, table, fields, listColumns, cre
           <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
           <p className="text-muted-foreground">{description}</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={openNew}><Plus className="h-4 w-4 mr-2" /> Add</Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <div className="flex items-center gap-2">
+          <ExportMenu
+            filename={title.toLowerCase().replace(/\s+/g, "-")}
+            rows={rows}
+            columns={listColumns.map((c) => ({ key: c, label: columnLabels[c] ?? c }))}
+            sheetName={title}
+          />
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={openNew}><Plus className="h-4 w-4 mr-2" /> Add</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editing ? `Edit ${title}` : (createTitle ?? `New ${title}`)}</DialogTitle>
             </DialogHeader>
