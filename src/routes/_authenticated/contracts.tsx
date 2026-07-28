@@ -46,9 +46,10 @@ function payStatusClasses(s: string): string {
   }
 }
 const WATER_STATUS = ["Pending", "Scheduled", "Completed"] as const;
-const CONTRACT_TYPES = ["Standard", "Premium"] as const;
+const CONTRACT_TYPES = ["Standard", "Premium", "Bespoke"] as const;
 type ContractType = typeof CONTRACT_TYPES[number];
-const SPARE_PARTS_BY_TYPE: Record<ContractType, number> = { Standard: 0, Premium: 1000 };
+const SPARE_PARTS_BY_TYPE: Record<ContractType, number> = { Standard: 0, Premium: 1000, Bespoke: 0 };
+const DEFAULT_HANDYMAN_HOURS = 60;
 const PPM_SERVICES: { key: string; label: string; standard: number; premium: number; Icon: any }[] = [
   { key: "ac_units", label: "AC Units", standard: 3, premium: 4, Icon: Wind },
   { key: "water_pumps", label: "Water Pumps & Motors", standard: 3, premium: 4, Icon: Fan },
@@ -80,7 +81,13 @@ function ppmStatusClasses(s: string): string {
     default:          return "bg-muted text-muted-foreground border-border";
   }
 }
-function freqFor(type: ContractType, key: string): number {
+function freqFor(type: ContractType, key: string, bespokeFreq?: Record<string, number>): number {
+  if (type === "Bespoke") {
+    const v = bespokeFreq?.[key];
+    if (typeof v === "number" && v >= 0) return v;
+    const s = PPM_SERVICES.find((x) => x.key === key);
+    return s ? s.standard : 0;
+  }
   const s = PPM_SERVICES.find((x) => x.key === key);
   if (!s) return 0;
   return type === "Premium" ? s.premium : s.standard;
@@ -96,7 +103,6 @@ function subsetDates(anchors: string[], n: number): string[] {
   return [...anchors.slice(0, n - 1), anchors[anchors.length - 1]];
 }
 function waterTankDates(anchors: string[], type: ContractType): string[] {
-  // Standard: once/year aligned with 1st PPM. Premium: twice/year — 1st PPM and 3rd PPM.
   if (!anchors.length) return type === "Premium" ? ["", ""] : [""];
   if (type === "Premium") {
     const first = anchors[0];
@@ -105,16 +111,22 @@ function waterTankDates(anchors: string[], type: ContractType): string[] {
   }
   return [anchors[0]];
 }
-function generatePpmSchedule(start: string, type: ContractType): Record<string, string[]> {
-  const max = type === "Premium" ? 4 : 3;
-  const anchors = anchorDates(start, max);
+function generatePpmSchedule(
+  start: string,
+  type: ContractType,
+  bespokeFreq?: Record<string, number>,
+): Record<string, string[]> {
   const out: Record<string, string[]> = {};
   for (const s of PPM_SERVICES) {
-    const freq = type === "Premium" ? s.premium : s.standard;
-    if (s.key === "water_tank") {
+    const freq = freqFor(type, s.key, bespokeFreq);
+    if (freq <= 0) { out[s.key] = []; continue; }
+    if (type !== "Bespoke" && s.key === "water_tank") {
+      const max = type === "Premium" ? 4 : 3;
+      const anchors = anchorDates(start, max);
       out[s.key] = start ? waterTankDates(anchors, type) : Array(freq).fill("");
     } else {
-      out[s.key] = start ? subsetDates(anchors, freq) : Array(freq).fill("");
+      const anchors = anchorDates(start, freq);
+      out[s.key] = start ? anchors : Array(freq).fill("");
     }
   }
   return out;
@@ -322,16 +334,32 @@ function ContractDialog({
   const [endDate, setEndDate] = useState(editing?.end_date ?? "");
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerm | "">(editing?.payment_terms ?? "");
   const [status, setStatus] = useState(editing?.status ?? "Draft");
-  // Normalize legacy ppm_schedule (Record<string,string[]>) → { dates, status }
+  // Normalize legacy ppm_schedule (Record<string,string[]>) → { dates, status, freq }
   const _initialPpm = (() => {
     const raw = editing?.ppm_schedule ?? {};
-    if (raw && typeof raw === "object" && ("dates" in raw || "status" in raw)) {
-      return { dates: (raw.dates ?? {}) as Record<string, string[]>, status: (raw.status ?? {}) as Record<string, string[]> };
+    if (raw && typeof raw === "object" && ("dates" in raw || "status" in raw || "freq" in raw)) {
+      return {
+        dates: (raw.dates ?? {}) as Record<string, string[]>,
+        status: (raw.status ?? {}) as Record<string, string[]>,
+        freq: (raw.freq ?? {}) as Record<string, number>,
+      };
     }
-    return { dates: (raw ?? {}) as Record<string, string[]>, status: {} as Record<string, string[]> };
+    return { dates: (raw ?? {}) as Record<string, string[]>, status: {} as Record<string, string[]>, freq: {} as Record<string, number> };
   })();
   const [ppmSchedule, setPpmSchedule] = useState<Record<string, string[]>>(_initialPpm.dates);
   const [ppmStatus, setPpmStatus] = useState<Record<string, string[]>>(_initialPpm.status);
+  const [bespokeFreq, setBespokeFreq] = useState<Record<string, number>>(() => {
+    const seed: Record<string, number> = {};
+    for (const s of PPM_SERVICES) {
+      const fromFreq = _initialPpm.freq[s.key];
+      const fromDates = _initialPpm.dates[s.key]?.length;
+      seed[s.key] = typeof fromFreq === "number" ? fromFreq : (fromDates ?? s.standard);
+    }
+    return seed;
+  });
+  const [handymanHours, setHandymanHours] = useState<string>(
+    editing?.handyman_hours != null ? String(editing.handyman_hours) : String(DEFAULT_HANDYMAN_HOURS),
+  );
   const [acDuctDate, setAcDuctDate] = useState(editing?.ac_duct_cleaning_date ?? "");
   const [acDuctStatus, setAcDuctStatus] = useState(editing?.ac_duct_cleaning_status ?? "");
   const [remark, setRemark] = useState(editing?.remark ?? "");
@@ -441,15 +469,23 @@ function ContractDialog({
     setStartDate(v);
     if (v) {
       if (!endDate) setEndDate(addYearMinusDay(v));
-      setPpmSchedule(generatePpmSchedule(v, contractType));
+      setPpmSchedule(generatePpmSchedule(v, contractType, bespokeFreq));
     }
   }
 
-  // Regenerate PPM schedule when contract type changes (only if start date set)
+  // Regenerate PPM schedule when contract type or bespoke frequencies change
   useEffect(() => {
-    if (startDate) setPpmSchedule(generatePpmSchedule(startDate, contractType));
+    if (startDate) setPpmSchedule(generatePpmSchedule(startDate, contractType, bespokeFreq));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contractType]);
+  }, [contractType, bespokeFreq]);
+
+  function adjustBespokeFreq(key: string, delta: number) {
+    setBespokeFreq((prev) => {
+      const current = prev[key] ?? 0;
+      const next = Math.max(0, Math.min(24, current + delta));
+      return { ...prev, [key]: next };
+    });
+  }
 
   function updatePpmDate(key: string, idx: number, val: string) {
     setPpmSchedule((prev) => {
@@ -476,6 +512,7 @@ function ContractDialog({
         contract_type: contractType,
         spare_parts_amount: sparePartsAmount ? Number(sparePartsAmount) : 0,
         amc_ref_no: amcRefNo || null,
+        handyman_hours: handymanHours === "" ? DEFAULT_HANDYMAN_HOURS : Number(handymanHours),
         customer_id: customerId,
         customer_name: customerName,
         start_date: startDate || null,
@@ -483,7 +520,7 @@ function ContractDialog({
         value: value ? Number(value) : null,
         payment_terms: paymentTerms || null,
         status,
-        ppm_schedule: { dates: ppmSchedule, status: ppmStatus },
+        ppm_schedule: { dates: ppmSchedule, status: ppmStatus, freq: contractType === "Bespoke" ? bespokeFreq : {} },
         water_tank_cleaning_date: null,
         water_tank_cleaning_status: null,
         ac_duct_cleaning_date: acDuctDate || null,
@@ -597,8 +634,8 @@ function ContractDialog({
             </div>
           </div>
 
-          {/* Spare parts + AMC Ref No + status */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Spare parts + AMC Ref No + Handyman Hours + status */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-1">
               <Label>Spare Parts Amount (AED)</Label>
               <Input
@@ -618,6 +655,17 @@ function ContractDialog({
                 value={amcRefNo}
                 onChange={(e) => setAmcRefNo(e.target.value)}
               />
+            </div>
+            <div className="space-y-1">
+              <Label>Handyman Hours</Label>
+              <Input
+                type="number"
+                min="0"
+                step="1"
+                value={handymanHours}
+                onChange={(e) => setHandymanHours(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">Default {DEFAULT_HANDYMAN_HOURS} hours/year.</p>
             </div>
             <div className="space-y-1">
               <Label>Contract Status</Label>
@@ -788,10 +836,11 @@ function ContractDialog({
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               {PPM_SERVICES.map((s) => {
-                const freq = freqFor(contractType, s.key);
+                const freq = freqFor(contractType, s.key, bespokeFreq);
                 const dates = ppmSchedule[s.key] ?? [];
                 const overrides = ppmStatus[s.key] ?? [];
                 const Icon = s.Icon;
+                const isBespoke = contractType === "Bespoke";
                 return (
                   <Card key={s.key} className="p-4 space-y-3">
                     <div className="flex items-center justify-between">
@@ -801,11 +850,22 @@ function ContractDialog({
                         </div>
                         <div>
                           <div className="text-sm font-semibold leading-tight">{s.label}</div>
-                          <div className="text-xs text-muted-foreground">{freq} visit{freq > 1 ? "s" : ""} / year</div>
+                          <div className="text-xs text-muted-foreground">{freq} visit{freq === 1 ? "" : "s"} / year</div>
                         </div>
                       </div>
-                      <Badge variant="secondary" className="text-[10px]">{freq}/yr</Badge>
+                      {isBespoke ? (
+                        <div className="flex items-center gap-1">
+                          <Button type="button" size="icon" variant="outline" className="h-7 w-7" onClick={() => adjustBespokeFreq(s.key, -1)} disabled={freq <= 0}>−</Button>
+                          <span className="min-w-8 text-center text-sm font-semibold tabular-nums">{freq}</span>
+                          <Button type="button" size="icon" variant="outline" className="h-7 w-7" onClick={() => adjustBespokeFreq(s.key, +1)}>+</Button>
+                        </div>
+                      ) : (
+                        <Badge variant="secondary" className="text-[10px]">{freq}/yr</Badge>
+                      )}
                     </div>
+                    {freq === 0 && (
+                      <div className="text-xs text-muted-foreground italic">Not included in this contract.</div>
+                    )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {Array.from({ length: freq }).map((_, i) => {
                         const date = dates[i] ?? "";

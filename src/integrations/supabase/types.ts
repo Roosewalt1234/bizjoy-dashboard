@@ -137,6 +137,7 @@ export type Database = {
           customer_id: string | null
           customer_name: string | null
           end_date: string | null
+          handyman_hours: number
           id: string
           notes: string | null
           payment_terms: string | null
@@ -163,6 +164,7 @@ export type Database = {
           customer_id?: string | null
           customer_name?: string | null
           end_date?: string | null
+          handyman_hours?: number
           id?: string
           notes?: string | null
           payment_terms?: string | null
@@ -189,6 +191,7 @@ export type Database = {
           customer_id?: string | null
           customer_name?: string | null
           end_date?: string | null
+          handyman_hours?: number
           id?: string
           notes?: string | null
           payment_terms?: string | null
