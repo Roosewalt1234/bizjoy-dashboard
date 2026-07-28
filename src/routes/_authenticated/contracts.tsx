@@ -46,9 +46,10 @@ function payStatusClasses(s: string): string {
   }
 }
 const WATER_STATUS = ["Pending", "Scheduled", "Completed"] as const;
-const CONTRACT_TYPES = ["Standard", "Premium"] as const;
+const CONTRACT_TYPES = ["Standard", "Premium", "Bespoke"] as const;
 type ContractType = typeof CONTRACT_TYPES[number];
-const SPARE_PARTS_BY_TYPE: Record<ContractType, number> = { Standard: 0, Premium: 1000 };
+const SPARE_PARTS_BY_TYPE: Record<ContractType, number> = { Standard: 0, Premium: 1000, Bespoke: 0 };
+const DEFAULT_HANDYMAN_HOURS = 60;
 const PPM_SERVICES: { key: string; label: string; standard: number; premium: number; Icon: any }[] = [
   { key: "ac_units", label: "AC Units", standard: 3, premium: 4, Icon: Wind },
   { key: "water_pumps", label: "Water Pumps & Motors", standard: 3, premium: 4, Icon: Fan },
