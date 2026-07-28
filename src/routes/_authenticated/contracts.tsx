@@ -657,6 +657,16 @@ function ContractDialog({
               />
             </div>
             <div className="space-y-1">
+              <Label>Handyman Hours</Label>
+              <Input
+                type="number"
+                min="0"
+                step="1"
+                value={handymanHours}
+                onChange={(e) => setHandymanHours(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">Default {DEFAULT_HANDYMAN_HOURS} hours/year.</p>
+            <div className="space-y-1">
               <Label>Contract Status</Label>
               <Select value={status} onValueChange={setStatus}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
