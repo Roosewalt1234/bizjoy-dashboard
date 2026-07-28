@@ -163,7 +163,9 @@ export function CrudModule({ title, description, table, fields, listColumns, cre
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
+
 
       <Card>
         <Table>
