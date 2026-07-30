@@ -469,7 +469,7 @@ function ContractDialog({
   function handleStartDateChange(v: string) {
     setStartDate(v);
     if (v) {
-      if (!endDate) setEndDate(addYearMinusDay(v));
+      setEndDate(addYearMinusDay(v));
       setPpmSchedule(generatePpmSchedule(v, contractType, bespokeFreq));
     }
   }
