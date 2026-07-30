@@ -513,6 +513,7 @@ function ContractDialog({
         contract_type: contractType,
         spare_parts_amount: sparePartsAmount ? Number(sparePartsAmount) : 0,
         amc_ref_no: amcRefNo || null,
+        contract_no: contractNo || null,
         handyman_hours: handymanHours === "" ? DEFAULT_HANDYMAN_HOURS : Number(handymanHours),
         customer_id: customerId,
         customer_name: customerName,
