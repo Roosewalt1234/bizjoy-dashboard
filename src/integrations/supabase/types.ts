@@ -132,6 +132,7 @@ export type Database = {
           ac_duct_cleaning_date: string | null
           ac_duct_cleaning_status: string | null
           amc_ref_no: string | null
+          contract_no: string | null
           contract_type: string | null
           created_at: string
           customer_id: string | null
@@ -159,6 +160,7 @@ export type Database = {
           ac_duct_cleaning_date?: string | null
           ac_duct_cleaning_status?: string | null
           amc_ref_no?: string | null
+          contract_no?: string | null
           contract_type?: string | null
           created_at?: string
           customer_id?: string | null
@@ -186,6 +188,7 @@ export type Database = {
           ac_duct_cleaning_date?: string | null
           ac_duct_cleaning_status?: string | null
           amc_ref_no?: string | null
+          contract_no?: string | null
           contract_type?: string | null
           created_at?: string
           customer_id?: string | null
