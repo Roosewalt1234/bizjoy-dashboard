@@ -574,6 +574,18 @@ function ContractDialog({
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Contract No */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label>Contract No</Label>
+              <Input
+                placeholder="e.g. CN-2026-0001"
+                value={contractNo}
+                onChange={(e) => setContractNo(e.target.value)}
+              />
+            </div>
+          </div>
+
           {/* Customer + Title */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
