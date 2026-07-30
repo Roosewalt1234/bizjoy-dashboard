@@ -329,6 +329,7 @@ function ContractDialog({
     editing?.spare_parts_amount != null ? String(editing.spare_parts_amount) : String(SPARE_PARTS_BY_TYPE[(editing?.contract_type as ContractType) ?? "Standard"])
   );
   const [amcRefNo, setAmcRefNo] = useState<string>(editing?.amc_ref_no ?? "");
+  const [contractNo, setContractNo] = useState<string>(editing?.contract_no ?? "");
   const [value, setValue] = useState<string>(editing?.value != null ? String(editing.value) : "");
   const [startDate, setStartDate] = useState(editing?.start_date ?? "");
   const [endDate, setEndDate] = useState(editing?.end_date ?? "");
@@ -512,6 +513,7 @@ function ContractDialog({
         contract_type: contractType,
         spare_parts_amount: sparePartsAmount ? Number(sparePartsAmount) : 0,
         amc_ref_no: amcRefNo || null,
+        contract_no: contractNo || null,
         handyman_hours: handymanHours === "" ? DEFAULT_HANDYMAN_HOURS : Number(handymanHours),
         customer_id: customerId,
         customer_name: customerName,
@@ -572,6 +574,18 @@ function ContractDialog({
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Contract No */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label>Contract No</Label>
+              <Input
+                placeholder="e.g. CN-2026-0001"
+                value={contractNo}
+                onChange={(e) => setContractNo(e.target.value)}
+              />
+            </div>
+          </div>
+
           {/* Customer + Title */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
