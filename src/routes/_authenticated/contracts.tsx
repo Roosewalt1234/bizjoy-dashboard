@@ -256,6 +256,9 @@ function ContractsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
   const [page, setPage] = useState(1);
+  const [filterTitle, setFilterTitle] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterPayment, setFilterPayment] = useState("");
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["contracts"],
@@ -265,6 +268,15 @@ function ContractsPage() {
       return data ?? [];
     },
   });
+
+  const filteredRows = useMemo(() => {
+    return rows.filter((r: any) => {
+      const titleMatch = !filterTitle || (r.contract_type || "").toLowerCase().includes(filterTitle.toLowerCase()) || (r.title || "").toLowerCase().includes(filterTitle.toLowerCase());
+      const statusMatch = !filterStatus || (r.status || "").toLowerCase() === filterStatus.toLowerCase();
+      const paymentMatch = !filterPayment || (r.payment_terms || "").toLowerCase() === filterPayment.toLowerCase();
+      return titleMatch && statusMatch && paymentMatch;
+    });
+  }, [rows, filterTitle, filterStatus, filterPayment]);
 
   const { data: allPayments = [] } = useQuery({
     queryKey: ["contract_payments_all"],
