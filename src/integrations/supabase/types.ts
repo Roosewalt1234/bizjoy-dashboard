@@ -301,6 +301,7 @@ export type Database = {
       customers: {
         Row: {
           address_city: string | null
+          address_community: string | null
           address_country: string | null
           address_lat: number | null
           address_line: string | null
@@ -309,6 +310,7 @@ export type Database = {
           address_telephone: string | null
           billing_address_line: string | null
           billing_city: string | null
+          billing_community: string | null
           billing_country: string | null
           billing_lat: number | null
           billing_lng: number | null
@@ -337,6 +339,7 @@ export type Database = {
         }
         Insert: {
           address_city?: string | null
+          address_community?: string | null
           address_country?: string | null
           address_lat?: number | null
           address_line?: string | null
@@ -345,6 +348,7 @@ export type Database = {
           address_telephone?: string | null
           billing_address_line?: string | null
           billing_city?: string | null
+          billing_community?: string | null
           billing_country?: string | null
           billing_lat?: number | null
           billing_lng?: number | null
@@ -373,6 +377,7 @@ export type Database = {
         }
         Update: {
           address_city?: string | null
+          address_community?: string | null
           address_country?: string | null
           address_lat?: number | null
           address_line?: string | null
@@ -381,6 +386,7 @@ export type Database = {
           address_telephone?: string | null
           billing_address_line?: string | null
           billing_city?: string | null
+          billing_community?: string | null
           billing_country?: string | null
           billing_lat?: number | null
           billing_lng?: number | null
