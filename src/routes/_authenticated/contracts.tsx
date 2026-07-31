@@ -339,10 +339,10 @@ function ContractsPage() {
     return new Intl.NumberFormat("en-AE", { style: "currency", currency: "AED", maximumFractionDigits: 0 }).format(n);
   }
 
-  const total = rows.length;
+  const total = filteredRows.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
-  const pageRows = paginate(rows, page);
+  const pageRows = paginate(filteredRows, page);
 
   async function remove(id: string) {
     const { error } = await supabase.from("contracts").delete().eq("id", id);
