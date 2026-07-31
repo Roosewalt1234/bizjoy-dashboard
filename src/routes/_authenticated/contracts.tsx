@@ -380,7 +380,13 @@ function ContractsPage() {
                 </TableCell>
                 <TableCell><DateCell date={nextServiceDate(r, "ac_units")} /></TableCell>
                 <TableCell><DateCell date={nextServiceDate(r, "water_tank")} /></TableCell>
-                <TableCell><DateCell date={nextPaymentByContract[r.id] ?? ""} /></TableCell>
+                <TableCell>
+                  {(() => {
+                    const info = nextPaymentInfoByContract[r.id];
+                    if (!info) return <span className="text-muted-foreground">—</span>;
+                    return <PaymentDueBadge date={info.payment_date} status={info.status} />;
+                  })()}
+                </TableCell>
                 <TableCell>{r.status ?? "—"}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
