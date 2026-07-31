@@ -271,7 +271,7 @@ function ContractsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("contract_payments")
-        .select("contract_id, payment_date, received_date")
+        .select("contract_id, payment_date, received_date, value")
         .order("payment_date", { ascending: true });
       if (error) throw error;
       return data ?? [];
