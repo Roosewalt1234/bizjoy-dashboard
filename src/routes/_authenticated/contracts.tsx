@@ -278,12 +278,15 @@ function ContractsPage() {
     },
   });
 
-  const nextPaymentByContract = useMemo(() => {
-    const m: Record<string, string> = {};
+  const nextPaymentInfoByContract = useMemo(() => {
+    const m: Record<string, { payment_date: string; status: string }> = {};
     for (const p of allPayments as any[]) {
       if (p.received_date) continue;
       if (!p.payment_date) continue;
-      if (!m[p.contract_id] || p.payment_date < m[p.contract_id]) m[p.contract_id] = p.payment_date;
+      const status = computeStatus(p.payment_date, "");
+      if (!m[p.contract_id] || p.payment_date < m[p.contract_id].payment_date) {
+        m[p.contract_id] = { payment_date: p.payment_date, status };
+      }
     }
     return m;
   }, [allPayments]);
