@@ -426,8 +426,45 @@ function ContractsPage() {
         </Card>
       </div>
 
+      <Card className="p-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1">
+            <Label htmlFor="filter-title" className="text-xs">Search Title</Label>
+            <Input
+              id="filter-title"
+              placeholder="Filter by title or type (e.g. Standard, Premium, Bespoke)"
+              value={filterTitle}
+              onChange={(e) => { setFilterTitle(e.target.value); setPage(1); }}
+            />
+          </div>
+          <div className="w-full sm:w-48">
+            <Label htmlFor="filter-status" className="text-xs">Status</Label>
+            <Select value={filterStatus} onValueChange={(v) => { setFilterStatus(v); setPage(1); }}>
+              <SelectTrigger id="filter-status">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Status</SelectItem>
+                {STATUS_OPTIONS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="w-full sm:w-48">
+            <Label htmlFor="filter-payment" className="text-xs">Payment</Label>
+            <Select value={filterPayment} onValueChange={(v) => { setFilterPayment(v); setPage(1); }}>
+              <SelectTrigger id="filter-payment">
+                <SelectValue placeholder="All Payments" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Payments</SelectItem>
+                {PAYMENT_TERMS.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </Card>
+
       <Card>
-        <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Customer</TableHead>
