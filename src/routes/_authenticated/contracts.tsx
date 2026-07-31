@@ -22,7 +22,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Check, ChevronsUpDown, Wrench, Droplets, Zap, Wind, Sun, Fan } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, ChevronsUpDown, Wrench, Droplets, Zap, Wind, Sun, Fan, FileText, Calendar, AlertCircle, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar";
 import { ExportMenu } from "@/components/export-menu";
@@ -271,7 +271,7 @@ function ContractsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("contract_payments")
-        .select("contract_id, payment_date, received_date")
+        .select("contract_id, payment_date, received_date, value")
         .order("payment_date", { ascending: true });
       if (error) throw error;
       return data ?? [];
@@ -279,17 +279,49 @@ function ContractsPage() {
   });
 
   const nextPaymentInfoByContract = useMemo(() => {
-    const m: Record<string, { payment_date: string; status: string }> = {};
+    const m: Record<string, { payment_date: string; status: string; value: number }> = {};
     for (const p of allPayments as any[]) {
       if (p.received_date) continue;
       if (!p.payment_date) continue;
       const status = computeStatus(p.payment_date, "");
       if (!m[p.contract_id] || p.payment_date < m[p.contract_id].payment_date) {
-        m[p.contract_id] = { payment_date: p.payment_date, status };
+        m[p.contract_id] = { payment_date: p.payment_date, status, value: Number(p.value) || 0 };
       }
     }
     return m;
   }, [allPayments]);
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+  const nextMonthDate = new Date(currentYear, currentMonth + 1, 1);
+  const nextMonthYear = nextMonthDate.getFullYear();
+  const nextMonth = nextMonthDate.getMonth();
+
+  const totalContracts = rows.length;
+  const totalPaymentDue = useMemo(() => {
+    return (allPayments as any[])
+      .filter((p) => !p.received_date && p.payment_date && ["Due", "Overdue"].includes(computeStatus(p.payment_date, "")))
+      .reduce((sum, p) => sum + (Number(p.value) || 0), 0);
+  }, [allPayments]);
+  const contractsExpiringThisMonth = useMemo(() => {
+    return rows.filter((r: any) => {
+      if (!r.end_date) return false;
+      const d = new Date(r.end_date);
+      return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+    }).length;
+  }, [rows, currentYear, currentMonth]);
+  const paymentsDueNextMonth = useMemo(() => {
+    return (allPayments as any[]).filter((p) => {
+      if (!p.payment_date || p.received_date) return false;
+      const d = new Date(p.payment_date);
+      return d.getFullYear() === nextMonthYear && d.getMonth() === nextMonth;
+    }).length;
+  }, [allPayments, nextMonthYear, nextMonth]);
+
+  function fmtAED(n: number) {
+    return new Intl.NumberFormat("en-AE", { style: "currency", currency: "AED", maximumFractionDigits: 0 }).format(n);
+  }
 
   const total = rows.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -339,6 +371,44 @@ function ContractsPage() {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="p-4 flex items-center gap-4 bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/30 dark:to-background border-blue-100 dark:border-blue-900/40">
+          <div className="p-3 rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
+            <FileText className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Total Contracts</p>
+            <p className="text-2xl font-bold">{totalContracts}</p>
+          </div>
+        </Card>
+        <Card className="p-4 flex items-center gap-4 bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/30 dark:to-background border-amber-100 dark:border-amber-900/40">
+          <div className="p-3 rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+            <CreditCard className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Total Payment Due</p>
+            <p className="text-2xl font-bold">{fmtAED(totalPaymentDue)}</p>
+          </div>
+        </Card>
+        <Card className="p-4 flex items-center gap-4 bg-gradient-to-br from-rose-50 to-white dark:from-rose-950/30 dark:to-background border-rose-100 dark:border-rose-900/40">
+          <div className="p-3 rounded-xl bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300">
+            <Calendar className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Expiring This Month</p>
+            <p className="text-2xl font-bold">{contractsExpiringThisMonth}</p>
+          </div>
+        </Card>
+        <Card className="p-4 flex items-center gap-4 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-950/30 dark:to-background border-emerald-100 dark:border-emerald-900/40">
+          <div className="p-3 rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
+            <AlertCircle className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Payments Due Next Month</p>
+            <p className="text-2xl font-bold">{paymentsDueNextMonth}</p>
+          </div>
+        </Card>
+      </div>
 
       <Card>
         <Table>
