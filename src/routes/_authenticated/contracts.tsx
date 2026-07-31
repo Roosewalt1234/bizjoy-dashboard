@@ -186,6 +186,48 @@ function generateSchedule(start: string, term: PaymentTerm, total: number): Paym
   });
 }
 
+function typeBadgeClasses(t: string): string {
+  switch (t) {
+    case "Premium": return "bg-violet-100 text-violet-800 border-violet-200 dark:bg-violet-900/40 dark:text-violet-200";
+    case "Bespoke": return "bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-900/40 dark:text-sky-200";
+    case "Standard": return "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800/60 dark:text-slate-200";
+    default: return "bg-muted text-muted-foreground border-border";
+  }
+}
+function termBadgeClasses(t: string): string {
+  switch (t) {
+    case "Monthly": return "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-200";
+    case "Quarterly": return "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/40 dark:text-amber-200";
+    case "Half Yearly": return "bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/40 dark:text-indigo-200";
+    case "Single Payment": return "bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/40 dark:text-rose-200";
+    default: return "bg-muted text-muted-foreground border-border";
+  }
+}
+function todayISO(): string {
+  const d = new Date(); d.setHours(0, 0, 0, 0);
+  return d.toISOString().slice(0, 10);
+}
+function nextServiceDate(row: any, key: string): string {
+  const sched = row?.ppm_schedule ?? {};
+  const dates: string[] = Array.isArray(sched?.dates?.[key])
+    ? sched.dates[key]
+    : Array.isArray(sched?.[key]) ? sched[key] : [];
+  const statuses: string[] = Array.isArray(sched?.status?.[key]) ? sched.status[key] : [];
+  const pending = dates
+    .map((d, i) => ({ d, s: statuses[i] ?? "Auto" }))
+    .filter((x) => x.d && x.s !== "Completed" && x.s !== "Not Applicable")
+    .map((x) => x.d)
+    .sort();
+  if (!pending.length) return "";
+  const t = todayISO();
+  return pending.find((d) => d >= t) ?? pending[0];
+}
+function DateCell({ date }: { date: string }) {
+  if (!date) return <span className="text-muted-foreground">—</span>;
+  const overdue = date < todayISO();
+  return <span className={overdue ? "text-red-600 font-medium dark:text-red-400" : ""}>{date}</span>;
+}
+
 function ContractsPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -200,6 +242,28 @@ function ContractsPage() {
       return data ?? [];
     },
   });
+
+  const { data: allPayments = [] } = useQuery({
+    queryKey: ["contract_payments_all"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contract_payments")
+        .select("contract_id, payment_date, received_date")
+        .order("payment_date", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const nextPaymentByContract = useMemo(() => {
+    const m: Record<string, string> = {};
+    for (const p of allPayments as any[]) {
+      if (p.received_date) continue;
+      if (!p.payment_date) continue;
+      if (!m[p.contract_id] || p.payment_date < m[p.contract_id]) m[p.contract_id] = p.payment_date;
+    }
+    return m;
+  }, [allPayments]);
 
   const total = rows.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -254,29 +318,43 @@ function ContractsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Title</TableHead>
               <TableHead>Customer</TableHead>
+              <TableHead>Title</TableHead>
               <TableHead>Start</TableHead>
               <TableHead>End</TableHead>
               <TableHead>Value</TableHead>
-              <TableHead>Terms</TableHead>
+              <TableHead>Payment</TableHead>
+              <TableHead>Next Service Due</TableHead>
+              <TableHead>WT Cleaning</TableHead>
+              <TableHead>Next Payment Due</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-24 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={11} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
             ) : rows.length === 0 ? (
-              <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">No contracts yet.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={11} className="text-center py-8 text-muted-foreground">No contracts yet.</TableCell></TableRow>
             ) : pageRows.map((r: any) => (
               <TableRow key={r.id}>
-                <TableCell className="font-medium">{r.title ?? "—"}</TableCell>
-                <TableCell>{r.customer_name ?? "—"}</TableCell>
+                <TableCell className="font-medium">{r.customer_name ?? "—"}</TableCell>
+                <TableCell>
+                  {r.contract_type ? (
+                    <Badge variant="outline" className={cn("font-medium", typeBadgeClasses(r.contract_type))}>{r.contract_type}</Badge>
+                  ) : "—"}
+                </TableCell>
                 <TableCell>{r.start_date ?? "—"}</TableCell>
                 <TableCell>{r.end_date ?? "—"}</TableCell>
                 <TableCell>{r.value ?? "—"}</TableCell>
-                <TableCell>{r.payment_terms ?? "—"}</TableCell>
+                <TableCell>
+                  {r.payment_terms ? (
+                    <Badge variant="outline" className={cn("font-medium", termBadgeClasses(r.payment_terms))}>{r.payment_terms}</Badge>
+                  ) : "—"}
+                </TableCell>
+                <TableCell><DateCell date={nextServiceDate(r, "ac_units")} /></TableCell>
+                <TableCell><DateCell date={nextServiceDate(r, "water_tank")} /></TableCell>
+                <TableCell><DateCell date={nextPaymentByContract[r.id] ?? ""} /></TableCell>
                 <TableCell>{r.status ?? "—"}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
