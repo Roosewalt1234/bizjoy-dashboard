@@ -256,6 +256,10 @@ function ContractsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
   const [page, setPage] = useState(1);
+  const [filterTitle, setFilterTitle] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterPayment, setFilterPayment] = useState("all");
+
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["contracts"],
@@ -265,6 +269,16 @@ function ContractsPage() {
       return data ?? [];
     },
   });
+
+  const filteredRows = useMemo(() => {
+    return rows.filter((r: any) => {
+      const titleMatch = !filterTitle || (r.contract_type || "").toLowerCase().includes(filterTitle.toLowerCase()) || (r.title || "").toLowerCase().includes(filterTitle.toLowerCase());
+      const statusMatch = filterStatus === "all" || (r.status || "").toLowerCase() === filterStatus.toLowerCase();
+      const paymentMatch = filterPayment === "all" || (r.payment_terms || "").toLowerCase() === filterPayment.toLowerCase();
+
+      return titleMatch && statusMatch && paymentMatch;
+    });
+  }, [rows, filterTitle, filterStatus, filterPayment]);
 
   const { data: allPayments = [] } = useQuery({
     queryKey: ["contract_payments_all"],
@@ -298,19 +312,23 @@ function ContractsPage() {
   const nextMonthYear = nextMonthDate.getFullYear();
   const nextMonth = nextMonthDate.getMonth();
 
-  const totalContracts = rows.length;
+  const totalContracts = filteredRows.length;
   const totalPaymentDue = useMemo(() => {
     return (allPayments as any[])
-      .filter((p) => !p.received_date && p.payment_date && ["Due", "Overdue"].includes(computeStatus(p.payment_date, "")))
+      .filter((p) => {
+        if (p.received_date || !p.payment_date) return false;
+        const status = computeStatus(p.payment_date, "");
+        return ["Due", "Overdue"].includes(status);
+      })
       .reduce((sum, p) => sum + (Number(p.value) || 0), 0);
   }, [allPayments]);
   const contractsExpiringThisMonth = useMemo(() => {
-    return rows.filter((r: any) => {
+    return filteredRows.filter((r: any) => {
       if (!r.end_date) return false;
       const d = new Date(r.end_date);
       return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
     }).length;
-  }, [rows, currentYear, currentMonth]);
+  }, [filteredRows, currentYear, currentMonth]);
   const paymentsDueNextMonth = useMemo(() => {
     return (allPayments as any[]).filter((p) => {
       if (!p.payment_date || p.received_date) return false;
@@ -323,10 +341,10 @@ function ContractsPage() {
     return new Intl.NumberFormat("en-AE", { style: "currency", currency: "AED", maximumFractionDigits: 0 }).format(n);
   }
 
-  const total = rows.length;
+  const total = filteredRows.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
-  const pageRows = paginate(rows, page);
+  const pageRows = paginate(filteredRows, page);
 
   async function remove(id: string) {
     const { error } = await supabase.from("contracts").delete().eq("id", id);
@@ -346,7 +364,7 @@ function ContractsPage() {
           <ExportMenu
             filename="contracts"
             sheetName="Contracts"
-            rows={rows as any[]}
+            rows={filteredRows as any[]}
             columns={[
               { key: "amc_ref_no", label: "AMC Ref No" },
               { key: "title", label: "Title" },
@@ -409,6 +427,45 @@ function ContractsPage() {
           </div>
         </Card>
       </div>
+
+      <Card className="p-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1">
+            <Label htmlFor="filter-title" className="text-xs">Search Title</Label>
+            <Input
+              id="filter-title"
+              placeholder="Filter by title or type (e.g. Standard, Premium, Bespoke)"
+              value={filterTitle}
+              onChange={(e) => { setFilterTitle(e.target.value); setPage(1); }}
+            />
+          </div>
+          <div className="w-full sm:w-48">
+            <Label htmlFor="filter-status" className="text-xs">Status</Label>
+            <Select value={filterStatus} onValueChange={(v) => { setFilterStatus(v); setPage(1); }}>
+              <SelectTrigger id="filter-status">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                {STATUS_OPTIONS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="w-full sm:w-48">
+            <Label htmlFor="filter-payment" className="text-xs">Payment</Label>
+            <Select value={filterPayment} onValueChange={(v) => { setFilterPayment(v); setPage(1); }}>
+              <SelectTrigger id="filter-payment">
+                <SelectValue placeholder="All Payments" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Payments</SelectItem>
+                {PAYMENT_TERMS.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+
+        </div>
+      </Card>
 
       <Card>
         <Table>
