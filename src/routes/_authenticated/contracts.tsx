@@ -228,6 +228,29 @@ function DateCell({ date }: { date: string }) {
   return <span className={overdue ? "text-red-600 font-medium dark:text-red-400" : ""}>{date}</span>;
 }
 
+function PaymentDueBadge({ date, status }: { date: string; status: string }) {
+  const [showStatus, setShowStatus] = useState(false);
+  if (!date) return <span className="text-muted-foreground">—</span>;
+  const classes =
+    status === "Overdue"
+      ? payStatusClasses("Overdue")
+      : status === "Due"
+      ? payStatusClasses("Due")
+      : "";
+  if (!classes) return <span>{date}</span>;
+  return (
+    <Badge
+      variant="outline"
+      className={cn("font-medium cursor-pointer select-none", classes)}
+      onClick={() => setShowStatus((v) => !v)}
+      title={showStatus ? "Click to show date" : "Click to show status"}
+    >
+      {showStatus ? status : date}
+    </Badge>
+  );
+}
+
+
 function ContractsPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
