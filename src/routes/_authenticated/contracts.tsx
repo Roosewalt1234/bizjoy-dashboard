@@ -228,6 +228,29 @@ function DateCell({ date }: { date: string }) {
   return <span className={overdue ? "text-red-600 font-medium dark:text-red-400" : ""}>{date}</span>;
 }
 
+function PaymentDueBadge({ date, status }: { date: string; status: string }) {
+  const [showStatus, setShowStatus] = useState(false);
+  if (!date) return <span className="text-muted-foreground">—</span>;
+  const classes =
+    status === "Overdue"
+      ? payStatusClasses("Overdue")
+      : status === "Due"
+      ? payStatusClasses("Due")
+      : "";
+  if (!classes) return <span>{date}</span>;
+  return (
+    <Badge
+      variant="outline"
+      className={cn("font-medium cursor-pointer select-none", classes)}
+      onClick={() => setShowStatus((v) => !v)}
+      title={showStatus ? "Click to show date" : "Click to show status"}
+    >
+      {showStatus ? status : date}
+    </Badge>
+  );
+}
+
+
 function ContractsPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -255,12 +278,15 @@ function ContractsPage() {
     },
   });
 
-  const nextPaymentByContract = useMemo(() => {
-    const m: Record<string, string> = {};
+  const nextPaymentInfoByContract = useMemo(() => {
+    const m: Record<string, { payment_date: string; status: string }> = {};
     for (const p of allPayments as any[]) {
       if (p.received_date) continue;
       if (!p.payment_date) continue;
-      if (!m[p.contract_id] || p.payment_date < m[p.contract_id]) m[p.contract_id] = p.payment_date;
+      const status = computeStatus(p.payment_date, "");
+      if (!m[p.contract_id] || p.payment_date < m[p.contract_id].payment_date) {
+        m[p.contract_id] = { payment_date: p.payment_date, status };
+      }
     }
     return m;
   }, [allPayments]);
@@ -354,7 +380,13 @@ function ContractsPage() {
                 </TableCell>
                 <TableCell><DateCell date={nextServiceDate(r, "ac_units")} /></TableCell>
                 <TableCell><DateCell date={nextServiceDate(r, "water_tank")} /></TableCell>
-                <TableCell><DateCell date={nextPaymentByContract[r.id] ?? ""} /></TableCell>
+                <TableCell>
+                  {(() => {
+                    const info = nextPaymentInfoByContract[r.id];
+                    if (!info) return <span className="text-muted-foreground">—</span>;
+                    return <PaymentDueBadge date={info.payment_date} status={info.status} />;
+                  })()}
+                </TableCell>
                 <TableCell>{r.status ?? "—"}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
