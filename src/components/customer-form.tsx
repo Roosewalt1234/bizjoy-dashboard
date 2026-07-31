@@ -99,6 +99,23 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
   });
   const [contacts, setContacts] = useState<ContactPerson[]>([]);
   const [documents, setDocuments] = useState<DocItem[]>([]);
+  const [communityOptions, setCommunityOptions] = useState<string[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("customers")
+        .select("address_community, billing_community")
+        .limit(10000);
+      if (!data) return;
+      const set = new Set<string>();
+      for (const r of data as any[]) {
+        if (r.address_community?.trim()) set.add(r.address_community.trim());
+        if (r.billing_community?.trim()) set.add(r.billing_community.trim());
+      }
+      setCommunityOptions(Array.from(set).sort((a, b) => a.localeCompare(b)));
+    })();
+  }, []);
 
   useEffect(() => {
     if (!customerId) return;
@@ -113,6 +130,13 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
   }, [customerId]);
 
   function update(k: string, v: any) { setForm((f: any) => ({ ...f, [k]: v })); }
+
+  function updateCommunity(v: string) {
+    setForm((f: any) => {
+      const mirror = !f.billing_community || f.billing_community === f.address_community;
+      return { ...f, address_community: v, ...(mirror ? { billing_community: v } : {}) };
+    });
+  }
 
   function copyAddressToBilling() {
     setForm((f: any) => ({
