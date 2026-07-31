@@ -465,6 +465,7 @@ function ContractsPage() {
       </Card>
 
       <Card>
+        <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Customer</TableHead>
