@@ -273,8 +273,9 @@ function ContractsPage() {
   const filteredRows = useMemo(() => {
     return rows.filter((r: any) => {
       const titleMatch = !filterTitle || (r.contract_type || "").toLowerCase().includes(filterTitle.toLowerCase()) || (r.title || "").toLowerCase().includes(filterTitle.toLowerCase());
-      const statusMatch = !filterStatus || (r.status || "").toLowerCase() === filterStatus.toLowerCase();
-      const paymentMatch = !filterPayment || (r.payment_terms || "").toLowerCase() === filterPayment.toLowerCase();
+      const statusMatch = filterStatus === "all" || (r.status || "").toLowerCase() === filterStatus.toLowerCase();
+      const paymentMatch = filterPayment === "all" || (r.payment_terms || "").toLowerCase() === filterPayment.toLowerCase();
+
       return titleMatch && statusMatch && paymentMatch;
     });
   }, [rows, filterTitle, filterStatus, filterPayment]);
