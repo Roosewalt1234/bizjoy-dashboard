@@ -118,6 +118,7 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
     setForm((f: any) => ({
       ...f,
       billing_address_line: f.address_line,
+      billing_community: f.address_community,
       billing_city: f.address_city,
       billing_country: f.address_country,
       billing_lat: f.address_lat,
