@@ -272,7 +272,7 @@ function ContractsPage() {
 
   const filteredRows = useMemo(() => {
     return rows.filter((r: any) => {
-      const titleMatch = !filterTitle || (r.contract_type || "").toLowerCase().includes(filterTitle.toLowerCase()) || (r.title || "").toLowerCase().includes(filterTitle.toLowerCase());
+      const titleMatch = filterTitle === "all" || (r.contract_type || "") === filterTitle;
       const statusMatch = filterStatus === "all" || (r.status || "").toLowerCase() === filterStatus.toLowerCase();
       const paymentMatch = filterPayment === "all" || (r.payment_terms || "").toLowerCase() === filterPayment.toLowerCase();
 
@@ -430,14 +430,17 @@ function ContractsPage() {
 
       <Card className="p-4">
         <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1">
-            <Label htmlFor="filter-title" className="text-xs">Search Title</Label>
-            <Input
-              id="filter-title"
-              placeholder="Filter by title or type (e.g. Standard, Premium, Bespoke)"
-              value={filterTitle}
-              onChange={(e) => { setFilterTitle(e.target.value); setPage(1); }}
-            />
+          <div className="w-full sm:w-48">
+            <Label htmlFor="filter-title" className="text-xs">Title</Label>
+            <Select value={filterTitle} onValueChange={(v) => { setFilterTitle(v); setPage(1); }}>
+              <SelectTrigger id="filter-title">
+                <SelectValue placeholder="All Titles" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Titles</SelectItem>
+                {CONTRACT_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
           <div className="w-full sm:w-48">
             <Label htmlFor="filter-status" className="text-xs">Status</Label>
