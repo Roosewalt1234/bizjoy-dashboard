@@ -316,6 +316,9 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
           <Row label="Address" align="start">
             <Textarea rows={2} value={form.address_line} onChange={(e) => update("address_line", e.target.value)} />
           </Row>
+          <Row label="Community / Building">
+            <Input placeholder="Community / Building" value={form.address_community} onChange={(e) => update("address_community", e.target.value)} />
+          </Row>
           <Row label="City / Country">
             <div className="grid grid-cols-2 gap-2">
               <Input placeholder="City" value={form.address_city} onChange={(e) => update("address_city", e.target.value)} />
