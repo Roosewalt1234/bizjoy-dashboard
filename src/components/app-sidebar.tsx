@@ -49,6 +49,14 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [email, setEmail] = useState<string | null>(null);
+  const { isAdmin, can } = usePermissions();
+
+  const visibleItems = items.filter((item) => {
+    if (item.adminOnly) return isAdmin;
+    if (item.module) return can(item.module, "view");
+    return true;
+  });
+
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
