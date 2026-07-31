@@ -257,8 +257,9 @@ function ContractsPage() {
   const [editing, setEditing] = useState<any | null>(null);
   const [page, setPage] = useState(1);
   const [filterTitle, setFilterTitle] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
-  const [filterPayment, setFilterPayment] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterPayment, setFilterPayment] = useState("all");
+
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["contracts"],
