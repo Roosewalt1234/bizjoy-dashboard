@@ -179,7 +179,8 @@ function generateSchedule(start: string, term: PaymentTerm, total: number): Paym
     return {
       payment_date,
       value: per ? String(per) : "",
-      status: computeStatus(payment_date, ""),
+      // First installment is due immediately on the contract start date
+      status: i === 0 ? "Due" : computeStatus(payment_date, ""),
       received_date: "",
     };
   });
