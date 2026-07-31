@@ -34,7 +34,7 @@ export const Route = createFileRoute("/_authenticated/contracts")({
 
 const PAYMENT_TERMS = ["Monthly", "Quarterly", "Half Yearly", "Single Payment"] as const;
 type PaymentTerm = typeof PAYMENT_TERMS[number];
-const STATUS_OPTIONS = ["Draft", "Active", "Expired", "Terminated"];
+const STATUS_OPTIONS = ["Draft", "Under Review", "Active", "Expired", "Terminated"];
 const PAY_STATUS = ["Not Yet Due", "Due", "Overdue", "Received"] as const;
 function payStatusClasses(s: string): string {
   switch (s) {
