@@ -318,29 +318,43 @@ function ContractsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Title</TableHead>
               <TableHead>Customer</TableHead>
+              <TableHead>Title</TableHead>
               <TableHead>Start</TableHead>
               <TableHead>End</TableHead>
               <TableHead>Value</TableHead>
-              <TableHead>Terms</TableHead>
+              <TableHead>Payment</TableHead>
+              <TableHead>Next Service Due</TableHead>
+              <TableHead>WT Cleaning</TableHead>
+              <TableHead>Next Payment Due</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-24 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={11} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
             ) : rows.length === 0 ? (
-              <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">No contracts yet.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={11} className="text-center py-8 text-muted-foreground">No contracts yet.</TableCell></TableRow>
             ) : pageRows.map((r: any) => (
               <TableRow key={r.id}>
-                <TableCell className="font-medium">{r.title ?? "—"}</TableCell>
-                <TableCell>{r.customer_name ?? "—"}</TableCell>
+                <TableCell className="font-medium">{r.customer_name ?? "—"}</TableCell>
+                <TableCell>
+                  {r.contract_type ? (
+                    <Badge variant="outline" className={cn("font-medium", typeBadgeClasses(r.contract_type))}>{r.contract_type}</Badge>
+                  ) : "—"}
+                </TableCell>
                 <TableCell>{r.start_date ?? "—"}</TableCell>
                 <TableCell>{r.end_date ?? "—"}</TableCell>
                 <TableCell>{r.value ?? "—"}</TableCell>
-                <TableCell>{r.payment_terms ?? "—"}</TableCell>
+                <TableCell>
+                  {r.payment_terms ? (
+                    <Badge variant="outline" className={cn("font-medium", termBadgeClasses(r.payment_terms))}>{r.payment_terms}</Badge>
+                  ) : "—"}
+                </TableCell>
+                <TableCell><DateCell date={nextServiceDate(r, "ac_units")} /></TableCell>
+                <TableCell><DateCell date={nextServiceDate(r, "water_tank")} /></TableCell>
+                <TableCell><DateCell date={nextPaymentByContract[r.id] ?? ""} /></TableCell>
                 <TableCell>{r.status ?? "—"}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
