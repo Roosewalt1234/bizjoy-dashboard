@@ -310,19 +310,23 @@ function ContractsPage() {
   const nextMonthYear = nextMonthDate.getFullYear();
   const nextMonth = nextMonthDate.getMonth();
 
-  const totalContracts = rows.length;
+  const totalContracts = filteredRows.length;
   const totalPaymentDue = useMemo(() => {
     return (allPayments as any[])
-      .filter((p) => !p.received_date && p.payment_date && ["Due", "Overdue"].includes(computeStatus(p.payment_date, "")))
+      .filter((p) => {
+        if (p.received_date || !p.payment_date) return false;
+        const status = computeStatus(p.payment_date, "");
+        return ["Due", "Overdue"].includes(status);
+      })
       .reduce((sum, p) => sum + (Number(p.value) || 0), 0);
   }, [allPayments]);
   const contractsExpiringThisMonth = useMemo(() => {
-    return rows.filter((r: any) => {
+    return filteredRows.filter((r: any) => {
       if (!r.end_date) return false;
       const d = new Date(r.end_date);
       return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
     }).length;
-  }, [rows, currentYear, currentMonth]);
+  }, [filteredRows, currentYear, currentMonth]);
   const paymentsDueNextMonth = useMemo(() => {
     return (allPayments as any[]).filter((p) => {
       if (!p.payment_date || p.received_date) return false;
