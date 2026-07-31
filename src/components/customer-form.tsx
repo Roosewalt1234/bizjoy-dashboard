@@ -346,8 +346,6 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
           <datalist id="community-options">
             {communityOptions.map((c) => <option key={c} value={c} />)}
           </datalist>
-          <Row label="_hidden_" children={null} />
-          </Row>
           <Row label="City / Country">
             <div className="grid grid-cols-2 gap-2">
               <Input placeholder="City" value={form.address_city} onChange={(e) => update("address_city", e.target.value)} />
