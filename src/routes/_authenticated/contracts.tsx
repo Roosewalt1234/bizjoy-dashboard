@@ -371,6 +371,44 @@ function ContractsPage() {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="p-4 flex items-center gap-4 bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/30 dark:to-background border-blue-100 dark:border-blue-900/40">
+          <div className="p-3 rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
+            <FileText className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Total Contracts</p>
+            <p className="text-2xl font-bold">{totalContracts}</p>
+          </div>
+        </Card>
+        <Card className="p-4 flex items-center gap-4 bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/30 dark:to-background border-amber-100 dark:border-amber-900/40">
+          <div className="p-3 rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+            <CreditCard className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Total Payment Due</p>
+            <p className="text-2xl font-bold">{fmtAED(totalPaymentDue)}</p>
+          </div>
+        </Card>
+        <Card className="p-4 flex items-center gap-4 bg-gradient-to-br from-rose-50 to-white dark:from-rose-950/30 dark:to-background border-rose-100 dark:border-rose-900/40">
+          <div className="p-3 rounded-xl bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300">
+            <Calendar className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Expiring This Month</p>
+            <p className="text-2xl font-bold">{contractsExpiringThisMonth}</p>
+          </div>
+        </Card>
+        <Card className="p-4 flex items-center gap-4 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-950/30 dark:to-background border-emerald-100 dark:border-emerald-900/40">
+          <div className="p-3 rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
+            <AlertCircle className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Payments Due Next Month</p>
+            <p className="text-2xl font-bold">{paymentsDueNextMonth}</p>
+          </div>
+        </Card>
+      </div>
 
       <Card>
         <Table>
