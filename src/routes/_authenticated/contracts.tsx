@@ -201,6 +201,28 @@ function ContractsPage() {
     },
   });
 
+  const { data: allPayments = [] } = useQuery({
+    queryKey: ["contract_payments_all"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contract_payments")
+        .select("contract_id, payment_date, received_date")
+        .order("payment_date", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const nextPaymentByContract = useMemo(() => {
+    const m: Record<string, string> = {};
+    for (const p of allPayments as any[]) {
+      if (p.received_date) continue;
+      if (!p.payment_date) continue;
+      if (!m[p.contract_id] || p.payment_date < m[p.contract_id]) m[p.contract_id] = p.payment_date;
+    }
+    return m;
+  }, [allPayments]);
+
   const total = rows.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
