@@ -80,6 +80,7 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
     payment_terms: "Immediate on Invoicing",
     portal_enabled: false,
     address_line: "",
+    address_community: "",
     address_city: "Dubai",
     address_country: "United Arab Emirates",
     address_lat: "",
@@ -87,6 +88,7 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
     address_telephone: "",
     address_mobile: "",
     billing_address_line: "",
+    billing_community: "",
     billing_city: "Dubai",
     billing_country: "United Arab Emirates",
     billing_lat: "",
@@ -116,6 +118,7 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
     setForm((f: any) => ({
       ...f,
       billing_address_line: f.address_line,
+      billing_community: f.address_community,
       billing_city: f.address_city,
       billing_country: f.address_country,
       billing_lat: f.address_lat,
@@ -313,6 +316,9 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
           <Row label="Address" align="start">
             <Textarea rows={2} value={form.address_line} onChange={(e) => update("address_line", e.target.value)} />
           </Row>
+          <Row label="Community / Building">
+            <Input placeholder="Community / Building" value={form.address_community} onChange={(e) => update("address_community", e.target.value)} />
+          </Row>
           <Row label="City / Country">
             <div className="grid grid-cols-2 gap-2">
               <Input placeholder="City" value={form.address_city} onChange={(e) => update("address_city", e.target.value)} />
@@ -342,6 +348,9 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
         }>
           <Row label="Address" align="start">
             <Textarea rows={2} value={form.billing_address_line} onChange={(e) => update("billing_address_line", e.target.value)} />
+          </Row>
+          <Row label="Community / Building">
+            <Input placeholder="Community / Building" value={form.billing_community} onChange={(e) => update("billing_community", e.target.value)} />
           </Row>
           <Row label="City / Country">
             <div className="grid grid-cols-2 gap-2">
