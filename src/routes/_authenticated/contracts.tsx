@@ -279,17 +279,49 @@ function ContractsPage() {
   });
 
   const nextPaymentInfoByContract = useMemo(() => {
-    const m: Record<string, { payment_date: string; status: string }> = {};
+    const m: Record<string, { payment_date: string; status: string; value: number }> = {};
     for (const p of allPayments as any[]) {
       if (p.received_date) continue;
       if (!p.payment_date) continue;
       const status = computeStatus(p.payment_date, "");
       if (!m[p.contract_id] || p.payment_date < m[p.contract_id].payment_date) {
-        m[p.contract_id] = { payment_date: p.payment_date, status };
+        m[p.contract_id] = { payment_date: p.payment_date, status, value: Number(p.value) || 0 };
       }
     }
     return m;
   }, [allPayments]);
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+  const nextMonthDate = new Date(currentYear, currentMonth + 1, 1);
+  const nextMonthYear = nextMonthDate.getFullYear();
+  const nextMonth = nextMonthDate.getMonth();
+
+  const totalContracts = rows.length;
+  const totalPaymentDue = useMemo(() => {
+    return (allPayments as any[])
+      .filter((p) => !p.received_date && p.payment_date && ["Due", "Overdue"].includes(computeStatus(p.payment_date, "")))
+      .reduce((sum, p) => sum + (Number(p.value) || 0), 0);
+  }, [allPayments]);
+  const contractsExpiringThisMonth = useMemo(() => {
+    return rows.filter((r: any) => {
+      if (!r.end_date) return false;
+      const d = new Date(r.end_date);
+      return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+    }).length;
+  }, [rows, currentYear, currentMonth]);
+  const paymentsDueNextMonth = useMemo(() => {
+    return (allPayments as any[]).filter((p) => {
+      if (!p.payment_date || p.received_date) return false;
+      const d = new Date(p.payment_date);
+      return d.getFullYear() === nextMonthYear && d.getMonth() === nextMonth;
+    }).length;
+  }, [allPayments, nextMonthYear, nextMonth]);
+
+  function fmtAED(n: number) {
+    return new Intl.NumberFormat("en-AE", { style: "currency", currency: "AED", maximumFractionDigits: 0 }).format(n);
+  }
 
   const total = rows.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
