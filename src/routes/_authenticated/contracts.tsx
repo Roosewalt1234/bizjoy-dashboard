@@ -362,7 +362,7 @@ function ContractsPage() {
           <ExportMenu
             filename="contracts"
             sheetName="Contracts"
-            rows={rows as any[]}
+            rows={filteredRows as any[]}
             columns={[
               { key: "amc_ref_no", label: "AMC Ref No" },
               { key: "title", label: "Title" },
