@@ -446,7 +446,7 @@ function ContractsPage() {
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Status</SelectItem>
+                <SelectItem value="all">All Status</SelectItem>
                 {STATUS_OPTIONS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
               </SelectContent>
             </Select>
@@ -458,11 +458,12 @@ function ContractsPage() {
                 <SelectValue placeholder="All Payments" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Payments</SelectItem>
+                <SelectItem value="all">All Payments</SelectItem>
                 {PAYMENT_TERMS.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
+
         </div>
       </Card>
 
