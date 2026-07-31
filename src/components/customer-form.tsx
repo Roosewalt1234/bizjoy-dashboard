@@ -99,6 +99,23 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
   });
   const [contacts, setContacts] = useState<ContactPerson[]>([]);
   const [documents, setDocuments] = useState<DocItem[]>([]);
+  const [communityOptions, setCommunityOptions] = useState<string[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("customers")
+        .select("address_community, billing_community")
+        .limit(10000);
+      if (!data) return;
+      const set = new Set<string>();
+      for (const r of data as any[]) {
+        if (r.address_community?.trim()) set.add(r.address_community.trim());
+        if (r.billing_community?.trim()) set.add(r.billing_community.trim());
+      }
+      setCommunityOptions(Array.from(set).sort((a, b) => a.localeCompare(b)));
+    })();
+  }, []);
 
   useEffect(() => {
     if (!customerId) return;
@@ -113,6 +130,13 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
   }, [customerId]);
 
   function update(k: string, v: any) { setForm((f: any) => ({ ...f, [k]: v })); }
+
+  function updateCommunity(v: string) {
+    setForm((f: any) => {
+      const mirror = !f.billing_community || f.billing_community === f.address_community;
+      return { ...f, address_community: v, ...(mirror ? { billing_community: v } : {}) };
+    });
+  }
 
   function copyAddressToBilling() {
     setForm((f: any) => ({
@@ -317,8 +341,11 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
             <Textarea rows={2} value={form.address_line} onChange={(e) => update("address_line", e.target.value)} />
           </Row>
           <Row label="Community / Building">
-            <Input placeholder="Community / Building" value={form.address_community} onChange={(e) => update("address_community", e.target.value)} />
+            <Input list="community-options" placeholder="Community / Building" value={form.address_community} onChange={(e) => updateCommunity(e.target.value)} />
           </Row>
+          <datalist id="community-options">
+            {communityOptions.map((c) => <option key={c} value={c} />)}
+          </datalist>
           <Row label="City / Country">
             <div className="grid grid-cols-2 gap-2">
               <Input placeholder="City" value={form.address_city} onChange={(e) => update("address_city", e.target.value)} />
@@ -350,7 +377,7 @@ export function CustomerForm({ customerId }: { customerId?: string }) {
             <Textarea rows={2} value={form.billing_address_line} onChange={(e) => update("billing_address_line", e.target.value)} />
           </Row>
           <Row label="Community / Building">
-            <Input placeholder="Community / Building" value={form.billing_community} onChange={(e) => update("billing_community", e.target.value)} />
+            <Input list="community-options" placeholder="Community / Building" value={form.billing_community} onChange={(e) => update("billing_community", e.target.value)} />
           </Row>
           <Row label="City / Country">
             <div className="grid grid-cols-2 gap-2">
