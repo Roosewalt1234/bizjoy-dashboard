@@ -950,10 +950,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      my_permission: {
-        Args: { _action: string; _module: string }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
       app_role: "admin" | "user"
