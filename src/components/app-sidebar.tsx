@@ -10,6 +10,7 @@ import {
   FolderKanban,
   LogOut,
   History,
+  Shield,
 } from "lucide-react";
 import {
   Sidebar,
@@ -27,17 +28,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import logoAsset from "@/assets/fizfix-logo.jpeg.asset.json";
+import { usePermissions } from "@/hooks/use-permissions";
 
 const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Customers", url: "/customers", icon: Users },
-  { title: "Sales", url: "/sales", icon: ShoppingCart },
-  { title: "HR", url: "/hr", icon: UserCog },
-  { title: "Accounts", url: "/accounts", icon: Wallet },
-  { title: "Contracts", url: "/contracts", icon: FileText },
-  { title: "Projects", url: "/projects", icon: FolderKanban },
-  { title: "Audit Log", url: "/audit", icon: History },
+  { title: "Customers", url: "/customers", icon: Users, module: "customers" },
+  { title: "Sales", url: "/sales", icon: ShoppingCart, module: "sales" },
+  { title: "HR", url: "/hr", icon: UserCog, module: "hr" },
+  { title: "Accounts", url: "/accounts", icon: Wallet, module: "accounts" },
+  { title: "Contracts", url: "/contracts", icon: FileText, module: "contracts" },
+  { title: "Projects", url: "/projects", icon: FolderKanban, module: "projects" },
+  { title: "Audit Log", url: "/audit", icon: History, adminOnly: true },
+  { title: "User Permissions", url: "/permissions", icon: Shield, adminOnly: true },
 ];
+
 
 
 export function AppSidebar() {
