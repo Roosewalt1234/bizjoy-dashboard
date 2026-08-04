@@ -265,6 +265,37 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
         }
       }
 
+      // handyman hours log (one entry per report)
+      const hrs = form.handyman_hours === "" ? 0 : Number(form.handyman_hours) || 0;
+      const { data: existingLog } = await supabase
+        .from("handyman_hours_log")
+        .select("id")
+        .eq("report_id", reportId!)
+        .maybeSingle();
+      if (hrs > 0 && form.contract_id) {
+        const logRow = {
+          contract_id: form.contract_id,
+          report_id: reportId!,
+          customer_id: form.customer_id || null,
+          customer_name: form.customer_name || null,
+          log_date: form.service_date || new Date().toISOString().slice(0, 10),
+          hours: hrs,
+          notes: form.report_no ? `Report ${form.report_no}` : null,
+        };
+        if (existingLog?.id) {
+          const { error } = await supabase.from("handyman_hours_log").update(logRow).eq("id", existingLog.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from("handyman_hours_log").insert(logRow);
+          if (error) throw error;
+        }
+      } else if (existingLog?.id) {
+        await supabase.from("handyman_hours_log").delete().eq("id", existingLog.id);
+      }
+      qc.invalidateQueries({ queryKey: ["handyman_hours_log_all"] });
+      qc.invalidateQueries({ queryKey: ["contracts"] });
+
+
       if (form.work_order_id) {
         await supabase
           .from("work_orders")
