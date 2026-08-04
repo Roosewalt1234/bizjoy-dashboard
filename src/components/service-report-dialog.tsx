@@ -37,6 +37,8 @@ const empty = {
   hours_spent: "",
   recommendations: "",
   next_service_date: "",
+  google_rating: "",
+  google_review: "",
   signed_by: "",
   signature_data: "",
   status: "Draft",
