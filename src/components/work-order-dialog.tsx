@@ -31,7 +31,7 @@ const empty = {
   technician_name: "",
   service_type: "",
   location: "",
-  priority: "Normal",
+  priority: "Medium",
   notes: "",
   status: "Open",
 };
@@ -120,7 +120,7 @@ export function WorkOrderDialog({ open, onOpenChange, editing }: Props) {
         technician_name: form.technician_name || null,
         service_type: form.service_type || null,
         location: form.location || null,
-        priority: form.priority || "Normal",
+        priority: form.priority || "Medium",
         problem_reported: list.map((it) => it.problem).join(ITEM_SEP) || null,
         work_requested: list.map((it) => it.work).join(ITEM_SEP) || null,
         notes: form.notes || null,

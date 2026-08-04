@@ -1,5 +1,5 @@
 export const WO_STATUS = ["Open", "Scheduled", "In Progress", "Completed", "Cancelled"] as const;
-export const WO_PRIORITY = ["Low", "Normal", "High", "Urgent"] as const;
+export const WO_PRIORITY = ["Emergency", "High", "Medium", "Low"] as const;
 
 export const ITEM_SEP = "\n---\n";
 
@@ -24,7 +24,7 @@ export function woStatusClasses(s: string | null | undefined): string {
 
 export function woPriorityClasses(p: string | null | undefined): string {
   switch (p) {
-    case "Urgent":
+    case "Emergency":
       return "bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/40 dark:text-rose-200";
     case "High":
       return "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/40 dark:text-orange-200";
