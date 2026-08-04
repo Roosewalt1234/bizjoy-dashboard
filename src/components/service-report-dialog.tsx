@@ -35,6 +35,7 @@ const empty = {
   work_done: "",
   parts_used: "",
   hours_spent: "",
+  handyman_hours: "",
   recommendations: "",
   next_service_date: "",
   google_rating: "",
@@ -86,6 +87,15 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
         .select("id, title, contract_no, customer_id, customer_name")
         .order("created_at", { ascending: false })
         .limit(2000);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const { data: handymanLog = [] } = useQuery({
+    queryKey: ["handyman_hours_log_all"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("handyman_hours_log").select("*");
       if (error) throw error;
       return data ?? [];
     },
@@ -170,6 +180,14 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
     }));
   }
 
+  const selectedContract: any = contracts.find((c: any) => c.id === form.contract_id);
+  const allottedHours = Number(selectedContract?.handyman_hours ?? 0);
+  const usedHoursOther = (handymanLog as any[])
+    .filter((h) => h.contract_id === form.contract_id && h.report_id !== editing?.id)
+    .reduce((s, h) => s + (Number(h.hours) || 0), 0);
+  const thisHours = form.handyman_hours === "" ? 0 : Number(form.handyman_hours) || 0;
+  const remainingHours = allottedHours - usedHoursOther - thisHours;
+
   async function uploadFile(reportId: string, file: File) {
     const ext = file.name.split(".").pop() || "jpg";
     const path = `${reportId}/${crypto.randomUUID()}.${ext}`;
@@ -199,6 +217,8 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
         work_done: list.map((it) => it.work).join(ITEM_SEP) || null,
         parts_used: list.map((it) => it.parts).join(ITEM_SEP) || null,
         hours_spent: totalHours || null,
+        handyman_hours: form.handyman_hours === "" ? null : Number(form.handyman_hours),
+
 
         recommendations: form.recommendations || null,
         next_service_date: form.next_service_date || null,
@@ -245,6 +265,37 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
         }
       }
 
+      // handyman hours log (one entry per report)
+      const hrs = form.handyman_hours === "" ? 0 : Number(form.handyman_hours) || 0;
+      const { data: existingLog } = await supabase
+        .from("handyman_hours_log")
+        .select("id")
+        .eq("report_id", reportId!)
+        .maybeSingle();
+      if (hrs > 0 && form.contract_id) {
+        const logRow = {
+          contract_id: form.contract_id,
+          report_id: reportId!,
+          customer_id: form.customer_id || null,
+          customer_name: form.customer_name || null,
+          log_date: form.service_date || new Date().toISOString().slice(0, 10),
+          hours: hrs,
+          notes: form.report_no ? `Report ${form.report_no}` : null,
+        };
+        if (existingLog?.id) {
+          const { error } = await supabase.from("handyman_hours_log").update(logRow).eq("id", existingLog.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from("handyman_hours_log").insert(logRow);
+          if (error) throw error;
+        }
+      } else if (existingLog?.id) {
+        await supabase.from("handyman_hours_log").delete().eq("id", existingLog.id);
+      }
+      qc.invalidateQueries({ queryKey: ["handyman_hours_log_all"] });
+      qc.invalidateQueries({ queryKey: ["contracts"] });
+
+
       if (form.work_order_id) {
         await supabase
           .from("work_orders")
@@ -267,7 +318,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[88vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{editing ? "Edit Work Completion Report" : "New Work Completion Report"}</DialogTitle>
+          <DialogTitle>Work Completion Report</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={save} className="space-y-6">
@@ -392,6 +443,38 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
             <p className="text-xs text-muted-foreground">
               Total hours: {items.reduce((s, it) => s + (Number(it.hours) || 0), 0) || 0}
             </p>
+
+            <Card className="p-3 space-y-2">
+              <div className="text-sm font-medium">Handyman Hours</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-end">
+                <div className="space-y-1">
+                  <Label>Handyman Hours Used (this visit)</Label>
+                  <Input
+                    type="number"
+                    step="0.25"
+                    min="0"
+                    value={form.handyman_hours ?? ""}
+                    onChange={(e) => set("handyman_hours", e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="text-sm">
+                  {form.contract_id ? (
+                    <div className="space-y-1">
+                      <div className="text-muted-foreground text-xs">
+                        Contract allowance {allottedHours} h · already used {usedHoursOther} h
+                      </div>
+                      <div className={remainingHours < 0 ? "font-semibold text-destructive" : "font-semibold text-emerald-600"}>
+                        Balance after this report: {remainingHours} h
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">Select a contract to deduct hours from its allowance.</p>
+                  )}
+                </div>
+              </div>
+            </Card>
+
           </section>
 
 

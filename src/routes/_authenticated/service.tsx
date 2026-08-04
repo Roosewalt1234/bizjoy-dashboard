@@ -115,7 +115,7 @@ function ServicePage() {
           />
           {can("service", "add") && (
             <Button onClick={() => { setEditing(null); setPrefillWo(null); setOpen(true); }}>
-              <Plus className="h-4 w-4 mr-2" /> New Work Completion Report
+              <Plus className="h-4 w-4 mr-2" /> Work Completion Report
             </Button>
           )}
         </div>
@@ -280,6 +280,7 @@ function ViewReportDialog({ report, onClose }: { report: any | null; onClose: ()
             <Field label="Service Type" value={report.service_type} />
             <Field label="Location / Unit" value={report.location} />
             <Field label="Hours Spent" value={report.hours_spent} />
+            <Field label="Handyman Hours" value={report.handyman_hours} />
             <Field label="Next Service" value={report.next_service_date} />
             <Field label="Status" value={report.status} />
           </div>

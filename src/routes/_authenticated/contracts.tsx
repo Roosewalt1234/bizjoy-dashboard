@@ -280,6 +280,26 @@ function ContractsPage() {
     });
   }, [rows, filterTitle, filterStatus, filterPayment]);
 
+  const { data: handymanLog = [] } = useQuery({
+    queryKey: ["handyman_hours_log_all"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("handyman_hours_log")
+        .select("contract_id, hours");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const handymanUsedByContract = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const h of handymanLog as any[]) {
+      if (!h.contract_id) continue;
+      m[h.contract_id] = (m[h.contract_id] ?? 0) + (Number(h.hours) || 0);
+    }
+    return m;
+  }, [handymanLog]);
+
   const { data: allPayments = [] } = useQuery({
     queryKey: ["contract_payments_all"],
     queryFn: async () => {
@@ -483,15 +503,16 @@ function ContractsPage() {
               <TableHead>Next Service Due</TableHead>
               <TableHead>WT Cleaning</TableHead>
               <TableHead>Next Payment Due</TableHead>
+              <TableHead>Handyman Hrs</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-24 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={11} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={12} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
             ) : rows.length === 0 ? (
-              <TableRow><TableCell colSpan={11} className="text-center py-8 text-muted-foreground">No contracts yet.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={12} className="text-center py-8 text-muted-foreground">No contracts yet.</TableCell></TableRow>
             ) : pageRows.map((r: any) => (
               <TableRow key={r.id}>
                 <TableCell className="font-medium">{r.customer_name ?? "—"}</TableCell>
@@ -515,6 +536,24 @@ function ContractsPage() {
                     const info = nextPaymentInfoByContract[r.id];
                     if (!info) return <span className="text-muted-foreground">—</span>;
                     return <PaymentDueBadge date={info.payment_date} status={info.status} />;
+                  })()}
+                </TableCell>
+                <TableCell>
+                  {(() => {
+                    const allotted = Number(r.handyman_hours ?? 0);
+                    const used = handymanUsedByContract[r.id] ?? 0;
+                    const remaining = allotted - used;
+                    const cls = remaining < 0
+                      ? "bg-red-50 text-red-700 border-red-200"
+                      : remaining <= allotted * 0.2
+                        ? "bg-amber-50 text-amber-700 border-amber-200"
+                        : "bg-emerald-50 text-emerald-700 border-emerald-200";
+                    return (
+                      <div className="flex flex-col gap-1">
+                        <Badge variant="outline" className={cn("font-medium w-fit", cls)}>{remaining} h left</Badge>
+                        <span className="text-xs text-muted-foreground">{used} / {allotted} used</span>
+                      </div>
+                    );
                   })()}
                 </TableCell>
                 <TableCell>{r.status ?? "—"}</TableCell>
