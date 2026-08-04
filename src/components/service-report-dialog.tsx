@@ -90,6 +90,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
     if (!open) return;
     if (editing) {
       setForm({ ...empty, ...editing, contract_id: editing.contract_id ?? "", customer_id: editing.customer_id ?? "" });
+      setItems(itemsFromReport(editing));
       supabase
         .from("service_report_photos")
         .select("*")
@@ -98,9 +99,11 @@ export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
         .then(({ data }) => setPairs((data ?? []).map((p: any) => ({ ...p }))));
     } else {
       setForm(empty);
+      setItems([emptyItem()]);
       setPairs([]);
     }
   }, [open, editing]);
+
 
   function set(key: string, value: any) {
     setForm((f: any) => ({ ...f, [key]: value }));
