@@ -280,6 +280,26 @@ function ContractsPage() {
     });
   }, [rows, filterTitle, filterStatus, filterPayment]);
 
+  const { data: handymanLog = [] } = useQuery({
+    queryKey: ["handyman_hours_log_all"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("handyman_hours_log")
+        .select("contract_id, hours");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const handymanUsedByContract = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const h of handymanLog as any[]) {
+      if (!h.contract_id) continue;
+      m[h.contract_id] = (m[h.contract_id] ?? 0) + (Number(h.hours) || 0);
+    }
+    return m;
+  }, [handymanLog]);
+
   const { data: allPayments = [] } = useQuery({
     queryKey: ["contract_payments_all"],
     queryFn: async () => {
