@@ -256,7 +256,7 @@ function ContractsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
   const [page, setPage] = useState(1);
-  const [filterTitle, setFilterTitle] = useState("");
+  const [filterTitle, setFilterTitle] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPayment, setFilterPayment] = useState("all");
 
