@@ -217,6 +217,8 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
         work_done: list.map((it) => it.work).join(ITEM_SEP) || null,
         parts_used: list.map((it) => it.parts).join(ITEM_SEP) || null,
         hours_spent: totalHours || null,
+        handyman_hours: form.handyman_hours === "" ? null : Number(form.handyman_hours),
+
 
         recommendations: form.recommendations || null,
         next_service_date: form.next_service_date || null,
