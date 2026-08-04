@@ -202,6 +202,8 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
 
         recommendations: form.recommendations || null,
         next_service_date: form.next_service_date || null,
+        google_rating: form.google_rating ? Number(form.google_rating) : null,
+        google_review: form.google_review || null,
         signed_by: form.signed_by || null,
         signature_data: form.signature_data || null,
         status: form.status || "Draft",
