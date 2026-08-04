@@ -318,7 +318,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[88vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{editing ? "Edit Work Completion Report" : "New Work Completion Report"}</DialogTitle>
+          <DialogTitle>Work Completion Report</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={save} className="space-y-6">
