@@ -131,6 +131,9 @@ export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
     e.preventDefault();
     setSaving(true);
     try {
+      const kept = items.filter((it) => it.problem || it.work || it.parts || it.hours);
+      const list = kept.length ? kept : [emptyItem()];
+      const totalHours = list.reduce((s, it) => s + (it.hours === "" ? 0 : Number(it.hours) || 0), 0);
       const payload: any = {
         report_no: form.report_no || null,
         contract_id: form.contract_id || null,
@@ -140,10 +143,11 @@ export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
         technician_name: form.technician_name || null,
         service_type: form.service_type || null,
         location: form.location || null,
-        problem_reported: form.problem_reported || null,
-        work_done: form.work_done || null,
-        parts_used: form.parts_used || null,
-        hours_spent: form.hours_spent === "" || form.hours_spent == null ? null : Number(form.hours_spent),
+        problem_reported: list.map((it) => it.problem).join(ITEM_SEP) || null,
+        work_done: list.map((it) => it.work).join(ITEM_SEP) || null,
+        parts_used: list.map((it) => it.parts).join(ITEM_SEP) || null,
+        hours_spent: totalHours || null,
+
         recommendations: form.recommendations || null,
         next_service_date: form.next_service_date || null,
         signed_by: form.signed_by || null,
