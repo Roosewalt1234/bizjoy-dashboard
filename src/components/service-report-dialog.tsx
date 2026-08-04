@@ -180,6 +180,14 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
     }));
   }
 
+  const selectedContract: any = contracts.find((c: any) => c.id === form.contract_id);
+  const allottedHours = Number(selectedContract?.handyman_hours ?? 0);
+  const usedHoursOther = (handymanLog as any[])
+    .filter((h) => h.contract_id === form.contract_id && h.report_id !== editing?.id)
+    .reduce((s, h) => s + (Number(h.hours) || 0), 0);
+  const thisHours = form.handyman_hours === "" ? 0 : Number(form.handyman_hours) || 0;
+  const remainingHours = allottedHours - usedHoursOther - thisHours;
+
   async function uploadFile(reportId: string, file: File) {
     const ext = file.name.split(".").pop() || "jpg";
     const path = `${reportId}/${crypto.randomUUID()}.${ext}`;
