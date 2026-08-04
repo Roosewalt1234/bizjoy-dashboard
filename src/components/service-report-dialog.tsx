@@ -17,10 +17,13 @@ type Props = {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   editing: any | null;
+  /** Pre-select this work order when creating a new report */
+  workOrderId?: string | null;
 };
 
 const empty = {
   report_no: "",
+  work_order_id: "",
   contract_id: "",
   customer_id: "",
   customer_name: "",
@@ -65,7 +68,7 @@ function itemsFromReport(r: any): WorkItem[] {
   return items;
 }
 
-export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
+export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }: Props) {
   const qc = useQueryClient();
   const [form, setForm] = useState<any>(empty);
   const [items, setItems] = useState<WorkItem[]>([emptyItem()]);
@@ -85,6 +88,52 @@ export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
       return data ?? [];
     },
   });
+
+  const { data: workOrders = [] } = useQuery({
+    queryKey: ["work-orders-for-report"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("work_orders")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(2000);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  function applyWorkOrder(id: string, wo?: any) {
+    const o: any = wo ?? workOrders.find((x: any) => x.id === id);
+    if (!o) { setForm((f: any) => ({ ...f, work_order_id: id })); return; }
+    setForm((f: any) => ({
+      ...f,
+      work_order_id: id,
+      contract_id: o.contract_id ?? f.contract_id,
+      customer_id: o.customer_id ?? f.customer_id,
+      customer_name: o.customer_name ?? f.customer_name,
+      technician_name: o.technician_name ?? f.technician_name,
+      service_type: o.service_type ?? f.service_type,
+      location: o.location ?? f.location,
+      service_date: o.scheduled_date ?? f.service_date,
+    }));
+    const problems = (o.problem_reported ?? "").split(ITEM_SEP);
+    const requested = (o.work_requested ?? "").split(ITEM_SEP);
+    const n = Math.max(problems.length, requested.length, 1);
+    setItems(
+      Array.from({ length: n }).map((_, i) => ({
+        problem: problems[i] ?? "",
+        work: requested[i] ?? "",
+        parts: "",
+        hours: "",
+      })),
+    );
+  }
+
+  useEffect(() => {
+    if (!open || editing || !workOrderId || !workOrders.length) return;
+    applyWorkOrder(workOrderId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, editing, workOrderId, workOrders]);
 
   useEffect(() => {
     if (!open) return;
@@ -136,6 +185,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
       const totalHours = list.reduce((s, it) => s + (it.hours === "" ? 0 : Number(it.hours) || 0), 0);
       const payload: any = {
         report_no: form.report_no || null,
+        work_order_id: form.work_order_id || null,
         contract_id: form.contract_id || null,
         customer_id: form.customer_id || null,
         customer_name: form.customer_name || null,
@@ -191,7 +241,15 @@ export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
         }
       }
 
-      toast.success(editing ? "Service report updated" : "Service report created");
+      if (form.work_order_id) {
+        await supabase
+          .from("work_orders")
+          .update({ status: (form.status || "Draft") === "Completed" ? "Completed" : "In Progress" })
+          .eq("id", form.work_order_id);
+        qc.invalidateQueries({ queryKey: ["work_orders"] });
+      }
+
+      toast.success(editing ? "Work completion report updated" : "Work completion report created");
       qc.invalidateQueries({ queryKey: ["service_reports"] });
       onOpenChange(false);
     } catch (err: any) {
@@ -205,7 +263,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[88vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{editing ? "Edit Service Report" : "New Service Report"}</DialogTitle>
+          <DialogTitle>{editing ? "Edit Work Completion Report" : "New Work Completion Report"}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={save} className="space-y-6">
@@ -223,6 +281,19 @@ export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
               <div className="space-y-1">
                 <Label>Technician</Label>
                 <Input value={form.technician_name ?? ""} onChange={(e) => set("technician_name", e.target.value)} />
+              </div>
+              <div className="space-y-1 md:col-span-3">
+                <Label>Work Order</Label>
+                <Select value={form.work_order_id || undefined} onValueChange={(v) => applyWorkOrder(v)}>
+                  <SelectTrigger><SelectValue placeholder="Select work order..." /></SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    {workOrders.map((o: any) => (
+                      <SelectItem key={o.id} value={o.id}>
+                        {(o.wo_no ? `${o.wo_no} — ` : "") + (o.customer_name ?? "Customer") + (o.service_type ? ` — ${o.service_type}` : "") + ` (${o.status})`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1 md:col-span-2">
                 <Label>Contract</Label>
@@ -422,7 +493,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <Button type="submit" disabled={saving}>
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {editing ? "Update Report" : "Create Report"}
+              {editing ? "Update Report" : "Create Completion Report"}
             </Button>
           </DialogFooter>
         </form>
