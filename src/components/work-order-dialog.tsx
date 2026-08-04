@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
-import { Plus, Trash2, Loader2 } from "lucide-react";
+import { Plus, Trash2, Loader2, ChevronsUpDown } from "lucide-react";
 import { toast } from "sonner";
 import { SERVICE_TYPES } from "@/lib/service-reports";
 import { WO_STATUS, WO_PRIORITY, ITEM_SEP, splitItems } from "@/lib/work-orders";
@@ -49,6 +51,7 @@ export function WorkOrderDialog({ open, onOpenChange, editing }: Props) {
   const [form, setForm] = useState<any>(empty);
   const [items, setItems] = useState<WorkItem[]>([emptyItem()]);
   const [saving, setSaving] = useState(false);
+  const [technicianOpen, setTechnicianOpen] = useState(false);
 
   const { data: contracts = [] } = useQuery({
     queryKey: ["contracts-for-service"],
@@ -60,6 +63,19 @@ export function WorkOrderDialog({ open, onOpenChange, editing }: Props) {
         .limit(2000);
       if (error) throw error;
       return data ?? [];
+    },
+  });
+
+  const { data: technicians = [] } = useQuery({
+    queryKey: ["employees-for-work-order"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("employees")
+        .select("id, first_name, last_name, full_name")
+        .eq("status", "Active")
+        .order("first_name", { ascending: true });
+      if (error) throw error;
+      return (data ?? []).map((e: any) => e.full_name ?? [e.first_name, e.last_name].filter(Boolean).join(" "));
     },
   });
 
@@ -183,8 +199,30 @@ export function WorkOrderDialog({ open, onOpenChange, editing }: Props) {
                 <Input value={form.location ?? ""} onChange={(e) => set("location", e.target.value)} />
               </div>
               <div className="space-y-1">
-                <Label>Assigned Technician</Label>
-                <Input value={form.technician_name ?? ""} onChange={(e) => set("technician_name", e.target.value)} />
+                <Label>Assigned To</Label>
+                <Popover open={technicianOpen} onOpenChange={setTechnicianOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" role="combobox" className="w-full justify-between font-normal">
+                      {form.technician_name || "Select technician..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search by name..." />
+                      <CommandList>
+                        <CommandEmpty>No technician found.</CommandEmpty>
+                        <CommandGroup>
+                          {technicians.map((name: string) => (
+                            <CommandItem key={name} onSelect={() => { set("technician_name", name); setTechnicianOpen(false); }}>
+                              {name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="space-y-1">
                 <Label>Priority</Label>
