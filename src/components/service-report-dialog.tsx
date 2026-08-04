@@ -267,26 +267,58 @@ export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
           </section>
 
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Work carried out</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label>Problem Reported</Label>
-                <Textarea rows={3} value={form.problem_reported ?? ""} onChange={(e) => set("problem_reported", e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label>Work Done</Label>
-                <Textarea rows={3} value={form.work_done ?? ""} onChange={(e) => set("work_done", e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label>Parts Used</Label>
-                <Textarea rows={2} value={form.parts_used ?? ""} onChange={(e) => set("parts_used", e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label>Hours Spent</Label>
-                <Input type="number" step="0.25" value={form.hours_spent ?? ""} onChange={(e) => set("hours_spent", e.target.value)} />
-              </div>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Work carried out</h3>
+              <Button type="button" size="sm" variant="outline" onClick={() => setItems((a) => [...a, emptyItem()])}>
+                <Plus className="h-4 w-4 mr-1" /> Add work item
+              </Button>
             </div>
+            <div className="space-y-3">
+              {items.map((it, idx) => {
+                const upd = (k: keyof WorkItem, v: string) =>
+                  setItems((arr) => arr.map((x, i) => (i === idx ? { ...x, [k]: v } : x)));
+                return (
+                  <Card key={idx} className="p-3 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-muted-foreground">Item {idx + 1}</span>
+                      {items.length > 1 && (
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => setItems((arr) => arr.filter((_, i) => i !== idx))}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label>Problem Reported</Label>
+                        <Textarea rows={3} value={it.problem} onChange={(e) => upd("problem", e.target.value)} />
+                      </div>
+                      <div className="space-y-1">
+                        <Label>Work Done</Label>
+                        <Textarea rows={3} value={it.work} onChange={(e) => upd("work", e.target.value)} />
+                      </div>
+                      <div className="space-y-1">
+                        <Label>Parts Used</Label>
+                        <Textarea rows={2} value={it.parts} onChange={(e) => upd("parts", e.target.value)} />
+                      </div>
+                      <div className="space-y-1">
+                        <Label>Hours Spent</Label>
+                        <Input type="number" step="0.25" value={it.hours} onChange={(e) => upd("hours", e.target.value)} />
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Total hours: {items.reduce((s, it) => s + (Number(it.hours) || 0), 0) || 0}
+            </p>
           </section>
+
 
           <section className="space-y-3">
             <div className="flex items-center justify-between">
