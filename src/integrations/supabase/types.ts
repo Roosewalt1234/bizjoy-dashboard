@@ -888,6 +888,128 @@ export type Database = {
           },
         ]
       }
+      service_report_photos: {
+        Row: {
+          after_path: string | null
+          before_path: string | null
+          caption: string | null
+          created_at: string
+          id: string
+          report_id: string
+          sort_order: number
+        }
+        Insert: {
+          after_path?: string | null
+          before_path?: string | null
+          caption?: string | null
+          created_at?: string
+          id?: string
+          report_id: string
+          sort_order?: number
+        }
+        Update: {
+          after_path?: string | null
+          before_path?: string | null
+          caption?: string | null
+          created_at?: string
+          id?: string
+          report_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_report_photos_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "service_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_reports: {
+        Row: {
+          contract_id: string | null
+          created_at: string
+          customer_id: string | null
+          customer_name: string | null
+          hours_spent: number | null
+          id: string
+          location: string | null
+          next_service_date: string | null
+          parts_used: string | null
+          problem_reported: string | null
+          recommendations: string | null
+          report_no: string | null
+          service_date: string | null
+          service_type: string | null
+          signature_data: string | null
+          signed_by: string | null
+          status: string
+          technician_name: string | null
+          updated_at: string
+          work_done: string | null
+        }
+        Insert: {
+          contract_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          hours_spent?: number | null
+          id?: string
+          location?: string | null
+          next_service_date?: string | null
+          parts_used?: string | null
+          problem_reported?: string | null
+          recommendations?: string | null
+          report_no?: string | null
+          service_date?: string | null
+          service_type?: string | null
+          signature_data?: string | null
+          signed_by?: string | null
+          status?: string
+          technician_name?: string | null
+          updated_at?: string
+          work_done?: string | null
+        }
+        Update: {
+          contract_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          hours_spent?: number | null
+          id?: string
+          location?: string | null
+          next_service_date?: string | null
+          parts_used?: string | null
+          problem_reported?: string | null
+          recommendations?: string | null
+          report_no?: string | null
+          service_date?: string | null
+          service_type?: string | null
+          signature_data?: string | null
+          signed_by?: string | null
+          status?: string
+          technician_name?: string | null
+          updated_at?: string
+          work_done?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_reports_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_reports_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_permissions: {
         Row: {
           can_add: boolean
