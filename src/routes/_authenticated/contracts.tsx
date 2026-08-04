@@ -503,15 +503,16 @@ function ContractsPage() {
               <TableHead>Next Service Due</TableHead>
               <TableHead>WT Cleaning</TableHead>
               <TableHead>Next Payment Due</TableHead>
+              <TableHead>Handyman Hrs</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-24 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={11} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={12} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
             ) : rows.length === 0 ? (
-              <TableRow><TableCell colSpan={11} className="text-center py-8 text-muted-foreground">No contracts yet.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={12} className="text-center py-8 text-muted-foreground">No contracts yet.</TableCell></TableRow>
             ) : pageRows.map((r: any) => (
               <TableRow key={r.id}>
                 <TableCell className="font-medium">{r.customer_name ?? "—"}</TableCell>
