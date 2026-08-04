@@ -538,6 +538,24 @@ function ContractsPage() {
                     return <PaymentDueBadge date={info.payment_date} status={info.status} />;
                   })()}
                 </TableCell>
+                <TableCell>
+                  {(() => {
+                    const allotted = Number(r.handyman_hours ?? 0);
+                    const used = handymanUsedByContract[r.id] ?? 0;
+                    const remaining = allotted - used;
+                    const cls = remaining < 0
+                      ? "bg-red-50 text-red-700 border-red-200"
+                      : remaining <= allotted * 0.2
+                        ? "bg-amber-50 text-amber-700 border-amber-200"
+                        : "bg-emerald-50 text-emerald-700 border-emerald-200";
+                    return (
+                      <div className="flex flex-col gap-1">
+                        <Badge variant="outline" className={cn("font-medium w-fit", cls)}>{remaining} h left</Badge>
+                        <span className="text-xs text-muted-foreground">{used} / {allotted} used</span>
+                      </div>
+                    );
+                  })()}
+                </TableCell>
                 <TableCell>{r.status ?? "—"}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
