@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
-import { Plus, Trash2, ImagePlus, Loader2 } from "lucide-react";
+import { Plus, Trash2, ImagePlus, Loader2, Star } from "lucide-react";
 import { toast } from "sonner";
 import { SignaturePad } from "@/components/signature-pad";
 import { SERVICE_TYPES, REPORT_STATUS, type PhotoRow } from "@/lib/service-reports";
@@ -37,6 +37,8 @@ const empty = {
   hours_spent: "",
   recommendations: "",
   next_service_date: "",
+  google_rating: "",
+  google_review: "",
   signed_by: "",
   signature_data: "",
   status: "Draft",
@@ -200,6 +202,8 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
 
         recommendations: form.recommendations || null,
         next_service_date: form.next_service_date || null,
+        google_rating: form.google_rating ? Number(form.google_rating) : null,
+        google_review: form.google_review || null,
         signed_by: form.signed_by || null,
         signature_data: form.signature_data || null,
         status: form.status || "Draft",
@@ -486,7 +490,43 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                 </div>
               </div>
             </div>
+            <div className="rounded-md border p-3 space-y-3">
+              <div className="text-sm font-medium">Google Feedback</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label>Google Rating</Label>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <button
+                        key={n}
+                        type="button"
+                        aria-label={`${n} star`}
+                        onClick={() => set("google_rating", String(form.google_rating) === String(n) ? "" : String(n))}
+                        className="p-1"
+                      >
+                        <Star
+                          className={`h-6 w-6 ${Number(form.google_rating) >= n ? "fill-amber-400 text-amber-400" : "text-muted-foreground"}`}
+                        />
+                      </button>
+                    ))}
+                    <span className="ml-2 text-sm text-muted-foreground">
+                      {form.google_rating ? `${form.google_rating}/5` : "Not rated"}
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label>Google Review</Label>
+                  <Textarea
+                    rows={3}
+                    placeholder="Customer's Google review text or link"
+                    value={form.google_review ?? ""}
+                    onChange={(e) => set("google_review", e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
             <SignaturePad value={form.signature_data} onChange={(v) => set("signature_data", v ?? "")} />
+
           </section>
 
           <DialogFooter>
