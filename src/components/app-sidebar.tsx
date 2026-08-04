@@ -11,6 +11,7 @@ import {
   LogOut,
   History,
   Shield,
+  Wrench,
 } from "lucide-react";
 import {
   Sidebar,
@@ -38,6 +39,7 @@ const items = [
   { title: "Accounts", url: "/accounts", icon: Wallet, module: "accounts" },
   { title: "Contracts", url: "/contracts", icon: FileText, module: "contracts" },
   { title: "Projects", url: "/projects", icon: FolderKanban, module: "projects" },
+  { title: "Service Reports", url: "/service", icon: Wrench, module: "service" },
   { title: "Audit Log", url: "/audit", icon: History, adminOnly: true },
   { title: "User Permissions", url: "/permissions", icon: Shield, adminOnly: true },
 ];
