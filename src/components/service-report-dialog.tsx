@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Plus, Trash2, ImagePlus, Loader2, Star } from "lucide-react";
 import { toast } from "sonner";
 import { SignaturePad } from "@/components/signature-pad";
-import { SERVICE_TYPES, REPORT_STATUS, type PhotoRow } from "@/lib/service-reports";
+import { SERVICE_TYPES, REPORT_STATUS, MATERIAL_SUPPLIED_BY, WORK_ITEM_STATUS, type PhotoRow } from "@/lib/service-reports";
 
 type Props = {
   open: boolean;
@@ -31,11 +31,16 @@ const empty = {
   technician_name: "",
   service_type: "",
   location: "",
+  time_checked_in: "",
+  time_checked_out: "",
   problem_reported: "",
   work_done: "",
   parts_used: "",
   hours_spent: "",
   handyman_hours: "",
+  material_supplied_by: "",
+  amount_received: "",
+  balance_amount: "",
   recommendations: "",
   next_service_date: "",
   google_rating: "",
@@ -47,8 +52,8 @@ const empty = {
 
 const ITEM_SEP = "\n---\n";
 
-type WorkItem = { problem: string; work: string; parts: string; hours: string };
-const emptyItem = (): WorkItem => ({ problem: "", work: "", parts: "", hours: "" });
+type WorkItem = { problem: string; work: string; parts: string; hours: string; status: string };
+const emptyItem = (): WorkItem => ({ problem: "", work: "", parts: "", hours: "", status: "" });
 
 function splitField(v: string | null | undefined): string[] {
   return (v ?? "").split(ITEM_SEP);
@@ -58,13 +63,15 @@ function itemsFromReport(r: any): WorkItem[] {
   const p = splitField(r?.problem_reported);
   const w = splitField(r?.work_done);
   const pa = splitField(r?.parts_used);
-  const n = Math.max(p.length, w.length, pa.length, 1);
+  const st = splitField(r?.item_status);
+  const n = Math.max(p.length, w.length, pa.length, st.length, 1);
   const items: WorkItem[] = [];
   for (let i = 0; i < n; i++) {
     items.push({
       problem: p[i] ?? "",
       work: w[i] ?? "",
       parts: pa[i] ?? "",
+      status: st[i] ?? "",
       hours: i === 0 ? (r?.hours_spent ?? "") === null ? "" : String(r?.hours_spent ?? "") : "",
     });
   }
@@ -137,6 +144,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
         work: requested[i] ?? "",
         parts: "",
         hours: "",
+        status: "",
       })),
     );
   }
@@ -150,7 +158,14 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
   useEffect(() => {
     if (!open) return;
     if (editing) {
-      setForm({ ...empty, ...editing, contract_id: editing.contract_id ?? "", customer_id: editing.customer_id ?? "" });
+      setForm({
+        ...empty,
+        ...editing,
+        contract_id: editing.contract_id ?? "",
+        customer_id: editing.customer_id ?? "",
+        time_checked_in: (editing.time_checked_in ?? "").slice(0, 5),
+        time_checked_out: (editing.time_checked_out ?? "").slice(0, 5),
+      });
       setItems(itemsFromReport(editing));
       supabase
         .from("service_report_photos")
@@ -200,7 +215,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
     e.preventDefault();
     setSaving(true);
     try {
-      const kept = items.filter((it) => it.problem || it.work || it.parts || it.hours);
+      const kept = items.filter((it) => it.problem || it.work || it.parts || it.hours || it.status);
       const list = kept.length ? kept : [emptyItem()];
       const totalHours = list.reduce((s, it) => s + (it.hours === "" ? 0 : Number(it.hours) || 0), 0);
       const payload: any = {
@@ -213,12 +228,17 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
         technician_name: form.technician_name || null,
         service_type: form.service_type || null,
         location: form.location || null,
+        time_checked_in: form.time_checked_in || null,
+        time_checked_out: form.time_checked_out || null,
         problem_reported: list.map((it) => it.problem).join(ITEM_SEP) || null,
         work_done: list.map((it) => it.work).join(ITEM_SEP) || null,
         parts_used: list.map((it) => it.parts).join(ITEM_SEP) || null,
+        item_status: list.map((it) => it.status).join(ITEM_SEP) || null,
         hours_spent: totalHours || null,
         handyman_hours: form.handyman_hours === "" ? null : Number(form.handyman_hours),
-
+        material_supplied_by: form.material_supplied_by || null,
+        amount_received: form.amount_received === "" ? null : Number(form.amount_received),
+        balance_amount: form.balance_amount === "" ? null : Number(form.balance_amount),
 
         recommendations: form.recommendations || null,
         next_service_date: form.next_service_date || null,
@@ -337,6 +357,14 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                 <Label>Technician</Label>
                 <Input value={form.technician_name ?? ""} onChange={(e) => set("technician_name", e.target.value)} />
               </div>
+              <div className="space-y-1">
+                <Label>Time Checked In</Label>
+                <Input type="time" value={form.time_checked_in ?? ""} onChange={(e) => set("time_checked_in", e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label>Time Checked Out</Label>
+                <Input type="time" value={form.time_checked_out ?? ""} onChange={(e) => set("time_checked_out", e.target.value)} />
+              </div>
               <div className="space-y-1 md:col-span-3">
                 <Label>Work Order</Label>
                 <Select value={form.work_order_id || undefined} onValueChange={(v) => applyWorkOrder(v)}>
@@ -435,6 +463,15 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                         <Label>Hours Spent</Label>
                         <Input type="number" step="0.25" value={it.hours} onChange={(e) => upd("hours", e.target.value)} />
                       </div>
+                      <div className="space-y-1">
+                        <Label>Status</Label>
+                        <Select value={it.status || undefined} onValueChange={(v) => upd("status", v)}>
+                          <SelectTrigger><SelectValue placeholder="Select status..." /></SelectTrigger>
+                          <SelectContent>
+                            {WORK_ITEM_STATUS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </Card>
                 );
@@ -471,6 +508,43 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                   ) : (
                     <p className="text-xs text-muted-foreground">Select a contract to deduct hours from its allowance.</p>
                   )}
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-3 space-y-2">
+              <div className="text-sm font-medium">Materials &amp; Payment</div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <Label>Material Used - Supplied By</Label>
+                  <Select value={form.material_supplied_by || undefined} onValueChange={(v) => set("material_supplied_by", v)}>
+                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectContent>
+                      {MATERIAL_SUPPLIED_BY.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label>Amount Received</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={form.amount_received ?? ""}
+                    onChange={(e) => set("amount_received", e.target.value)}
+                    placeholder="0.00"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label>Balance Amount</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={form.balance_amount ?? ""}
+                    onChange={(e) => set("balance_amount", e.target.value)}
+                    placeholder="0.00"
+                  />
                 </div>
               </div>
             </Card>
