@@ -11,6 +11,7 @@ import {
   LogOut,
   History,
   Shield,
+  Wrench,
 } from "lucide-react";
 import {
   Sidebar,
