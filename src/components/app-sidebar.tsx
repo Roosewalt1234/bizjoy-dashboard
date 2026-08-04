@@ -11,6 +11,7 @@ import {
   LogOut,
   History,
   Shield,
+  ChevronRight,
 } from "lucide-react";
 import {
   Sidebar,
@@ -21,12 +22,14 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -79,6 +82,15 @@ export function AppSidebar() {
     return true;
   });
 
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    for (const item of items) {
+      if (item.children?.some((child) => pathname.startsWith(child.url))) {
+        initial[item.url] = true;
+      }
+    }
+    return initial;
+  });
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
@@ -112,26 +124,58 @@ export function AppSidebar() {
             <SidebarMenu>
               {visibleItems.map((item) => {
                 const kids = (item.children ?? []).filter((c) => !c.module || can(c.module, "view"));
+
+                if (kids.length === 0) {
+                  return (
+                    <SidebarMenuItem key={item.url}>
+                      <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                        <Link to={item.url} className="flex items-center gap-2">
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                }
+
+                const isOpen = openGroups[item.url] ?? false;
+
                 return (
-                  <SidebarMenuItem key={item.url}>
-                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <Link to={item.url} className="flex items-center gap-2">
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                    {kids.length > 0 && (
-                      <SidebarMenuSub>
-                        {kids.map((child) => (
-                          <SidebarMenuSubItem key={child.url}>
-                            <SidebarMenuSubButton asChild isActive={pathname.startsWith(child.url)}>
-                              <Link to={child.url}>{child.title}</Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    )}
-                  </SidebarMenuItem>
+                  <Collapsible
+                    key={item.url}
+                    asChild
+                    open={isOpen}
+                    onOpenChange={(open) =>
+                      setOpenGroups((prev) => ({ ...prev, [item.url]: open }))
+                    }
+                    className="group/collapsible"
+                  >
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                        <Link to={item.url} className="flex items-center gap-2">
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuAction className="transition-transform group-data-[state=open]/collapsible:rotate-90">
+                          <ChevronRight />
+                          <span className="sr-only">Toggle {item.title}</span>
+                        </SidebarMenuAction>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {kids.map((child) => (
+                            <SidebarMenuSubItem key={child.url}>
+                              <SidebarMenuSubButton asChild isActive={pathname.startsWith(child.url)}>
+                                <Link to={child.url}>{child.title}</Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </SidebarMenuItem>
+                  </Collapsible>
                 );
               })}
             </SidebarMenu>
