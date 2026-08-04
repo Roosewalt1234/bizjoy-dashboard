@@ -302,6 +302,12 @@ function ViewReportDialog({ report, onClose }: { report: any | null; onClose: ()
           })()}
           <Field label="Recommendations" value={report.recommendations} />
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field label="Google Rating" value={report.google_rating ? `${report.google_rating}/5` : ""} />
+            <Field label="Google Review" value={report.google_review} />
+          </div>
+
+
 
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Before / After</h3>
