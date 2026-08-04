@@ -35,6 +35,7 @@ const empty = {
   work_done: "",
   parts_used: "",
   hours_spent: "",
+  handyman_hours: "",
   recommendations: "",
   next_service_date: "",
   google_rating: "",
