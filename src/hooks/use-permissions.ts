@@ -8,7 +8,7 @@ export const MODULES = [
   { key: "accounts", label: "Accounts", url: "/accounts" },
   { key: "contracts", label: "Contracts", url: "/contracts" },
   { key: "projects", label: "Projects", url: "/projects" },
-  { key: "service", label: "Service Reports", url: "/service" },
+  { key: "service", label: "Work Orders & Completion Reports", url: "/service" },
 ] as const;
 
 export type ModuleKey = (typeof MODULES)[number]["key"];
