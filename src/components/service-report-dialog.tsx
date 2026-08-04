@@ -39,11 +39,39 @@ const empty = {
   status: "Draft",
 };
 
+const ITEM_SEP = "\n---\n";
+
+type WorkItem = { problem: string; work: string; parts: string; hours: string };
+const emptyItem = (): WorkItem => ({ problem: "", work: "", parts: "", hours: "" });
+
+function splitField(v: string | null | undefined): string[] {
+  return (v ?? "").split(ITEM_SEP);
+}
+
+function itemsFromReport(r: any): WorkItem[] {
+  const p = splitField(r?.problem_reported);
+  const w = splitField(r?.work_done);
+  const pa = splitField(r?.parts_used);
+  const n = Math.max(p.length, w.length, pa.length, 1);
+  const items: WorkItem[] = [];
+  for (let i = 0; i < n; i++) {
+    items.push({
+      problem: p[i] ?? "",
+      work: w[i] ?? "",
+      parts: pa[i] ?? "",
+      hours: i === 0 ? (r?.hours_spent ?? "") === null ? "" : String(r?.hours_spent ?? "") : "",
+    });
+  }
+  return items;
+}
+
 export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
   const qc = useQueryClient();
   const [form, setForm] = useState<any>(empty);
+  const [items, setItems] = useState<WorkItem[]>([emptyItem()]);
   const [pairs, setPairs] = useState<PhotoRow[]>([]);
   const [saving, setSaving] = useState(false);
+
 
   const { data: contracts = [] } = useQuery({
     queryKey: ["contracts-for-service"],
@@ -62,6 +90,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
     if (!open) return;
     if (editing) {
       setForm({ ...empty, ...editing, contract_id: editing.contract_id ?? "", customer_id: editing.customer_id ?? "" });
+      setItems(itemsFromReport(editing));
       supabase
         .from("service_report_photos")
         .select("*")
@@ -70,9 +99,11 @@ export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
         .then(({ data }) => setPairs((data ?? []).map((p: any) => ({ ...p }))));
     } else {
       setForm(empty);
+      setItems([emptyItem()]);
       setPairs([]);
     }
   }, [open, editing]);
+
 
   function set(key: string, value: any) {
     setForm((f: any) => ({ ...f, [key]: value }));
@@ -100,6 +131,9 @@ export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
     e.preventDefault();
     setSaving(true);
     try {
+      const kept = items.filter((it) => it.problem || it.work || it.parts || it.hours);
+      const list = kept.length ? kept : [emptyItem()];
+      const totalHours = list.reduce((s, it) => s + (it.hours === "" ? 0 : Number(it.hours) || 0), 0);
       const payload: any = {
         report_no: form.report_no || null,
         contract_id: form.contract_id || null,
@@ -109,10 +143,11 @@ export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
         technician_name: form.technician_name || null,
         service_type: form.service_type || null,
         location: form.location || null,
-        problem_reported: form.problem_reported || null,
-        work_done: form.work_done || null,
-        parts_used: form.parts_used || null,
-        hours_spent: form.hours_spent === "" || form.hours_spent == null ? null : Number(form.hours_spent),
+        problem_reported: list.map((it) => it.problem).join(ITEM_SEP) || null,
+        work_done: list.map((it) => it.work).join(ITEM_SEP) || null,
+        parts_used: list.map((it) => it.parts).join(ITEM_SEP) || null,
+        hours_spent: totalHours || null,
+
         recommendations: form.recommendations || null,
         next_service_date: form.next_service_date || null,
         signed_by: form.signed_by || null,
@@ -232,26 +267,58 @@ export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
           </section>
 
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Work carried out</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label>Problem Reported</Label>
-                <Textarea rows={3} value={form.problem_reported ?? ""} onChange={(e) => set("problem_reported", e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label>Work Done</Label>
-                <Textarea rows={3} value={form.work_done ?? ""} onChange={(e) => set("work_done", e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label>Parts Used</Label>
-                <Textarea rows={2} value={form.parts_used ?? ""} onChange={(e) => set("parts_used", e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <Label>Hours Spent</Label>
-                <Input type="number" step="0.25" value={form.hours_spent ?? ""} onChange={(e) => set("hours_spent", e.target.value)} />
-              </div>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Work carried out</h3>
+              <Button type="button" size="sm" variant="outline" onClick={() => setItems((a) => [...a, emptyItem()])}>
+                <Plus className="h-4 w-4 mr-1" /> Add work item
+              </Button>
             </div>
+            <div className="space-y-3">
+              {items.map((it, idx) => {
+                const upd = (k: keyof WorkItem, v: string) =>
+                  setItems((arr) => arr.map((x, i) => (i === idx ? { ...x, [k]: v } : x)));
+                return (
+                  <Card key={idx} className="p-3 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-muted-foreground">Item {idx + 1}</span>
+                      {items.length > 1 && (
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => setItems((arr) => arr.filter((_, i) => i !== idx))}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label>Problem Reported</Label>
+                        <Textarea rows={3} value={it.problem} onChange={(e) => upd("problem", e.target.value)} />
+                      </div>
+                      <div className="space-y-1">
+                        <Label>Work Done</Label>
+                        <Textarea rows={3} value={it.work} onChange={(e) => upd("work", e.target.value)} />
+                      </div>
+                      <div className="space-y-1">
+                        <Label>Parts Used</Label>
+                        <Textarea rows={2} value={it.parts} onChange={(e) => upd("parts", e.target.value)} />
+                      </div>
+                      <div className="space-y-1">
+                        <Label>Hours Spent</Label>
+                        <Input type="number" step="0.25" value={it.hours} onChange={(e) => upd("hours", e.target.value)} />
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Total hours: {items.reduce((s, it) => s + (Number(it.hours) || 0), 0) || 0}
+            </p>
           </section>
+
 
           <section className="space-y-3">
             <div className="flex items-center justify-between">
