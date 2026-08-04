@@ -948,6 +948,7 @@ export type Database = {
           technician_name: string | null
           updated_at: string
           work_done: string | null
+          work_order_id: string | null
         }
         Insert: {
           contract_id?: string | null
@@ -970,6 +971,7 @@ export type Database = {
           technician_name?: string | null
           updated_at?: string
           work_done?: string | null
+          work_order_id?: string | null
         }
         Update: {
           contract_id?: string | null
@@ -992,6 +994,7 @@ export type Database = {
           technician_name?: string | null
           updated_at?: string
           work_done?: string | null
+          work_order_id?: string | null
         }
         Relationships: [
           {
@@ -1006,6 +1009,13 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_reports_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
             referencedColumns: ["id"]
           },
         ]
@@ -1066,6 +1076,81 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      work_orders: {
+        Row: {
+          contract_id: string | null
+          created_at: string
+          customer_id: string | null
+          customer_name: string | null
+          id: string
+          location: string | null
+          notes: string | null
+          priority: string
+          problem_reported: string | null
+          requested_date: string | null
+          scheduled_date: string | null
+          service_type: string | null
+          status: string
+          technician_name: string | null
+          updated_at: string
+          wo_no: string | null
+          work_requested: string | null
+        }
+        Insert: {
+          contract_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          priority?: string
+          problem_reported?: string | null
+          requested_date?: string | null
+          scheduled_date?: string | null
+          service_type?: string | null
+          status?: string
+          technician_name?: string | null
+          updated_at?: string
+          wo_no?: string | null
+          work_requested?: string | null
+        }
+        Update: {
+          contract_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          priority?: string
+          problem_reported?: string | null
+          requested_date?: string | null
+          scheduled_date?: string | null
+          service_type?: string | null
+          status?: string
+          technician_name?: string | null
+          updated_at?: string
+          wo_no?: string | null
+          work_requested?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_orders_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

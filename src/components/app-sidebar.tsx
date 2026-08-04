@@ -11,7 +11,6 @@ import {
   LogOut,
   History,
   Shield,
-  Wrench,
 } from "lucide-react";
 import {
   Sidebar,
@@ -24,6 +23,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -31,15 +33,33 @@ import { toast } from "sonner";
 import logoAsset from "@/assets/fizfix-logo.jpeg.asset.json";
 import { usePermissions } from "@/hooks/use-permissions";
 
-const items = [
+type NavItem = {
+  title: string;
+  url: string;
+  icon: any;
+  module?: string;
+  adminOnly?: boolean;
+  children?: { title: string; url: string; module?: string }[];
+};
+
+const items: NavItem[] = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Customers", url: "/customers", icon: Users, module: "customers" },
   { title: "Sales", url: "/sales", icon: ShoppingCart, module: "sales" },
   { title: "HR", url: "/hr", icon: UserCog, module: "hr" },
   { title: "Accounts", url: "/accounts", icon: Wallet, module: "accounts" },
-  { title: "Contracts", url: "/contracts", icon: FileText, module: "contracts" },
+  {
+    title: "Contracts",
+    url: "/contracts",
+    icon: FileText,
+    module: "contracts",
+    children: [
+      { title: "Contracts", url: "/contracts", module: "contracts" },
+      { title: "Work Orders", url: "/work-orders", module: "service" },
+      { title: "Work Completion Reports", url: "/service", module: "service" },
+    ],
+  },
   { title: "Projects", url: "/projects", icon: FolderKanban, module: "projects" },
-  { title: "Service Reports", url: "/service", icon: Wrench, module: "service" },
   { title: "Audit Log", url: "/audit", icon: History, adminOnly: true },
   { title: "User Permissions", url: "/permissions", icon: Shield, adminOnly: true },
 ];
@@ -90,16 +110,30 @@ export function AppSidebar() {
           <SidebarGroupLabel>Modules</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {visibleItems.map((item) => (
-                <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <Link to={item.url} className="flex items-center gap-2">
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {visibleItems.map((item) => {
+                const kids = (item.children ?? []).filter((c) => !c.module || can(c.module, "view"));
+                return (
+                  <SidebarMenuItem key={item.url}>
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <Link to={item.url} className="flex items-center gap-2">
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                    {kids.length > 0 && (
+                      <SidebarMenuSub>
+                        {kids.map((child) => (
+                          <SidebarMenuSubItem key={child.url}>
+                            <SidebarMenuSubButton asChild isActive={pathname.startsWith(child.url)}>
+                              <Link to={child.url}>{child.title}</Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    )}
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
