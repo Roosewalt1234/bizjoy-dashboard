@@ -490,7 +490,43 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                 </div>
               </div>
             </div>
+            <div className="rounded-md border p-3 space-y-3">
+              <div className="text-sm font-medium">Google Feedback</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label>Google Rating</Label>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <button
+                        key={n}
+                        type="button"
+                        aria-label={`${n} star`}
+                        onClick={() => set("google_rating", String(form.google_rating) === String(n) ? "" : String(n))}
+                        className="p-1"
+                      >
+                        <Star
+                          className={`h-6 w-6 ${Number(form.google_rating) >= n ? "fill-amber-400 text-amber-400" : "text-muted-foreground"}`}
+                        />
+                      </button>
+                    ))}
+                    <span className="ml-2 text-sm text-muted-foreground">
+                      {form.google_rating ? `${form.google_rating}/5` : "Not rated"}
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label>Google Review</Label>
+                  <Textarea
+                    rows={3}
+                    placeholder="Customer's Google review text or link"
+                    value={form.google_review ?? ""}
+                    onChange={(e) => set("google_review", e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
             <SignaturePad value={form.signature_data} onChange={(v) => set("signature_data", v ?? "")} />
+
           </section>
 
           <DialogFooter>
