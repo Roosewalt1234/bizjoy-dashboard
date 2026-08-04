@@ -583,6 +583,67 @@ export type Database = {
         }
         Relationships: []
       }
+      handyman_hours_log: {
+        Row: {
+          contract_id: string | null
+          created_at: string
+          customer_id: string | null
+          customer_name: string | null
+          hours: number
+          id: string
+          log_date: string
+          notes: string | null
+          report_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          contract_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          hours?: number
+          id?: string
+          log_date?: string
+          notes?: string | null
+          report_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          contract_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          hours?: number
+          id?: string
+          log_date?: string
+          notes?: string | null
+          report_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "handyman_hours_log_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "handyman_hours_log_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "handyman_hours_log_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "service_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -934,6 +995,7 @@ export type Database = {
           customer_name: string | null
           google_rating: number | null
           google_review: string | null
+          handyman_hours: number | null
           hours_spent: number | null
           id: string
           location: string | null
@@ -959,6 +1021,7 @@ export type Database = {
           customer_name?: string | null
           google_rating?: number | null
           google_review?: string | null
+          handyman_hours?: number | null
           hours_spent?: number | null
           id?: string
           location?: string | null
@@ -984,6 +1047,7 @@ export type Database = {
           customer_name?: string | null
           google_rating?: number | null
           google_review?: string | null
+          handyman_hours?: number | null
           hours_spent?: number | null
           id?: string
           location?: string | null
