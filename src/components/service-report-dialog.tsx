@@ -92,6 +92,15 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
     },
   });
 
+  const { data: handymanLog = [] } = useQuery({
+    queryKey: ["handyman_hours_log_all"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("handyman_hours_log").select("*");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const { data: workOrders = [] } = useQuery({
     queryKey: ["work-orders-for-report"],
     queryFn: async () => {
