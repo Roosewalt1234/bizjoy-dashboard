@@ -443,6 +443,38 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
             <p className="text-xs text-muted-foreground">
               Total hours: {items.reduce((s, it) => s + (Number(it.hours) || 0), 0) || 0}
             </p>
+
+            <Card className="p-3 space-y-2">
+              <div className="text-sm font-medium">Handyman Hours</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-end">
+                <div className="space-y-1">
+                  <Label>Handyman Hours Used (this visit)</Label>
+                  <Input
+                    type="number"
+                    step="0.25"
+                    min="0"
+                    value={form.handyman_hours ?? ""}
+                    onChange={(e) => set("handyman_hours", e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="text-sm">
+                  {form.contract_id ? (
+                    <div className="space-y-1">
+                      <div className="text-muted-foreground text-xs">
+                        Contract allowance {allottedHours} h · already used {usedHoursOther} h
+                      </div>
+                      <div className={remainingHours < 0 ? "font-semibold text-destructive" : "font-semibold text-emerald-600"}>
+                        Balance after this report: {remainingHours} h
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">Select a contract to deduct hours from its allowance.</p>
+                  )}
+                </div>
+              </div>
+            </Card>
+
           </section>
 
 
