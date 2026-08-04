@@ -932,6 +932,8 @@ export type Database = {
           created_at: string
           customer_id: string | null
           customer_name: string | null
+          google_rating: number | null
+          google_review: string | null
           hours_spent: number | null
           id: string
           location: string | null
@@ -955,6 +957,8 @@ export type Database = {
           created_at?: string
           customer_id?: string | null
           customer_name?: string | null
+          google_rating?: number | null
+          google_review?: string | null
           hours_spent?: number | null
           id?: string
           location?: string | null
@@ -978,6 +982,8 @@ export type Database = {
           created_at?: string
           customer_id?: string | null
           customer_name?: string | null
+          google_rating?: number | null
+          google_review?: string | null
           hours_spent?: number | null
           id?: string
           location?: string | null
