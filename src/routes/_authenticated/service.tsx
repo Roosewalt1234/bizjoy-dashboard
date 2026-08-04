@@ -280,6 +280,7 @@ function ViewReportDialog({ report, onClose }: { report: any | null; onClose: ()
             <Field label="Service Type" value={report.service_type} />
             <Field label="Location / Unit" value={report.location} />
             <Field label="Hours Spent" value={report.hours_spent} />
+            <Field label="Handyman Hours" value={report.handyman_hours} />
             <Field label="Next Service" value={report.next_service_date} />
             <Field label="Status" value={report.status} />
           </div>
