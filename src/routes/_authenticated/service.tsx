@@ -269,12 +269,25 @@ function ViewReportDialog({ report, onClose }: { report: any | null; onClose: ()
             <Field label="Next Service" value={report.next_service_date} />
             <Field label="Status" value={report.status} />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Field label="Problem Reported" value={report.problem_reported} />
-            <Field label="Work Done" value={report.work_done} />
-            <Field label="Parts Used" value={report.parts_used} />
-            <Field label="Recommendations" value={report.recommendations} />
-          </div>
+          {(() => {
+            const SEP = "\n---\n";
+            const p = (report.problem_reported ?? "").split(SEP);
+            const w = (report.work_done ?? "").split(SEP);
+            const pa = (report.parts_used ?? "").split(SEP);
+            const n = Math.max(p.length, w.length, pa.length, 1);
+            return Array.from({ length: n }).map((_, i) => (
+              <Card key={i} className="p-3 space-y-2">
+                {n > 1 && <div className="text-xs font-medium text-muted-foreground">Item {i + 1}</div>}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Field label="Problem Reported" value={p[i]} />
+                  <Field label="Work Done" value={w[i]} />
+                  <Field label="Parts Used" value={pa[i]} />
+                </div>
+              </Card>
+            ));
+          })()}
+          <Field label="Recommendations" value={report.recommendations} />
+
 
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Before / After</h3>
