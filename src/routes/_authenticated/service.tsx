@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -23,11 +23,16 @@ import { SERVICE_TYPES, REPORT_STATUS, statusClasses } from "@/lib/service-repor
 import { usePermissions } from "@/hooks/use-permissions";
 
 export const Route = createFileRoute("/_authenticated/service")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    wo: typeof search.wo === "string" ? search.wo : undefined,
+  }),
   component: ServicePage,
 });
 
 function ServicePage() {
   const qc = useQueryClient();
+  const { wo } = Route.useSearch();
+  const navigate = useNavigate();
   const { can } = usePermissions();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
@@ -36,6 +41,15 @@ function ServicePage() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [prefillWo, setPrefillWo] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!wo) return;
+    setEditing(null);
+    setPrefillWo(wo);
+    setOpen(true);
+    navigate({ to: "/service", search: {} as any, replace: true });
+  }, [wo, navigate]);
 
   const { data: reports = [], isLoading } = useQuery({
     queryKey: ["service_reports"],
@@ -79,14 +93,14 @@ function ServicePage() {
     <div className="p-6 max-w-7xl mx-auto space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Service Reports</h1>
-          <p className="text-muted-foreground">Technician visit reports with before &amp; after photos</p>
+          <h1 className="text-3xl font-bold tracking-tight">Work Completion Reports</h1>
+          <p className="text-muted-foreground">Completion reports for work orders, with before &amp; after photos</p>
         </div>
         <div className="flex items-center gap-2">
           <ExportMenu
-            filename="service-reports"
+            filename="work-completion-reports"
             rows={filtered}
-            sheetName="Service Reports"
+            sheetName="Work Completion Reports"
             columns={[
               { key: "report_no", label: "Report No" },
               { key: "service_date", label: "Date" },
@@ -100,8 +114,8 @@ function ServicePage() {
             ]}
           />
           {can("service", "add") && (
-            <Button onClick={() => { setEditing(null); setOpen(true); }}>
-              <Plus className="h-4 w-4 mr-2" /> New Report
+            <Button onClick={() => { setEditing(null); setPrefillWo(null); setOpen(true); }}>
+              <Plus className="h-4 w-4 mr-2" /> New Work Completion Report
             </Button>
           )}
         </div>
@@ -179,7 +193,7 @@ function ServicePage() {
                   <div className="flex justify-end gap-1">
                     <Button size="icon" variant="ghost" onClick={() => setViewing(r)}><Eye className="h-4 w-4" /></Button>
                     {can("service", "edit") && (
-                      <Button size="icon" variant="ghost" onClick={() => { setEditing(r); setOpen(true); }}><Pencil className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="ghost" onClick={() => { setEditing(r); setPrefillWo(null); setOpen(true); }}><Pencil className="h-4 w-4" /></Button>
                     )}
                     {can("service", "delete") && (
                       <AlertDialog>
@@ -207,7 +221,7 @@ function ServicePage() {
         <PaginationBar page={page} total={total} onPageChange={setPage} />
       </Card>
 
-      <ServiceReportDialog open={open} onOpenChange={setOpen} editing={editing} />
+      <ServiceReportDialog open={open} onOpenChange={setOpen} editing={editing} workOrderId={prefillWo} />
       <ViewReportDialog report={viewing} onClose={() => setViewing(null)} />
     </div>
   );
@@ -256,7 +270,7 @@ function ViewReportDialog({ report, onClose }: { report: any | null; onClose: ()
     <Dialog open={Boolean(report)} onOpenChange={(v) => { if (!v) onClose(); }}>
       <DialogContent className="max-w-4xl max-h-[88vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Service Report {report.report_no ? `#${report.report_no}` : ""}</DialogTitle>
+          <DialogTitle>Work Completion Report {report.report_no ? `#${report.report_no}` : ""}</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
