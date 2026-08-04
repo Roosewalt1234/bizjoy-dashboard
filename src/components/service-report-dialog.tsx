@@ -8,10 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
-import { Plus, Trash2, ImagePlus, Loader2, Star } from "lucide-react";
+import { Plus, Trash2, ImagePlus, Loader2, Star, FileDown } from "lucide-react";
 import { toast } from "sonner";
 import { SignaturePad } from "@/components/signature-pad";
 import { SERVICE_TYPES, REPORT_STATUS, MATERIAL_SUPPLIED_BY, WORK_ITEM_STATUS, type PhotoRow } from "@/lib/service-reports";
+import { buildServiceReportPdf } from "@/lib/service-report-pdf";
 
 type Props = {
   open: boolean;
@@ -84,6 +85,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
   const [items, setItems] = useState<WorkItem[]>([emptyItem()]);
   const [pairs, setPairs] = useState<PhotoRow[]>([]);
   const [saving, setSaving] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
 
 
   const { data: contracts = [] } = useQuery({
@@ -331,6 +333,36 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
       toast.error(err.message ?? "Save failed");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDownloadPdf() {
+    setGeneratingPdf(true);
+    try {
+      const { doc, fileName } = buildServiceReportPdf(form, items);
+      const blob = doc.output("blob");
+      const file = new File([blob], fileName, { type: "application/pdf" });
+      const nav = navigator as Navigator & { canShare?: (data?: ShareData) => boolean };
+
+      if (nav.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: fileName,
+            text: `Work Completion Report ${form.report_no || ""}`.trim(),
+          });
+          return;
+        } catch (err: any) {
+          if (err?.name === "AbortError") return;
+        }
+      }
+
+      doc.save(fileName);
+      toast.success("PDF downloaded. Attach it in WhatsApp to share.");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to generate PDF");
+    } finally {
+      setGeneratingPdf(false);
     }
   }
 
@@ -687,6 +719,10 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
           </section>
 
           <DialogFooter>
+            <Button type="button" variant="secondary" onClick={handleDownloadPdf} disabled={generatingPdf}>
+              {generatingPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileDown className="h-4 w-4 mr-2" />}
+              Download PDF
+            </Button>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <Button type="submit" disabled={saving}>
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
