@@ -39,11 +39,39 @@ const empty = {
   status: "Draft",
 };
 
+const ITEM_SEP = "\n---\n";
+
+type WorkItem = { problem: string; work: string; parts: string; hours: string };
+const emptyItem = (): WorkItem => ({ problem: "", work: "", parts: "", hours: "" });
+
+function splitField(v: string | null | undefined): string[] {
+  return (v ?? "").split(ITEM_SEP);
+}
+
+function itemsFromReport(r: any): WorkItem[] {
+  const p = splitField(r?.problem_reported);
+  const w = splitField(r?.work_done);
+  const pa = splitField(r?.parts_used);
+  const n = Math.max(p.length, w.length, pa.length, 1);
+  const items: WorkItem[] = [];
+  for (let i = 0; i < n; i++) {
+    items.push({
+      problem: p[i] ?? "",
+      work: w[i] ?? "",
+      parts: pa[i] ?? "",
+      hours: i === 0 ? (r?.hours_spent ?? "") === null ? "" : String(r?.hours_spent ?? "") : "",
+    });
+  }
+  return items;
+}
+
 export function ServiceReportDialog({ open, onOpenChange, editing }: Props) {
   const qc = useQueryClient();
   const [form, setForm] = useState<any>(empty);
+  const [items, setItems] = useState<WorkItem[]>([emptyItem()]);
   const [pairs, setPairs] = useState<PhotoRow[]>([]);
   const [saving, setSaving] = useState(false);
+
 
   const { data: contracts = [] } = useQuery({
     queryKey: ["contracts-for-service"],
