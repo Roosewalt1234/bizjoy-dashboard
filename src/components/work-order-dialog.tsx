@@ -164,7 +164,7 @@ export function WorkOrderDialog({ open, onOpenChange, editing }: Props) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="space-y-1">
                 <Label>Work Order No</Label>
-                <Input value={form.wo_no ?? ""} onChange={(e) => set("wo_no", e.target.value)} placeholder="WO-0001" />
+                <Input value={form.wo_no ?? ""} readOnly className="bg-muted" placeholder="Auto-generated" />
               </div>
               <div className="space-y-1">
                 <Label>Requested Date</Label>
