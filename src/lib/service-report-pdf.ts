@@ -171,7 +171,7 @@ export async function buildServiceReportPdf(
 
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
-  doc.text("Sign-off", marginX, y);
+  doc.text("Client Signature -", marginX, y);
   y += 16;
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
