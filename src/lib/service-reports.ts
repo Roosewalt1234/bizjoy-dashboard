@@ -14,7 +14,7 @@ export const SERVICE_TYPES = [
 
 export const REPORT_STATUS = ["Draft", "Completed"] as const;
 
-export const MATERIAL_SUPPLIED_BY = ["Client", "Fizfix"] as const;
+export const MATERIAL_SUPPLIED_BY = ["Client", "Fizfix", "Threshold account"] as const;
 
 export const WORK_ITEM_STATUS = ["Completed", "Pending", "Material Required", "Cancelled"] as const;
 
