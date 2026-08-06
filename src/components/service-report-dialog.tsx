@@ -18,6 +18,7 @@ import { SERVICE_TYPES, REPORT_STATUS, MATERIAL_SUPPLIED_BY, WORK_ITEM_STATUS, t
 import { buildServiceReportPdf } from "@/lib/service-report-pdf";
 import { nextDocNo } from "@/lib/doc-no";
 
+import { PdfPreview } from "@/components/pdf-preview";
 
 type Props = {
   open: boolean;
