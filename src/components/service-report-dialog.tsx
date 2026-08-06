@@ -89,6 +89,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
   const [pairs, setPairs] = useState<PhotoRow[]>([]);
   const [saving, setSaving] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [preview, setPreview] = useState<{ url: string; blob: Blob; fileName: string } | null>(null);
   const [technicianOpen, setTechnicianOpen] = useState(false);
 
   const { data: technicians = [] } = useQuery({
