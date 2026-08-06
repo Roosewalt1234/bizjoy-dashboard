@@ -8,7 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
-import { Plus, Trash2, ImagePlus, Loader2, Star, FileDown } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Plus, Trash2, ImagePlus, Loader2, Star, FileDown, ChevronsUpDown } from "lucide-react";
+
 import { toast } from "sonner";
 import { SignaturePad } from "@/components/signature-pad";
 import { SERVICE_TYPES, REPORT_STATUS, MATERIAL_SUPPLIED_BY, WORK_ITEM_STATUS, type PhotoRow } from "@/lib/service-reports";
