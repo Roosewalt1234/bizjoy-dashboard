@@ -18,6 +18,7 @@ import { SERVICE_TYPES, REPORT_STATUS, MATERIAL_SUPPLIED_BY, WORK_ITEM_STATUS, t
 import { buildServiceReportPdf } from "@/lib/service-report-pdf";
 import { nextDocNo } from "@/lib/doc-no";
 
+import { PdfPreview } from "@/components/pdf-preview";
 
 type Props = {
   open: boolean;
@@ -841,7 +842,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
             <DialogTitle>Review report before saving</DialogTitle>
           </DialogHeader>
           {preview && (
-            <iframe src={preview.url} title="Report preview" className="w-full h-[60vh] rounded-md border" />
+            <PdfPreview blob={preview.blob} className="max-h-[60vh] overflow-y-auto" />
           )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={closePreview} disabled={saving}>
