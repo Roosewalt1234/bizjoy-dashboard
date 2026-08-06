@@ -89,6 +89,21 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
   const [pairs, setPairs] = useState<PhotoRow[]>([]);
   const [saving, setSaving] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [technicianOpen, setTechnicianOpen] = useState(false);
+
+  const { data: technicians = [] } = useQuery({
+    queryKey: ["employees-for-work-order"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("employees")
+        .select("id, first_name, last_name, full_name")
+        .eq("status", "Active")
+        .order("first_name", { ascending: true });
+      if (error) throw error;
+      return (data ?? []).map((e: any) => e.full_name ?? [e.first_name, e.last_name].filter(Boolean).join(" "));
+    },
+  });
+
 
 
   const { data: contracts = [] } = useQuery({
