@@ -841,7 +841,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
             <DialogTitle>Review report before saving</DialogTitle>
           </DialogHeader>
           {preview && (
-            <iframe src={preview.url} title="Report preview" className="w-full h-[60vh] rounded-md border" />
+            <PdfPreview blob={preview.blob} className="max-h-[60vh] overflow-y-auto" />
           )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={closePreview} disabled={saving}>
