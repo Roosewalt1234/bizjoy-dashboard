@@ -89,6 +89,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
   const [pairs, setPairs] = useState<PhotoRow[]>([]);
   const [saving, setSaving] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [preview, setPreview] = useState<{ url: string; blob: Blob; fileName: string } | null>(null);
   const [technicianOpen, setTechnicianOpen] = useState(false);
 
   const { data: technicians = [] } = useQuery({
@@ -231,8 +232,39 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
     return path;
   }
 
-  async function save(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setGeneratingPdf(true);
+    try {
+      const { doc, fileName } = await buildServiceReportPdf(form, items, { allottedHours, usedHoursOther });
+      const blob = doc.output("blob");
+      if (preview?.url) URL.revokeObjectURL(preview.url);
+      setPreview({ url: URL.createObjectURL(blob), blob, fileName });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to generate PDF");
+    } finally {
+      setGeneratingPdf(false);
+    }
+  }
+
+  function closePreview() {
+    if (preview?.url) URL.revokeObjectURL(preview.url);
+    setPreview(null);
+  }
+
+  async function confirmAndSave() {
+    if (!preview) return;
+    const link = document.createElement("a");
+    link.href = preview.url;
+    link.download = preview.fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    await save();
+    closePreview();
+  }
+
+  async function save() {
     setSaving(true);
     try {
       const kept = items.filter((it) => it.problem || it.work || it.parts || it.hours || it.status);
@@ -391,7 +423,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
           <DialogTitle>Work Completion Report</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={save} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <section className="space-y-3">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Visit details</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -768,13 +800,33 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
               Download PDF
             </Button>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit" disabled={saving}>
-              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            <Button type="submit" disabled={saving || generatingPdf}>
+              {(saving || generatingPdf) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {editing ? "Update Report" : "Create Completion Report"}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
+
+      <Dialog open={Boolean(preview)} onOpenChange={(v) => { if (!v) closePreview(); }}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Review report before saving</DialogTitle>
+          </DialogHeader>
+          {preview && (
+            <iframe src={preview.url} title="Report preview" className="w-full h-[60vh] rounded-md border" />
+          )}
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={closePreview} disabled={saving}>
+              Back to edit
+            </Button>
+            <Button type="button" onClick={confirmAndSave} disabled={saving}>
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Looks good — download &amp; save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
