@@ -200,7 +200,11 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
       setForm(empty);
       setItems([emptyItem()]);
       setPairs([]);
+      nextDocNo("service_report")
+        .then((no) => setForm((f: any) => ({ ...f, report_no: no })))
+        .catch(() => {});
     }
+
   }, [open, editing]);
 
 
