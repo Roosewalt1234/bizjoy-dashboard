@@ -1245,7 +1245,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      next_doc_no: { Args: { kind: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "user"
