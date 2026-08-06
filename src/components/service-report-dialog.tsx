@@ -784,10 +784,10 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
               </div>
             </div>
             <div className="rounded-md border p-3 space-y-3">
-              <div className="text-sm font-medium">Google Feedback</div>
+              <div className="text-sm font-medium">Feedback</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label>Google Rating</Label>
+                  <Label>Rating</Label>
                   <div className="flex items-center gap-1">
                     {[1, 2, 3, 4, 5].map((n) => (
                       <button
@@ -808,7 +808,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <Label>Google Review</Label>
+                  <Label>Client Feedback</Label>
                   <Textarea
                     rows={3}
                     placeholder="Customer's Google review text or link"
