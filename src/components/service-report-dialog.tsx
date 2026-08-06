@@ -572,17 +572,17 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                   {form.contract_id ? (
                     <div className="space-y-1">
                       <div className="text-muted-foreground text-xs">
-                        Contract allowance {allottedHours} h · already used {usedHoursOther} h ·{" "}
+                        Contract balance {allottedHours} h ·{" "}
                         <span className="font-medium">{allottedHours - usedHoursOther} h left</span>
                       </div>
                       <div className={remainingHours < 0 ? "font-semibold text-destructive" : "font-semibold text-emerald-600"}>
                         {remainingHours < 0
-                          ? `Exceeds allowance by ${Math.abs(remainingHours)} h`
+                          ? `Exceeds balance by ${Math.abs(remainingHours)} h`
                           : `Balance after this report: ${remainingHours} h`}
                       </div>
                     </div>
                   ) : (
-                    <p className="text-xs text-muted-foreground">Select a contract to deduct hours from its allowance.</p>
+                    <p className="text-xs text-muted-foreground">Select a contract to deduct hours from its balance.</p>
                   )}
                 </div>
               </div>
