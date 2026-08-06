@@ -14,6 +14,8 @@ import { Plus, Trash2, Loader2, ChevronsUpDown } from "lucide-react";
 import { toast } from "sonner";
 import { SERVICE_TYPES } from "@/lib/service-reports";
 import { WO_STATUS, WO_PRIORITY, ITEM_SEP, splitItems } from "@/lib/work-orders";
+import { nextDocNo } from "@/lib/doc-no";
+
 
 type Props = {
   open: boolean;
