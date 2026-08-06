@@ -231,8 +231,39 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
     return path;
   }
 
-  async function save(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setGeneratingPdf(true);
+    try {
+      const { doc, fileName } = await buildServiceReportPdf(form, items, { allottedHours, usedHoursOther });
+      const blob = doc.output("blob");
+      if (preview?.url) URL.revokeObjectURL(preview.url);
+      setPreview({ url: URL.createObjectURL(blob), blob, fileName });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to generate PDF");
+    } finally {
+      setGeneratingPdf(false);
+    }
+  }
+
+  function closePreview() {
+    if (preview?.url) URL.revokeObjectURL(preview.url);
+    setPreview(null);
+  }
+
+  async function confirmAndSave() {
+    if (!preview) return;
+    const link = document.createElement("a");
+    link.href = preview.url;
+    link.download = preview.fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    await save();
+    closePreview();
+  }
+
+  async function save() {
     setSaving(true);
     try {
       const kept = items.filter((it) => it.problem || it.work || it.parts || it.hours || it.status);
