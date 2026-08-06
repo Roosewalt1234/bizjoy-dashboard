@@ -110,7 +110,6 @@ export async function buildServiceReportPdf(
   const balanceHours = allotted - usedOther - thisVisitHours;
   const summaryRows: [string, string][] = [
     ["Total Hours", String(totalHours || 0)],
-    ["Handyman Hours (contract balance)", `${allotted} h`],
     ["Handyman Hours Used (this visit)", `${thisVisitHours} h`],
     ["Balance Handyman Hours", `${balanceHours} h`],
     ["Material Used - Supplied By", form.material_supplied_by || "—"],
