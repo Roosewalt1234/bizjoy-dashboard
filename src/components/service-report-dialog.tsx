@@ -405,8 +405,31 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
               </div>
               <div className="space-y-1">
                 <Label>Technician</Label>
-                <Input value={form.technician_name ?? ""} onChange={(e) => set("technician_name", e.target.value)} />
+                <Popover open={technicianOpen} onOpenChange={setTechnicianOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" role="combobox" className="w-full justify-between font-normal">
+                      {form.technician_name || "Select technician..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search by name..." />
+                      <CommandList>
+                        <CommandEmpty>No technician found.</CommandEmpty>
+                        <CommandGroup>
+                          {technicians.map((name: string) => (
+                            <CommandItem key={name} onSelect={() => { set("technician_name", name); setTechnicianOpen(false); }}>
+                              {name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
+
               <div className="space-y-1">
                 <Label>Time Checked In</Label>
                 <Input type="time" value={form.time_checked_in ?? ""} onChange={(e) => set("time_checked_in", e.target.value)} />
