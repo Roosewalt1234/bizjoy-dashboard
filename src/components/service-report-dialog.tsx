@@ -16,6 +16,8 @@ import { toast } from "sonner";
 import { SignaturePad } from "@/components/signature-pad";
 import { SERVICE_TYPES, REPORT_STATUS, MATERIAL_SUPPLIED_BY, WORK_ITEM_STATUS, type PhotoRow } from "@/lib/service-reports";
 import { buildServiceReportPdf } from "@/lib/service-report-pdf";
+import { nextDocNo } from "@/lib/doc-no";
+
 
 type Props = {
   open: boolean;
