@@ -1,23 +1,65 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import logoAsset from "@/assets/fizfix-logo.jpeg.asset.json";
 
 type WorkItem = { problem: string; work: string; parts: string; hours: string; status: string };
 
-export function buildServiceReportPdf(form: any, items: WorkItem[]): { doc: jsPDF; fileName: string } {
+export type ReportPdfMeta = { allottedHours?: number; usedHoursOther?: number };
+
+async function loadLogo(): Promise<string | null> {
+  try {
+    const res = await fetch(logoAsset.url);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+}
+
+export async function buildServiceReportPdf(
+  form: any,
+  items: WorkItem[],
+  meta: ReportPdfMeta = {},
+): Promise<{ doc: jsPDF; fileName: string }> {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const marginX = 40;
-  let y = 48;
+  let y = 40;
 
-  doc.setFontSize(16);
+  const logo = await loadLogo();
+  if (logo) {
+    try {
+      doc.addImage(logo, "JPEG", marginX, y, 54, 54);
+    } catch {
+      // logo failed to embed; continue without it
+    }
+  }
+
+  doc.setFontSize(17);
   doc.setFont("helvetica", "bold");
-  doc.text("Work Completion Report", marginX, y);
-  doc.setFont("helvetica", "normal");
+  doc.text("FIZ FIX Technical Services", marginX + (logo ? 66 : 0), y + 22);
   doc.setFontSize(10);
-  doc.text(form.report_no ? `Report No: ${form.report_no}` : "Report No: —", 555, y, { align: "right" });
-  y += 24;
+  doc.setFont("helvetica", "normal");
+  doc.text("Work Completion Report", marginX + (logo ? 66 : 0), y + 38);
+
+  doc.setFontSize(10);
+  doc.text(`Report No: ${form.report_no || "—"}`, 555, y + 22, { align: "right" });
+  doc.text(`Date: ${form.service_date || "—"}`, 555, y + 38, { align: "right" });
+
+  y += 66;
+  doc.setDrawColor(51, 65, 85);
+  doc.setLineWidth(1);
+  doc.line(marginX, y, 555, y);
+  y += 18;
 
   const visitRows: [string, string][] = [
     ["Customer", form.customer_name || "—"],
+    ["Report No", form.report_no || "—"],
     ["Service Date", form.service_date || "—"],
     ["Technician", form.technician_name || "—"],
     ["Time Checked In", form.time_checked_in || "—"],
@@ -36,6 +78,7 @@ export function buildServiceReportPdf(form: any, items: WorkItem[]): { doc: jsPD
     margin: { left: marginX, right: marginX },
   });
   y = (doc as any).lastAutoTable.finalY + 16;
+
 
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
