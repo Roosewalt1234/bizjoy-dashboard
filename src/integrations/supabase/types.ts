@@ -989,6 +989,8 @@ export type Database = {
       }
       service_reports: {
         Row: {
+          amount_received: number | null
+          balance_amount: number | null
           contract_id: string | null
           created_at: string
           customer_id: string | null
@@ -998,7 +1000,9 @@ export type Database = {
           handyman_hours: number | null
           hours_spent: number | null
           id: string
+          item_status: string | null
           location: string | null
+          material_supplied_by: string | null
           next_service_date: string | null
           parts_used: string | null
           problem_reported: string | null
@@ -1010,11 +1014,15 @@ export type Database = {
           signed_by: string | null
           status: string
           technician_name: string | null
+          time_checked_in: string | null
+          time_checked_out: string | null
           updated_at: string
           work_done: string | null
           work_order_id: string | null
         }
         Insert: {
+          amount_received?: number | null
+          balance_amount?: number | null
           contract_id?: string | null
           created_at?: string
           customer_id?: string | null
@@ -1024,7 +1032,9 @@ export type Database = {
           handyman_hours?: number | null
           hours_spent?: number | null
           id?: string
+          item_status?: string | null
           location?: string | null
+          material_supplied_by?: string | null
           next_service_date?: string | null
           parts_used?: string | null
           problem_reported?: string | null
@@ -1036,11 +1046,15 @@ export type Database = {
           signed_by?: string | null
           status?: string
           technician_name?: string | null
+          time_checked_in?: string | null
+          time_checked_out?: string | null
           updated_at?: string
           work_done?: string | null
           work_order_id?: string | null
         }
         Update: {
+          amount_received?: number | null
+          balance_amount?: number | null
           contract_id?: string | null
           created_at?: string
           customer_id?: string | null
@@ -1050,7 +1064,9 @@ export type Database = {
           handyman_hours?: number | null
           hours_spent?: number | null
           id?: string
+          item_status?: string | null
           location?: string | null
+          material_supplied_by?: string | null
           next_service_date?: string | null
           parts_used?: string | null
           problem_reported?: string | null
@@ -1062,6 +1078,8 @@ export type Database = {
           signed_by?: string | null
           status?: string
           technician_name?: string | null
+          time_checked_in?: string | null
+          time_checked_out?: string | null
           updated_at?: string
           work_done?: string | null
           work_order_id?: string | null
