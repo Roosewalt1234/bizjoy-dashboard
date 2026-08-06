@@ -274,10 +274,14 @@ function ViewReportDialog({ report, onClose }: { report: any | null; onClose: ()
         </DialogHeader>
         <div className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Field label="Report No" value={report.report_no} />
             <Field label="Date" value={report.service_date} />
             <Field label="Customer" value={report.customer_name} />
             <Field label="Technician" value={report.technician_name} />
+            <Field label="Time Checked In" value={report.time_checked_in} />
+            <Field label="Time Checked Out" value={report.time_checked_out} />
             <Field label="Service Type" value={report.service_type} />
+
             <Field label="Location / Unit" value={report.location} />
             <Field label="Hours Spent" value={report.hours_spent} />
             <Field label="Handyman Hours" value={report.handyman_hours} />
