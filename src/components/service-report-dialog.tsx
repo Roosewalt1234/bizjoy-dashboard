@@ -800,13 +800,33 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
               Download PDF
             </Button>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit" disabled={saving}>
-              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            <Button type="submit" disabled={saving || generatingPdf}>
+              {(saving || generatingPdf) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {editing ? "Update Report" : "Create Completion Report"}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
+
+      <Dialog open={Boolean(preview)} onOpenChange={(v) => { if (!v) closePreview(); }}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Review report before saving</DialogTitle>
+          </DialogHeader>
+          {preview && (
+            <iframe src={preview.url} title="Report preview" className="w-full h-[60vh] rounded-md border" />
+          )}
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={closePreview} disabled={saving}>
+              Back to edit
+            </Button>
+            <Button type="button" onClick={confirmAndSave} disabled={saving}>
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Looks good — download &amp; save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
