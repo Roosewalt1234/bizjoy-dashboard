@@ -16,6 +16,8 @@ import { toast } from "sonner";
 import { SignaturePad } from "@/components/signature-pad";
 import { SERVICE_TYPES, REPORT_STATUS, MATERIAL_SUPPLIED_BY, WORK_ITEM_STATUS, type PhotoRow } from "@/lib/service-reports";
 import { buildServiceReportPdf } from "@/lib/service-report-pdf";
+import { nextDocNo } from "@/lib/doc-no";
+
 
 type Props = {
   open: boolean;
@@ -198,7 +200,11 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
       setForm(empty);
       setItems([emptyItem()]);
       setPairs([]);
+      nextDocNo("service_report")
+        .then((no) => setForm((f: any) => ({ ...f, report_no: no })))
+        .catch(() => {});
     }
+
   }, [open, editing]);
 
 
@@ -429,7 +435,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="space-y-1">
                 <Label>Report No</Label>
-                <Input value={form.report_no ?? ""} onChange={(e) => set("report_no", e.target.value)} placeholder="SR-0001" />
+                <Input value={form.report_no ?? ""} readOnly className="bg-muted" placeholder="Auto-generated" />
               </div>
               <div className="space-y-1">
                 <Label>Service Date</Label>

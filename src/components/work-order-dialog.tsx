@@ -14,6 +14,8 @@ import { Plus, Trash2, Loader2, ChevronsUpDown } from "lucide-react";
 import { toast } from "sonner";
 import { SERVICE_TYPES } from "@/lib/service-reports";
 import { WO_STATUS, WO_PRIORITY, ITEM_SEP, splitItems } from "@/lib/work-orders";
+import { nextDocNo } from "@/lib/doc-no";
+
 
 type Props = {
   open: boolean;
@@ -87,7 +89,11 @@ export function WorkOrderDialog({ open, onOpenChange, editing }: Props) {
     } else {
       setForm(empty);
       setItems([emptyItem()]);
+      nextDocNo("work_order")
+        .then((no) => setForm((f: any) => ({ ...f, wo_no: no })))
+        .catch(() => {});
     }
+
   }, [open, editing]);
 
   function set(key: string, value: any) {
@@ -158,7 +164,7 @@ export function WorkOrderDialog({ open, onOpenChange, editing }: Props) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="space-y-1">
                 <Label>Work Order No</Label>
-                <Input value={form.wo_no ?? ""} onChange={(e) => set("wo_no", e.target.value)} placeholder="WO-0001" />
+                <Input value={form.wo_no ?? ""} readOnly className="bg-muted" placeholder="Auto-generated" />
               </div>
               <div className="space-y-1">
                 <Label>Requested Date</Label>
