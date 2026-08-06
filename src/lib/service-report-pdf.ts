@@ -104,13 +104,21 @@ export async function buildServiceReportPdf(
   y = (doc as any).lastAutoTable.finalY + 16;
 
   const totalHours = items.reduce((s, it) => s + (Number(it.hours) || 0), 0);
+  const thisVisitHours = form.handyman_hours === "" || form.handyman_hours == null ? 0 : Number(form.handyman_hours) || 0;
+  const allotted = Number(meta.allottedHours ?? 0);
+  const usedOther = Number(meta.usedHoursOther ?? 0);
+  const balanceHours = allotted - usedOther - thisVisitHours;
   const summaryRows: [string, string][] = [
     ["Total Hours", String(totalHours || 0)],
-    ["Handyman Hours (this visit)", form.handyman_hours ? String(form.handyman_hours) : "—"],
+    ["Handyman Hours (contract allowance)", `${allotted} h`],
+    ["Handyman Hours (previously used)", `${usedOther} h`],
+    ["Handyman Hours Used (this visit)", `${thisVisitHours} h`],
+    ["Balance Handyman Hours", `${balanceHours} h`],
     ["Material Used - Supplied By", form.material_supplied_by || "—"],
     ["Amount Received", form.amount_received ? String(form.amount_received) : "—"],
     ["Balance Amount", form.balance_amount ? String(form.balance_amount) : "—"],
   ];
+
 
   autoTable(doc, {
     startY: y,
