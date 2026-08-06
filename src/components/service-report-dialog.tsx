@@ -357,7 +357,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
   async function handleDownloadPdf() {
     setGeneratingPdf(true);
     try {
-      const { doc, fileName } = buildServiceReportPdf(form, items);
+      const { doc, fileName } = await buildServiceReportPdf(form, items, { allottedHours, usedHoursOther });
       const blob = doc.output("blob");
       const file = new File([blob], fileName, { type: "application/pdf" });
       const nav = navigator as Navigator & { canShare?: (data?: ShareData) => boolean };
