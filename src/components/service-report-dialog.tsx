@@ -8,7 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
-import { Plus, Trash2, ImagePlus, Loader2, Star, FileDown } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Plus, Trash2, ImagePlus, Loader2, Star, FileDown, ChevronsUpDown } from "lucide-react";
+
 import { toast } from "sonner";
 import { SignaturePad } from "@/components/signature-pad";
 import { SERVICE_TYPES, REPORT_STATUS, MATERIAL_SUPPLIED_BY, WORK_ITEM_STATUS, type PhotoRow } from "@/lib/service-reports";
@@ -86,6 +89,21 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
   const [pairs, setPairs] = useState<PhotoRow[]>([]);
   const [saving, setSaving] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [technicianOpen, setTechnicianOpen] = useState(false);
+
+  const { data: technicians = [] } = useQuery({
+    queryKey: ["employees-for-work-order"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("employees")
+        .select("id, first_name, last_name, full_name")
+        .eq("status", "Active")
+        .order("first_name", { ascending: true });
+      if (error) throw error;
+      return (data ?? []).map((e: any) => e.full_name ?? [e.first_name, e.last_name].filter(Boolean).join(" "));
+    },
+  });
+
 
 
   const { data: contracts = [] } = useQuery({
@@ -387,8 +405,31 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
               </div>
               <div className="space-y-1">
                 <Label>Technician</Label>
-                <Input value={form.technician_name ?? ""} onChange={(e) => set("technician_name", e.target.value)} />
+                <Popover open={technicianOpen} onOpenChange={setTechnicianOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" role="combobox" className="w-full justify-between font-normal">
+                      {form.technician_name || "Select technician..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search by name..." />
+                      <CommandList>
+                        <CommandEmpty>No technician found.</CommandEmpty>
+                        <CommandGroup>
+                          {technicians.map((name: string) => (
+                            <CommandItem key={name} onSelect={() => { set("technician_name", name); setTechnicianOpen(false); }}>
+                              {name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
+
               <div className="space-y-1">
                 <Label>Time Checked In</Label>
                 <Input type="time" value={form.time_checked_in ?? ""} onChange={(e) => set("time_checked_in", e.target.value)} />
