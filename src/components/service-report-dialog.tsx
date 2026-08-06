@@ -435,7 +435,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="space-y-1">
                 <Label>Report No</Label>
-                <Input value={form.report_no ?? ""} onChange={(e) => set("report_no", e.target.value)} placeholder="SR-0001" />
+                <Input value={form.report_no ?? ""} readOnly className="bg-muted" placeholder="Auto-generated" />
               </div>
               <div className="space-y-1">
                 <Label>Service Date</Label>
