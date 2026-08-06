@@ -176,8 +176,7 @@ export async function buildServiceReportPdf(
   y += 16;
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text(`Client Signature: ${form.signed_by || "—"}`, marginX, y);
-  y += 12;
+
 
   if (form.signature_data) {
     try {
