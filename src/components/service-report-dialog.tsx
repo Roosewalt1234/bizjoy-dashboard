@@ -811,7 +811,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                   <Label>Client Feedback</Label>
                   <Textarea
                     rows={3}
-                    placeholder="Customer's Google review text or link"
+                    placeholder="Customer review text or link"
                     value={form.google_review ?? ""}
                     onChange={(e) => set("google_review", e.target.value)}
                   />
