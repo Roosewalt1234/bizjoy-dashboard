@@ -423,7 +423,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
           <DialogTitle>Work Completion Report</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={save} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <section className="space-y-3">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Visit details</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
