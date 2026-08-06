@@ -93,7 +93,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
     queryFn: async () => {
       const { data, error } = await supabase
         .from("contracts")
-        .select("id, title, contract_no, customer_id, customer_name")
+        .select("id, title, contract_no, customer_id, customer_name, handyman_hours")
         .order("created_at", { ascending: false })
         .limit(2000);
       if (error) throw error;
@@ -531,10 +531,13 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                   {form.contract_id ? (
                     <div className="space-y-1">
                       <div className="text-muted-foreground text-xs">
-                        Contract allowance {allottedHours} h · already used {usedHoursOther} h
+                        Contract allowance {allottedHours} h · already used {usedHoursOther} h ·{" "}
+                        <span className="font-medium">{allottedHours - usedHoursOther} h left</span>
                       </div>
                       <div className={remainingHours < 0 ? "font-semibold text-destructive" : "font-semibold text-emerald-600"}>
-                        Balance after this report: {remainingHours} h
+                        {remainingHours < 0
+                          ? `Exceeds allowance by ${Math.abs(remainingHours)} h`
+                          : `Balance after this report: ${remainingHours} h`}
                       </div>
                     </div>
                   ) : (
