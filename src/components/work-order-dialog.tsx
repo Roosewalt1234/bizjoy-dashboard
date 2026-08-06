@@ -87,7 +87,11 @@ export function WorkOrderDialog({ open, onOpenChange, editing }: Props) {
     } else {
       setForm(empty);
       setItems([emptyItem()]);
+      nextDocNo("work_order")
+        .then((no) => setForm((f: any) => ({ ...f, wo_no: no })))
+        .catch(() => {});
     }
+
   }, [open, editing]);
 
   function set(key: string, value: any) {
