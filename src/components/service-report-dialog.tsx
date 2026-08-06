@@ -208,9 +208,30 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
   }, [open, editing]);
 
 
+  // Auto-fill Hours Spent (first work item) from Time Checked Out − Time Checked In
+  useEffect(() => {
+    const a = form.time_checked_in;
+    const b = form.time_checked_out;
+    if (!a || !b) return;
+    const [ah, am] = a.split(":").map(Number);
+    const [bh, bm] = b.split(":").map(Number);
+    if ([ah, am, bh, bm].some((n) => Number.isNaN(n))) return;
+    let mins = bh * 60 + bm - (ah * 60 + am);
+    if (mins < 0) mins += 24 * 60;
+    const hrs = Math.round((mins / 60) * 100) / 100;
+    setItems((prev) => {
+      if (!prev.length) return prev;
+      if (String(prev[0].hours) === String(hrs)) return prev;
+      const next = [...prev];
+      next[0] = { ...next[0], hours: String(hrs) };
+      return next;
+    });
+  }, [form.time_checked_in, form.time_checked_out]);
+
   function set(key: string, value: any) {
     setForm((f: any) => ({ ...f, [key]: value }));
   }
+
 
   function pickContract(id: string) {
     const c: any = contracts.find((x: any) => x.id === id);
