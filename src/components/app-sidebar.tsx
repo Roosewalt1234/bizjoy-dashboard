@@ -73,6 +73,7 @@ const items: NavItem[] = [
       { title: "MEP Schedules", url: "/mep-schedules", module: "projects" },
       { title: "Cleaning Schedules", url: "/cleaning-schedules", module: "projects" },
       { title: "Work Order", url: "/work-orders", module: "service" },
+      { title: "Reports", url: "/project-reports", module: "projects" },
     ],
   },
   { title: "Audit Log", url: "/audit", icon: History, adminOnly: true },
