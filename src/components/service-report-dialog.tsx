@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,18 +6,44 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Plus, Trash2, ImagePlus, Loader2, Star, FileDown, ChevronsUpDown } from "lucide-react";
 
 import { toast } from "sonner";
 import { SignaturePad } from "@/components/signature-pad";
-import { SERVICE_TYPES, REPORT_STATUS, MATERIAL_SUPPLIED_BY, WORK_ITEM_STATUS, type PhotoRow } from "@/lib/service-reports";
+import {
+  SERVICE_TYPES,
+  REPORT_STATUS,
+  MATERIAL_SUPPLIED_BY,
+  WORK_ITEM_STATUS,
+  type PhotoRow,
+} from "@/lib/service-reports";
 import { buildServiceReportPdf } from "@/lib/service-report-pdf";
 import { nextDocNo } from "@/lib/doc-no";
+import { calculateSlaStatus } from "@/lib/fm-sla";
 
 import { PdfPreview } from "@/components/pdf-preview";
 
@@ -32,6 +59,9 @@ const empty = {
   report_no: "",
   work_order_id: "",
   contract_id: "",
+  asset_id: "",
+  ppm_visit_id: "",
+  service_category_id: "",
   customer_id: "",
   customer_name: "",
   service_date: new Date().toISOString().slice(0, 10),
@@ -79,7 +109,7 @@ function itemsFromReport(r: any): WorkItem[] {
       work: w[i] ?? "",
       parts: pa[i] ?? "",
       status: st[i] ?? "",
-      hours: i === 0 ? (r?.hours_spent ?? "") === null ? "" : String(r?.hours_spent ?? "") : "",
+      hours: i === 0 ? (r?.hours_spent == null ? "" : String(r.hours_spent)) : "",
     });
   }
   return items;
@@ -92,7 +122,9 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
   const [pairs, setPairs] = useState<PhotoRow[]>([]);
   const [saving, setSaving] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
-  const [preview, setPreview] = useState<{ url: string; blob: Blob; fileName: string } | null>(null);
+  const [preview, setPreview] = useState<{ url: string; blob: Blob; fileName: string } | null>(
+    null,
+  );
   const [technicianOpen, setTechnicianOpen] = useState(false);
 
   const { data: technicians = [] } = useQuery({
@@ -104,11 +136,11 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
         .eq("status", "Active")
         .order("first_name", { ascending: true });
       if (error) throw error;
-      return (data ?? []).map((e: any) => e.full_name ?? [e.first_name, e.last_name].filter(Boolean).join(" "));
+      return (data ?? []).map(
+        (e: any) => e.full_name ?? [e.first_name, e.last_name].filter(Boolean).join(" "),
+      );
     },
   });
-
-
 
   const { data: contracts = [] } = useQuery({
     queryKey: ["contracts-for-service"],
@@ -147,11 +179,17 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
 
   function applyWorkOrder(id: string, wo?: any) {
     const o: any = wo ?? workOrders.find((x: any) => x.id === id);
-    if (!o) { setForm((f: any) => ({ ...f, work_order_id: id })); return; }
+    if (!o) {
+      setForm((f: any) => ({ ...f, work_order_id: id }));
+      return;
+    }
     setForm((f: any) => ({
       ...f,
       work_order_id: id,
       contract_id: o.contract_id ?? f.contract_id,
+      asset_id: o.asset_id ?? f.asset_id,
+      ppm_visit_id: o.ppm_visit_id ?? f.ppm_visit_id,
+      service_category_id: o.service_category_id ?? f.service_category_id,
       customer_id: o.customer_id ?? f.customer_id,
       customer_name: o.customer_name ?? f.customer_name,
       technician_name: o.technician_name ?? f.technician_name,
@@ -186,6 +224,9 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
         ...empty,
         ...editing,
         contract_id: editing.contract_id ?? "",
+        asset_id: editing.asset_id ?? "",
+        ppm_visit_id: editing.ppm_visit_id ?? "",
+        service_category_id: editing.service_category_id ?? "",
         customer_id: editing.customer_id ?? "",
         time_checked_in: (editing.time_checked_in ?? "").slice(0, 5),
         time_checked_out: (editing.time_checked_out ?? "").slice(0, 5),
@@ -205,9 +246,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
         .then((no) => setForm((f: any) => ({ ...f, report_no: no })))
         .catch(() => {});
     }
-
   }, [open, editing]);
-
 
   // Auto-fill Hours Spent (first work item) from Time Checked Out − Time Checked In
   useEffect(() => {
@@ -233,7 +272,6 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
     setForm((f: any) => ({ ...f, [key]: value }));
   }
 
-
   function pickContract(id: string) {
     const c: any = contracts.find((x: any) => x.id === id);
     setForm((f: any) => ({
@@ -255,7 +293,9 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
   async function uploadFile(reportId: string, file: File) {
     const ext = file.name.split(".").pop() || "jpg";
     const path = `${reportId}/${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from("service-photos").upload(path, file, { upsert: false });
+    const { error } = await supabase.storage
+      .from("service-photos")
+      .upload(path, file, { upsert: false });
     if (error) throw error;
     return path;
   }
@@ -264,7 +304,10 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
     e.preventDefault();
     setGeneratingPdf(true);
     try {
-      const { doc, fileName } = await buildServiceReportPdf(form, items, { allottedHours, usedHoursOther });
+      const { doc, fileName } = await buildServiceReportPdf(form, items, {
+        allottedHours,
+        usedHoursOther,
+      });
       const blob = doc.output("blob");
       if (preview?.url) URL.revokeObjectURL(preview.url);
       setPreview({ url: URL.createObjectURL(blob), blob, fileName });
@@ -297,11 +340,17 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
     try {
       const kept = items.filter((it) => it.problem || it.work || it.parts || it.hours || it.status);
       const list = kept.length ? kept : [emptyItem()];
-      const totalHours = list.reduce((s, it) => s + (it.hours === "" ? 0 : Number(it.hours) || 0), 0);
+      const totalHours = list.reduce(
+        (s, it) => s + (it.hours === "" ? 0 : Number(it.hours) || 0),
+        0,
+      );
       const payload: any = {
         report_no: form.report_no || null,
         work_order_id: form.work_order_id || null,
         contract_id: form.contract_id || null,
+        asset_id: form.asset_id || null,
+        ppm_visit_id: form.ppm_visit_id || null,
+        service_category_id: form.service_category_id || null,
         customer_id: form.customer_id || null,
         customer_name: form.customer_name || null,
         service_date: form.service_date || null,
@@ -334,21 +383,29 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
         const { error } = await supabase.from("service_reports").update(payload).eq("id", reportId);
         if (error) throw error;
       } else {
-        const { data, error } = await supabase.from("service_reports").insert(payload).select("id").single();
+        const { data, error } = await supabase
+          .from("service_reports")
+          .insert(payload)
+          .select("id")
+          .single();
         if (error) throw error;
         reportId = data.id;
       }
 
       // photos
-      const removedIds = (pairs.filter((p) => p._deleted && p.id).map((p) => p.id) as string[]);
+      const removedIds = pairs.filter((p) => p._deleted && p.id).map((p) => p.id) as string[];
       if (removedIds.length) {
         await supabase.from("service_report_photos").delete().in("id", removedIds);
       }
       let order = 0;
       for (const p of pairs) {
         if (p._deleted) continue;
-        const beforePath = p.beforeFile ? await uploadFile(reportId!, p.beforeFile) : p.before_path ?? null;
-        const afterPath = p.afterFile ? await uploadFile(reportId!, p.afterFile) : p.after_path ?? null;
+        const beforePath = p.beforeFile
+          ? await uploadFile(reportId!, p.beforeFile)
+          : (p.before_path ?? null);
+        const afterPath = p.afterFile
+          ? await uploadFile(reportId!, p.afterFile)
+          : (p.after_path ?? null);
         const row = {
           report_id: reportId!,
           caption: p.caption || null,
@@ -383,7 +440,10 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
           notes: form.report_no ? `Report ${form.report_no}` : null,
         };
         if (existingLog?.id) {
-          const { error } = await supabase.from("handyman_hours_log").update(logRow).eq("id", existingLog.id);
+          const { error } = await supabase
+            .from("handyman_hours_log")
+            .update(logRow)
+            .eq("id", existingLog.id);
           if (error) throw error;
         } else {
           const { error } = await supabase.from("handyman_hours_log").insert(logRow);
@@ -395,13 +455,43 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
       qc.invalidateQueries({ queryKey: ["handyman_hours_log_all"] });
       qc.invalidateQueries({ queryKey: ["contracts"] });
 
-
       if (form.work_order_id) {
+        const completedAt = new Date().toISOString();
+        const selectedWorkOrder: any = (workOrders as any[]).find(
+          (o) => o.id === form.work_order_id,
+        );
+        const completionStatus = calculateSlaStatus({
+          dueAt: selectedWorkOrder?.completion_due_at,
+          actualAt: selectedWorkOrder?.completed_at ?? completedAt,
+          paused: Boolean(
+            selectedWorkOrder?.delay_reason || selectedWorkOrder?.sla_exclusion_reason,
+          ),
+        });
         await supabase
           .from("work_orders")
-          .update({ status: (form.status || "Draft") === "Completed" ? "Completed" : "In Progress" })
+          .update({
+            status: (form.status || "Draft") === "Completed" ? "Completed" : "In Progress",
+            completed_at:
+              (form.status || "Draft") === "Completed"
+                ? (selectedWorkOrder?.completed_at ?? completedAt)
+                : (selectedWorkOrder?.completed_at ?? null),
+            completion_sla_status:
+              (form.status || "Draft") === "Completed"
+                ? completionStatus
+                : (selectedWorkOrder?.completion_sla_status ?? null),
+          } as any)
           .eq("id", form.work_order_id);
+        if (
+          (form.status || "Draft") === "Completed" &&
+          (form.ppm_visit_id || selectedWorkOrder?.ppm_visit_id)
+        ) {
+          await (supabase as any)
+            .from("ppm_visits")
+            .update({ status: "Completed", completed_at: completedAt, service_report_id: reportId })
+            .eq("id", form.ppm_visit_id || selectedWorkOrder?.ppm_visit_id);
+        }
         qc.invalidateQueries({ queryKey: ["work_orders"] });
+        qc.invalidateQueries({ queryKey: ["ppm_visits"] });
       }
 
       toast.success(editing ? "Work completion report updated" : "Work completion report created");
@@ -417,7 +507,10 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
   async function handleDownloadPdf() {
     setGeneratingPdf(true);
     try {
-      const { doc, fileName } = await buildServiceReportPdf(form, items, { allottedHours, usedHoursOther });
+      const { doc, fileName } = await buildServiceReportPdf(form, items, {
+        allottedHours,
+        usedHoursOther,
+      });
       const blob = doc.output("blob");
       const file = new File([blob], fileName, { type: "application/pdf" });
       const nav = navigator as Navigator & { canShare?: (data?: ShareData) => boolean };
@@ -453,21 +546,36 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Visit details</h3>
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Visit details
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="space-y-1">
                 <Label>Report No</Label>
-                <Input value={form.report_no ?? ""} readOnly className="bg-muted" placeholder="Auto-generated" />
+                <Input
+                  value={form.report_no ?? ""}
+                  readOnly
+                  className="bg-muted"
+                  placeholder="Auto-generated"
+                />
               </div>
               <div className="space-y-1">
                 <Label>Service Date</Label>
-                <Input type="date" value={form.service_date ?? ""} onChange={(e) => set("service_date", e.target.value)} />
+                <Input
+                  type="date"
+                  value={form.service_date ?? ""}
+                  onChange={(e) => set("service_date", e.target.value)}
+                />
               </div>
               <div className="space-y-1">
                 <Label>Technician</Label>
                 <Popover open={technicianOpen} onOpenChange={setTechnicianOpen}>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" role="combobox" className="w-full justify-between font-normal">
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="w-full justify-between font-normal"
+                    >
                       {form.technician_name || "Select technician..."}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -479,7 +587,13 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                         <CommandEmpty>No technician found.</CommandEmpty>
                         <CommandGroup>
                           {technicians.map((name: string) => (
-                            <CommandItem key={name} onSelect={() => { set("technician_name", name); setTechnicianOpen(false); }}>
+                            <CommandItem
+                              key={name}
+                              onSelect={() => {
+                                set("technician_name", name);
+                                setTechnicianOpen(false);
+                              }}
+                            >
                               {name}
                             </CommandItem>
                           ))}
@@ -492,20 +606,36 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
 
               <div className="space-y-1">
                 <Label>Time Checked In</Label>
-                <Input type="time" value={form.time_checked_in ?? ""} onChange={(e) => set("time_checked_in", e.target.value)} />
+                <Input
+                  type="time"
+                  value={form.time_checked_in ?? ""}
+                  onChange={(e) => set("time_checked_in", e.target.value)}
+                />
               </div>
               <div className="space-y-1">
                 <Label>Time Checked Out</Label>
-                <Input type="time" value={form.time_checked_out ?? ""} onChange={(e) => set("time_checked_out", e.target.value)} />
+                <Input
+                  type="time"
+                  value={form.time_checked_out ?? ""}
+                  onChange={(e) => set("time_checked_out", e.target.value)}
+                />
               </div>
               <div className="space-y-1 md:col-span-3">
                 <Label>Work Order</Label>
-                <Select value={form.work_order_id || undefined} onValueChange={(v) => applyWorkOrder(v)}>
-                  <SelectTrigger><SelectValue placeholder="Select work order..." /></SelectTrigger>
+                <Select
+                  value={form.work_order_id || undefined}
+                  onValueChange={(v) => applyWorkOrder(v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select work order..." />
+                  </SelectTrigger>
                   <SelectContent className="max-h-72">
                     {workOrders.map((o: any) => (
                       <SelectItem key={o.id} value={o.id}>
-                        {(o.wo_no ? `${o.wo_no} — ` : "") + (o.customer_name ?? "Customer") + (o.service_type ? ` — ${o.service_type}` : "") + ` (${o.status})`}
+                        {(o.wo_no ? `${o.wo_no} — ` : "") +
+                          (o.customer_name ?? "Customer") +
+                          (o.service_type ? ` — ${o.service_type}` : "") +
+                          ` (${o.status})`}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -514,11 +644,14 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
               <div className="space-y-1 md:col-span-2">
                 <Label>Contract</Label>
                 <Select value={form.contract_id || undefined} onValueChange={pickContract}>
-                  <SelectTrigger><SelectValue placeholder="Select contract..." /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select contract..." />
+                  </SelectTrigger>
                   <SelectContent className="max-h-72">
                     {contracts.map((c: any) => (
                       <SelectItem key={c.id} value={c.id}>
-                        {(c.contract_no ? `${c.contract_no} — ` : "") + (c.customer_name ?? c.title ?? "Untitled")}
+                        {(c.contract_no ? `${c.contract_no} — ` : "") +
+                          (c.customer_name ?? c.title ?? "Untitled")}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -526,27 +659,48 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
               </div>
               <div className="space-y-1">
                 <Label>Customer</Label>
-                <Input value={form.customer_name ?? ""} onChange={(e) => set("customer_name", e.target.value)} />
+                <Input
+                  value={form.customer_name ?? ""}
+                  onChange={(e) => set("customer_name", e.target.value)}
+                />
               </div>
               <div className="space-y-1">
                 <Label>Service Type</Label>
-                <Select value={form.service_type || undefined} onValueChange={(v) => set("service_type", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select type..." /></SelectTrigger>
+                <Select
+                  value={form.service_type || undefined}
+                  onValueChange={(v) => set("service_type", v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type..." />
+                  </SelectTrigger>
                   <SelectContent className="max-h-72">
-                    {SERVICE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                    {SERVICE_TYPES.map((t) => (
+                      <SelectItem key={t} value={t}>
+                        {t}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1">
                 <Label>Location / Unit</Label>
-                <Input value={form.location ?? ""} onChange={(e) => set("location", e.target.value)} />
+                <Input
+                  value={form.location ?? ""}
+                  onChange={(e) => set("location", e.target.value)}
+                />
               </div>
               <div className="space-y-1">
                 <Label>Status</Label>
                 <Select value={form.status || undefined} onValueChange={(v) => set("status", v)}>
-                  <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
                   <SelectContent>
-                    {REPORT_STATUS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    {REPORT_STATUS.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -555,8 +709,15 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
 
           <section className="space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Work carried out</h3>
-              <Button type="button" size="sm" variant="outline" onClick={() => setItems((a) => [...a, emptyItem()])}>
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                Work carried out
+              </h3>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setItems((a) => [...a, emptyItem()])}
+              >
                 <Plus className="h-4 w-4 mr-1" /> Add work item
               </Button>
             </div>
@@ -567,7 +728,9 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                 return (
                   <Card key={idx} className="p-3 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-muted-foreground">Item {idx + 1}</span>
+                      <span className="text-xs font-medium text-muted-foreground">
+                        Item {idx + 1}
+                      </span>
                       {items.length > 1 && (
                         <Button
                           type="button"
@@ -582,26 +745,52 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <Label>Problem Reported</Label>
-                        <Textarea rows={3} value={it.problem} onChange={(e) => upd("problem", e.target.value)} />
+                        <Textarea
+                          rows={3}
+                          value={it.problem}
+                          onChange={(e) => upd("problem", e.target.value)}
+                        />
                       </div>
                       <div className="space-y-1">
                         <Label>Work Done</Label>
-                        <Textarea rows={3} value={it.work} onChange={(e) => upd("work", e.target.value)} />
+                        <Textarea
+                          rows={3}
+                          value={it.work}
+                          onChange={(e) => upd("work", e.target.value)}
+                        />
                       </div>
                       <div className="space-y-1">
                         <Label>Parts Used</Label>
-                        <Textarea rows={2} value={it.parts} onChange={(e) => upd("parts", e.target.value)} />
+                        <Textarea
+                          rows={2}
+                          value={it.parts}
+                          onChange={(e) => upd("parts", e.target.value)}
+                        />
                       </div>
                       <div className="space-y-1">
                         <Label>Hours Spent</Label>
-                        <Input type="number" step="0.25" value={it.hours} onChange={(e) => upd("hours", e.target.value)} />
+                        <Input
+                          type="number"
+                          step="0.25"
+                          value={it.hours}
+                          onChange={(e) => upd("hours", e.target.value)}
+                        />
                       </div>
                       <div className="space-y-1">
                         <Label>Status</Label>
-                        <Select value={it.status || undefined} onValueChange={(v) => upd("status", v)}>
-                          <SelectTrigger><SelectValue placeholder="Select status..." /></SelectTrigger>
+                        <Select
+                          value={it.status || undefined}
+                          onValueChange={(v) => upd("status", v)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status..." />
+                          </SelectTrigger>
                           <SelectContent>
-                            {WORK_ITEM_STATUS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                            {WORK_ITEM_STATUS.map((s) => (
+                              <SelectItem key={s} value={s}>
+                                {s}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -635,14 +824,22 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                         Contract balance {allottedHours} h ·{" "}
                         <span className="font-medium">{allottedHours - usedHoursOther} h left</span>
                       </div>
-                      <div className={remainingHours < 0 ? "font-semibold text-destructive" : "font-semibold text-emerald-600"}>
+                      <div
+                        className={
+                          remainingHours < 0
+                            ? "font-semibold text-destructive"
+                            : "font-semibold text-emerald-600"
+                        }
+                      >
                         {remainingHours < 0
                           ? `Exceeds balance by ${Math.abs(remainingHours)} h`
                           : `Balance after this report: ${remainingHours} h`}
                       </div>
                     </div>
                   ) : (
-                    <p className="text-xs text-muted-foreground">Select a contract to deduct hours from its balance.</p>
+                    <p className="text-xs text-muted-foreground">
+                      Select a contract to deduct hours from its balance.
+                    </p>
                   )}
                 </div>
               </div>
@@ -653,10 +850,19 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="space-y-1">
                   <Label>Material Used - Supplied By</Label>
-                  <Select value={form.material_supplied_by || undefined} onValueChange={(v) => set("material_supplied_by", v)}>
-                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <Select
+                    value={form.material_supplied_by || undefined}
+                    onValueChange={(v) => set("material_supplied_by", v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
                     <SelectContent>
-                      {MATERIAL_SUPPLIED_BY.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                      {MATERIAL_SUPPLIED_BY.map((m) => (
+                        <SelectItem key={m} value={m}>
+                          {m}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -684,14 +890,19 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                 </div>
               </div>
             </Card>
-
           </section>
-
 
           <section className="space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Before / After photos</h3>
-              <Button type="button" size="sm" variant="outline" onClick={() => setPairs((p) => [...p, { caption: "" }])}>
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                Before / After photos
+              </h3>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setPairs((p) => [...p, { caption: "" }])}
+              >
                 <Plus className="h-4 w-4 mr-1" /> Add pair
               </Button>
             </div>
@@ -707,7 +918,9 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                         placeholder="Caption (e.g. AC indoor unit — living room)"
                         value={p.caption ?? ""}
                         onChange={(e) =>
-                          setPairs((arr) => arr.map((x, i) => (i === idx ? { ...x, caption: e.target.value } : x)))
+                          setPairs((arr) =>
+                            arr.map((x, i) => (i === idx ? { ...x, caption: e.target.value } : x)),
+                          )
                         }
                       />
                       <Button
@@ -734,9 +947,15 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                             <Label className="capitalize">{side}</Label>
                             <div className="rounded-md border border-dashed p-3 text-center space-y-2">
                               {file ? (
-                                <img src={URL.createObjectURL(file)} alt={`${side}`} className="mx-auto h-28 object-contain rounded" />
+                                <img
+                                  src={URL.createObjectURL(file)}
+                                  alt={`${side}`}
+                                  className="mx-auto h-28 object-contain rounded"
+                                />
                               ) : path ? (
-                                <p className="text-xs text-muted-foreground truncate">Saved image</p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                  Saved image
+                                </p>
                               ) : (
                                 <ImagePlus className="h-6 w-6 mx-auto text-muted-foreground" />
                               )}
@@ -749,7 +968,12 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                                   if (!f) return;
                                   setPairs((arr) =>
                                     arr.map((x, i) =>
-                                      i === idx ? { ...x, [side === "before" ? "beforeFile" : "afterFile"]: f } : x,
+                                      i === idx
+                                        ? {
+                                            ...x,
+                                            [side === "before" ? "beforeFile" : "afterFile"]: f,
+                                          }
+                                        : x,
                                     ),
                                   );
                                 }}
@@ -766,20 +990,33 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
           </section>
 
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Next visit &amp; sign-off</h3>
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Next visit &amp; sign-off
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label>Recommendations</Label>
-                <Textarea rows={3} value={form.recommendations ?? ""} onChange={(e) => set("recommendations", e.target.value)} />
+                <Textarea
+                  rows={3}
+                  value={form.recommendations ?? ""}
+                  onChange={(e) => set("recommendations", e.target.value)}
+                />
               </div>
               <div className="space-y-3">
                 <div className="space-y-1">
                   <Label>Next Service Due</Label>
-                  <Input type="date" value={form.next_service_date ?? ""} onChange={(e) => set("next_service_date", e.target.value)} />
+                  <Input
+                    type="date"
+                    value={form.next_service_date ?? ""}
+                    onChange={(e) => set("next_service_date", e.target.value)}
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label>Signed By (customer)</Label>
-                  <Input value={form.signed_by ?? ""} onChange={(e) => set("signed_by", e.target.value)} />
+                  <Input
+                    value={form.signed_by ?? ""}
+                    onChange={(e) => set("signed_by", e.target.value)}
+                  />
                 </div>
               </div>
             </div>
@@ -794,7 +1031,12 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                         key={n}
                         type="button"
                         aria-label={`${n} star`}
-                        onClick={() => set("google_rating", String(form.google_rating) === String(n) ? "" : String(n))}
+                        onClick={() =>
+                          set(
+                            "google_rating",
+                            String(form.google_rating) === String(n) ? "" : String(n),
+                          )
+                        }
                         className="p-1"
                       >
                         <Star
@@ -818,16 +1060,29 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
                 </div>
               </div>
             </div>
-            <SignaturePad value={form.signature_data} onChange={(v) => set("signature_data", v ?? "")} />
-
+            <SignaturePad
+              value={form.signature_data}
+              onChange={(v) => set("signature_data", v ?? "")}
+            />
           </section>
 
           <DialogFooter>
-            <Button type="button" variant="secondary" onClick={handleDownloadPdf} disabled={generatingPdf}>
-              {generatingPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileDown className="h-4 w-4 mr-2" />}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleDownloadPdf}
+              disabled={generatingPdf}
+            >
+              {generatingPdf ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <FileDown className="h-4 w-4 mr-2" />
+              )}
               Download PDF
             </Button>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={saving || generatingPdf}>
               {(saving || generatingPdf) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {editing ? "Update Report" : "Create Completion Report"}
@@ -836,14 +1091,17 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
         </form>
       </DialogContent>
 
-      <Dialog open={Boolean(preview)} onOpenChange={(v) => { if (!v) closePreview(); }}>
+      <Dialog
+        open={Boolean(preview)}
+        onOpenChange={(v) => {
+          if (!v) closePreview();
+        }}
+      >
         <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>Review report before saving</DialogTitle>
           </DialogHeader>
-          {preview && (
-            <PdfPreview blob={preview.blob} className="max-h-[60vh] overflow-y-auto" />
-          )}
+          {preview && <PdfPreview blob={preview.blob} className="max-h-[60vh] overflow-y-auto" />}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={closePreview} disabled={saving}>
               Back to edit
