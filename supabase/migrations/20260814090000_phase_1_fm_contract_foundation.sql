@@ -1,7 +1,7 @@
 -- Phase 1: Facilities Management / Building AMC contract foundation
 -- Additive only: do not remove or alter existing home AMC columns or JSON schedules.
 
-CREATE TABLE public.service_categories (
+CREATE TABLE IF NOT EXISTS public.service_categories (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   code text,
   name text NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE public.service_categories (
   UNIQUE (code)
 );
 
-CREATE TABLE public.sla_policies (
+CREATE TABLE IF NOT EXISTS public.sla_policies (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
   description text,
@@ -42,7 +42,7 @@ ALTER TABLE public.contracts
   ADD COLUMN IF NOT EXISTS vat_percent numeric,
   ADD COLUMN IF NOT EXISTS sla_profile_id uuid REFERENCES public.sla_policies(id) ON DELETE SET NULL;
 
-CREATE TABLE public.contract_line_items (
+CREATE TABLE IF NOT EXISTS public.contract_line_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   contract_id uuid NOT NULL REFERENCES public.contracts(id) ON DELETE CASCADE,
   service_category_id uuid REFERENCES public.service_categories(id) ON DELETE SET NULL,
@@ -61,7 +61,7 @@ CREATE TABLE public.contract_line_items (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE public.contract_assets (
+CREATE TABLE IF NOT EXISTS public.contract_assets (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   contract_id uuid NOT NULL REFERENCES public.contracts(id) ON DELETE CASCADE,
   service_category_id uuid REFERENCES public.service_categories(id) ON DELETE SET NULL,
@@ -82,7 +82,7 @@ CREATE TABLE public.contract_assets (
   UNIQUE (contract_id, asset_tag)
 );
 
-CREATE TABLE public.ppm_schedules (
+CREATE TABLE IF NOT EXISTS public.ppm_schedules (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   contract_id uuid NOT NULL REFERENCES public.contracts(id) ON DELETE CASCADE,
   contract_line_item_id uuid REFERENCES public.contract_line_items(id) ON DELETE SET NULL,
@@ -99,7 +99,7 @@ CREATE TABLE public.ppm_schedules (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE public.ppm_visits (
+CREATE TABLE IF NOT EXISTS public.ppm_visits (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   ppm_schedule_id uuid REFERENCES public.ppm_schedules(id) ON DELETE CASCADE,
   contract_id uuid NOT NULL REFERENCES public.contracts(id) ON DELETE CASCADE,
@@ -117,7 +117,7 @@ CREATE TABLE public.ppm_visits (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE public.contract_manpower_plans (
+CREATE TABLE IF NOT EXISTS public.contract_manpower_plans (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   contract_id uuid NOT NULL REFERENCES public.contracts(id) ON DELETE CASCADE,
   role_name text NOT NULL,
@@ -132,7 +132,7 @@ CREATE TABLE public.contract_manpower_plans (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE public.contract_manpower_assignments (
+CREATE TABLE IF NOT EXISTS public.contract_manpower_assignments (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   contract_id uuid NOT NULL REFERENCES public.contracts(id) ON DELETE CASCADE,
   manpower_plan_id uuid REFERENCES public.contract_manpower_plans(id) ON DELETE SET NULL,
@@ -148,7 +148,7 @@ CREATE TABLE public.contract_manpower_assignments (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE public.attendance_logs (
+CREATE TABLE IF NOT EXISTS public.attendance_logs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   contract_id uuid REFERENCES public.contracts(id) ON DELETE CASCADE,
   employee_id uuid REFERENCES public.employees(id) ON DELETE SET NULL,
@@ -164,7 +164,7 @@ CREATE TABLE public.attendance_logs (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE public.sla_events (
+CREATE TABLE IF NOT EXISTS public.sla_events (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   work_order_id uuid REFERENCES public.work_orders(id) ON DELETE CASCADE,
   contract_id uuid REFERENCES public.contracts(id) ON DELETE CASCADE,
@@ -206,7 +206,7 @@ ALTER TABLE public.service_reports
   ADD COLUMN IF NOT EXISTS defects_found text,
   ADD COLUMN IF NOT EXISTS follow_up_required boolean;
 
-CREATE TABLE public.reporting_periods (
+CREATE TABLE IF NOT EXISTS public.reporting_periods (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   contract_id uuid REFERENCES public.contracts(id) ON DELETE CASCADE,
   period_type text NOT NULL,
@@ -219,7 +219,7 @@ CREATE TABLE public.reporting_periods (
   UNIQUE (contract_id, period_type, period_start, period_end)
 );
 
-CREATE TABLE public.weekly_reports (
+CREATE TABLE IF NOT EXISTS public.weekly_reports (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   contract_id uuid NOT NULL REFERENCES public.contracts(id) ON DELETE CASCADE,
   reporting_period_id uuid REFERENCES public.reporting_periods(id) ON DELETE SET NULL,
@@ -237,7 +237,7 @@ CREATE TABLE public.weekly_reports (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE public.monthly_reports (
+CREATE TABLE IF NOT EXISTS public.monthly_reports (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   contract_id uuid NOT NULL REFERENCES public.contracts(id) ON DELETE CASCADE,
   reporting_period_id uuid REFERENCES public.reporting_periods(id) ON DELETE SET NULL,
@@ -255,7 +255,7 @@ CREATE TABLE public.monthly_reports (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE public.invoice_packs (
+CREATE TABLE IF NOT EXISTS public.invoice_packs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   contract_id uuid NOT NULL REFERENCES public.contracts(id) ON DELETE CASCADE,
   reporting_period_id uuid REFERENCES public.reporting_periods(id) ON DELETE SET NULL,
@@ -275,7 +275,7 @@ CREATE TABLE public.invoice_packs (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE public.invoice_pack_items (
+CREATE TABLE IF NOT EXISTS public.invoice_pack_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   invoice_pack_id uuid NOT NULL REFERENCES public.invoice_packs(id) ON DELETE CASCADE,
   contract_line_item_id uuid REFERENCES public.contract_line_items(id) ON DELETE SET NULL,
@@ -290,29 +290,29 @@ CREATE TABLE public.invoice_pack_items (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_service_categories_active ON public.service_categories(active);
-CREATE INDEX idx_contract_line_items_contract ON public.contract_line_items(contract_id);
-CREATE INDEX idx_contract_line_items_category ON public.contract_line_items(service_category_id);
-CREATE INDEX idx_contract_assets_contract ON public.contract_assets(contract_id);
-CREATE INDEX idx_contract_assets_category ON public.contract_assets(service_category_id);
-CREATE INDEX idx_ppm_schedules_contract ON public.ppm_schedules(contract_id);
-CREATE INDEX idx_ppm_visits_contract_date ON public.ppm_visits(contract_id, planned_date);
-CREATE INDEX idx_ppm_visits_status ON public.ppm_visits(status);
-CREATE INDEX idx_manpower_plans_contract ON public.contract_manpower_plans(contract_id);
-CREATE INDEX idx_manpower_assignments_contract ON public.contract_manpower_assignments(contract_id);
-CREATE INDEX idx_attendance_logs_contract_date ON public.attendance_logs(contract_id, attendance_date);
-CREATE INDEX idx_sla_events_work_order ON public.sla_events(work_order_id);
-CREATE INDEX idx_reporting_periods_contract ON public.reporting_periods(contract_id, period_start, period_end);
-CREATE INDEX idx_weekly_reports_contract_week ON public.weekly_reports(contract_id, week_start, week_end);
-CREATE INDEX idx_monthly_reports_contract_month ON public.monthly_reports(contract_id, month_start, month_end);
-CREATE INDEX idx_invoice_packs_contract_period ON public.invoice_packs(contract_id, period_start, period_end);
-CREATE INDEX idx_invoice_pack_items_pack ON public.invoice_pack_items(invoice_pack_id);
-CREATE INDEX idx_work_orders_fm_asset ON public.work_orders(asset_id);
-CREATE INDEX idx_work_orders_fm_ppm_visit ON public.work_orders(ppm_visit_id);
-CREATE INDEX idx_work_orders_fm_category ON public.work_orders(service_category_id);
-CREATE INDEX idx_service_reports_fm_asset ON public.service_reports(asset_id);
-CREATE INDEX idx_service_reports_fm_ppm_visit ON public.service_reports(ppm_visit_id);
-CREATE INDEX idx_service_reports_fm_category ON public.service_reports(service_category_id);
+CREATE INDEX IF NOT EXISTS idx_service_categories_active ON public.service_categories(active);
+CREATE INDEX IF NOT EXISTS idx_contract_line_items_contract ON public.contract_line_items(contract_id);
+CREATE INDEX IF NOT EXISTS idx_contract_line_items_category ON public.contract_line_items(service_category_id);
+CREATE INDEX IF NOT EXISTS idx_contract_assets_contract ON public.contract_assets(contract_id);
+CREATE INDEX IF NOT EXISTS idx_contract_assets_category ON public.contract_assets(service_category_id);
+CREATE INDEX IF NOT EXISTS idx_ppm_schedules_contract ON public.ppm_schedules(contract_id);
+CREATE INDEX IF NOT EXISTS idx_ppm_visits_contract_date ON public.ppm_visits(contract_id, planned_date);
+CREATE INDEX IF NOT EXISTS idx_ppm_visits_status ON public.ppm_visits(status);
+CREATE INDEX IF NOT EXISTS idx_manpower_plans_contract ON public.contract_manpower_plans(contract_id);
+CREATE INDEX IF NOT EXISTS idx_manpower_assignments_contract ON public.contract_manpower_assignments(contract_id);
+CREATE INDEX IF NOT EXISTS idx_attendance_logs_contract_date ON public.attendance_logs(contract_id, attendance_date);
+CREATE INDEX IF NOT EXISTS idx_sla_events_work_order ON public.sla_events(work_order_id);
+CREATE INDEX IF NOT EXISTS idx_reporting_periods_contract ON public.reporting_periods(contract_id, period_start, period_end);
+CREATE INDEX IF NOT EXISTS idx_weekly_reports_contract_week ON public.weekly_reports(contract_id, week_start, week_end);
+CREATE INDEX IF NOT EXISTS idx_monthly_reports_contract_month ON public.monthly_reports(contract_id, month_start, month_end);
+CREATE INDEX IF NOT EXISTS idx_invoice_packs_contract_period ON public.invoice_packs(contract_id, period_start, period_end);
+CREATE INDEX IF NOT EXISTS idx_invoice_pack_items_pack ON public.invoice_pack_items(invoice_pack_id);
+CREATE INDEX IF NOT EXISTS idx_work_orders_fm_asset ON public.work_orders(asset_id);
+CREATE INDEX IF NOT EXISTS idx_work_orders_fm_ppm_visit ON public.work_orders(ppm_visit_id);
+CREATE INDEX IF NOT EXISTS idx_work_orders_fm_category ON public.work_orders(service_category_id);
+CREATE INDEX IF NOT EXISTS idx_service_reports_fm_asset ON public.service_reports(asset_id);
+CREATE INDEX IF NOT EXISTS idx_service_reports_fm_ppm_visit ON public.service_reports(ppm_visit_id);
+CREATE INDEX IF NOT EXISTS idx_service_reports_fm_category ON public.service_reports(service_category_id);
 
 DO $$
 DECLARE t text;
@@ -338,6 +338,10 @@ BEGIN
     EXECUTE format('GRANT ALL ON public.%I TO service_role', t);
     EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
 
+    EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', t || '_select', t);
+    EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', t || '_insert', t);
+    EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', t || '_update', t);
+    EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', t || '_delete', t);
     EXECUTE format('CREATE POLICY %I ON public.%I FOR SELECT TO authenticated USING (app_private.can(auth.uid(), %L, ''view''))', t || '_select', t, 'contracts');
     EXECUTE format('CREATE POLICY %I ON public.%I FOR INSERT TO authenticated WITH CHECK (app_private.can(auth.uid(), %L, ''add''))', t || '_insert', t, 'contracts');
     EXECUTE format('CREATE POLICY %I ON public.%I FOR UPDATE TO authenticated USING (app_private.can(auth.uid(), %L, ''edit'')) WITH CHECK (app_private.can(auth.uid(), %L, ''edit''))', t || '_update', t, 'contracts', 'contracts');
@@ -363,6 +367,7 @@ BEGIN
     'monthly_reports',
     'invoice_packs'
   ] LOOP
+    EXECUTE format('DROP TRIGGER IF EXISTS %I ON public.%I', t || '_updated_at', t);
     EXECUTE format('CREATE TRIGGER %I BEFORE UPDATE ON public.%I FOR EACH ROW EXECUTE FUNCTION public.set_updated_at()', t || '_updated_at', t);
   END LOOP;
 END $$;
@@ -387,6 +392,7 @@ BEGIN
     'invoice_packs',
     'invoice_pack_items'
   ] LOOP
+    EXECUTE format('DROP TRIGGER IF EXISTS audit_%I ON public.%I', t, t);
     EXECUTE format('CREATE TRIGGER audit_%I AFTER INSERT OR UPDATE OR DELETE ON public.%I FOR EACH ROW EXECUTE FUNCTION public.log_audit_event()', t, t);
   END LOOP;
 END $$;
