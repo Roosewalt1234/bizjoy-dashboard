@@ -16,6 +16,7 @@ import { Route as AuthenticatedWorkOrdersRouteImport } from './routes/_authentic
 import { Route as AuthenticatedServiceRouteImport } from './routes/_authenticated/service'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
+import { Route as AuthenticatedProjectReportsRouteImport } from './routes/_authenticated/project-reports'
 import { Route as AuthenticatedPermissionsRouteImport } from './routes/_authenticated/permissions'
 import { Route as AuthenticatedMepSchedulesRouteImport } from './routes/_authenticated/mep-schedules'
 import { Route as AuthenticatedHrRouteImport } from './routes/_authenticated/hr'
@@ -63,6 +64,12 @@ const AuthenticatedProjectsRoute = AuthenticatedProjectsRouteImport.update({
   path: '/projects',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProjectReportsRoute =
+  AuthenticatedProjectReportsRouteImport.update({
+    id: '/project-reports',
+    path: '/project-reports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPermissionsRoute =
   AuthenticatedPermissionsRouteImport.update({
     id: '/permissions',
@@ -142,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/hr': typeof AuthenticatedHrRoute
   '/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/permissions': typeof AuthenticatedPermissionsRoute
+  '/project-reports': typeof AuthenticatedProjectReportsRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/service': typeof AuthenticatedServiceRoute
@@ -161,6 +169,7 @@ export interface FileRoutesByTo {
   '/hr': typeof AuthenticatedHrRoute
   '/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/permissions': typeof AuthenticatedPermissionsRoute
+  '/project-reports': typeof AuthenticatedProjectReportsRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/service': typeof AuthenticatedServiceRoute
@@ -183,6 +192,7 @@ export interface FileRoutesById {
   '/_authenticated/hr': typeof AuthenticatedHrRoute
   '/_authenticated/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/_authenticated/permissions': typeof AuthenticatedPermissionsRoute
+  '/_authenticated/project-reports': typeof AuthenticatedProjectReportsRoute
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/_authenticated/service': typeof AuthenticatedServiceRoute
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/hr'
     | '/mep-schedules'
     | '/permissions'
+    | '/project-reports'
     | '/projects'
     | '/sales'
     | '/service'
@@ -225,6 +236,7 @@ export interface FileRouteTypes {
     | '/hr'
     | '/mep-schedules'
     | '/permissions'
+    | '/project-reports'
     | '/projects'
     | '/sales'
     | '/service'
@@ -246,6 +258,7 @@ export interface FileRouteTypes {
     | '/_authenticated/hr'
     | '/_authenticated/mep-schedules'
     | '/_authenticated/permissions'
+    | '/_authenticated/project-reports'
     | '/_authenticated/projects'
     | '/_authenticated/sales'
     | '/_authenticated/service'
@@ -311,6 +324,13 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/projects'
       preLoaderRoute: typeof AuthenticatedProjectsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/project-reports': {
+      id: '/_authenticated/project-reports'
+      path: '/project-reports'
+      fullPath: '/project-reports'
+      preLoaderRoute: typeof AuthenticatedProjectReportsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/permissions': {
@@ -423,6 +443,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHrRoute: typeof AuthenticatedHrRoute
   AuthenticatedMepSchedulesRoute: typeof AuthenticatedMepSchedulesRoute
   AuthenticatedPermissionsRoute: typeof AuthenticatedPermissionsRoute
+  AuthenticatedProjectReportsRoute: typeof AuthenticatedProjectReportsRoute
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedServiceRoute: typeof AuthenticatedServiceRoute
@@ -442,6 +463,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHrRoute: AuthenticatedHrRoute,
   AuthenticatedMepSchedulesRoute: AuthenticatedMepSchedulesRoute,
   AuthenticatedPermissionsRoute: AuthenticatedPermissionsRoute,
+  AuthenticatedProjectReportsRoute: AuthenticatedProjectReportsRoute,
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedServiceRoute: AuthenticatedServiceRoute,
