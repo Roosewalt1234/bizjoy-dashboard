@@ -17,9 +17,12 @@ import { Route as AuthenticatedServiceRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
 import { Route as AuthenticatedPermissionsRouteImport } from './routes/_authenticated/permissions'
+import { Route as AuthenticatedMepSchedulesRouteImport } from './routes/_authenticated/mep-schedules'
 import { Route as AuthenticatedHrRouteImport } from './routes/_authenticated/hr'
 import { Route as AuthenticatedContractsRouteImport } from './routes/_authenticated/contracts'
+import { Route as AuthenticatedCleaningSchedulesRouteImport } from './routes/_authenticated/cleaning-schedules'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
+import { Route as AuthenticatedAssetsRouteImport } from './routes/_authenticated/assets'
 import { Route as AuthenticatedAccountsRouteImport } from './routes/_authenticated/accounts'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers.index'
 import { Route as AuthenticatedCustomersNewRouteImport } from './routes/_authenticated/customers.new'
@@ -66,6 +69,12 @@ const AuthenticatedPermissionsRoute =
     path: '/permissions',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMepSchedulesRoute =
+  AuthenticatedMepSchedulesRouteImport.update({
+    id: '/mep-schedules',
+    path: '/mep-schedules',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedHrRoute = AuthenticatedHrRouteImport.update({
   id: '/hr',
   path: '/hr',
@@ -76,9 +85,20 @@ const AuthenticatedContractsRoute = AuthenticatedContractsRouteImport.update({
   path: '/contracts',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCleaningSchedulesRoute =
+  AuthenticatedCleaningSchedulesRouteImport.update({
+    id: '/cleaning-schedules',
+    path: '/cleaning-schedules',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAssetsRoute = AuthenticatedAssetsRouteImport.update({
+  id: '/assets',
+  path: '/assets',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAccountsRoute = AuthenticatedAccountsRouteImport.update({
@@ -115,9 +135,12 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/accounts': typeof AuthenticatedAccountsRoute
+  '/assets': typeof AuthenticatedAssetsRoute
   '/audit': typeof AuthenticatedAuditRoute
+  '/cleaning-schedules': typeof AuthenticatedCleaningSchedulesRoute
   '/contracts': typeof AuthenticatedContractsRoute
   '/hr': typeof AuthenticatedHrRoute
+  '/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/permissions': typeof AuthenticatedPermissionsRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/sales': typeof AuthenticatedSalesRoute
@@ -131,9 +154,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/accounts': typeof AuthenticatedAccountsRoute
+  '/assets': typeof AuthenticatedAssetsRoute
   '/audit': typeof AuthenticatedAuditRoute
+  '/cleaning-schedules': typeof AuthenticatedCleaningSchedulesRoute
   '/contracts': typeof AuthenticatedContractsRoute
   '/hr': typeof AuthenticatedHrRoute
+  '/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/permissions': typeof AuthenticatedPermissionsRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/sales': typeof AuthenticatedSalesRoute
@@ -150,9 +176,12 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/accounts': typeof AuthenticatedAccountsRoute
+  '/_authenticated/assets': typeof AuthenticatedAssetsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
+  '/_authenticated/cleaning-schedules': typeof AuthenticatedCleaningSchedulesRoute
   '/_authenticated/contracts': typeof AuthenticatedContractsRoute
   '/_authenticated/hr': typeof AuthenticatedHrRoute
+  '/_authenticated/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/_authenticated/permissions': typeof AuthenticatedPermissionsRoute
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
@@ -170,9 +199,12 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/accounts'
+    | '/assets'
     | '/audit'
+    | '/cleaning-schedules'
     | '/contracts'
     | '/hr'
+    | '/mep-schedules'
     | '/permissions'
     | '/projects'
     | '/sales'
@@ -186,9 +218,12 @@ export interface FileRouteTypes {
   to:
     | '/auth'
     | '/accounts'
+    | '/assets'
     | '/audit'
+    | '/cleaning-schedules'
     | '/contracts'
     | '/hr'
+    | '/mep-schedules'
     | '/permissions'
     | '/projects'
     | '/sales'
@@ -204,9 +239,12 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/accounts'
+    | '/_authenticated/assets'
     | '/_authenticated/audit'
+    | '/_authenticated/cleaning-schedules'
     | '/_authenticated/contracts'
     | '/_authenticated/hr'
+    | '/_authenticated/mep-schedules'
     | '/_authenticated/permissions'
     | '/_authenticated/projects'
     | '/_authenticated/sales'
@@ -282,6 +320,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPermissionsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/mep-schedules': {
+      id: '/_authenticated/mep-schedules'
+      path: '/mep-schedules'
+      fullPath: '/mep-schedules'
+      preLoaderRoute: typeof AuthenticatedMepSchedulesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/hr': {
       id: '/_authenticated/hr'
       path: '/hr'
@@ -296,11 +341,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedContractsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/cleaning-schedules': {
+      id: '/_authenticated/cleaning-schedules'
+      path: '/cleaning-schedules'
+      fullPath: '/cleaning-schedules'
+      preLoaderRoute: typeof AuthenticatedCleaningSchedulesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/audit': {
       id: '/_authenticated/audit'
       path: '/audit'
       fullPath: '/audit'
       preLoaderRoute: typeof AuthenticatedAuditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/assets': {
+      id: '/_authenticated/assets'
+      path: '/assets'
+      fullPath: '/assets'
+      preLoaderRoute: typeof AuthenticatedAssetsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/accounts': {
@@ -357,9 +416,12 @@ const AuthenticatedCustomersIdRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountsRoute: typeof AuthenticatedAccountsRoute
+  AuthenticatedAssetsRoute: typeof AuthenticatedAssetsRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
+  AuthenticatedCleaningSchedulesRoute: typeof AuthenticatedCleaningSchedulesRoute
   AuthenticatedContractsRoute: typeof AuthenticatedContractsRoute
   AuthenticatedHrRoute: typeof AuthenticatedHrRoute
+  AuthenticatedMepSchedulesRoute: typeof AuthenticatedMepSchedulesRoute
   AuthenticatedPermissionsRoute: typeof AuthenticatedPermissionsRoute
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
@@ -373,9 +435,12 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountsRoute: AuthenticatedAccountsRoute,
+  AuthenticatedAssetsRoute: AuthenticatedAssetsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
+  AuthenticatedCleaningSchedulesRoute: AuthenticatedCleaningSchedulesRoute,
   AuthenticatedContractsRoute: AuthenticatedContractsRoute,
   AuthenticatedHrRoute: AuthenticatedHrRoute,
+  AuthenticatedMepSchedulesRoute: AuthenticatedMepSchedulesRoute,
   AuthenticatedPermissionsRoute: AuthenticatedPermissionsRoute,
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,

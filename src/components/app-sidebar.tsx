@@ -62,7 +62,19 @@ const items: NavItem[] = [
       { title: "Work Completion Reports", url: "/service", module: "service" },
     ],
   },
-  { title: "Projects", url: "/projects", icon: FolderKanban, module: "projects" },
+  {
+    title: "Projects",
+    url: "/projects",
+    icon: FolderKanban,
+    module: "projects",
+    children: [
+      { title: "Projects", url: "/projects", module: "projects" },
+      { title: "Assets", url: "/assets", module: "projects" },
+      { title: "MEP Schedules", url: "/mep-schedules", module: "projects" },
+      { title: "Cleaning Schedules", url: "/cleaning-schedules", module: "projects" },
+      { title: "Work Order", url: "/work-orders", module: "service" },
+    ],
+  },
   { title: "Audit Log", url: "/audit", icon: History, adminOnly: true },
   { title: "User Permissions", url: "/permissions", icon: Shield, adminOnly: true },
 ];
