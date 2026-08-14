@@ -13,6 +13,7 @@ import {
   Shield,
   ChevronRight,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -39,7 +40,7 @@ import { usePermissions } from "@/hooks/use-permissions";
 type NavItem = {
   title: string;
   url: string;
-  icon: any;
+  icon: LucideIcon;
   module?: string;
   adminOnly?: boolean;
   children?: { title: string; url: string; module?: string }[];
@@ -92,8 +93,6 @@ const items: NavItem[] = [
   { title: "User Permissions", url: "/permissions", icon: Shield, adminOnly: true },
 ];
 
-
-
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
@@ -121,8 +120,7 @@ export function AppSidebar() {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
   }, []);
 
-  const isActive = (url: string) =>
-    url === "/" ? pathname === "/" : pathname.startsWith(url);
+  const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
 
   const handleSignOut = async () => {
     await queryClient.cancelQueries();
@@ -136,7 +134,11 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="px-4 py-4">
         <div className="flex items-center gap-2">
-          <img src={logoAsset.url} alt="Fiz Fix ERP" className="h-16 w-16 rounded-md object-contain bg-white" />
+          <img
+            src={logoAsset.url}
+            alt="Fiz Fix ERP"
+            className="h-16 w-16 rounded-md object-contain bg-white"
+          />
           <span className="text-sidebar-foreground font-semibold text-lg group-data-[collapsible=icon]:hidden">
             Fiz Fix ERP
           </span>
@@ -148,7 +150,9 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {visibleItems.map((item) => {
-                const kids = (item.children ?? []).filter((c) => !c.module || can(c.module, "view"));
+                const kids = (item.children ?? []).filter(
+                  (c) => !c.module || can(c.module, "view"),
+                );
 
                 if (kids.length === 0) {
                   return (
@@ -192,7 +196,10 @@ export function AppSidebar() {
                         <SidebarMenuSub>
                           {kids.map((child) => (
                             <SidebarMenuSubItem key={child.url}>
-                              <SidebarMenuSubButton asChild isActive={pathname.startsWith(child.url)}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={pathname.startsWith(child.url)}
+                              >
                                 <Link to={child.url}>{child.title}</Link>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
