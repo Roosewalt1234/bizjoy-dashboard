@@ -1225,6 +1225,8 @@ function ContractDialog({
               </div>
             </div>
           </Card>
+          )}
+
 
 
           {/* Quotes for customer */}
