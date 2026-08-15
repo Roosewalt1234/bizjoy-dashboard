@@ -403,7 +403,7 @@ function ContractMonthlyReportsPage() {
                         <Badge variant="outline">{invoicePack.status}</Badge>
                       ) : (
                         <Button size="sm" variant="outline" asChild>
-                          <Link to="/contract-invoice-packs">Create Invoice Pack</Link>
+                          <Link to="/fm-invoice-packs">Create Invoice Pack</Link>
                         </Button>
                       )}
                     </TableCell>

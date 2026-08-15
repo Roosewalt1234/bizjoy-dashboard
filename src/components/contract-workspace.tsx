@@ -443,10 +443,10 @@ export function ContractWorkspace({ id, moduleType = "AMC" }: { id: string; modu
           <Card className="p-4">
             <div className="flex flex-wrap gap-2">
               <Button asChild>
-                <Link to="/contract-weekly-reports">Weekly Reports</Link>
+                <Link to="/fm-weekly-reports">Weekly Reports</Link>
               </Button>
               <Button asChild variant="outline">
-                <Link to="/contract-monthly-reports">Monthly Reports</Link>
+                <Link to="/fm-monthly-reports">Monthly Reports</Link>
               </Button>
             </div>
           </Card>
@@ -543,7 +543,7 @@ export function ContractWorkspace({ id, moduleType = "AMC" }: { id: string; modu
                 </div>
               </div>
               <Button asChild>
-                <Link to="/contract-invoice-packs">Invoice Packs</Link>
+                <Link to="/fm-invoice-packs">Invoice Packs</Link>
               </Button>
             </div>
           </Card>

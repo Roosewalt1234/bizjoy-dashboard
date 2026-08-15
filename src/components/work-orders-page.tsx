@@ -472,7 +472,7 @@ export function WorkOrdersPage({ moduleType = "AMC" }: { moduleType?: ModuleType
                           size="icon"
                           variant="ghost"
                           title="Create work completion report"
-                          onClick={() => navigate({ to: "/service", search: { wo: r.id } as any })}
+                          onClick={() => navigate({ to: "/amc-service-reports", search: { wo: r.id } as any })}
                         >
                           <ClipboardCheck className="h-4 w-4" />
                         </Button>

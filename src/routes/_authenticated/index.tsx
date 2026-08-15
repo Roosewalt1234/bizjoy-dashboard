@@ -590,7 +590,7 @@ function Dashboard() {
           <StatCard title="Sales Orders" count={sales.data} icon={ShoppingCart} to="/sales" color="bg-emerald-600" />
           <StatCard title="Employees" count={hr.data} icon={UserCog} to="/hr" color="bg-purple-600" />
           <StatCard title="Transactions" count={accounts.data} icon={Wallet} to="/accounts" color="bg-amber-600" />
-          <StatCard title="Contracts" count={contracts.data} icon={FileText} to="/contracts" color="bg-rose-600" />
+          <StatCard title="Contracts" count={contracts.data} icon={FileText} to="/amc-contracts" color="bg-rose-600" />
           <StatCard title="Projects" count={projects.data} icon={FolderKanban} to="/projects" color="bg-cyan-600" />
         </div>
         <FinancialSummaryCards />
