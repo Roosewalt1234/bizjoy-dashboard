@@ -297,7 +297,23 @@ function FmDailyOperationsPage() {
     },
   });
 
+  const { data: checklistTemplates = [] } = useQuery({
+    queryKey: ["fm-ops-checklist-templates", activeContractId],
+    enabled,
+    queryFn: async () => {
+      const { data, error } = await fmDb
+        .from("fm_cleaning_checklist_templates")
+        .select("id, area, task_name, default_priority, is_active, sort_order")
+        .eq("fm_contract_id", activeContractId)
+        .order("sort_order", { ascending: true })
+        .limit(200);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   /* ---------------- derived ---------------- */
+
 
   const plannedHeadcount = useMemo(
     () =>
