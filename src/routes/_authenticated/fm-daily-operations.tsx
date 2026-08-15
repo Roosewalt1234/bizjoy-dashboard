@@ -1174,6 +1174,7 @@ function FmDailyOperationsPage() {
                     <TableHead>Task</TableHead>
                     <TableHead className="w-[160px]">Status</TableHead>
                     <TableHead>Remarks</TableHead>
+                    <TableHead className="w-[40px]" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1211,12 +1212,49 @@ function FmDailyOperationsPage() {
                             }}
                           />
                         </TableCell>
+                        <TableCell>
+                          {t.id ? (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              title="Remove from checklist template"
+                              onClick={() => deactivateTemplateTask(t)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          ) : null}
+                        </TableCell>
                       </TableRow>
                     );
                   })}
                 </TableBody>
               </Table>
+              <div className="flex flex-wrap items-end gap-2 border-t pt-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Area</Label>
+                  <Input
+                    className="h-8 w-[150px]"
+                    placeholder="Common Areas"
+                    value={newTask.area}
+                    onChange={(e) => setNewTask({ ...newTask, area: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">New checklist task</Label>
+                  <Input
+                    className="h-8 w-[240px]"
+                    placeholder="Task name"
+                    value={newTask.task}
+                    onChange={(e) => setNewTask({ ...newTask, task: e.target.value })}
+                  />
+                </div>
+                <Button size="sm" onClick={addTemplateTask} disabled={busy || !newTask.task.trim()}>
+                  Add Task
+                </Button>
+              </div>
             </Card>
+
+
 
             {/* Reporting shortcuts */}
             <Card className="p-4 space-y-3">
