@@ -37,6 +37,9 @@ import { WO_STATUS, WO_PRIORITY, ITEM_SEP, splitItems } from "@/lib/work-orders"
 import { nextDocNo } from "@/lib/doc-no";
 import {
   calculateDueTimes,
+  isPpmRequestType,
+  isScheduleBasedPolicy,
+  scheduleBasedDueTimes,
   calculateSlaStatus,
   normalizePriority,
   SLA_REQUEST_TYPES,
@@ -290,7 +293,10 @@ export function WorkOrderDialog({ open, onOpenChange, editing, moduleType = "AMC
 
       const policy = await findSlaPolicy(payload);
       if (policy) {
-        const dueTimes = calculateDueTimes(payload.reported_at, policy);
+        const scheduleBased = isPpmRequestType(payload.request_type) && isScheduleBasedPolicy(policy);
+        const dueTimes = scheduleBased
+          ? scheduleBasedDueTimes(payload.scheduled_date)
+          : calculateDueTimes(payload.reported_at, policy);
         payload.response_due_at = dueTimes.response_due_at;
         payload.completion_due_at = dueTimes.completion_due_at;
         payload.response_sla_status = calculateSlaStatus({

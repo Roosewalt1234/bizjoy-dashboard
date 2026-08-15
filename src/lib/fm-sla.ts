@@ -46,6 +46,35 @@ export function addMinutesIso(baseIso: string | null | undefined, minutes: numbe
   return new Date(base.getTime() + minutes * 60 * 1000).toISOString();
 }
 
+const PPM_REQUEST_TYPES = [
+  "PPM",
+  "Preventive Maintenance",
+  "Planned Preventive Maintenance",
+];
+
+export function isPpmRequestType(value: string | null | undefined) {
+  return PPM_REQUEST_TYPES.includes(value ?? "");
+}
+
+/**
+ * A policy is "schedule based" when it carries no usable response/completion
+ * targets (blank or zero). PPM work is then measured against its scheduled
+ * visit date instead of a minute-based clock.
+ */
+export function isScheduleBasedPolicy(policy: SlaPolicyLike | null | undefined) {
+  const response = minutesFromPolicy(policy, "response");
+  const completion = minutesFromPolicy(policy, "completion");
+  return !response && !completion;
+}
+
+/** End-of-day on the scheduled visit date (local time). */
+export function scheduleBasedDueTimes(scheduledDate: string | null | undefined) {
+  if (!scheduledDate) return { response_due_at: null, completion_due_at: null };
+  const due = new Date(`${scheduledDate}T23:59:59`);
+  if (Number.isNaN(due.getTime())) return { response_due_at: null, completion_due_at: null };
+  return { response_due_at: null, completion_due_at: due.toISOString() };
+}
+
 export function calculateDueTimes(
   reportedAt: string | null | undefined,
   policy: SlaPolicyLike | null | undefined,
