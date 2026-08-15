@@ -57,7 +57,10 @@ export const Route = createFileRoute("/_authenticated/fm-daily-operations")({
 
 const fmDb = supabase as any;
 
-const CLEANING_TASKS: { area: string; task: string }[] = [
+type ChecklistTask = { id?: string; area: string; task: string; sort_order?: number };
+
+// Fallback used only when a contract has no checklist template rows yet.
+const DEFAULT_CLEANING_TASKS: ChecklistTask[] = [
   { area: "Common Areas", task: "Lobby cleaned" },
   { area: "Common Areas", task: "Corridors cleaned" },
   { area: "Common Areas", task: "Lifts cleaned" },
@@ -68,7 +71,8 @@ const CLEANING_TASKS: { area: string; task: string }[] = [
   { area: "Materials", task: "Air fresheners / water checked" },
 ];
 
-const CHECK_STATUSES = ["Pending", "Completed", "Not Required"];
+const CHECK_STATUSES = ["Pending", "Completed", "Not Applicable", "Issue Found"];
+
 
 function fmt(value: number | null | undefined) {
   return new Intl.NumberFormat("en-AE", {
