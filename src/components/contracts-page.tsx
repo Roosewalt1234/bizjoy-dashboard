@@ -702,7 +702,9 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
 function ContractDialog({
   open, onOpenChange, editing, onSaved, moduleType = "AMC",
 }: { open: boolean; onOpenChange: (o: boolean) => void; editing: any | null; onSaved: () => void; moduleType?: ModuleType }) {
+  const isFM = moduleType === "FM";
   const [customerId, setCustomerId] = useState<string | null>(editing?.customer_id ?? null);
+
   const [customerName, setCustomerName] = useState<string>(editing?.customer_name ?? "");
   const [title, setTitle] = useState(editing?.title ?? "");
   const [contractType, setContractType] = useState<ContractType>((editing?.contract_type as ContractType) ?? "Standard");
