@@ -176,6 +176,7 @@ function ContractInvoicePacksPage() {
       manpowerPlans,
       manpowerAssignments,
       serviceReports,
+      billingLines,
     ] = await Promise.all([
       fmDb.from("contracts").select("*").eq("id", contractId).single(),
       fmDb
@@ -196,6 +197,11 @@ function ContractInvoicePacksPage() {
       fmDb.from("contract_manpower_plans").select("*").eq("contract_id", contractId),
       fmDb.from("contract_manpower_assignments").select("*").eq("contract_id", contractId),
       fmDb.from("service_reports").select("*").eq("contract_id", contractId),
+      fmDb
+        .from("contract_billing_lines")
+        .select("*")
+        .eq("contract_id", contractId)
+        .order("sort_order", { ascending: true }),
     ]);
     for (const result of [
       contract,
@@ -207,6 +213,7 @@ function ContractInvoicePacksPage() {
       manpowerPlans,
       manpowerAssignments,
       serviceReports,
+      billingLines,
     ]) {
       if (result.error) throw result.error;
     }
@@ -220,6 +227,7 @@ function ContractInvoicePacksPage() {
       manpowerPlans: manpowerPlans.data ?? [],
       manpowerAssignments: manpowerAssignments.data ?? [],
       serviceReports: serviceReports.data ?? [],
+      billingLines: billingLines.data ?? [],
     };
   }
 
@@ -271,7 +279,12 @@ function ContractInvoicePacksPage() {
     try {
       const source = await fetchPackSource(contractFilter, range.start, range.end);
       const reportingPeriodId = await ensureReportingPeriod(contractFilter, range.start, range.end);
-      const generatedItems = buildInvoiceItemsFromContractLineItems(source.lineItems);
+      // Default invoice = summary billing template lines (TOTAL row excluded).
+      // Detailed contract line items are only used when no billing template exists.
+      const templateItems = buildInvoiceItemsFromBillingLines(source.billingLines);
+      const generatedItems = templateItems.length
+        ? templateItems
+        : buildInvoiceItemsFromContractLineItems(source.lineItems);
       const vatPercent = money(source.contract?.vat_percent) || 5;
       const retentionPercent = money(source.contract?.retention_percent);
       const totals = calculateInvoiceTotals(generatedItems, vatPercent, retentionPercent);
