@@ -747,7 +747,10 @@ function ContractDialog({
   const [acDuctDate, setAcDuctDate] = useState(editing?.ac_duct_cleaning_date ?? "");
   const [acDuctStatus, setAcDuctStatus] = useState(editing?.ac_duct_cleaning_status ?? "");
   const [remark, setRemark] = useState(editing?.remark ?? "");
-  const [contractScopeType, setContractScopeType] = useState<string>(editing?.contract_scope_type ?? "Home AMC");
+  const [contractScopeType, setContractScopeType] = useState<string>(
+    editing?.contract_scope_type ?? (moduleType === "FM" ? "Facilities Management" : "Home AMC"),
+  );
+
   const [siteName, setSiteName] = useState(editing?.site_name ?? "");
   const [siteAddress, setSiteAddress] = useState(editing?.site_address ?? "");
   const [buildingType, setBuildingType] = useState(editing?.building_type ?? "");
