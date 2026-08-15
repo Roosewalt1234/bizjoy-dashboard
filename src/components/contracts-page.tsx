@@ -527,20 +527,36 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
       <Card>
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>{moduleType === "FM" ? "Contract / Site" : "Customer"}</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Start</TableHead>
-              <TableHead>End</TableHead>
-              <TableHead>Value</TableHead>
-              <TableHead>Payment</TableHead>
-              <TableHead>Next Service Due</TableHead>
-              <TableHead>WT Cleaning</TableHead>
-              <TableHead>Next Payment Due</TableHead>
-              <TableHead>Handyman Hrs</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-32 text-right">Actions</TableHead>
-            </TableRow>
+            {isFM ? (
+              <TableRow>
+                <TableHead>Contract / Site</TableHead>
+                <TableHead>Client</TableHead>
+                <TableHead>Scope</TableHead>
+                <TableHead>Start</TableHead>
+                <TableHead>End</TableHead>
+                <TableHead>Contract Value</TableHead>
+                <TableHead>Billing Cycle</TableHead>
+                <TableHead>VAT / Retention</TableHead>
+                <TableHead>Next Payment Due</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-32 text-right">Actions</TableHead>
+              </TableRow>
+            ) : (
+              <TableRow>
+                <TableHead>Customer</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Start</TableHead>
+                <TableHead>End</TableHead>
+                <TableHead>Value</TableHead>
+                <TableHead>Payment</TableHead>
+                <TableHead>Next Service Due</TableHead>
+                <TableHead>WT Cleaning</TableHead>
+                <TableHead>Next Payment Due</TableHead>
+                <TableHead>Handyman Hrs</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-32 text-right">Actions</TableHead>
+              </TableRow>
+            )}
           </TableHeader>
           <TableBody>
             {isLoading ? (
@@ -549,60 +565,92 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
               <TableRow><TableCell colSpan={12} className="text-center py-8 text-muted-foreground">No contracts yet.</TableCell></TableRow>
             ) : pageRows.map((r: any) => (
               <TableRow key={r.id}>
-                <TableCell className="font-medium">
-                  {moduleType === "FM" ? (
-                    <div className="space-y-0.5">
-                      <div className="font-semibold">{r.title ?? r.contract_no ?? "—"}</div>
-                      <div className="text-xs text-muted-foreground">{r.customer_name ?? "—"}</div>
-                      {r.site_name ? (
-                        <div className="text-xs text-muted-foreground">{r.site_name}</div>
-                      ) : null}
-                    </div>
-                  ) : (
-                    (r.customer_name ?? "—")
-                  )}
-                </TableCell>
-                <TableCell>
-                  {r.contract_type ? (
-                    <Badge variant="outline" className={cn("font-medium", typeBadgeClasses(r.contract_type))}>{r.contract_type}</Badge>
-                  ) : "—"}
-                </TableCell>
-                <TableCell>{r.start_date ?? "—"}</TableCell>
-                <TableCell>{r.end_date ?? "—"}</TableCell>
-                <TableCell>{r.value ?? "—"}</TableCell>
-                <TableCell>
-                  {r.payment_terms ? (
-                    <Badge variant="outline" className={cn("font-medium", termBadgeClasses(r.payment_terms))}>{r.payment_terms}</Badge>
-                  ) : "—"}
-                </TableCell>
-                <TableCell><DateCell date={nextServiceDate(r, "ac_units")} /></TableCell>
-                <TableCell><DateCell date={nextServiceDate(r, "water_tank")} /></TableCell>
-                <TableCell>
-                  {(() => {
-                    const info = nextPaymentInfoByContract[r.id];
-                    if (!info) return <span className="text-muted-foreground">—</span>;
-                    return <PaymentDueBadge date={info.payment_date} status={info.status} />;
-                  })()}
-                </TableCell>
-                <TableCell>
-                  {(() => {
-                    const allotted = Number(r.handyman_hours ?? 0);
-                    const used = handymanUsedByContract[r.id] ?? 0;
-                    const remaining = allotted - used;
-                    const cls = remaining < 0
-                      ? "bg-red-50 text-red-700 border-red-200"
-                      : remaining <= allotted * 0.2
-                        ? "bg-amber-50 text-amber-700 border-amber-200"
-                        : "bg-emerald-50 text-emerald-700 border-emerald-200";
-                    return (
-                      <div className="flex flex-col gap-1">
-                        <Badge variant="outline" className={cn("font-medium w-fit", cls)}>{remaining} h left</Badge>
-                        <span className="text-xs text-muted-foreground">{used} / {allotted} used</span>
+                {isFM ? (
+                  <>
+                    <TableCell className="font-medium">
+                      <div className="space-y-0.5">
+                        <div className="font-semibold">{r.title ?? r.contract_no ?? "—"}</div>
+                        {r.contract_no ? (
+                          <div className="text-xs text-muted-foreground">{r.contract_no}</div>
+                        ) : null}
+                        {r.site_name ? (
+                          <div className="text-xs text-muted-foreground">{r.site_name}</div>
+                        ) : null}
                       </div>
-                    );
-                  })()}
-                </TableCell>
-                <TableCell>{r.status ?? "—"}</TableCell>
+                    </TableCell>
+                    <TableCell>{r.customer_name ?? "—"}</TableCell>
+                    <TableCell>
+                      {r.contract_scope_type ? (
+                        <Badge variant="outline" className="font-medium">{r.contract_scope_type}</Badge>
+                      ) : "—"}
+                    </TableCell>
+                    <TableCell>{r.start_date ?? "—"}</TableCell>
+                    <TableCell>{r.end_date ?? "—"}</TableCell>
+                    <TableCell>{r.value ?? "—"}</TableCell>
+                    <TableCell>
+                      {r.billing_cycle ? (
+                        <Badge variant="outline" className={cn("font-medium", termBadgeClasses(r.billing_cycle))}>{r.billing_cycle}</Badge>
+                      ) : "—"}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {r.vat_percent != null ? `${r.vat_percent}%` : "—"} / {r.retention_percent != null ? `${r.retention_percent}%` : "—"}
+                    </TableCell>
+                    <TableCell>
+                      {(() => {
+                        const info = nextPaymentInfoByContract[r.id];
+                        if (!info) return <span className="text-muted-foreground">—</span>;
+                        return <PaymentDueBadge date={info.payment_date} status={info.status} />;
+                      })()}
+                    </TableCell>
+                    <TableCell>{r.status ?? "—"}</TableCell>
+                  </>
+                ) : (
+                  <>
+                    <TableCell className="font-medium">{r.customer_name ?? "—"}</TableCell>
+                    <TableCell>
+                      {r.contract_type ? (
+                        <Badge variant="outline" className={cn("font-medium", typeBadgeClasses(r.contract_type))}>{r.contract_type}</Badge>
+                      ) : "—"}
+                    </TableCell>
+                    <TableCell>{r.start_date ?? "—"}</TableCell>
+                    <TableCell>{r.end_date ?? "—"}</TableCell>
+                    <TableCell>{r.value ?? "—"}</TableCell>
+                    <TableCell>
+                      {r.payment_terms ? (
+                        <Badge variant="outline" className={cn("font-medium", termBadgeClasses(r.payment_terms))}>{r.payment_terms}</Badge>
+                      ) : "—"}
+                    </TableCell>
+                    <TableCell><DateCell date={nextServiceDate(r, "ac_units")} /></TableCell>
+                    <TableCell><DateCell date={nextServiceDate(r, "water_tank")} /></TableCell>
+                    <TableCell>
+                      {(() => {
+                        const info = nextPaymentInfoByContract[r.id];
+                        if (!info) return <span className="text-muted-foreground">—</span>;
+                        return <PaymentDueBadge date={info.payment_date} status={info.status} />;
+                      })()}
+                    </TableCell>
+                    <TableCell>
+                      {(() => {
+                        const allotted = Number(r.handyman_hours ?? 0);
+                        const used = handymanUsedByContract[r.id] ?? 0;
+                        const remaining = allotted - used;
+                        const cls = remaining < 0
+                          ? "bg-red-50 text-red-700 border-red-200"
+                          : remaining <= allotted * 0.2
+                            ? "bg-amber-50 text-amber-700 border-amber-200"
+                            : "bg-emerald-50 text-emerald-700 border-emerald-200";
+                        return (
+                          <div className="flex flex-col gap-1">
+                            <Badge variant="outline" className={cn("font-medium w-fit", cls)}>{remaining} h left</Badge>
+                            <span className="text-xs text-muted-foreground">{used} / {allotted} used</span>
+                          </div>
+                        );
+                      })()}
+                    </TableCell>
+                    <TableCell>{r.status ?? "—"}</TableCell>
+                  </>
+                )}
+
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
                     <Button size="icon" variant="ghost" asChild>
