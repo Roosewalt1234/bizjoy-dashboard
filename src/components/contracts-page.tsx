@@ -399,10 +399,25 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
         </div>
         <div className="flex items-center gap-2">
           <ExportMenu
-            filename="contracts"
-            sheetName="Contracts"
+            filename={isFM ? "fm-contracts" : "amc-contracts"}
+            sheetName={isFM ? "FM Contracts" : "AMC Contracts"}
             rows={filteredRows as any[]}
-            columns={[
+            columns={isFM ? [
+              { key: "contract_no", label: "Contract No" },
+              { key: "title", label: "Contract / Site" },
+              { key: "customer_name", label: "Client" },
+              { key: "site_name", label: "Site" },
+              { key: "building_type", label: "Building Type" },
+              { key: "contract_scope_type", label: "Scope" },
+              { key: "start_date", label: "Start Date" },
+              { key: "end_date", label: "End Date" },
+              { key: "value", label: "Contract Value" },
+              { key: "billing_cycle", label: "Billing Cycle" },
+              { key: "vat_percent", label: "VAT %" },
+              { key: "retention_percent", label: "Retention %" },
+              { key: "status", label: "Status" },
+              { key: "remark", label: "Remark" },
+            ] : [
               { key: "amc_ref_no", label: "AMC Ref No" },
               { key: "title", label: "Title" },
               { key: "customer_name", label: "Customer" },
@@ -421,7 +436,8 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
             ]}
           />
           <Button onClick={() => { setEditing(null); setOpen(true); }}>
-            <Plus className="h-4 w-4 mr-2" /> New Contract
+            <Plus className="h-4 w-4 mr-2" /> {isFM ? "New FM Contract" : "New AMC Contract"}
+
           </Button>
         </div>
       </div>
