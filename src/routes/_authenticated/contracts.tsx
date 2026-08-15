@@ -28,9 +28,8 @@ import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar"
 import { ExportMenu } from "@/components/export-menu";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_authenticated/contracts")({
-  component: ContractsPage,
-});
+export type ModuleType = "AMC" | "FM";
+
 
 const PAYMENT_TERMS = ["Monthly", "Quarterly", "Half Yearly", "Single Payment"] as const;
 type PaymentTerm = typeof PAYMENT_TERMS[number];
