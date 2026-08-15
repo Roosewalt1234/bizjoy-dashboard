@@ -758,8 +758,15 @@ function FmDailyOperationsPage() {
           <Button variant="outline" onClick={() => setDate(todayIso())}>
             Today
           </Button>
+          <Button variant="outline" onClick={refreshAll} disabled={busy}>
+            <RefreshCw className="h-4 w-4 mr-1" /> Refresh
+          </Button>
+          <span className="text-xs text-muted-foreground pb-2">
+            Updated {lastRefresh.toLocaleTimeString()}
+          </span>
         </div>
       </div>
+
 
       {!contract ? (
         <Card className="p-6 text-sm text-muted-foreground">No FM contracts found.</Card>
