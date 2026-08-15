@@ -685,14 +685,14 @@ function FmDailyOperationsPage() {
       });
 
     // 4 — cleaning
-    if (cleaningDone < cleaningTasks.length)
+    if (cleaningDone < cleaningActiveTasks.length)
       list.push({
         rank: 4,
         priority: "Medium",
         state: "Pending",
         module: "Cleaning",
         description: "Daily cleaning checklist incomplete",
-        record: `${cleaningDone}/${cleaningTasks.length} completed`,
+        record: `${cleaningDone}/${cleaningActiveTasks.length} completed`,
         label: "Mark Checklist",
         go: () => document.getElementById("cleaning-widget")?.scrollIntoView({ behavior: "smooth" }),
       });
@@ -739,7 +739,7 @@ function FmDailyOperationsPage() {
     atRiskWos,
     breachedWos,
     cleaningDone,
-    cleaningTasks.length,
+    cleaningActiveTasks.length,
     coverage,
     date,
     invoicePack,
@@ -1213,7 +1213,7 @@ function FmDailyOperationsPage() {
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">Cleaning / Housekeeping — {date}</h2>
                 <Badge variant="outline">
-                  {cleaningDone}/{cleaningTasks.length} done
+                  {cleaningDone}/{cleaningActiveTasks.length} done
                 </Badge>
               </div>
               <Table>
