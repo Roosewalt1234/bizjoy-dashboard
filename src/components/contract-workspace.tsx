@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { summarizeAttendance, todayIso } from "@/lib/fm-manpower";
+import { BillingTemplateSection, ConsumablesSection } from "@/components/fm-contract-reference";
 
 type ContractRecord = {
   id: string;
@@ -64,7 +65,7 @@ type LooseSupabase = {
   from: (table: string) => LooseQuery;
 };
 
-const sections = [
+const baseSections = [
   "Overview",
   "Line Items",
   "Assets",
@@ -75,7 +76,9 @@ const sections = [
   "Reports",
   "Invoice Pack",
 ];
+const fmOnlySections = ["Consumables & Equipment", "Billing Template"];
 const fmDb = supabase as unknown as LooseSupabase;
+
 
 function formatAED(value: number | null | undefined) {
   return new Intl.NumberFormat("en-AE", {
@@ -101,6 +104,10 @@ export type ModuleType = "AMC" | "FM";
 
 export function ContractWorkspace({ id, moduleType = "AMC" }: { id: string; moduleType?: ModuleType }) {
   const [section, setSection] = useState("Overview");
+  const sections = useMemo(
+    () => (moduleType === "FM" ? [...baseSections, ...fmOnlySections] : baseSections),
+    [moduleType],
+  );
 
   const { data, isLoading } = useQuery({
     queryKey: ["contract-detail", id],
@@ -550,7 +557,21 @@ export function ContractWorkspace({ id, moduleType = "AMC" }: { id: string; modu
         </div>
       )}
 
-      {!["Overview", "Line Items", "Manpower", "Reports", "Invoice Pack"].includes(section) && (
+      {section === "Consumables & Equipment" && <ConsumablesSection contractId={id} />}
+
+      {section === "Billing Template" && (
+        <BillingTemplateSection contractId={id} vatPercent={Number(contract.vat_percent) || 5} />
+      )}
+
+      {![
+        "Overview",
+        "Line Items",
+        "Manpower",
+        "Reports",
+        "Invoice Pack",
+        "Consumables & Equipment",
+        "Billing Template",
+      ].includes(section) && (
         <Card className="p-6 text-sm text-muted-foreground">{section} coming next.</Card>
       )}
     </div>
