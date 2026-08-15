@@ -20,6 +20,19 @@ import { Route as AuthenticatedProjectReportsRouteImport } from './routes/_authe
 import { Route as AuthenticatedPermissionsRouteImport } from './routes/_authenticated/permissions'
 import { Route as AuthenticatedMepSchedulesRouteImport } from './routes/_authenticated/mep-schedules'
 import { Route as AuthenticatedHrRouteImport } from './routes/_authenticated/hr'
+import { Route as AuthenticatedFmWorkOrdersRouteImport } from './routes/_authenticated/fm-work-orders'
+import { Route as AuthenticatedFmWeeklyReportsRouteImport } from './routes/_authenticated/fm-weekly-reports'
+import { Route as AuthenticatedFmSlaRouteImport } from './routes/_authenticated/fm-sla'
+import { Route as AuthenticatedFmServiceCategoriesRouteImport } from './routes/_authenticated/fm-service-categories'
+import { Route as AuthenticatedFmPpmRouteImport } from './routes/_authenticated/fm-ppm'
+import { Route as AuthenticatedFmMonthlyReportsRouteImport } from './routes/_authenticated/fm-monthly-reports'
+import { Route as AuthenticatedFmManpowerRouteImport } from './routes/_authenticated/fm-manpower'
+import { Route as AuthenticatedFmInvoicePacksRouteImport } from './routes/_authenticated/fm-invoice-packs'
+import { Route as AuthenticatedFmDashboardRouteImport } from './routes/_authenticated/fm-dashboard'
+import { Route as AuthenticatedFmContractsRouteImport } from './routes/_authenticated/fm-contracts'
+import { Route as AuthenticatedFmContractLineItemsRouteImport } from './routes/_authenticated/fm-contract-line-items'
+import { Route as AuthenticatedFmAttendanceRouteImport } from './routes/_authenticated/fm-attendance'
+import { Route as AuthenticatedFmAssetsRouteImport } from './routes/_authenticated/fm-assets'
 import { Route as AuthenticatedContractsRouteImport } from './routes/_authenticated/contracts'
 import { Route as AuthenticatedContractWeeklyReportsRouteImport } from './routes/_authenticated/contract-weekly-reports'
 import { Route as AuthenticatedContractSlaRouteImport } from './routes/_authenticated/contract-sla'
@@ -35,11 +48,16 @@ import { Route as AuthenticatedContractAssetsRouteImport } from './routes/_authe
 import { Route as AuthenticatedCleaningSchedulesRouteImport } from './routes/_authenticated/cleaning-schedules'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAssetsRouteImport } from './routes/_authenticated/assets'
+import { Route as AuthenticatedAmcWorkOrdersRouteImport } from './routes/_authenticated/amc-work-orders'
+import { Route as AuthenticatedAmcServiceReportsRouteImport } from './routes/_authenticated/amc-service-reports'
+import { Route as AuthenticatedAmcContractsRouteImport } from './routes/_authenticated/amc-contracts'
 import { Route as AuthenticatedAccountsRouteImport } from './routes/_authenticated/accounts'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers.index'
+import { Route as AuthenticatedFmContractsIdRouteImport } from './routes/_authenticated/fm-contracts.$id'
 import { Route as AuthenticatedCustomersNewRouteImport } from './routes/_authenticated/customers.new'
 import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenticated/customers.$id'
 import { Route as AuthenticatedContractsIdRouteImport } from './routes/_authenticated/contracts.$id'
+import { Route as AuthenticatedAmcContractsIdRouteImport } from './routes/_authenticated/amc-contracts.$id'
 import { Route as AuthenticatedCustomersIdViewRouteImport } from './routes/_authenticated/customers.$id.view'
 
 const AuthRoute = AuthRouteImport.update({
@@ -97,6 +115,80 @@ const AuthenticatedMepSchedulesRoute =
 const AuthenticatedHrRoute = AuthenticatedHrRouteImport.update({
   id: '/hr',
   path: '/hr',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFmWorkOrdersRoute =
+  AuthenticatedFmWorkOrdersRouteImport.update({
+    id: '/fm-work-orders',
+    path: '/fm-work-orders',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFmWeeklyReportsRoute =
+  AuthenticatedFmWeeklyReportsRouteImport.update({
+    id: '/fm-weekly-reports',
+    path: '/fm-weekly-reports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFmSlaRoute = AuthenticatedFmSlaRouteImport.update({
+  id: '/fm-sla',
+  path: '/fm-sla',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFmServiceCategoriesRoute =
+  AuthenticatedFmServiceCategoriesRouteImport.update({
+    id: '/fm-service-categories',
+    path: '/fm-service-categories',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFmPpmRoute = AuthenticatedFmPpmRouteImport.update({
+  id: '/fm-ppm',
+  path: '/fm-ppm',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFmMonthlyReportsRoute =
+  AuthenticatedFmMonthlyReportsRouteImport.update({
+    id: '/fm-monthly-reports',
+    path: '/fm-monthly-reports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFmManpowerRoute = AuthenticatedFmManpowerRouteImport.update({
+  id: '/fm-manpower',
+  path: '/fm-manpower',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFmInvoicePacksRoute =
+  AuthenticatedFmInvoicePacksRouteImport.update({
+    id: '/fm-invoice-packs',
+    path: '/fm-invoice-packs',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFmDashboardRoute =
+  AuthenticatedFmDashboardRouteImport.update({
+    id: '/fm-dashboard',
+    path: '/fm-dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFmContractsRoute =
+  AuthenticatedFmContractsRouteImport.update({
+    id: '/fm-contracts',
+    path: '/fm-contracts',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFmContractLineItemsRoute =
+  AuthenticatedFmContractLineItemsRouteImport.update({
+    id: '/fm-contract-line-items',
+    path: '/fm-contract-line-items',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFmAttendanceRoute =
+  AuthenticatedFmAttendanceRouteImport.update({
+    id: '/fm-attendance',
+    path: '/fm-attendance',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFmAssetsRoute = AuthenticatedFmAssetsRouteImport.update({
+  id: '/fm-assets',
+  path: '/fm-assets',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedContractsRoute = AuthenticatedContractsRouteImport.update({
@@ -186,6 +278,24 @@ const AuthenticatedAssetsRoute = AuthenticatedAssetsRouteImport.update({
   path: '/assets',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAmcWorkOrdersRoute =
+  AuthenticatedAmcWorkOrdersRouteImport.update({
+    id: '/amc-work-orders',
+    path: '/amc-work-orders',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAmcServiceReportsRoute =
+  AuthenticatedAmcServiceReportsRouteImport.update({
+    id: '/amc-service-reports',
+    path: '/amc-service-reports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAmcContractsRoute =
+  AuthenticatedAmcContractsRouteImport.update({
+    id: '/amc-contracts',
+    path: '/amc-contracts',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAccountsRoute = AuthenticatedAccountsRouteImport.update({
   id: '/accounts',
   path: '/accounts',
@@ -196,6 +306,12 @@ const AuthenticatedCustomersIndexRoute =
     id: '/customers/',
     path: '/customers/',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFmContractsIdRoute =
+  AuthenticatedFmContractsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedFmContractsRoute,
   } as any)
 const AuthenticatedCustomersNewRoute =
   AuthenticatedCustomersNewRouteImport.update({
@@ -215,6 +331,12 @@ const AuthenticatedContractsIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedContractsRoute,
   } as any)
+const AuthenticatedAmcContractsIdRoute =
+  AuthenticatedAmcContractsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAmcContractsRoute,
+  } as any)
 const AuthenticatedCustomersIdViewRoute =
   AuthenticatedCustomersIdViewRouteImport.update({
     id: '/view',
@@ -226,6 +348,9 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/accounts': typeof AuthenticatedAccountsRoute
+  '/amc-contracts': typeof AuthenticatedAmcContractsRouteWithChildren
+  '/amc-service-reports': typeof AuthenticatedAmcServiceReportsRoute
+  '/amc-work-orders': typeof AuthenticatedAmcWorkOrdersRoute
   '/assets': typeof AuthenticatedAssetsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/cleaning-schedules': typeof AuthenticatedCleaningSchedulesRoute
@@ -241,6 +366,19 @@ export interface FileRoutesByFullPath {
   '/contract-sla': typeof AuthenticatedContractSlaRoute
   '/contract-weekly-reports': typeof AuthenticatedContractWeeklyReportsRoute
   '/contracts': typeof AuthenticatedContractsRouteWithChildren
+  '/fm-assets': typeof AuthenticatedFmAssetsRoute
+  '/fm-attendance': typeof AuthenticatedFmAttendanceRoute
+  '/fm-contract-line-items': typeof AuthenticatedFmContractLineItemsRoute
+  '/fm-contracts': typeof AuthenticatedFmContractsRouteWithChildren
+  '/fm-dashboard': typeof AuthenticatedFmDashboardRoute
+  '/fm-invoice-packs': typeof AuthenticatedFmInvoicePacksRoute
+  '/fm-manpower': typeof AuthenticatedFmManpowerRoute
+  '/fm-monthly-reports': typeof AuthenticatedFmMonthlyReportsRoute
+  '/fm-ppm': typeof AuthenticatedFmPpmRoute
+  '/fm-service-categories': typeof AuthenticatedFmServiceCategoriesRoute
+  '/fm-sla': typeof AuthenticatedFmSlaRoute
+  '/fm-weekly-reports': typeof AuthenticatedFmWeeklyReportsRoute
+  '/fm-work-orders': typeof AuthenticatedFmWorkOrdersRoute
   '/hr': typeof AuthenticatedHrRoute
   '/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/permissions': typeof AuthenticatedPermissionsRoute
@@ -249,15 +387,20 @@ export interface FileRoutesByFullPath {
   '/sales': typeof AuthenticatedSalesRoute
   '/service': typeof AuthenticatedServiceRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
+  '/amc-contracts/$id': typeof AuthenticatedAmcContractsIdRoute
   '/contracts/$id': typeof AuthenticatedContractsIdRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRouteWithChildren
   '/customers/new': typeof AuthenticatedCustomersNewRoute
+  '/fm-contracts/$id': typeof AuthenticatedFmContractsIdRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/customers/$id/view': typeof AuthenticatedCustomersIdViewRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/accounts': typeof AuthenticatedAccountsRoute
+  '/amc-contracts': typeof AuthenticatedAmcContractsRouteWithChildren
+  '/amc-service-reports': typeof AuthenticatedAmcServiceReportsRoute
+  '/amc-work-orders': typeof AuthenticatedAmcWorkOrdersRoute
   '/assets': typeof AuthenticatedAssetsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/cleaning-schedules': typeof AuthenticatedCleaningSchedulesRoute
@@ -273,6 +416,19 @@ export interface FileRoutesByTo {
   '/contract-sla': typeof AuthenticatedContractSlaRoute
   '/contract-weekly-reports': typeof AuthenticatedContractWeeklyReportsRoute
   '/contracts': typeof AuthenticatedContractsRouteWithChildren
+  '/fm-assets': typeof AuthenticatedFmAssetsRoute
+  '/fm-attendance': typeof AuthenticatedFmAttendanceRoute
+  '/fm-contract-line-items': typeof AuthenticatedFmContractLineItemsRoute
+  '/fm-contracts': typeof AuthenticatedFmContractsRouteWithChildren
+  '/fm-dashboard': typeof AuthenticatedFmDashboardRoute
+  '/fm-invoice-packs': typeof AuthenticatedFmInvoicePacksRoute
+  '/fm-manpower': typeof AuthenticatedFmManpowerRoute
+  '/fm-monthly-reports': typeof AuthenticatedFmMonthlyReportsRoute
+  '/fm-ppm': typeof AuthenticatedFmPpmRoute
+  '/fm-service-categories': typeof AuthenticatedFmServiceCategoriesRoute
+  '/fm-sla': typeof AuthenticatedFmSlaRoute
+  '/fm-weekly-reports': typeof AuthenticatedFmWeeklyReportsRoute
+  '/fm-work-orders': typeof AuthenticatedFmWorkOrdersRoute
   '/hr': typeof AuthenticatedHrRoute
   '/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/permissions': typeof AuthenticatedPermissionsRoute
@@ -282,9 +438,11 @@ export interface FileRoutesByTo {
   '/service': typeof AuthenticatedServiceRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/': typeof AuthenticatedIndexRoute
+  '/amc-contracts/$id': typeof AuthenticatedAmcContractsIdRoute
   '/contracts/$id': typeof AuthenticatedContractsIdRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRouteWithChildren
   '/customers/new': typeof AuthenticatedCustomersNewRoute
+  '/fm-contracts/$id': typeof AuthenticatedFmContractsIdRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/customers/$id/view': typeof AuthenticatedCustomersIdViewRoute
 }
@@ -293,6 +451,9 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/accounts': typeof AuthenticatedAccountsRoute
+  '/_authenticated/amc-contracts': typeof AuthenticatedAmcContractsRouteWithChildren
+  '/_authenticated/amc-service-reports': typeof AuthenticatedAmcServiceReportsRoute
+  '/_authenticated/amc-work-orders': typeof AuthenticatedAmcWorkOrdersRoute
   '/_authenticated/assets': typeof AuthenticatedAssetsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/cleaning-schedules': typeof AuthenticatedCleaningSchedulesRoute
@@ -308,6 +469,19 @@ export interface FileRoutesById {
   '/_authenticated/contract-sla': typeof AuthenticatedContractSlaRoute
   '/_authenticated/contract-weekly-reports': typeof AuthenticatedContractWeeklyReportsRoute
   '/_authenticated/contracts': typeof AuthenticatedContractsRouteWithChildren
+  '/_authenticated/fm-assets': typeof AuthenticatedFmAssetsRoute
+  '/_authenticated/fm-attendance': typeof AuthenticatedFmAttendanceRoute
+  '/_authenticated/fm-contract-line-items': typeof AuthenticatedFmContractLineItemsRoute
+  '/_authenticated/fm-contracts': typeof AuthenticatedFmContractsRouteWithChildren
+  '/_authenticated/fm-dashboard': typeof AuthenticatedFmDashboardRoute
+  '/_authenticated/fm-invoice-packs': typeof AuthenticatedFmInvoicePacksRoute
+  '/_authenticated/fm-manpower': typeof AuthenticatedFmManpowerRoute
+  '/_authenticated/fm-monthly-reports': typeof AuthenticatedFmMonthlyReportsRoute
+  '/_authenticated/fm-ppm': typeof AuthenticatedFmPpmRoute
+  '/_authenticated/fm-service-categories': typeof AuthenticatedFmServiceCategoriesRoute
+  '/_authenticated/fm-sla': typeof AuthenticatedFmSlaRoute
+  '/_authenticated/fm-weekly-reports': typeof AuthenticatedFmWeeklyReportsRoute
+  '/_authenticated/fm-work-orders': typeof AuthenticatedFmWorkOrdersRoute
   '/_authenticated/hr': typeof AuthenticatedHrRoute
   '/_authenticated/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/_authenticated/permissions': typeof AuthenticatedPermissionsRoute
@@ -317,9 +491,11 @@ export interface FileRoutesById {
   '/_authenticated/service': typeof AuthenticatedServiceRoute
   '/_authenticated/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/amc-contracts/$id': typeof AuthenticatedAmcContractsIdRoute
   '/_authenticated/contracts/$id': typeof AuthenticatedContractsIdRoute
   '/_authenticated/customers/$id': typeof AuthenticatedCustomersIdRouteWithChildren
   '/_authenticated/customers/new': typeof AuthenticatedCustomersNewRoute
+  '/_authenticated/fm-contracts/$id': typeof AuthenticatedFmContractsIdRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/customers/$id/view': typeof AuthenticatedCustomersIdViewRoute
 }
@@ -329,6 +505,9 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/accounts'
+    | '/amc-contracts'
+    | '/amc-service-reports'
+    | '/amc-work-orders'
     | '/assets'
     | '/audit'
     | '/cleaning-schedules'
@@ -344,6 +523,19 @@ export interface FileRouteTypes {
     | '/contract-sla'
     | '/contract-weekly-reports'
     | '/contracts'
+    | '/fm-assets'
+    | '/fm-attendance'
+    | '/fm-contract-line-items'
+    | '/fm-contracts'
+    | '/fm-dashboard'
+    | '/fm-invoice-packs'
+    | '/fm-manpower'
+    | '/fm-monthly-reports'
+    | '/fm-ppm'
+    | '/fm-service-categories'
+    | '/fm-sla'
+    | '/fm-weekly-reports'
+    | '/fm-work-orders'
     | '/hr'
     | '/mep-schedules'
     | '/permissions'
@@ -352,15 +544,20 @@ export interface FileRouteTypes {
     | '/sales'
     | '/service'
     | '/work-orders'
+    | '/amc-contracts/$id'
     | '/contracts/$id'
     | '/customers/$id'
     | '/customers/new'
+    | '/fm-contracts/$id'
     | '/customers/'
     | '/customers/$id/view'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
     | '/accounts'
+    | '/amc-contracts'
+    | '/amc-service-reports'
+    | '/amc-work-orders'
     | '/assets'
     | '/audit'
     | '/cleaning-schedules'
@@ -376,6 +573,19 @@ export interface FileRouteTypes {
     | '/contract-sla'
     | '/contract-weekly-reports'
     | '/contracts'
+    | '/fm-assets'
+    | '/fm-attendance'
+    | '/fm-contract-line-items'
+    | '/fm-contracts'
+    | '/fm-dashboard'
+    | '/fm-invoice-packs'
+    | '/fm-manpower'
+    | '/fm-monthly-reports'
+    | '/fm-ppm'
+    | '/fm-service-categories'
+    | '/fm-sla'
+    | '/fm-weekly-reports'
+    | '/fm-work-orders'
     | '/hr'
     | '/mep-schedules'
     | '/permissions'
@@ -385,9 +595,11 @@ export interface FileRouteTypes {
     | '/service'
     | '/work-orders'
     | '/'
+    | '/amc-contracts/$id'
     | '/contracts/$id'
     | '/customers/$id'
     | '/customers/new'
+    | '/fm-contracts/$id'
     | '/customers'
     | '/customers/$id/view'
   id:
@@ -395,6 +607,9 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/accounts'
+    | '/_authenticated/amc-contracts'
+    | '/_authenticated/amc-service-reports'
+    | '/_authenticated/amc-work-orders'
     | '/_authenticated/assets'
     | '/_authenticated/audit'
     | '/_authenticated/cleaning-schedules'
@@ -410,6 +625,19 @@ export interface FileRouteTypes {
     | '/_authenticated/contract-sla'
     | '/_authenticated/contract-weekly-reports'
     | '/_authenticated/contracts'
+    | '/_authenticated/fm-assets'
+    | '/_authenticated/fm-attendance'
+    | '/_authenticated/fm-contract-line-items'
+    | '/_authenticated/fm-contracts'
+    | '/_authenticated/fm-dashboard'
+    | '/_authenticated/fm-invoice-packs'
+    | '/_authenticated/fm-manpower'
+    | '/_authenticated/fm-monthly-reports'
+    | '/_authenticated/fm-ppm'
+    | '/_authenticated/fm-service-categories'
+    | '/_authenticated/fm-sla'
+    | '/_authenticated/fm-weekly-reports'
+    | '/_authenticated/fm-work-orders'
     | '/_authenticated/hr'
     | '/_authenticated/mep-schedules'
     | '/_authenticated/permissions'
@@ -419,9 +647,11 @@ export interface FileRouteTypes {
     | '/_authenticated/service'
     | '/_authenticated/work-orders'
     | '/_authenticated/'
+    | '/_authenticated/amc-contracts/$id'
     | '/_authenticated/contracts/$id'
     | '/_authenticated/customers/$id'
     | '/_authenticated/customers/new'
+    | '/_authenticated/fm-contracts/$id'
     | '/_authenticated/customers/'
     | '/_authenticated/customers/$id/view'
   fileRoutesById: FileRoutesById
@@ -508,6 +738,97 @@ declare module '@tanstack/react-router' {
       path: '/hr'
       fullPath: '/hr'
       preLoaderRoute: typeof AuthenticatedHrRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-work-orders': {
+      id: '/_authenticated/fm-work-orders'
+      path: '/fm-work-orders'
+      fullPath: '/fm-work-orders'
+      preLoaderRoute: typeof AuthenticatedFmWorkOrdersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-weekly-reports': {
+      id: '/_authenticated/fm-weekly-reports'
+      path: '/fm-weekly-reports'
+      fullPath: '/fm-weekly-reports'
+      preLoaderRoute: typeof AuthenticatedFmWeeklyReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-sla': {
+      id: '/_authenticated/fm-sla'
+      path: '/fm-sla'
+      fullPath: '/fm-sla'
+      preLoaderRoute: typeof AuthenticatedFmSlaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-service-categories': {
+      id: '/_authenticated/fm-service-categories'
+      path: '/fm-service-categories'
+      fullPath: '/fm-service-categories'
+      preLoaderRoute: typeof AuthenticatedFmServiceCategoriesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-ppm': {
+      id: '/_authenticated/fm-ppm'
+      path: '/fm-ppm'
+      fullPath: '/fm-ppm'
+      preLoaderRoute: typeof AuthenticatedFmPpmRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-monthly-reports': {
+      id: '/_authenticated/fm-monthly-reports'
+      path: '/fm-monthly-reports'
+      fullPath: '/fm-monthly-reports'
+      preLoaderRoute: typeof AuthenticatedFmMonthlyReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-manpower': {
+      id: '/_authenticated/fm-manpower'
+      path: '/fm-manpower'
+      fullPath: '/fm-manpower'
+      preLoaderRoute: typeof AuthenticatedFmManpowerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-invoice-packs': {
+      id: '/_authenticated/fm-invoice-packs'
+      path: '/fm-invoice-packs'
+      fullPath: '/fm-invoice-packs'
+      preLoaderRoute: typeof AuthenticatedFmInvoicePacksRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-dashboard': {
+      id: '/_authenticated/fm-dashboard'
+      path: '/fm-dashboard'
+      fullPath: '/fm-dashboard'
+      preLoaderRoute: typeof AuthenticatedFmDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-contracts': {
+      id: '/_authenticated/fm-contracts'
+      path: '/fm-contracts'
+      fullPath: '/fm-contracts'
+      preLoaderRoute: typeof AuthenticatedFmContractsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-contract-line-items': {
+      id: '/_authenticated/fm-contract-line-items'
+      path: '/fm-contract-line-items'
+      fullPath: '/fm-contract-line-items'
+      preLoaderRoute: typeof AuthenticatedFmContractLineItemsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-attendance': {
+      id: '/_authenticated/fm-attendance'
+      path: '/fm-attendance'
+      fullPath: '/fm-attendance'
+      preLoaderRoute: typeof AuthenticatedFmAttendanceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-assets': {
+      id: '/_authenticated/fm-assets'
+      path: '/fm-assets'
+      fullPath: '/fm-assets'
+      preLoaderRoute: typeof AuthenticatedFmAssetsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/contracts': {
@@ -615,6 +936,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAssetsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/amc-work-orders': {
+      id: '/_authenticated/amc-work-orders'
+      path: '/amc-work-orders'
+      fullPath: '/amc-work-orders'
+      preLoaderRoute: typeof AuthenticatedAmcWorkOrdersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/amc-service-reports': {
+      id: '/_authenticated/amc-service-reports'
+      path: '/amc-service-reports'
+      fullPath: '/amc-service-reports'
+      preLoaderRoute: typeof AuthenticatedAmcServiceReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/amc-contracts': {
+      id: '/_authenticated/amc-contracts'
+      path: '/amc-contracts'
+      fullPath: '/amc-contracts'
+      preLoaderRoute: typeof AuthenticatedAmcContractsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/accounts': {
       id: '/_authenticated/accounts'
       path: '/accounts'
@@ -628,6 +970,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/customers/'
       preLoaderRoute: typeof AuthenticatedCustomersIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-contracts/$id': {
+      id: '/_authenticated/fm-contracts/$id'
+      path: '/$id'
+      fullPath: '/fm-contracts/$id'
+      preLoaderRoute: typeof AuthenticatedFmContractsIdRouteImport
+      parentRoute: typeof AuthenticatedFmContractsRoute
     }
     '/_authenticated/customers/new': {
       id: '/_authenticated/customers/new'
@@ -650,6 +999,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedContractsIdRouteImport
       parentRoute: typeof AuthenticatedContractsRoute
     }
+    '/_authenticated/amc-contracts/$id': {
+      id: '/_authenticated/amc-contracts/$id'
+      path: '/$id'
+      fullPath: '/amc-contracts/$id'
+      preLoaderRoute: typeof AuthenticatedAmcContractsIdRouteImport
+      parentRoute: typeof AuthenticatedAmcContractsRoute
+    }
     '/_authenticated/customers/$id/view': {
       id: '/_authenticated/customers/$id/view'
       path: '/view'
@@ -659,6 +1015,20 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedAmcContractsRouteChildren {
+  AuthenticatedAmcContractsIdRoute: typeof AuthenticatedAmcContractsIdRoute
+}
+
+const AuthenticatedAmcContractsRouteChildren: AuthenticatedAmcContractsRouteChildren =
+  {
+    AuthenticatedAmcContractsIdRoute: AuthenticatedAmcContractsIdRoute,
+  }
+
+const AuthenticatedAmcContractsRouteWithChildren =
+  AuthenticatedAmcContractsRoute._addFileChildren(
+    AuthenticatedAmcContractsRouteChildren,
+  )
 
 interface AuthenticatedContractsRouteChildren {
   AuthenticatedContractsIdRoute: typeof AuthenticatedContractsIdRoute
@@ -672,6 +1042,20 @@ const AuthenticatedContractsRouteChildren: AuthenticatedContractsRouteChildren =
 const AuthenticatedContractsRouteWithChildren =
   AuthenticatedContractsRoute._addFileChildren(
     AuthenticatedContractsRouteChildren,
+  )
+
+interface AuthenticatedFmContractsRouteChildren {
+  AuthenticatedFmContractsIdRoute: typeof AuthenticatedFmContractsIdRoute
+}
+
+const AuthenticatedFmContractsRouteChildren: AuthenticatedFmContractsRouteChildren =
+  {
+    AuthenticatedFmContractsIdRoute: AuthenticatedFmContractsIdRoute,
+  }
+
+const AuthenticatedFmContractsRouteWithChildren =
+  AuthenticatedFmContractsRoute._addFileChildren(
+    AuthenticatedFmContractsRouteChildren,
   )
 
 interface AuthenticatedCustomersIdRouteChildren {
@@ -690,6 +1074,9 @@ const AuthenticatedCustomersIdRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountsRoute: typeof AuthenticatedAccountsRoute
+  AuthenticatedAmcContractsRoute: typeof AuthenticatedAmcContractsRouteWithChildren
+  AuthenticatedAmcServiceReportsRoute: typeof AuthenticatedAmcServiceReportsRoute
+  AuthenticatedAmcWorkOrdersRoute: typeof AuthenticatedAmcWorkOrdersRoute
   AuthenticatedAssetsRoute: typeof AuthenticatedAssetsRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedCleaningSchedulesRoute: typeof AuthenticatedCleaningSchedulesRoute
@@ -705,6 +1092,19 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedContractSlaRoute: typeof AuthenticatedContractSlaRoute
   AuthenticatedContractWeeklyReportsRoute: typeof AuthenticatedContractWeeklyReportsRoute
   AuthenticatedContractsRoute: typeof AuthenticatedContractsRouteWithChildren
+  AuthenticatedFmAssetsRoute: typeof AuthenticatedFmAssetsRoute
+  AuthenticatedFmAttendanceRoute: typeof AuthenticatedFmAttendanceRoute
+  AuthenticatedFmContractLineItemsRoute: typeof AuthenticatedFmContractLineItemsRoute
+  AuthenticatedFmContractsRoute: typeof AuthenticatedFmContractsRouteWithChildren
+  AuthenticatedFmDashboardRoute: typeof AuthenticatedFmDashboardRoute
+  AuthenticatedFmInvoicePacksRoute: typeof AuthenticatedFmInvoicePacksRoute
+  AuthenticatedFmManpowerRoute: typeof AuthenticatedFmManpowerRoute
+  AuthenticatedFmMonthlyReportsRoute: typeof AuthenticatedFmMonthlyReportsRoute
+  AuthenticatedFmPpmRoute: typeof AuthenticatedFmPpmRoute
+  AuthenticatedFmServiceCategoriesRoute: typeof AuthenticatedFmServiceCategoriesRoute
+  AuthenticatedFmSlaRoute: typeof AuthenticatedFmSlaRoute
+  AuthenticatedFmWeeklyReportsRoute: typeof AuthenticatedFmWeeklyReportsRoute
+  AuthenticatedFmWorkOrdersRoute: typeof AuthenticatedFmWorkOrdersRoute
   AuthenticatedHrRoute: typeof AuthenticatedHrRoute
   AuthenticatedMepSchedulesRoute: typeof AuthenticatedMepSchedulesRoute
   AuthenticatedPermissionsRoute: typeof AuthenticatedPermissionsRoute
@@ -721,6 +1121,9 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountsRoute: AuthenticatedAccountsRoute,
+  AuthenticatedAmcContractsRoute: AuthenticatedAmcContractsRouteWithChildren,
+  AuthenticatedAmcServiceReportsRoute: AuthenticatedAmcServiceReportsRoute,
+  AuthenticatedAmcWorkOrdersRoute: AuthenticatedAmcWorkOrdersRoute,
   AuthenticatedAssetsRoute: AuthenticatedAssetsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedCleaningSchedulesRoute: AuthenticatedCleaningSchedulesRoute,
@@ -740,6 +1143,19 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedContractWeeklyReportsRoute:
     AuthenticatedContractWeeklyReportsRoute,
   AuthenticatedContractsRoute: AuthenticatedContractsRouteWithChildren,
+  AuthenticatedFmAssetsRoute: AuthenticatedFmAssetsRoute,
+  AuthenticatedFmAttendanceRoute: AuthenticatedFmAttendanceRoute,
+  AuthenticatedFmContractLineItemsRoute: AuthenticatedFmContractLineItemsRoute,
+  AuthenticatedFmContractsRoute: AuthenticatedFmContractsRouteWithChildren,
+  AuthenticatedFmDashboardRoute: AuthenticatedFmDashboardRoute,
+  AuthenticatedFmInvoicePacksRoute: AuthenticatedFmInvoicePacksRoute,
+  AuthenticatedFmManpowerRoute: AuthenticatedFmManpowerRoute,
+  AuthenticatedFmMonthlyReportsRoute: AuthenticatedFmMonthlyReportsRoute,
+  AuthenticatedFmPpmRoute: AuthenticatedFmPpmRoute,
+  AuthenticatedFmServiceCategoriesRoute: AuthenticatedFmServiceCategoriesRoute,
+  AuthenticatedFmSlaRoute: AuthenticatedFmSlaRoute,
+  AuthenticatedFmWeeklyReportsRoute: AuthenticatedFmWeeklyReportsRoute,
+  AuthenticatedFmWorkOrdersRoute: AuthenticatedFmWorkOrdersRoute,
   AuthenticatedHrRoute: AuthenticatedHrRoute,
   AuthenticatedMepSchedulesRoute: AuthenticatedMepSchedulesRoute,
   AuthenticatedPermissionsRoute: AuthenticatedPermissionsRoute,

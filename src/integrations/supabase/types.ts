@@ -521,6 +521,7 @@ export type Database = {
           end_date: string | null
           handyman_hours: number
           id: string
+          module_type: string
           notes: string | null
           payment_terms: string | null
           ppm_1_date: string | null
@@ -558,6 +559,7 @@ export type Database = {
           end_date?: string | null
           handyman_hours?: number
           id?: string
+          module_type?: string
           notes?: string | null
           payment_terms?: string | null
           ppm_1_date?: string | null
@@ -595,6 +597,7 @@ export type Database = {
           end_date?: string | null
           handyman_hours?: number
           id?: string
+          module_type?: string
           notes?: string | null
           payment_terms?: string | null
           ppm_1_date?: string | null
@@ -2011,6 +2014,7 @@ export type Database = {
           item_status: string | null
           location: string | null
           material_supplied_by: string | null
+          module_type: string
           next_service_date: string | null
           parts_used: string | null
           ppm_visit_id: string | null
@@ -2050,6 +2054,7 @@ export type Database = {
           item_status?: string | null
           location?: string | null
           material_supplied_by?: string | null
+          module_type?: string
           next_service_date?: string | null
           parts_used?: string | null
           ppm_visit_id?: string | null
@@ -2089,6 +2094,7 @@ export type Database = {
           item_status?: string | null
           location?: string | null
           material_supplied_by?: string | null
+          module_type?: string
           next_service_date?: string | null
           parts_used?: string | null
           ppm_visit_id?: string | null
@@ -2444,6 +2450,7 @@ export type Database = {
           delay_reason: string | null
           id: string
           location: string | null
+          module_type: string
           notes: string | null
           ppm_visit_id: string | null
           priority: string
@@ -2478,6 +2485,7 @@ export type Database = {
           delay_reason?: string | null
           id?: string
           location?: string | null
+          module_type?: string
           notes?: string | null
           ppm_visit_id?: string | null
           priority?: string
@@ -2512,6 +2520,7 @@ export type Database = {
           delay_reason?: string | null
           id?: string
           location?: string | null
+          module_type?: string
           notes?: string | null
           ppm_visit_id?: string | null
           priority?: string

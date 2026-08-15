@@ -88,7 +88,7 @@ function itemsFromRow(r: any): WorkItem[] {
   return Array.from({ length: n }).map((_, i) => ({ problem: p[i] ?? "", work: w[i] ?? "" }));
 }
 
-export function WorkOrderDialog({ open, onOpenChange, editing }: Props) {
+export function WorkOrderDialog({ open, onOpenChange, editing, moduleType = "AMC" }: Props & { moduleType?: "AMC" | "FM" }) {
   const qc = useQueryClient();
   const [form, setForm] = useState<any>(empty);
   const [items, setItems] = useState<WorkItem[]>([emptyItem()]);
@@ -314,7 +314,7 @@ export function WorkOrderDialog({ open, onOpenChange, editing }: Props) {
         const { error } = await supabase.from("work_orders").update(payload).eq("id", editing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("work_orders").insert(payload);
+        const { error } = await supabase.from("work_orders").insert({ ...payload, module_type: moduleType });
         if (error) throw error;
       }
 
