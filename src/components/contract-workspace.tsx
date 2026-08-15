@@ -64,7 +64,7 @@ type LooseSupabase = {
   from: (table: string) => LooseQuery;
 };
 
-const sections = [
+const baseSections = [
   "Overview",
   "Line Items",
   "Assets",
@@ -75,7 +75,9 @@ const sections = [
   "Reports",
   "Invoice Pack",
 ];
+const fmOnlySections = ["Consumables & Equipment", "Billing Template"];
 const fmDb = supabase as unknown as LooseSupabase;
+
 
 function formatAED(value: number | null | undefined) {
   return new Intl.NumberFormat("en-AE", {
