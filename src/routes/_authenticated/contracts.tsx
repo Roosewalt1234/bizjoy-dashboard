@@ -606,6 +606,7 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
           open={open}
           onOpenChange={setOpen}
           editing={editing}
+          moduleType={moduleType}
           onSaved={() => qc.invalidateQueries({ queryKey: ["contracts"] })}
         />
       )}
@@ -614,8 +615,8 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
 }
 
 function ContractDialog({
-  open, onOpenChange, editing, onSaved,
-}: { open: boolean; onOpenChange: (o: boolean) => void; editing: any | null; onSaved: () => void }) {
+  open, onOpenChange, editing, onSaved, moduleType = "AMC",
+}: { open: boolean; onOpenChange: (o: boolean) => void; editing: any | null; onSaved: () => void; moduleType?: ModuleType }) {
   const [customerId, setCustomerId] = useState<string | null>(editing?.customer_id ?? null);
   const [customerName, setCustomerName] = useState<string>(editing?.customer_name ?? "");
   const [title, setTitle] = useState(editing?.title ?? "");
@@ -871,6 +872,7 @@ function ContractDialog({
         vat_percent: vatPercent ? Number(vatPercent) : null,
         contract_manager_id: contractManagerId === "none" ? null : contractManagerId,
         sla_profile_id: slaProfileId === "none" ? null : slaProfileId,
+        module_type: moduleType,
       };
 
       let contractId = editing?.id as string | undefined;
