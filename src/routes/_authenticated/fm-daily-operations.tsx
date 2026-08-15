@@ -12,6 +12,7 @@ import {
   RefreshCw,
   Users,
   Wrench,
+  X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -149,6 +150,7 @@ function FmDailyOperationsPage() {
   const [contractId, setContractId] = useState<string>("");
   const [lastRefresh, setLastRefresh] = useState(new Date());
   const [busy, setBusy] = useState(false);
+  const [newTask, setNewTask] = useState({ area: "", task: "" });
 
   const week = weekBounds(date);
   const month = monthBounds(date);
@@ -415,6 +417,43 @@ function FmDailyOperationsPage() {
       return;
     }
     qc.invalidateQueries({ queryKey: ["fm-ops-checks", activeContractId, date] });
+  }
+
+  async function addTemplateTask() {
+    if (!activeContractId || !newTask.task.trim()) return;
+    setBusy(true);
+    const { error } = await fmDb.from("fm_cleaning_checklist_templates").insert({
+      fm_contract_id: activeContractId,
+      area: newTask.area.trim() || "General",
+      task_name: newTask.task.trim(),
+      is_active: true,
+      sort_order: (checklistTemplates as any[]).length + 1,
+    });
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setNewTask({ area: "", task: "" });
+    toast.success("Checklist task added");
+    qc.invalidateQueries({ queryKey: ["fm-ops-checklist-templates", activeContractId] });
+  }
+
+  async function deactivateTemplateTask(task: ChecklistTask) {
+    if (!task.id) return;
+    if (!window.confirm(`Remove "${task.task}" from this contract's checklist template?`)) return;
+    setBusy(true);
+    const { error } = await fmDb
+      .from("fm_cleaning_checklist_templates")
+      .update({ is_active: false })
+      .eq("id", task.id);
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Checklist task removed");
+    qc.invalidateQueries({ queryKey: ["fm-ops-checklist-templates", activeContractId] });
   }
 
   function refreshAll() {
