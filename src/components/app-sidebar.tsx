@@ -65,12 +65,10 @@ const items: NavItem[] = [
   },
   {
     title: "FM Projects",
-    url: "/fm-dashboard",
+    url: "/fm-daily-operations",
     icon: FolderKanban,
     module: "contracts",
     children: [
-      { title: "FM Dashboard", url: "/fm-dashboard", module: "contracts" },
-      { title: "Daily Operations", url: "/fm-daily-operations", module: "contracts" },
       { title: "FM Contracts", url: "/fm-contracts", module: "contracts" },
       { title: "Service Categories", url: "/fm-service-categories", module: "contracts" },
       { title: "Contract Line Items", url: "/fm-contract-line-items", module: "contracts" },
@@ -83,7 +81,7 @@ const items: NavItem[] = [
       { title: "Weekly Reports", url: "/fm-weekly-reports", module: "contracts" },
       { title: "Monthly Reports", url: "/fm-monthly-reports", module: "contracts" },
       { title: "Invoice Packs", url: "/fm-invoice-packs", module: "contracts" },
-      { title: "Projects", url: "/projects", module: "projects" },
+
       { title: "Project Assets", url: "/assets", module: "projects" },
       { title: "MEP Schedules", url: "/mep-schedules", module: "projects" },
       { title: "Cleaning Schedules", url: "/cleaning-schedules", module: "projects" },
