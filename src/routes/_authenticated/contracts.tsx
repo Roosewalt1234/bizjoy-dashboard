@@ -569,9 +569,10 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
                     <Button size="icon" variant="ghost" asChild>
-                      <Link to="/contracts/$id" params={{ id: r.id }}>
+                      <Link to={moduleType === "FM" ? "/fm-contracts/$id" : "/amc-contracts/$id"} params={{ id: r.id }}>
                         <FileText className="h-4 w-4" />
                       </Link>
+
                     </Button>
                     <Button size="icon" variant="ghost" onClick={() => { setEditing(r); setOpen(true); }}>
                       <Pencil className="h-4 w-4" />
