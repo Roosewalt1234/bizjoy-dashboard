@@ -1097,37 +1097,41 @@ function ContractDialog({
 
           {/* Spare parts + AMC Ref No + Handyman Hours + status */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="space-y-1">
-              <Label>Spare Parts Amount (AED)</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={sparePartsAmount}
-                onChange={(e) => setSparePartsAmount(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">
-                Auto-set by contract type ({contractType} = AED {SPARE_PARTS_BY_TYPE[contractType].toLocaleString()}).
-              </p>
-            </div>
-            <div className="space-y-1">
-              <Label>AMC Ref No.</Label>
-              <Input
-                placeholder="e.g. AMC-2026-0001"
-                value={amcRefNo}
-                onChange={(e) => setAmcRefNo(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>Handyman Hours</Label>
-              <Input
-                type="number"
-                min="0"
-                step="1"
-                value={handymanHours}
-                onChange={(e) => setHandymanHours(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">Default {DEFAULT_HANDYMAN_HOURS} hours/year.</p>
-            </div>
+            {!isFM && (
+              <>
+                <div className="space-y-1">
+                  <Label>Spare Parts Amount (AED)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={sparePartsAmount}
+                    onChange={(e) => setSparePartsAmount(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Auto-set by contract type ({contractType} = AED {SPARE_PARTS_BY_TYPE[contractType].toLocaleString()}).
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <Label>AMC Ref No.</Label>
+                  <Input
+                    placeholder="e.g. AMC-2026-0001"
+                    value={amcRefNo}
+                    onChange={(e) => setAmcRefNo(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label>Handyman Hours</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={handymanHours}
+                    onChange={(e) => setHandymanHours(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">Default {DEFAULT_HANDYMAN_HOURS} hours/year.</p>
+                </div>
+              </>
+            )}
             <div className="space-y-1">
               <Label>Contract Status</Label>
               <Select value={status} onValueChange={setStatus}>
@@ -1138,6 +1142,7 @@ function ContractDialog({
               </Select>
             </div>
           </div>
+
 
 
           {isFM && (
