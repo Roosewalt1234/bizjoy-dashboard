@@ -136,6 +136,19 @@ export function WorkOrdersPage({
   }, [page, totalPages]);
   const pageRows = paginate(filtered, page);
 
+  // Deep link: open the exact work order requested via ?wo= / ?wo_id=
+  useEffect(() => {
+    const key = focusWoId ?? focusWo;
+    if (!key || focusHandled.current === key) return;
+    const match = (orders as any[]).find((r) =>
+      focusWoId ? r.id === focusWoId : r.wo_no === focusWo,
+    );
+    if (!match) return;
+    focusHandled.current = key;
+    setViewing(match);
+  }, [orders, focusWo, focusWoId]);
+
+
   const openCount = (orders as any[]).filter(
     (r) => r.status === "Open" || r.status === "Scheduled",
   ).length;
