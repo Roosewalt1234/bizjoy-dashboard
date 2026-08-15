@@ -544,80 +544,102 @@ function FmDailyOperationsPage() {
 
 
 
+  type ActionItem = {
+    rank: number; // lower = more urgent
+    priority: "High" | "Medium" | "Low";
+    state: string;
+    module: string;
+    description: string;
+    record: string;
+    label: string;
+    go: () => void;
+  };
+
   const actions = useMemo(() => {
-    const list: {
-      priority: "High" | "Medium" | "Low";
-      module: string;
-      description: string;
-      record: string;
-      label: string;
-      go: () => void;
-    }[] = [];
+    const list: ActionItem[] = [];
 
-    if (attendance.length === 0)
+    // 1 — breached / overdue
+    ppmOverdue.slice(0, 8).forEach((v: any) =>
       list.push({
+        rank: 1,
         priority: "High",
-        module: "Attendance",
-        description: `No attendance marked for ${date}`,
-        record: `${plannedHeadcount} planned headcount`,
-        label: "Add Attendance",
-        go: () => navigate({ to: "/fm-attendance" }),
-      });
-    else if (plannedHeadcount && coverage < 100)
-      list.push({
-        priority: "Medium",
-        module: "Attendance",
-        description: `Manpower coverage at ${coverage}%`,
-        record: `${present}/${plannedHeadcount} present`,
-        label: "Open Attendance",
-        go: () => navigate({ to: "/fm-attendance" }),
-      });
-
-    ppmOverdue.slice(0, 5).forEach((v: any) =>
-      list.push({
-        priority: "High",
+        state: "Overdue",
         module: "PPM",
         description: "Overdue PPM visit",
         record: `${v.service_categories?.name ?? "PPM"} — planned ${ppmDate(v)}`,
         label: "Open PPM",
-        go: () => navigate({ to: "/fm-ppm" }),
+        go: () => openPpm(v.id),
       }),
     );
-    ppmDueToday.slice(0, 5).forEach((v: any) =>
+    breachedWos.slice(0, 8).forEach((w: any) =>
       list.push({
-        priority: "Medium",
-        module: "PPM",
-        description: "PPM visit due today",
-        record: `${v.service_categories?.name ?? "PPM"}`,
-        label: "Open PPM",
-        go: () => navigate({ to: "/fm-ppm" }),
-      }),
-    );
-
-    breachedWos.slice(0, 5).forEach((w: any) =>
-      list.push({
+        rank: 1,
         priority: "High",
+        state: "Breached",
         module: "Work Orders",
         description: "SLA breached — close work order",
         record: `${w.wo_no ?? "WO"} · ${w.request_type ?? "-"}`,
         label: "Open Work Order",
-        go: () => navigate({ to: "/fm-work-orders" }),
+        go: () => openWorkOrder(w),
       }),
     );
-    atRiskWos.slice(0, 5).forEach((w: any) =>
+
+    // 2 — at risk
+    atRiskWos.slice(0, 8).forEach((w: any) =>
       list.push({
+        rank: 2,
         priority: "Medium",
+        state: "At Risk",
         module: "Work Orders",
         description: "SLA at risk — respond now",
         record: `${w.wo_no ?? "WO"} · ${w.request_type ?? "-"}`,
         label: "Open Work Order",
-        go: () => navigate({ to: "/fm-work-orders" }),
+        go: () => openWorkOrder(w),
+      }),
+    );
+    ppmDueToday.slice(0, 8).forEach((v: any) =>
+      list.push({
+        rank: 2,
+        priority: "Medium",
+        state: "Pending",
+        module: "PPM",
+        description: "PPM visit due today",
+        record: `${v.service_categories?.name ?? "PPM"}`,
+        label: "Open PPM",
+        go: () => openPpm(v.id),
       }),
     );
 
+    // 3 — attendance
+    if (attendance.length === 0)
+      list.push({
+        rank: 3,
+        priority: "High",
+        state: "Pending",
+        module: "Attendance",
+        description: `No attendance marked for ${date}`,
+        record: `${plannedHeadcount} planned headcount`,
+        label: "Add Attendance",
+        go: () => openAttendance(true),
+      });
+    else if (plannedHeadcount && coverage < 100)
+      list.push({
+        rank: 3,
+        priority: "Medium",
+        state: "At Risk",
+        module: "Attendance",
+        description: `Manpower coverage at ${coverage}%`,
+        record: `${present}/${plannedHeadcount} present`,
+        label: "Open Attendance",
+        go: () => openAttendance(),
+      });
+
+    // 4 — cleaning
     if (cleaningDone < cleaningTasks.length)
       list.push({
+        rank: 4,
         priority: "Medium",
+        state: "Pending",
         module: "Cleaning",
         description: "Daily cleaning checklist incomplete",
         record: `${cleaningDone}/${cleaningTasks.length} completed`,
@@ -625,40 +647,49 @@ function FmDailyOperationsPage() {
         go: () => document.getElementById("cleaning-widget")?.scrollIntoView({ behavior: "smooth" }),
       });
 
+    // 5 — reporting / invoicing
     if (!weeklyReport)
       list.push({
+        rank: 5,
         priority: "Medium",
+        state: "Pending",
         module: "Reporting",
         description: "Prepare weekly report",
         record: `${week.start} to ${week.end}`,
         label: "Generate Report",
-        go: () => navigate({ to: "/fm-weekly-reports" }),
+        go: () => navigate({ to: "/fm-weekly-reports", search: {} }),
       });
     if (!monthlyReport)
       list.push({
+        rank: 5,
         priority: "Medium",
+        state: "Pending",
         module: "Reporting",
         description: "Prepare monthly report",
         record: `${month.start} to ${month.end}`,
         label: "Generate Report",
-        go: () => navigate({ to: "/fm-monthly-reports" }),
+        go: () => navigate({ to: "/fm-monthly-reports", search: {} }),
       });
     if (!invoicePack)
       list.push({
+        rank: 6,
         priority: "Low",
+        state: "Pending",
         module: "Invoicing",
         description: "Generate current month invoice pack",
         record: `${month.start} to ${month.end}`,
         label: "Open Invoice Pack",
-        go: () => navigate({ to: "/fm-invoice-packs" }),
+        go: () => navigate({ to: "/fm-invoice-packs", search: {} }),
       });
 
-    return list;
+    return list.sort((a, b) => a.rank - b.rank);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     attendance.length,
     atRiskWos,
     breachedWos,
     cleaningDone,
+    cleaningTasks.length,
     coverage,
     date,
     invoicePack,
@@ -674,6 +705,16 @@ function FmDailyOperationsPage() {
     week.start,
     weeklyReport,
   ]);
+
+  const stateBadge = (s: string) =>
+    s === "Breached" || s === "Overdue"
+      ? "bg-destructive/10 text-destructive border-destructive/30"
+      : s === "At Risk"
+        ? "bg-amber-100 text-amber-800 border-amber-200"
+        : s === "Completed" || s === "On Track"
+          ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+          : "bg-muted text-muted-foreground";
+
 
   const priorityBadge = (p: string) =>
     p === "High"
