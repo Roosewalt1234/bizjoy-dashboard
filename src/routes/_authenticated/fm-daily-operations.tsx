@@ -60,7 +60,13 @@ export const Route = createFileRoute("/_authenticated/fm-daily-operations")({
 
 const fmDb = supabase as any;
 
-type ChecklistTask = { id?: string; area: string; task: string; sort_order?: number };
+type ChecklistTask = {
+  id?: string;
+  area: string;
+  task: string;
+  sort_order?: number;
+  inactive?: boolean;
+};
 
 // Fallback used only when a contract has no checklist template rows yet.
 const DEFAULT_CLEANING_TASKS: ChecklistTask[] = [
@@ -371,8 +377,9 @@ function FmDailyOperationsPage() {
     return map;
   }, [checks]);
 
-  // Daily checklist comes from the contract's template rows; existing checks
-  // for the day are reused (never duplicated) and legacy rows stay visible.
+  // Daily checklist comes from the contract's active template rows. Checks that
+  // belong to inactive/removed templates only stay visible for the day when they
+  // carry real saved activity, and are flagged as "Inactive Template".
   const cleaningTasks: ChecklistTask[] = useMemo(() => {
     const active = (checklistTemplates as any[]).filter((t) => t.is_active !== false);
     const base: ChecklistTask[] = active.length
@@ -384,13 +391,16 @@ function FmDailyOperationsPage() {
         }))
       : DEFAULT_CLEANING_TASKS;
     const names = new Set(base.map((t) => t.task));
-    const legacy = (checks as any[])
-      .filter((c) => !names.has(c.task_name))
-      .map((c) => ({ area: c.area ?? "General", task: c.task_name }));
-    return [...base, ...legacy];
+    const hasActivity = (c: any) =>
+      (c.status && c.status !== "Pending") || Boolean(c.remarks) || Boolean(c.checked_by);
+    const orphaned = (checks as any[])
+      .filter((c) => !names.has(c.task_name) && hasActivity(c))
+      .map((c) => ({ area: c.area ?? "General", task: c.task_name, inactive: true }));
+    return [...base, ...orphaned];
   }, [checklistTemplates, checks]);
 
-  const cleaningDone = cleaningTasks.filter(
+  const cleaningActiveTasks = cleaningTasks.filter((t) => !t.inactive);
+  const cleaningDone = cleaningActiveTasks.filter(
     (t) => checkByTask.get(t.task)?.status === "Completed",
   ).length;
 
@@ -675,14 +685,14 @@ function FmDailyOperationsPage() {
       });
 
     // 4 — cleaning
-    if (cleaningDone < cleaningTasks.length)
+    if (cleaningDone < cleaningActiveTasks.length)
       list.push({
         rank: 4,
         priority: "Medium",
         state: "Pending",
         module: "Cleaning",
         description: "Daily cleaning checklist incomplete",
-        record: `${cleaningDone}/${cleaningTasks.length} completed`,
+        record: `${cleaningDone}/${cleaningActiveTasks.length} completed`,
         label: "Mark Checklist",
         go: () => document.getElementById("cleaning-widget")?.scrollIntoView({ behavior: "smooth" }),
       });
@@ -729,7 +739,7 @@ function FmDailyOperationsPage() {
     atRiskWos,
     breachedWos,
     cleaningDone,
-    cleaningTasks.length,
+    cleaningActiveTasks.length,
     coverage,
     date,
     invoicePack,
@@ -964,34 +974,37 @@ function FmDailyOperationsPage() {
             <Card className="p-4 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h2 className="text-lg font-semibold">Attendance — {date}</h2>
-                {attendance.length === 0 ? (
-                  <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  {attendance.length > 0 ? (
+                    <>
+                      <Badge variant="outline" className={stateBadge("Completed")}>
+                        Present {present}
+                      </Badge>
+                      <Badge
+                        variant="outline"
+                        className={absent ? stateBadge("Breached") : undefined}
+                      >
+                        Absent {absent}
+                      </Badge>
+                      <Badge
+                        variant="outline"
+                        className={stateBadge(coverage >= 100 ? "Completed" : "At Risk")}
+                      >
+                        Coverage {coverage}%
+                      </Badge>
+                    </>
+                  ) : (
                     <Button size="sm" onClick={markFullTeamPresent} disabled={busy}>
                       Mark Full Planned Team Present
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => openAttendance(true)}>
-                      Add Attendance Manually
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline" className={stateBadge("Completed")}>
-                      Present {present}
-                    </Badge>
-                    <Badge variant="outline" className={absent ? stateBadge("Breached") : undefined}>
-                      Absent {absent}
-                    </Badge>
-                    <Badge
-                      variant="outline"
-                      className={stateBadge(coverage >= 100 ? "Completed" : "At Risk")}
-                    >
-                      Coverage {coverage}%
-                    </Badge>
-                    <Button size="sm" variant="outline" onClick={() => openAttendance()}>
-                      Open Attendance
-                    </Button>
-                  </div>
-                )}
+                  )}
+                  <Button size="sm" variant="outline" onClick={() => openAttendance()}>
+                    Open Attendance
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => openAttendance(true)}>
+                    Add Attendance Manually
+                  </Button>
+                </div>
               </div>
               {attendance.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No attendance marked today</p>
@@ -1203,7 +1216,7 @@ function FmDailyOperationsPage() {
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">Cleaning / Housekeeping — {date}</h2>
                 <Badge variant="outline">
-                  {cleaningDone}/{cleaningTasks.length} done
+                  {cleaningDone}/{cleaningActiveTasks.length} done
                 </Badge>
               </div>
               <Table>
@@ -1222,7 +1235,16 @@ function FmDailyOperationsPage() {
                     return (
                       <TableRow key={t.task}>
                         <TableCell className="text-xs text-muted-foreground">{t.area}</TableCell>
-                        <TableCell>{t.task}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span>{t.task}</span>
+                            {t.inactive ? (
+                              <Badge variant="outline" className="text-[10px] uppercase">
+                                Inactive Template
+                              </Badge>
+                            ) : null}
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <Select
                             value={row?.status ?? "Pending"}
