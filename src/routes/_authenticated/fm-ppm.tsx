@@ -4,7 +4,13 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarDays, Pencil, Plus, Trash2, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { calculateDueTimes, calculateSlaStatus, normalizePriority } from "@/lib/fm-sla";
+import {
+  calculateDueTimes,
+  calculateSlaStatus,
+  isScheduleBasedPolicy,
+  normalizePriority,
+  scheduleBasedDueTimes,
+} from "@/lib/fm-sla";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -567,13 +573,16 @@ function ContractPpmPage() {
             !item.priority || item.priority === priority || item.priority === payload.priority,
         ) ??
         null;
-      if (policy) {
-        const dueTimes = calculateDueTimes(payload.reported_at, policy);
-        payload.response_due_at = dueTimes.response_due_at;
-        payload.completion_due_at = dueTimes.completion_due_at;
-        payload.response_sla_status = calculateSlaStatus({ dueAt: payload.response_due_at });
-        payload.completion_sla_status = calculateSlaStatus({ dueAt: payload.completion_due_at });
-      }
+      // PPM is schedule based: when the matched policy has no minute targets we
+      // measure compliance against the planned visit date instead of breaching.
+      const dueTimes =
+        !policy || isScheduleBasedPolicy(policy)
+          ? scheduleBasedDueTimes(visit.planned_date)
+          : calculateDueTimes(payload.reported_at, policy);
+      payload.response_due_at = dueTimes.response_due_at;
+      payload.completion_due_at = dueTimes.completion_due_at;
+      payload.response_sla_status = calculateSlaStatus({ dueAt: payload.response_due_at });
+      payload.completion_sla_status = calculateSlaStatus({ dueAt: payload.completion_due_at });
 
       const { data, error } = await fmDb.from("work_orders").insert(payload).select("id");
       if (error) throw error;
