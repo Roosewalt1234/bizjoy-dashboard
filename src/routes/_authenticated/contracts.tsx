@@ -379,7 +379,7 @@ function ContractsPage() {
     <div className="p-6 max-w-7xl mx-auto space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Contracts</h1>
+          <h1 className="text-3xl font-bold tracking-tight">AMC & FM Contracts</h1>
           <p className="text-muted-foreground">Manage customer contracts.</p>
         </div>
         <div className="flex items-center gap-2">

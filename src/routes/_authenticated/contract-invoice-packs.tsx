@@ -541,7 +541,7 @@ function ContractInvoicePacksPage() {
     <div className="p-6 max-w-7xl mx-auto space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Invoice Packs</h1>
+          <h1 className="text-3xl font-bold tracking-tight">FM Invoice Packs</h1>
           <p className="text-muted-foreground">
             Prepare monthly FM billing and client submission packs.
           </p>

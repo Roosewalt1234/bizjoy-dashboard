@@ -417,7 +417,7 @@ function ContractManpowerPage() {
     <div className="p-6 max-w-7xl mx-auto space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Manpower</h1>
+          <h1 className="text-3xl font-bold tracking-tight">FM Manpower Planning</h1>
           <p className="text-muted-foreground">
             Plan required headcount and assign employees to FM contracts.
           </p>
