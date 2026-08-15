@@ -1073,26 +1073,38 @@ function ContractDialog({
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="space-y-1">
-              <Label>Contract Title *</Label>
-              <div className="flex gap-4 items-center pt-1">
-                {CONTRACT_TYPES.map((t) => (
-                  <label key={t} className="flex items-center gap-2 text-sm cursor-pointer">
-                    <input
-                      type="radio"
-                      name="contract_type"
-                      value={t}
-                      checked={contractType === t}
-                      onChange={() => {
-                        setContractType(t);
-                        setSparePartsAmount(String(SPARE_PARTS_BY_TYPE[t]));
-                      }}
-                    />
-                    {t} Contract
-                  </label>
-                ))}
+            {isFM ? (
+              <div className="space-y-1">
+                <Label>Contract / Site Title *</Label>
+                <Input
+                  placeholder="e.g. 48 Parkside – FM Services"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
               </div>
-            </div>
+            ) : (
+              <div className="space-y-1">
+                <Label>Contract Title *</Label>
+                <div className="flex gap-4 items-center pt-1">
+                  {CONTRACT_TYPES.map((t) => (
+                    <label key={t} className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input
+                        type="radio"
+                        name="contract_type"
+                        value={t}
+                        checked={contractType === t}
+                        onChange={() => {
+                          setContractType(t);
+                          setSparePartsAmount(String(SPARE_PARTS_BY_TYPE[t]));
+                        }}
+                      />
+                      {t} Contract
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
           </div>
 
           {/* Spare parts + AMC Ref No + Handyman Hours + status */}
