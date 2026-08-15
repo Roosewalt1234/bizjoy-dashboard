@@ -29,6 +29,7 @@ import { Route as AuthenticatedFmMonthlyReportsRouteImport } from './routes/_aut
 import { Route as AuthenticatedFmManpowerRouteImport } from './routes/_authenticated/fm-manpower'
 import { Route as AuthenticatedFmInvoicePacksRouteImport } from './routes/_authenticated/fm-invoice-packs'
 import { Route as AuthenticatedFmDashboardRouteImport } from './routes/_authenticated/fm-dashboard'
+import { Route as AuthenticatedFmDailyOperationsRouteImport } from './routes/_authenticated/fm-daily-operations'
 import { Route as AuthenticatedFmContractsRouteImport } from './routes/_authenticated/fm-contracts'
 import { Route as AuthenticatedFmContractLineItemsRouteImport } from './routes/_authenticated/fm-contract-line-items'
 import { Route as AuthenticatedFmAttendanceRouteImport } from './routes/_authenticated/fm-attendance'
@@ -167,6 +168,12 @@ const AuthenticatedFmDashboardRoute =
   AuthenticatedFmDashboardRouteImport.update({
     id: '/fm-dashboard',
     path: '/fm-dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFmDailyOperationsRoute =
+  AuthenticatedFmDailyOperationsRouteImport.update({
+    id: '/fm-daily-operations',
+    path: '/fm-daily-operations',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedFmContractsRoute =
@@ -377,6 +384,7 @@ export interface FileRoutesByFullPath {
   '/fm-attendance': typeof AuthenticatedFmAttendanceRoute
   '/fm-contract-line-items': typeof AuthenticatedFmContractLineItemsRoute
   '/fm-contracts': typeof AuthenticatedFmContractsRouteWithChildren
+  '/fm-daily-operations': typeof AuthenticatedFmDailyOperationsRoute
   '/fm-dashboard': typeof AuthenticatedFmDashboardRoute
   '/fm-invoice-packs': typeof AuthenticatedFmInvoicePacksRoute
   '/fm-manpower': typeof AuthenticatedFmManpowerRoute
@@ -427,6 +435,7 @@ export interface FileRoutesByTo {
   '/fm-assets': typeof AuthenticatedFmAssetsRoute
   '/fm-attendance': typeof AuthenticatedFmAttendanceRoute
   '/fm-contract-line-items': typeof AuthenticatedFmContractLineItemsRoute
+  '/fm-daily-operations': typeof AuthenticatedFmDailyOperationsRoute
   '/fm-dashboard': typeof AuthenticatedFmDashboardRoute
   '/fm-invoice-packs': typeof AuthenticatedFmInvoicePacksRoute
   '/fm-manpower': typeof AuthenticatedFmManpowerRoute
@@ -481,6 +490,7 @@ export interface FileRoutesById {
   '/_authenticated/fm-attendance': typeof AuthenticatedFmAttendanceRoute
   '/_authenticated/fm-contract-line-items': typeof AuthenticatedFmContractLineItemsRoute
   '/_authenticated/fm-contracts': typeof AuthenticatedFmContractsRouteWithChildren
+  '/_authenticated/fm-daily-operations': typeof AuthenticatedFmDailyOperationsRoute
   '/_authenticated/fm-dashboard': typeof AuthenticatedFmDashboardRoute
   '/_authenticated/fm-invoice-packs': typeof AuthenticatedFmInvoicePacksRoute
   '/_authenticated/fm-manpower': typeof AuthenticatedFmManpowerRoute
@@ -536,6 +546,7 @@ export interface FileRouteTypes {
     | '/fm-attendance'
     | '/fm-contract-line-items'
     | '/fm-contracts'
+    | '/fm-daily-operations'
     | '/fm-dashboard'
     | '/fm-invoice-packs'
     | '/fm-manpower'
@@ -586,6 +597,7 @@ export interface FileRouteTypes {
     | '/fm-assets'
     | '/fm-attendance'
     | '/fm-contract-line-items'
+    | '/fm-daily-operations'
     | '/fm-dashboard'
     | '/fm-invoice-packs'
     | '/fm-manpower'
@@ -639,6 +651,7 @@ export interface FileRouteTypes {
     | '/_authenticated/fm-attendance'
     | '/_authenticated/fm-contract-line-items'
     | '/_authenticated/fm-contracts'
+    | '/_authenticated/fm-daily-operations'
     | '/_authenticated/fm-dashboard'
     | '/_authenticated/fm-invoice-packs'
     | '/_authenticated/fm-manpower'
@@ -812,6 +825,13 @@ declare module '@tanstack/react-router' {
       path: '/fm-dashboard'
       fullPath: '/fm-dashboard'
       preLoaderRoute: typeof AuthenticatedFmDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-daily-operations': {
+      id: '/_authenticated/fm-daily-operations'
+      path: '/fm-daily-operations'
+      fullPath: '/fm-daily-operations'
+      preLoaderRoute: typeof AuthenticatedFmDailyOperationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/fm-contracts': {
@@ -1116,6 +1136,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFmAttendanceRoute: typeof AuthenticatedFmAttendanceRoute
   AuthenticatedFmContractLineItemsRoute: typeof AuthenticatedFmContractLineItemsRoute
   AuthenticatedFmContractsRoute: typeof AuthenticatedFmContractsRouteWithChildren
+  AuthenticatedFmDailyOperationsRoute: typeof AuthenticatedFmDailyOperationsRoute
   AuthenticatedFmDashboardRoute: typeof AuthenticatedFmDashboardRoute
   AuthenticatedFmInvoicePacksRoute: typeof AuthenticatedFmInvoicePacksRoute
   AuthenticatedFmManpowerRoute: typeof AuthenticatedFmManpowerRoute
@@ -1167,6 +1188,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFmAttendanceRoute: AuthenticatedFmAttendanceRoute,
   AuthenticatedFmContractLineItemsRoute: AuthenticatedFmContractLineItemsRoute,
   AuthenticatedFmContractsRoute: AuthenticatedFmContractsRouteWithChildren,
+  AuthenticatedFmDailyOperationsRoute: AuthenticatedFmDailyOperationsRoute,
   AuthenticatedFmDashboardRoute: AuthenticatedFmDashboardRoute,
   AuthenticatedFmInvoicePacksRoute: AuthenticatedFmInvoicePacksRoute,
   AuthenticatedFmManpowerRoute: AuthenticatedFmManpowerRoute,
