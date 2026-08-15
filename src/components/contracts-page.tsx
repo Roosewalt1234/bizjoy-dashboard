@@ -929,17 +929,14 @@ function ContractDialog({
   }
 
   async function save() {
-    if (!customerName) { toast.error("Select a customer"); return; }
+    if (!customerName) { toast.error("Select a client"); return; }
+    if (isFM && !title.trim()) { toast.error("Enter a contract / site title"); return; }
     const finalTitle = title || `${customerName} – ${contractType} Contract`;
     setSaving(true);
     try {
-      const payload: any = {
+      const common: any = {
         title: finalTitle,
-        contract_type: contractType,
-        spare_parts_amount: sparePartsAmount ? Number(sparePartsAmount) : 0,
-        amc_ref_no: amcRefNo || null,
         contract_no: contractNo || null,
-        handyman_hours: handymanHours === "" ? DEFAULT_HANDYMAN_HOURS : Number(handymanHours),
         customer_id: customerId,
         customer_name: customerName,
         start_date: startDate || null,
@@ -947,23 +944,38 @@ function ContractDialog({
         value: value ? Number(value) : null,
         payment_terms: paymentTerms || null,
         status,
-        ppm_schedule: { dates: ppmSchedule, status: ppmStatus, freq: contractType === "Bespoke" ? bespokeFreq : {} },
-        water_tank_cleaning_date: null,
-        water_tank_cleaning_status: null,
-        ac_duct_cleaning_date: acDuctDate || null,
-        ac_duct_cleaning_status: acDuctStatus || null,
         remark: remark || null,
-        contract_scope_type: contractScopeType || null,
-        site_name: siteName || null,
-        site_address: siteAddress || null,
-        building_type: buildingType || null,
-        billing_cycle: billingCycle || null,
-        retention_percent: retentionPercent ? Number(retentionPercent) : null,
-        vat_percent: vatPercent ? Number(vatPercent) : null,
-        contract_manager_id: contractManagerId === "none" ? null : contractManagerId,
-        sla_profile_id: slaProfileId === "none" ? null : slaProfileId,
         module_type: moduleType,
       };
+
+      const payload: any = isFM
+        ? {
+            ...common,
+            contract_scope_type: contractScopeType || null,
+            site_name: siteName || null,
+            site_address: siteAddress || null,
+            building_type: buildingType || null,
+            billing_cycle: billingCycle || null,
+            retention_percent: retentionPercent ? Number(retentionPercent) : null,
+            vat_percent: vatPercent ? Number(vatPercent) : null,
+            contract_manager_id: contractManagerId === "none" ? null : contractManagerId,
+            sla_profile_id: slaProfileId === "none" ? null : slaProfileId,
+            handyman_hours: 0,
+          }
+        : {
+            ...common,
+            contract_type: contractType,
+            spare_parts_amount: sparePartsAmount ? Number(sparePartsAmount) : 0,
+            amc_ref_no: amcRefNo || null,
+            handyman_hours: handymanHours === "" ? DEFAULT_HANDYMAN_HOURS : Number(handymanHours),
+            ppm_schedule: { dates: ppmSchedule, status: ppmStatus, freq: contractType === "Bespoke" ? bespokeFreq : {} },
+            water_tank_cleaning_date: null,
+            water_tank_cleaning_status: null,
+            ac_duct_cleaning_date: acDuctDate || null,
+            ac_duct_cleaning_status: acDuctStatus || null,
+            contract_scope_type: contractScopeType || null,
+          };
+
 
       let contractId = editing?.id as string | undefined;
       if (editing) {
