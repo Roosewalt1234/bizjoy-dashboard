@@ -234,6 +234,7 @@ export type Database = {
           contract_id: string
           created_at: string
           id: string
+          is_total_row: boolean
           monthly_amount: number | null
           notes: string | null
           service_category_id: string | null
@@ -247,6 +248,7 @@ export type Database = {
           contract_id: string
           created_at?: string
           id?: string
+          is_total_row?: boolean
           monthly_amount?: number | null
           notes?: string | null
           service_category_id?: string | null
@@ -260,6 +262,7 @@ export type Database = {
           contract_id?: string
           created_at?: string
           id?: string
+          is_total_row?: boolean
           monthly_amount?: number | null
           notes?: string | null
           service_category_id?: string | null
