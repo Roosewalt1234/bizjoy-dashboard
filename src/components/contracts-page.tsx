@@ -503,7 +503,7 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Customer</TableHead>
+              <TableHead>{moduleType === "FM" ? "Contract / Site" : "Customer"}</TableHead>
               <TableHead>Title</TableHead>
               <TableHead>Start</TableHead>
               <TableHead>End</TableHead>
@@ -524,7 +524,19 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
               <TableRow><TableCell colSpan={12} className="text-center py-8 text-muted-foreground">No contracts yet.</TableCell></TableRow>
             ) : pageRows.map((r: any) => (
               <TableRow key={r.id}>
-                <TableCell className="font-medium">{r.customer_name ?? "—"}</TableCell>
+                <TableCell className="font-medium">
+                  {moduleType === "FM" ? (
+                    <div className="space-y-0.5">
+                      <div className="font-semibold">{r.title ?? r.contract_no ?? "—"}</div>
+                      <div className="text-xs text-muted-foreground">{r.customer_name ?? "—"}</div>
+                      {r.site_name ? (
+                        <div className="text-xs text-muted-foreground">{r.site_name}</div>
+                      ) : null}
+                    </div>
+                  ) : (
+                    (r.customer_name ?? "—")
+                  )}
+                </TableCell>
                 <TableCell>
                   {r.contract_type ? (
                     <Badge variant="outline" className={cn("font-medium", typeBadgeClasses(r.contract_type))}>{r.contract_type}</Badge>
