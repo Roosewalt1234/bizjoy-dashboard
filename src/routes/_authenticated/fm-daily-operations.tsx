@@ -364,9 +364,30 @@ function FmDailyOperationsPage() {
     checks.forEach((c: any) => map.set(c.task_name, c));
     return map;
   }, [checks]);
-  const cleaningDone = CLEANING_TASKS.filter(
+
+  // Daily checklist comes from the contract's template rows; existing checks
+  // for the day are reused (never duplicated) and legacy rows stay visible.
+  const cleaningTasks: ChecklistTask[] = useMemo(() => {
+    const active = (checklistTemplates as any[]).filter((t) => t.is_active !== false);
+    const base: ChecklistTask[] = active.length
+      ? active.map((t) => ({
+          id: t.id,
+          area: t.area ?? "General",
+          task: t.task_name,
+          sort_order: t.sort_order ?? 0,
+        }))
+      : DEFAULT_CLEANING_TASKS;
+    const names = new Set(base.map((t) => t.task));
+    const legacy = (checks as any[])
+      .filter((c) => !names.has(c.task_name))
+      .map((c) => ({ area: c.area ?? "General", task: c.task_name }));
+    return [...base, ...legacy];
+  }, [checklistTemplates, checks]);
+
+  const cleaningDone = cleaningTasks.filter(
     (t) => checkByTask.get(t.task)?.status === "Completed",
   ).length;
+
 
   /* ---------------- actions ---------------- */
 
