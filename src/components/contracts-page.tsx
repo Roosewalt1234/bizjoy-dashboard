@@ -253,6 +253,7 @@ function PaymentDueBadge({ date, status }: { date: string; status: string }) {
 
 
 export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType }) {
+  const isFM = moduleType === "FM";
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
@@ -278,13 +279,20 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
 
   const filteredRows = useMemo(() => {
     return rows.filter((r: any) => {
-      const titleMatch = filterTitle === "all" || (r.contract_type || "") === filterTitle;
+      const titleMatch =
+        filterTitle === "all" ||
+        (isFM ? (r.contract_scope_type || "") === filterTitle : (r.contract_type || "") === filterTitle);
       const statusMatch = filterStatus === "all" || (r.status || "").toLowerCase() === filterStatus.toLowerCase();
-      const paymentMatch = filterPayment === "all" || (r.payment_terms || "").toLowerCase() === filterPayment.toLowerCase();
+      const paymentMatch =
+        filterPayment === "all" ||
+        (isFM
+          ? (r.billing_cycle || "").toLowerCase() === filterPayment.toLowerCase()
+          : (r.payment_terms || "").toLowerCase() === filterPayment.toLowerCase());
 
       return titleMatch && statusMatch && paymentMatch;
     });
-  }, [rows, filterTitle, filterStatus, filterPayment]);
+  }, [rows, filterTitle, filterStatus, filterPayment, isFM]);
+
 
   const { data: handymanLog = [] } = useQuery({
     queryKey: ["handyman_hours_log_all"],
