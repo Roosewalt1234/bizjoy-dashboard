@@ -1207,6 +1207,7 @@ function FmDailyOperationsPage() {
                     ref: weeklyReport?.report_no,
                     label: weeklyReport ? "Open Weekly Report" : "Create Weekly Report",
                     to: "/fm-weekly-reports" as const,
+                    search: weeklyReport ? { report_id: weeklyReport.id } : {},
                   },
                   {
                     title: "Monthly Report",
@@ -1215,6 +1216,7 @@ function FmDailyOperationsPage() {
                     ref: monthlyReport?.report_no,
                     label: monthlyReport ? "Open Monthly Report" : "Create Monthly Report",
                     to: "/fm-monthly-reports" as const,
+                    search: monthlyReport ? { report_id: monthlyReport.id } : {},
                   },
                   {
                     title: "Invoice Pack",
@@ -1223,8 +1225,10 @@ function FmDailyOperationsPage() {
                     ref: invoicePack?.invoice_number ?? invoicePack?.invoice_no,
                     label: invoicePack ? "Open Invoice Pack" : "Create Invoice Pack",
                     to: "/fm-invoice-packs" as const,
+                    search: invoicePack ? { invoice_pack_id: invoicePack.id } : {},
                   },
                 ].map((r) => (
+
                   <div
                     key={r.title}
                     className="flex items-center justify-between gap-3 rounded-md border p-3"
