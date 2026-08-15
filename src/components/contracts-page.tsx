@@ -1017,7 +1017,11 @@ function ContractDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{editing ? "Edit Contract" : "New Contract"}</DialogTitle>
+          <DialogTitle>
+            {editing
+              ? isFM ? "Edit FM Contract" : "Edit AMC Contract"
+              : isFM ? "New FM Contract" : "New AMC Contract"}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -1036,11 +1040,12 @@ function ContractDialog({
           {/* Customer + Title */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label>Customer *</Label>
+              <Label>{isFM ? "Client *" : "Customer *"}</Label>
               <Popover open={customerPickerOpen} onOpenChange={setCustomerPickerOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" role="combobox" className="w-full justify-between">
-                    {customerName || "Select customer..."}
+                    {customerName || (isFM ? "Select client..." : "Select customer...")}
+
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
