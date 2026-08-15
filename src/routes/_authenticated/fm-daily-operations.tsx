@@ -1085,15 +1085,17 @@ function FmDailyOperationsPage() {
                   <TableHead>SLA</TableHead>
                   <TableHead>Due</TableHead>
                   <TableHead>Assigned</TableHead>
+                  <TableHead className="text-right">Quick actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {openWos.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-sm text-muted-foreground">
+                    <TableCell colSpan={9} className="text-sm text-muted-foreground">
                       No open FM work orders.
                     </TableCell>
                   </TableRow>
+
                 ) : (
                   openWos.slice(0, 25).map((w: any) => {
                     const sla = slaOf(w);
