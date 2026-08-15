@@ -51,6 +51,7 @@ import {
   INVOICE_PACK_STATUSES,
   buildClientSubmissionSummary,
   buildInvoiceItemsFromContractLineItems,
+  buildInvoiceItemsFromBillingLines,
   buildParksideInvoiceItems,
   calculateInvoiceTotals,
   getBillingMonthRange,
@@ -94,6 +95,7 @@ function ContractInvoicePacksPage() {
   const [itemDialog, setItemDialog] = useState<{ mode: "add" | "edit"; row?: any } | null>(null);
   const [itemForm, setItemForm] = useState(emptyItemForm);
   const [generating, setGenerating] = useState(false);
+  const [templateConfirm, setTemplateConfirm] = useState<any[] | null>(null);
 
   const { data: contracts = [] } = useQuery({
     queryKey: ["invoice-contracts"],
@@ -457,6 +459,53 @@ function ContractInvoicePacksPage() {
     await afterItemsChanged();
   }
 
+  async function generateFromBillingTemplate(replaceExisting = false) {
+    if (!selectedPack) {
+      toast.error("Open an invoice pack first");
+      return;
+    }
+    const { data: lines, error } = await fmDb
+      .from("contract_billing_lines")
+      .select("*")
+      .eq("contract_id", selectedPack.contract_id)
+      .order("sort_order", { ascending: true });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    const newItems = buildInvoiceItemsFromBillingLines(lines ?? []);
+    if (newItems.length === 0) {
+      toast.error("No billable billing template lines for this contract");
+      return;
+    }
+    const existingGenerated = (items as any[]).filter((row) => row.item_type === "Contract Service");
+    if (existingGenerated.length > 0 && !replaceExisting) {
+      setTemplateConfirm(newItems);
+      return;
+    }
+    if (replaceExisting && existingGenerated.length > 0) {
+      const del = await fmDb
+        .from("invoice_pack_items")
+        .delete()
+        .eq("invoice_pack_id", selectedPack.id)
+        .eq("item_type", "Contract Service");
+      if (del.error) {
+        toast.error(del.error.message);
+        return;
+      }
+    }
+    const insert = await fmDb
+      .from("invoice_pack_items")
+      .insert(newItems.map((item) => ({ ...item, invoice_pack_id: selectedPack.id })));
+    if (insert.error) {
+      toast.error(insert.error.message);
+      return;
+    }
+    setTemplateConfirm(null);
+    toast.success(`${newItems.length} invoice lines generated from billing template`);
+    await afterItemsChanged();
+  }
+
   async function afterItemsChanged() {
     if (!selectedPack) return;
     await qc.invalidateQueries({ queryKey: ["invoice_pack_items", selectedPack.id] });
@@ -698,6 +747,7 @@ function ContractInvoicePacksPage() {
           onAddAdjustment={() => startAddItem("Variation")}
           onEditItem={startEditItem}
           onDeleteItem={deleteItem}
+          onGenerateFromTemplate={() => generateFromBillingTemplate(false)}
           onRefresh={() => refreshPackData()}
           onStatus={updatePackStatus}
         />
@@ -746,6 +796,7 @@ function InvoicePackDetail({
   onEditItem,
   onDeleteItem,
   onRefresh,
+  onGenerateFromTemplate,
   onStatus,
 }: {
   pack: any;
@@ -757,6 +808,7 @@ function InvoicePackDetail({
   onEditItem: (row: any) => void;
   onDeleteItem: (row: any) => void;
   onRefresh: () => void;
+  onGenerateFromTemplate: () => void;
   onStatus: (status: string) => void;
 }) {
   const summary = pack.report_data ?? {};
@@ -799,6 +851,9 @@ function InvoicePackDetail({
       <div className="flex flex-wrap gap-2">
         <Button size="sm" onClick={onAddItem}>
           <Plus className="h-4 w-4 mr-2" /> Add Item
+        </Button>
+        <Button size="sm" variant="outline" onClick={onGenerateFromTemplate}>
+          <FileText className="h-4 w-4 mr-2" /> Generate from Billing Template
         </Button>
         <Button size="sm" variant="outline" onClick={onAddDeduction}>
           Add Deduction
