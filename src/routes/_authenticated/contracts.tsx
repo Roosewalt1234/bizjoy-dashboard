@@ -252,7 +252,7 @@ function PaymentDueBadge({ date, status }: { date: string; status: string }) {
 }
 
 
-function ContractsPage() {
+export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType }) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
@@ -263,13 +263,18 @@ function ContractsPage() {
 
 
   const { data: rows = [], isLoading } = useQuery({
-    queryKey: ["contracts"],
+    queryKey: ["contracts", moduleType],
     queryFn: async () => {
-      const { data, error } = await supabase.from("contracts").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("contracts")
+        .select("*")
+        .eq("module_type", moduleType)
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
   });
+
 
   const filteredRows = useMemo(() => {
     return rows.filter((r: any) => {
