@@ -227,6 +227,113 @@ export type Database = {
           },
         ]
       }
+      contract_billing_lines: {
+        Row: {
+          annual_amount: number | null
+          billing_line: string
+          contract_id: string
+          created_at: string
+          id: string
+          monthly_amount: number | null
+          notes: string | null
+          service_category_id: string | null
+          sort_order: number
+          updated_at: string
+          vat_status: string | null
+        }
+        Insert: {
+          annual_amount?: number | null
+          billing_line: string
+          contract_id: string
+          created_at?: string
+          id?: string
+          monthly_amount?: number | null
+          notes?: string | null
+          service_category_id?: string | null
+          sort_order?: number
+          updated_at?: string
+          vat_status?: string | null
+        }
+        Update: {
+          annual_amount?: number | null
+          billing_line?: string
+          contract_id?: string
+          created_at?: string
+          id?: string
+          monthly_amount?: number | null
+          notes?: string | null
+          service_category_id?: string | null
+          sort_order?: number
+          updated_at?: string
+          vat_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_billing_lines_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contract_billing_lines_service_category_id_fkey"
+            columns: ["service_category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_consumables: {
+        Row: {
+          annual_amount: number | null
+          category: string | null
+          contract_id: string
+          created_at: string
+          id: string
+          included: boolean
+          item_name: string
+          monthly_amount: number | null
+          notes: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          annual_amount?: number | null
+          category?: string | null
+          contract_id: string
+          created_at?: string
+          id?: string
+          included?: boolean
+          item_name: string
+          monthly_amount?: number | null
+          notes?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          annual_amount?: number | null
+          category?: string | null
+          contract_id?: string
+          created_at?: string
+          id?: string
+          included?: boolean
+          item_name?: string
+          monthly_amount?: number | null
+          notes?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_consumables_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contract_line_items: {
         Row: {
           active: boolean
