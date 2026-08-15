@@ -70,6 +70,7 @@ const items: NavItem[] = [
     module: "contracts",
     children: [
       { title: "FM Dashboard", url: "/fm-dashboard", module: "contracts" },
+      { title: "Daily Operations", url: "/fm-daily-operations", module: "contracts" },
       { title: "FM Contracts", url: "/fm-contracts", module: "contracts" },
       { title: "Service Categories", url: "/fm-service-categories", module: "contracts" },
       { title: "Contract Line Items", url: "/fm-contract-line-items", module: "contracts" },
