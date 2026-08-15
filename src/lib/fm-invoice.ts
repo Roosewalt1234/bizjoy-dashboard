@@ -276,3 +276,35 @@ export function getInvoiceStatusBadgeVariant(status: string | null | undefined) 
 function roundMoney(value: number) {
   return Math.round((Number(value) || 0) * 100) / 100;
 }
+
+export function getBillableBillingLines(lines: AnyRow[]) {
+  return lines.filter((line) => line.is_total_row !== true);
+}
+
+export function summarizeBillingLines(lines: AnyRow[], vatPercent = 5) {
+  const billable = getBillableBillingLines(lines);
+  const subtotal = roundMoney(
+    billable.reduce((sum, line) => sum + money(line.monthly_amount), 0),
+  );
+  const annualSubtotal = roundMoney(
+    billable.reduce((sum, line) => sum + money(line.annual_amount), 0),
+  );
+  const vatAmount = calculateVatAmount(subtotal, vatPercent);
+  const grossAmount = calculateGrossAmount(subtotal, vatAmount);
+  return { billableCount: billable.length, subtotal, annualSubtotal, vatAmount, grossAmount };
+}
+
+export function buildInvoiceItemsFromBillingLines(lines: AnyRow[]) {
+  return getBillableBillingLines(lines).map((line, index) => ({
+    service_category_id: line.service_category_id ?? null,
+    item_type: "Contract Service",
+    description: line.billing_line || "Contract service",
+    quantity: 1,
+    unit: "month",
+    unit_rate: roundMoney(money(line.monthly_amount)),
+    amount: roundMoney(money(line.monthly_amount)),
+    vat_applicable: String(line.vat_status ?? "").toLowerCase() !== "exempt",
+    sort_order: index + 1,
+    remarks: "Generated from billing template",
+  }));
+}
