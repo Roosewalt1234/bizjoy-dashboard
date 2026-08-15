@@ -1140,12 +1140,14 @@ function ContractDialog({
           </div>
 
 
+          {isFM && (
           <Card className="p-4 space-y-4">
             <div>
               <Label className="text-sm font-medium">FM Contract Details</Label>
               <p className="text-xs text-muted-foreground">
-                Optional fields for Building AMC and Facilities Management contracts.
+                Site, billing and SLA details for this facilities management contract.
               </p>
+
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1">
