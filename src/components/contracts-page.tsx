@@ -1508,6 +1508,8 @@ function ContractDialog({
               </Select>
             </div>
           </div>
+          </>)}
+
 
           <div className="space-y-1">
             <Label>Remark</Label>
