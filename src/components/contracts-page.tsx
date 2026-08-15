@@ -253,6 +253,7 @@ function PaymentDueBadge({ date, status }: { date: string; status: string }) {
 
 
 export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType }) {
+  const isFM = moduleType === "FM";
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
@@ -278,13 +279,20 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
 
   const filteredRows = useMemo(() => {
     return rows.filter((r: any) => {
-      const titleMatch = filterTitle === "all" || (r.contract_type || "") === filterTitle;
+      const titleMatch =
+        filterTitle === "all" ||
+        (isFM ? (r.contract_scope_type || "") === filterTitle : (r.contract_type || "") === filterTitle);
       const statusMatch = filterStatus === "all" || (r.status || "").toLowerCase() === filterStatus.toLowerCase();
-      const paymentMatch = filterPayment === "all" || (r.payment_terms || "").toLowerCase() === filterPayment.toLowerCase();
+      const paymentMatch =
+        filterPayment === "all" ||
+        (isFM
+          ? (r.billing_cycle || "").toLowerCase() === filterPayment.toLowerCase()
+          : (r.payment_terms || "").toLowerCase() === filterPayment.toLowerCase());
 
       return titleMatch && statusMatch && paymentMatch;
     });
-  }, [rows, filterTitle, filterStatus, filterPayment]);
+  }, [rows, filterTitle, filterStatus, filterPayment, isFM]);
+
 
   const { data: handymanLog = [] } = useQuery({
     queryKey: ["handyman_hours_log_all"],
@@ -391,10 +399,25 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
         </div>
         <div className="flex items-center gap-2">
           <ExportMenu
-            filename="contracts"
-            sheetName="Contracts"
+            filename={isFM ? "fm-contracts" : "amc-contracts"}
+            sheetName={isFM ? "FM Contracts" : "AMC Contracts"}
             rows={filteredRows as any[]}
-            columns={[
+            columns={isFM ? [
+              { key: "contract_no", label: "Contract No" },
+              { key: "title", label: "Contract / Site" },
+              { key: "customer_name", label: "Client" },
+              { key: "site_name", label: "Site" },
+              { key: "building_type", label: "Building Type" },
+              { key: "contract_scope_type", label: "Scope" },
+              { key: "start_date", label: "Start Date" },
+              { key: "end_date", label: "End Date" },
+              { key: "value", label: "Contract Value" },
+              { key: "billing_cycle", label: "Billing Cycle" },
+              { key: "vat_percent", label: "VAT %" },
+              { key: "retention_percent", label: "Retention %" },
+              { key: "status", label: "Status" },
+              { key: "remark", label: "Remark" },
+            ] : [
               { key: "amc_ref_no", label: "AMC Ref No" },
               { key: "title", label: "Title" },
               { key: "customer_name", label: "Customer" },
@@ -413,7 +436,8 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
             ]}
           />
           <Button onClick={() => { setEditing(null); setOpen(true); }}>
-            <Plus className="h-4 w-4 mr-2" /> New Contract
+            <Plus className="h-4 w-4 mr-2" /> {isFM ? "New FM Contract" : "New AMC Contract"}
+
           </Button>
         </div>
       </div>
@@ -460,14 +484,14 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
       <Card className="p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="w-full sm:w-48">
-            <Label htmlFor="filter-title" className="text-xs">Title</Label>
+            <Label htmlFor="filter-title" className="text-xs">{isFM ? "Scope" : "Title"}</Label>
             <Select value={filterTitle} onValueChange={(v) => { setFilterTitle(v); setPage(1); }}>
               <SelectTrigger id="filter-title">
-                <SelectValue placeholder="All Titles" />
+                <SelectValue placeholder={isFM ? "All Scopes" : "All Titles"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Titles</SelectItem>
-                {CONTRACT_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                <SelectItem value="all">{isFM ? "All Scopes" : "All Titles"}</SelectItem>
+                {(isFM ? FM_SCOPE_TYPES : CONTRACT_TYPES).map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
@@ -484,17 +508,18 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
             </Select>
           </div>
           <div className="w-full sm:w-48">
-            <Label htmlFor="filter-payment" className="text-xs">Payment</Label>
+            <Label htmlFor="filter-payment" className="text-xs">{isFM ? "Billing Cycle" : "Payment"}</Label>
             <Select value={filterPayment} onValueChange={(v) => { setFilterPayment(v); setPage(1); }}>
               <SelectTrigger id="filter-payment">
-                <SelectValue placeholder="All Payments" />
+                <SelectValue placeholder={isFM ? "All Billing Cycles" : "All Payments"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Payments</SelectItem>
-                {PAYMENT_TERMS.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                <SelectItem value="all">{isFM ? "All Billing Cycles" : "All Payments"}</SelectItem>
+                {(isFM ? BILLING_CYCLES : PAYMENT_TERMS).map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
+
 
         </div>
       </Card>
@@ -502,20 +527,36 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
       <Card>
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>{moduleType === "FM" ? "Contract / Site" : "Customer"}</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Start</TableHead>
-              <TableHead>End</TableHead>
-              <TableHead>Value</TableHead>
-              <TableHead>Payment</TableHead>
-              <TableHead>Next Service Due</TableHead>
-              <TableHead>WT Cleaning</TableHead>
-              <TableHead>Next Payment Due</TableHead>
-              <TableHead>Handyman Hrs</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-32 text-right">Actions</TableHead>
-            </TableRow>
+            {isFM ? (
+              <TableRow>
+                <TableHead>Contract / Site</TableHead>
+                <TableHead>Client</TableHead>
+                <TableHead>Scope</TableHead>
+                <TableHead>Start</TableHead>
+                <TableHead>End</TableHead>
+                <TableHead>Contract Value</TableHead>
+                <TableHead>Billing Cycle</TableHead>
+                <TableHead>VAT / Retention</TableHead>
+                <TableHead>Next Payment Due</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-32 text-right">Actions</TableHead>
+              </TableRow>
+            ) : (
+              <TableRow>
+                <TableHead>Customer</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Start</TableHead>
+                <TableHead>End</TableHead>
+                <TableHead>Value</TableHead>
+                <TableHead>Payment</TableHead>
+                <TableHead>Next Service Due</TableHead>
+                <TableHead>WT Cleaning</TableHead>
+                <TableHead>Next Payment Due</TableHead>
+                <TableHead>Handyman Hrs</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-32 text-right">Actions</TableHead>
+              </TableRow>
+            )}
           </TableHeader>
           <TableBody>
             {isLoading ? (
@@ -524,60 +565,92 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
               <TableRow><TableCell colSpan={12} className="text-center py-8 text-muted-foreground">No contracts yet.</TableCell></TableRow>
             ) : pageRows.map((r: any) => (
               <TableRow key={r.id}>
-                <TableCell className="font-medium">
-                  {moduleType === "FM" ? (
-                    <div className="space-y-0.5">
-                      <div className="font-semibold">{r.title ?? r.contract_no ?? "—"}</div>
-                      <div className="text-xs text-muted-foreground">{r.customer_name ?? "—"}</div>
-                      {r.site_name ? (
-                        <div className="text-xs text-muted-foreground">{r.site_name}</div>
-                      ) : null}
-                    </div>
-                  ) : (
-                    (r.customer_name ?? "—")
-                  )}
-                </TableCell>
-                <TableCell>
-                  {r.contract_type ? (
-                    <Badge variant="outline" className={cn("font-medium", typeBadgeClasses(r.contract_type))}>{r.contract_type}</Badge>
-                  ) : "—"}
-                </TableCell>
-                <TableCell>{r.start_date ?? "—"}</TableCell>
-                <TableCell>{r.end_date ?? "—"}</TableCell>
-                <TableCell>{r.value ?? "—"}</TableCell>
-                <TableCell>
-                  {r.payment_terms ? (
-                    <Badge variant="outline" className={cn("font-medium", termBadgeClasses(r.payment_terms))}>{r.payment_terms}</Badge>
-                  ) : "—"}
-                </TableCell>
-                <TableCell><DateCell date={nextServiceDate(r, "ac_units")} /></TableCell>
-                <TableCell><DateCell date={nextServiceDate(r, "water_tank")} /></TableCell>
-                <TableCell>
-                  {(() => {
-                    const info = nextPaymentInfoByContract[r.id];
-                    if (!info) return <span className="text-muted-foreground">—</span>;
-                    return <PaymentDueBadge date={info.payment_date} status={info.status} />;
-                  })()}
-                </TableCell>
-                <TableCell>
-                  {(() => {
-                    const allotted = Number(r.handyman_hours ?? 0);
-                    const used = handymanUsedByContract[r.id] ?? 0;
-                    const remaining = allotted - used;
-                    const cls = remaining < 0
-                      ? "bg-red-50 text-red-700 border-red-200"
-                      : remaining <= allotted * 0.2
-                        ? "bg-amber-50 text-amber-700 border-amber-200"
-                        : "bg-emerald-50 text-emerald-700 border-emerald-200";
-                    return (
-                      <div className="flex flex-col gap-1">
-                        <Badge variant="outline" className={cn("font-medium w-fit", cls)}>{remaining} h left</Badge>
-                        <span className="text-xs text-muted-foreground">{used} / {allotted} used</span>
+                {isFM ? (
+                  <>
+                    <TableCell className="font-medium">
+                      <div className="space-y-0.5">
+                        <div className="font-semibold">{r.title ?? r.contract_no ?? "—"}</div>
+                        {r.contract_no ? (
+                          <div className="text-xs text-muted-foreground">{r.contract_no}</div>
+                        ) : null}
+                        {r.site_name ? (
+                          <div className="text-xs text-muted-foreground">{r.site_name}</div>
+                        ) : null}
                       </div>
-                    );
-                  })()}
-                </TableCell>
-                <TableCell>{r.status ?? "—"}</TableCell>
+                    </TableCell>
+                    <TableCell>{r.customer_name ?? "—"}</TableCell>
+                    <TableCell>
+                      {r.contract_scope_type ? (
+                        <Badge variant="outline" className="font-medium">{r.contract_scope_type}</Badge>
+                      ) : "—"}
+                    </TableCell>
+                    <TableCell>{r.start_date ?? "—"}</TableCell>
+                    <TableCell>{r.end_date ?? "—"}</TableCell>
+                    <TableCell>{r.value ?? "—"}</TableCell>
+                    <TableCell>
+                      {r.billing_cycle ? (
+                        <Badge variant="outline" className={cn("font-medium", termBadgeClasses(r.billing_cycle))}>{r.billing_cycle}</Badge>
+                      ) : "—"}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {r.vat_percent != null ? `${r.vat_percent}%` : "—"} / {r.retention_percent != null ? `${r.retention_percent}%` : "—"}
+                    </TableCell>
+                    <TableCell>
+                      {(() => {
+                        const info = nextPaymentInfoByContract[r.id];
+                        if (!info) return <span className="text-muted-foreground">—</span>;
+                        return <PaymentDueBadge date={info.payment_date} status={info.status} />;
+                      })()}
+                    </TableCell>
+                    <TableCell>{r.status ?? "—"}</TableCell>
+                  </>
+                ) : (
+                  <>
+                    <TableCell className="font-medium">{r.customer_name ?? "—"}</TableCell>
+                    <TableCell>
+                      {r.contract_type ? (
+                        <Badge variant="outline" className={cn("font-medium", typeBadgeClasses(r.contract_type))}>{r.contract_type}</Badge>
+                      ) : "—"}
+                    </TableCell>
+                    <TableCell>{r.start_date ?? "—"}</TableCell>
+                    <TableCell>{r.end_date ?? "—"}</TableCell>
+                    <TableCell>{r.value ?? "—"}</TableCell>
+                    <TableCell>
+                      {r.payment_terms ? (
+                        <Badge variant="outline" className={cn("font-medium", termBadgeClasses(r.payment_terms))}>{r.payment_terms}</Badge>
+                      ) : "—"}
+                    </TableCell>
+                    <TableCell><DateCell date={nextServiceDate(r, "ac_units")} /></TableCell>
+                    <TableCell><DateCell date={nextServiceDate(r, "water_tank")} /></TableCell>
+                    <TableCell>
+                      {(() => {
+                        const info = nextPaymentInfoByContract[r.id];
+                        if (!info) return <span className="text-muted-foreground">—</span>;
+                        return <PaymentDueBadge date={info.payment_date} status={info.status} />;
+                      })()}
+                    </TableCell>
+                    <TableCell>
+                      {(() => {
+                        const allotted = Number(r.handyman_hours ?? 0);
+                        const used = handymanUsedByContract[r.id] ?? 0;
+                        const remaining = allotted - used;
+                        const cls = remaining < 0
+                          ? "bg-red-50 text-red-700 border-red-200"
+                          : remaining <= allotted * 0.2
+                            ? "bg-amber-50 text-amber-700 border-amber-200"
+                            : "bg-emerald-50 text-emerald-700 border-emerald-200";
+                        return (
+                          <div className="flex flex-col gap-1">
+                            <Badge variant="outline" className={cn("font-medium w-fit", cls)}>{remaining} h left</Badge>
+                            <span className="text-xs text-muted-foreground">{used} / {allotted} used</span>
+                          </div>
+                        );
+                      })()}
+                    </TableCell>
+                    <TableCell>{r.status ?? "—"}</TableCell>
+                  </>
+                )}
+
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
                     <Button size="icon" variant="ghost" asChild>
@@ -629,7 +702,9 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
 function ContractDialog({
   open, onOpenChange, editing, onSaved, moduleType = "AMC",
 }: { open: boolean; onOpenChange: (o: boolean) => void; editing: any | null; onSaved: () => void; moduleType?: ModuleType }) {
+  const isFM = moduleType === "FM";
   const [customerId, setCustomerId] = useState<string | null>(editing?.customer_id ?? null);
+
   const [customerName, setCustomerName] = useState<string>(editing?.customer_name ?? "");
   const [title, setTitle] = useState(editing?.title ?? "");
   const [contractType, setContractType] = useState<ContractType>((editing?.contract_type as ContractType) ?? "Standard");
@@ -672,7 +747,10 @@ function ContractDialog({
   const [acDuctDate, setAcDuctDate] = useState(editing?.ac_duct_cleaning_date ?? "");
   const [acDuctStatus, setAcDuctStatus] = useState(editing?.ac_duct_cleaning_status ?? "");
   const [remark, setRemark] = useState(editing?.remark ?? "");
-  const [contractScopeType, setContractScopeType] = useState<string>(editing?.contract_scope_type ?? "Home AMC");
+  const [contractScopeType, setContractScopeType] = useState<string>(
+    editing?.contract_scope_type ?? (moduleType === "FM" ? "Facilities Management" : "Home AMC"),
+  );
+
   const [siteName, setSiteName] = useState(editing?.site_name ?? "");
   const [siteAddress, setSiteAddress] = useState(editing?.site_address ?? "");
   const [buildingType, setBuildingType] = useState(editing?.building_type ?? "");
@@ -851,17 +929,14 @@ function ContractDialog({
   }
 
   async function save() {
-    if (!customerName) { toast.error("Select a customer"); return; }
+    if (!customerName) { toast.error("Select a client"); return; }
+    if (isFM && !title.trim()) { toast.error("Enter a contract / site title"); return; }
     const finalTitle = title || `${customerName} – ${contractType} Contract`;
     setSaving(true);
     try {
-      const payload: any = {
+      const common: any = {
         title: finalTitle,
-        contract_type: contractType,
-        spare_parts_amount: sparePartsAmount ? Number(sparePartsAmount) : 0,
-        amc_ref_no: amcRefNo || null,
         contract_no: contractNo || null,
-        handyman_hours: handymanHours === "" ? DEFAULT_HANDYMAN_HOURS : Number(handymanHours),
         customer_id: customerId,
         customer_name: customerName,
         start_date: startDate || null,
@@ -869,23 +944,38 @@ function ContractDialog({
         value: value ? Number(value) : null,
         payment_terms: paymentTerms || null,
         status,
-        ppm_schedule: { dates: ppmSchedule, status: ppmStatus, freq: contractType === "Bespoke" ? bespokeFreq : {} },
-        water_tank_cleaning_date: null,
-        water_tank_cleaning_status: null,
-        ac_duct_cleaning_date: acDuctDate || null,
-        ac_duct_cleaning_status: acDuctStatus || null,
         remark: remark || null,
-        contract_scope_type: contractScopeType || null,
-        site_name: siteName || null,
-        site_address: siteAddress || null,
-        building_type: buildingType || null,
-        billing_cycle: billingCycle || null,
-        retention_percent: retentionPercent ? Number(retentionPercent) : null,
-        vat_percent: vatPercent ? Number(vatPercent) : null,
-        contract_manager_id: contractManagerId === "none" ? null : contractManagerId,
-        sla_profile_id: slaProfileId === "none" ? null : slaProfileId,
         module_type: moduleType,
       };
+
+      const payload: any = isFM
+        ? {
+            ...common,
+            contract_scope_type: contractScopeType || null,
+            site_name: siteName || null,
+            site_address: siteAddress || null,
+            building_type: buildingType || null,
+            billing_cycle: billingCycle || null,
+            retention_percent: retentionPercent ? Number(retentionPercent) : null,
+            vat_percent: vatPercent ? Number(vatPercent) : null,
+            contract_manager_id: contractManagerId === "none" ? null : contractManagerId,
+            sla_profile_id: slaProfileId === "none" ? null : slaProfileId,
+            handyman_hours: 0,
+          }
+        : {
+            ...common,
+            contract_type: contractType,
+            spare_parts_amount: sparePartsAmount ? Number(sparePartsAmount) : 0,
+            amc_ref_no: amcRefNo || null,
+            handyman_hours: handymanHours === "" ? DEFAULT_HANDYMAN_HOURS : Number(handymanHours),
+            ppm_schedule: { dates: ppmSchedule, status: ppmStatus, freq: contractType === "Bespoke" ? bespokeFreq : {} },
+            water_tank_cleaning_date: null,
+            water_tank_cleaning_status: null,
+            ac_duct_cleaning_date: acDuctDate || null,
+            ac_duct_cleaning_status: acDuctStatus || null,
+            contract_scope_type: contractScopeType || null,
+          };
+
 
       let contractId = editing?.id as string | undefined;
       if (editing) {
@@ -927,7 +1017,11 @@ function ContractDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{editing ? "Edit Contract" : "New Contract"}</DialogTitle>
+          <DialogTitle>
+            {editing
+              ? isFM ? "Edit FM Contract" : "Edit AMC Contract"
+              : isFM ? "New FM Contract" : "New AMC Contract"}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -946,11 +1040,12 @@ function ContractDialog({
           {/* Customer + Title */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label>Customer *</Label>
+              <Label>{isFM ? "Client *" : "Customer *"}</Label>
               <Popover open={customerPickerOpen} onOpenChange={setCustomerPickerOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" role="combobox" className="w-full justify-between">
-                    {customerName || "Select customer..."}
+                    {customerName || (isFM ? "Select client..." : "Select customer...")}
+
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
@@ -983,61 +1078,77 @@ function ContractDialog({
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="space-y-1">
-              <Label>Contract Title *</Label>
-              <div className="flex gap-4 items-center pt-1">
-                {CONTRACT_TYPES.map((t) => (
-                  <label key={t} className="flex items-center gap-2 text-sm cursor-pointer">
-                    <input
-                      type="radio"
-                      name="contract_type"
-                      value={t}
-                      checked={contractType === t}
-                      onChange={() => {
-                        setContractType(t);
-                        setSparePartsAmount(String(SPARE_PARTS_BY_TYPE[t]));
-                      }}
-                    />
-                    {t} Contract
-                  </label>
-                ))}
+            {isFM ? (
+              <div className="space-y-1">
+                <Label>Contract / Site Title *</Label>
+                <Input
+                  placeholder="e.g. 48 Parkside – FM Services"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
               </div>
-            </div>
+            ) : (
+              <div className="space-y-1">
+                <Label>Contract Title *</Label>
+                <div className="flex gap-4 items-center pt-1">
+                  {CONTRACT_TYPES.map((t) => (
+                    <label key={t} className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input
+                        type="radio"
+                        name="contract_type"
+                        value={t}
+                        checked={contractType === t}
+                        onChange={() => {
+                          setContractType(t);
+                          setSparePartsAmount(String(SPARE_PARTS_BY_TYPE[t]));
+                        }}
+                      />
+                      {t} Contract
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
           </div>
 
           {/* Spare parts + AMC Ref No + Handyman Hours + status */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="space-y-1">
-              <Label>Spare Parts Amount (AED)</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={sparePartsAmount}
-                onChange={(e) => setSparePartsAmount(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">
-                Auto-set by contract type ({contractType} = AED {SPARE_PARTS_BY_TYPE[contractType].toLocaleString()}).
-              </p>
-            </div>
-            <div className="space-y-1">
-              <Label>AMC Ref No.</Label>
-              <Input
-                placeholder="e.g. AMC-2026-0001"
-                value={amcRefNo}
-                onChange={(e) => setAmcRefNo(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>Handyman Hours</Label>
-              <Input
-                type="number"
-                min="0"
-                step="1"
-                value={handymanHours}
-                onChange={(e) => setHandymanHours(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">Default {DEFAULT_HANDYMAN_HOURS} hours/year.</p>
-            </div>
+            {!isFM && (
+              <>
+                <div className="space-y-1">
+                  <Label>Spare Parts Amount (AED)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={sparePartsAmount}
+                    onChange={(e) => setSparePartsAmount(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Auto-set by contract type ({contractType} = AED {SPARE_PARTS_BY_TYPE[contractType].toLocaleString()}).
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <Label>AMC Ref No.</Label>
+                  <Input
+                    placeholder="e.g. AMC-2026-0001"
+                    value={amcRefNo}
+                    onChange={(e) => setAmcRefNo(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label>Handyman Hours</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={handymanHours}
+                    onChange={(e) => setHandymanHours(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">Default {DEFAULT_HANDYMAN_HOURS} hours/year.</p>
+                </div>
+              </>
+            )}
             <div className="space-y-1">
               <Label>Contract Status</Label>
               <Select value={status} onValueChange={setStatus}>
@@ -1050,12 +1161,15 @@ function ContractDialog({
           </div>
 
 
+
+          {isFM && (
           <Card className="p-4 space-y-4">
             <div>
               <Label className="text-sm font-medium">FM Contract Details</Label>
               <p className="text-xs text-muted-foreground">
-                Optional fields for Building AMC and Facilities Management contracts.
+                Site, billing and SLA details for this facilities management contract.
               </p>
+
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1">
@@ -1135,6 +1249,8 @@ function ContractDialog({
               </div>
             </div>
           </Card>
+          )}
+
 
 
           {/* Quotes for customer */}
@@ -1273,8 +1389,10 @@ function ContractDialog({
             </Card>
           </div>
 
+          {!isFM && (<>
           {/* PPM service schedule */}
           <div className="space-y-3">
+
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div>
                 <Label className="text-sm font-medium">PPM Service Schedule</Label>
@@ -1392,6 +1510,8 @@ function ContractDialog({
               </Select>
             </div>
           </div>
+          </>)}
+
 
           <div className="space-y-1">
             <Label>Remark</Label>
