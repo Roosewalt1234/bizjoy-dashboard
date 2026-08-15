@@ -1038,19 +1038,26 @@ function FmDailyOperationsPage() {
                         <TableCell>{ppmDate(v)}</TableCell>
                         <TableCell>{v.service_categories?.name ?? "—"}</TableCell>
                         <TableCell>
-                          <Badge variant="outline">
+                          <Badge
+                            variant="outline"
+                            className={stateBadge(
+                              ppmDate(v) < date ? "Overdue" : (v.status ?? "Pending"),
+                            )}
+                          >
                             {ppmDate(v) < date ? "Overdue" : (v.status ?? "Planned")}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => navigate({ to: "/fm-ppm" })}
-                          >
-                            {v.work_order_id ? "Open PPM" : "Convert to WO"}
+                        <TableCell className="text-right space-x-1">
+                          <Button size="sm" variant="outline" onClick={() => openPpm(v.id)}>
+                            Open PPM
                           </Button>
+                          {!v.work_order_id ? (
+                            <Button size="sm" onClick={() => convertPpm(v)} disabled={busy}>
+                              Convert to FM WO
+                            </Button>
+                          ) : null}
                         </TableCell>
+
                       </TableRow>
                     ))
                   )}
