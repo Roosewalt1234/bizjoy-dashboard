@@ -127,6 +127,20 @@ function ContractInvoicePacksPage() {
     },
   });
 
+  // Deep link: /fm-invoice-packs?invoice_pack_id=... opens that pack.
+  const search = Route.useSearch();
+  const openedPackId = useRef<string | null>(null);
+  useEffect(() => {
+    const id = search.invoice_pack_id;
+    if (!id || openedPackId.current === id) return;
+    const match = (packs as any[]).find((row) => row.id === id);
+    if (!match) return;
+    openedPackId.current = id;
+    setSelectedPack(match);
+  }, [packs, search.invoice_pack_id]);
+
+
+
   const { data: items = [] } = useQuery({
     queryKey: ["invoice_pack_items", selectedPack?.id],
     enabled: Boolean(selectedPack?.id),
