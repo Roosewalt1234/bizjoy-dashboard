@@ -57,7 +57,15 @@ import { calculateSlaStatus, formatDateTime, normalizePriority, statusBadgeClass
 
 export type ModuleType = "AMC" | "FM";
 
-export function WorkOrdersPage({ moduleType = "AMC" }: { moduleType?: ModuleType }) {
+export function WorkOrdersPage({
+  moduleType = "AMC",
+  focusWo,
+  focusWoId,
+}: {
+  moduleType?: ModuleType;
+  focusWo?: string;
+  focusWoId?: string;
+}) {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const { can } = usePermissions();
@@ -65,9 +73,11 @@ export function WorkOrdersPage({ moduleType = "AMC" }: { moduleType?: ModuleType
   const [editing, setEditing] = useState<any | null>(null);
   const [viewing, setViewing] = useState<any | null>(null);
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(focusWo ?? "");
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const focusHandled = useRef<string | null>(null);
+
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["work_orders", moduleType],
