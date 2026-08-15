@@ -1,16 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarDays, Pencil, Plus, Trash2, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  calculateDueTimes,
-  calculateSlaStatus,
-  isScheduleBasedPolicy,
-  normalizePriority,
-  scheduleBasedDueTimes,
-} from "@/lib/fm-sla";
+import { convertPpmVisitToFmWorkOrder } from "@/lib/fm-ppm-convert";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -52,12 +47,19 @@ import {
 } from "@/components/ui/table";
 import { ExportMenu } from "@/components/export-menu";
 import { PAGE_SIZE, paginate, PaginationBar } from "@/components/pagination-bar";
-import { nextDocNo } from "@/lib/doc-no";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/fm-ppm")({
+  validateSearch: (search: Record<string, unknown>): { visit_id?: string; contract_id?: string } => {
+    const out: { visit_id?: string; contract_id?: string } = {};
+    if (typeof search.visit_id === "string") out.visit_id = search.visit_id;
+    if (typeof search.contract_id === "string") out.contract_id = search.contract_id;
+    return out;
+  },
   component: ContractPpmPage,
 });
+
+
 
 type LooseQuery = PromiseLike<{
   data: unknown;
@@ -227,7 +229,8 @@ function statusClasses(status: string) {
 
 function ContractPpmPage() {
   const qc = useQueryClient();
-  const [selectedContractId, setSelectedContractId] = useState("all");
+  const search = Route.useSearch();
+  const [selectedContractId, setSelectedContractId] = useState(search.contract_id ?? "all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
@@ -236,6 +239,10 @@ function ContractPpmPage() {
   const [saving, setSaving] = useState(false);
   const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [convertingId, setConvertingId] = useState<string | null>(null);
+  const focusVisitId = search.visit_id ?? null;
+  const focusHandled = useRef<string | null>(null);
+
+
 
   const { data: contracts = [] } = useQuery({
     queryKey: ["contracts-lookup-ppm"],
@@ -348,6 +355,22 @@ function ContractPpmPage() {
   useEffect(() => {
     if (page > totalPages) setPage(totalPages);
   }, [page, totalPages]);
+
+  // Deep link: jump to the page holding the requested visit and scroll to it.
+  useEffect(() => {
+    if (!focusVisitId || focusHandled.current === focusVisitId) return;
+    const index = filteredVisits.findIndex((visit) => visit.id === focusVisitId);
+    if (index < 0) return;
+    focusHandled.current = focusVisitId;
+    setPage(Math.floor(index / PAGE_SIZE) + 1);
+    setTimeout(() => {
+      document
+        .getElementById(`ppm-visit-${focusVisitId}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 150);
+  }, [filteredVisits, focusVisitId]);
+
+
 
   const pageVisits = paginate(filteredVisits, page);
   const openVisits = filteredVisits.filter((visit) =>
@@ -519,85 +542,10 @@ function ContractPpmPage() {
 
     setConvertingId(visit.id);
     try {
-      const contract = visit.contracts ?? contracts.find((item) => item.id === visit.contract_id);
-      const assetLabel =
-        visit.contract_assets?.asset_tag ??
-        visit.contract_assets?.description ??
-        visit.contract_assets?.asset_type ??
-        "";
-      const categoryName = visit.service_categories?.name ?? "PPM";
-      const woNo = await nextDocNo("work_order").catch(() => null);
-      const payload = {
-        wo_no: woNo,
-        contract_id: visit.contract_id,
-        customer_id: contract?.customer_id ?? null,
-        customer_name: contract?.customer_name ?? null,
-        requested_date: new Date().toISOString().slice(0, 10),
-        scheduled_date: visit.planned_date,
-        service_type: categoryName,
-        location: visit.contract_assets?.location ?? contract?.site_name ?? null,
-        priority: "Medium",
-        problem_reported: `${categoryName} planned preventive maintenance${assetLabel ? ` - ${assetLabel}` : ""}`,
-        work_requested:
-          visit.ppm_schedules?.schedule_name ?? "Complete planned preventive maintenance visit",
-        notes: visit.notes ?? null,
-        status: "Open",
-        asset_id: visit.asset_id,
-        ppm_visit_id: visit.id,
-        service_category_id: visit.service_category_id,
-        request_type: "PPM",
-        reported_at: new Date().toISOString(),
-        module_type: "FM",
-        response_due_at: null as string | null,
-        completion_due_at: null as string | null,
-        response_sla_status: null as string | null,
-        completion_sla_status: null as string | null,
-      };
-
-      const { data: policies, error: policyError } = await fmDb
-        .from("sla_policies")
-        .select("*")
-        .eq("active", true)
-        .eq("contract_id", visit.contract_id);
-      if (policyError) throw policyError;
-      const priority = normalizePriority(payload.priority);
-      const ppmTypes = ["PPM", "Preventive Maintenance", "Planned Preventive Maintenance"];
-      const candidates = ((policies ?? []) as any[]).filter(
-        (item) =>
-          !item.service_category_id || item.service_category_id === payload.service_category_id,
-      );
-      const policy =
-        candidates.find((item) => ppmTypes.includes(item.request_type ?? "")) ??
-        candidates.find(
-          (item) =>
-            !item.priority || item.priority === priority || item.priority === payload.priority,
-        ) ??
-        null;
-      // PPM is schedule based: when the matched policy has no minute targets we
-      // measure compliance against the planned visit date instead of breaching.
-      const dueTimes =
-        !policy || isScheduleBasedPolicy(policy)
-          ? scheduleBasedDueTimes(visit.planned_date)
-          : calculateDueTimes(payload.reported_at, policy);
-      payload.response_due_at = dueTimes.response_due_at;
-      payload.completion_due_at = dueTimes.completion_due_at;
-      payload.response_sla_status = calculateSlaStatus({ dueAt: payload.response_due_at });
-      payload.completion_sla_status = calculateSlaStatus({ dueAt: payload.completion_due_at });
-
-      const { data, error } = await fmDb.from("work_orders").insert(payload).select("id");
-      if (error) throw error;
-      const inserted = Array.isArray(data) ? (data[0] as { id?: string } | undefined) : undefined;
-      const workOrderId = inserted?.id ?? null;
-
-      const { error: updateError } = await fmDb
-        .from("ppm_visits")
-        .update({
-          work_order_id: workOrderId,
-          status: "Converted",
-        })
-        .eq("id", visit.id);
-      if (updateError) throw updateError;
-
+      await convertPpmVisitToFmWorkOrder({
+        ...visit,
+        contracts: visit.contracts ?? contracts.find((item) => item.id === visit.contract_id) ?? null,
+      });
       toast.success("PPM visit converted to work order");
       qc.invalidateQueries({ queryKey: ["ppm_visits"] });
       qc.invalidateQueries({ queryKey: ["work_orders"] });
@@ -607,6 +555,7 @@ function ContractPpmPage() {
       setConvertingId(null);
     }
   }
+
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-4">
@@ -834,7 +783,12 @@ function ContractPpmPage() {
               </TableRow>
             ) : (
               pageVisits.map((visit) => (
-                <TableRow key={visit.id}>
+                <TableRow
+                  key={visit.id}
+                  id={`ppm-visit-${visit.id}`}
+                  className={cn(focusVisitId === visit.id && "bg-primary/10 ring-1 ring-primary/40")}
+                >
+
                   <TableCell>{visit.planned_date}</TableCell>
                   <TableCell>{visit.ppm_schedules?.schedule_name ?? "—"}</TableCell>
                   <TableCell>

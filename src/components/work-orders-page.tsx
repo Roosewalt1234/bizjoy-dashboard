@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -57,7 +57,15 @@ import { calculateSlaStatus, formatDateTime, normalizePriority, statusBadgeClass
 
 export type ModuleType = "AMC" | "FM";
 
-export function WorkOrdersPage({ moduleType = "AMC" }: { moduleType?: ModuleType }) {
+export function WorkOrdersPage({
+  moduleType = "AMC",
+  focusWo,
+  focusWoId,
+}: {
+  moduleType?: ModuleType;
+  focusWo?: string;
+  focusWoId?: string;
+}) {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const { can } = usePermissions();
@@ -65,9 +73,11 @@ export function WorkOrdersPage({ moduleType = "AMC" }: { moduleType?: ModuleType
   const [editing, setEditing] = useState<any | null>(null);
   const [viewing, setViewing] = useState<any | null>(null);
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(focusWo ?? "");
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const focusHandled = useRef<string | null>(null);
+
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["work_orders", moduleType],
@@ -125,6 +135,19 @@ export function WorkOrdersPage({ moduleType = "AMC" }: { moduleType?: ModuleType
     if (page > totalPages) setPage(totalPages);
   }, [page, totalPages]);
   const pageRows = paginate(filtered, page);
+
+  // Deep link: open the exact work order requested via ?wo= / ?wo_id=
+  useEffect(() => {
+    const key = focusWoId ?? focusWo;
+    if (!key || focusHandled.current === key) return;
+    const match = (orders as any[]).find((r) =>
+      focusWoId ? r.id === focusWoId : r.wo_no === focusWo,
+    );
+    if (!match) return;
+    focusHandled.current = key;
+    setViewing(match);
+  }, [orders, focusWo, focusWoId]);
+
 
   const openCount = (orders as any[]).filter(
     (r) => r.status === "Open" || r.status === "Scheduled",

@@ -9,8 +9,10 @@ import {
   CheckCircle2,
   ClipboardList,
   FileText,
+  RefreshCw,
   Users,
   Wrench,
+  X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -33,8 +35,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { statusBadgeClasses } from "@/lib/fm-sla";
+import { calculateSlaStatus, statusBadgeClasses } from "@/lib/fm-sla";
 import { todayIso } from "@/lib/fm-manpower";
+import { convertPpmVisitToFmWorkOrder } from "@/lib/fm-ppm-convert";
 
 export const Route = createFileRoute("/_authenticated/fm-daily-operations")({
   head: () => ({
@@ -57,7 +60,10 @@ export const Route = createFileRoute("/_authenticated/fm-daily-operations")({
 
 const fmDb = supabase as any;
 
-const CLEANING_TASKS: { area: string; task: string }[] = [
+type ChecklistTask = { id?: string; area: string; task: string; sort_order?: number };
+
+// Fallback used only when a contract has no checklist template rows yet.
+const DEFAULT_CLEANING_TASKS: ChecklistTask[] = [
   { area: "Common Areas", task: "Lobby cleaned" },
   { area: "Common Areas", task: "Corridors cleaned" },
   { area: "Common Areas", task: "Lifts cleaned" },
@@ -68,7 +74,8 @@ const CLEANING_TASKS: { area: string; task: string }[] = [
   { area: "Materials", task: "Air fresheners / water checked" },
 ];
 
-const CHECK_STATUSES = ["Pending", "Completed", "Not Required"];
+const CHECK_STATUSES = ["Pending", "Completed", "Not Applicable", "Issue Found"];
+
 
 function fmt(value: number | null | undefined) {
   return new Intl.NumberFormat("en-AE", {
@@ -141,6 +148,9 @@ function FmDailyOperationsPage() {
   const navigate = useNavigate();
   const [date, setDate] = useState(todayIso());
   const [contractId, setContractId] = useState<string>("");
+  const [lastRefresh, setLastRefresh] = useState(new Date());
+  const [busy, setBusy] = useState(false);
+  const [newTask, setNewTask] = useState({ area: "", task: "" });
 
   const week = weekBounds(date);
   const month = monthBounds(date);
@@ -293,7 +303,23 @@ function FmDailyOperationsPage() {
     },
   });
 
+  const { data: checklistTemplates = [] } = useQuery({
+    queryKey: ["fm-ops-checklist-templates", activeContractId],
+    enabled,
+    queryFn: async () => {
+      const { data, error } = await fmDb
+        .from("fm_cleaning_checklist_templates")
+        .select("id, area, task_name, default_priority, is_active, sort_order")
+        .eq("fm_contract_id", activeContractId)
+        .order("sort_order", { ascending: true })
+        .limit(200);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   /* ---------------- derived ---------------- */
+
 
   const plannedHeadcount = useMemo(
     () =>
@@ -344,9 +370,30 @@ function FmDailyOperationsPage() {
     checks.forEach((c: any) => map.set(c.task_name, c));
     return map;
   }, [checks]);
-  const cleaningDone = CLEANING_TASKS.filter(
+
+  // Daily checklist comes from the contract's template rows; existing checks
+  // for the day are reused (never duplicated) and legacy rows stay visible.
+  const cleaningTasks: ChecklistTask[] = useMemo(() => {
+    const active = (checklistTemplates as any[]).filter((t) => t.is_active !== false);
+    const base: ChecklistTask[] = active.length
+      ? active.map((t) => ({
+          id: t.id,
+          area: t.area ?? "General",
+          task: t.task_name,
+          sort_order: t.sort_order ?? 0,
+        }))
+      : DEFAULT_CLEANING_TASKS;
+    const names = new Set(base.map((t) => t.task));
+    const legacy = (checks as any[])
+      .filter((c) => !names.has(c.task_name))
+      .map((c) => ({ area: c.area ?? "General", task: c.task_name }));
+    return [...base, ...legacy];
+  }, [checklistTemplates, checks]);
+
+  const cleaningDone = cleaningTasks.filter(
     (t) => checkByTask.get(t.task)?.status === "Completed",
   ).length;
+
 
   /* ---------------- actions ---------------- */
 
@@ -372,121 +419,317 @@ function FmDailyOperationsPage() {
     qc.invalidateQueries({ queryKey: ["fm-ops-checks", activeContractId, date] });
   }
 
+  async function addTemplateTask() {
+    if (!activeContractId || !newTask.task.trim()) return;
+    setBusy(true);
+    const { error } = await fmDb.from("fm_cleaning_checklist_templates").insert({
+      fm_contract_id: activeContractId,
+      area: newTask.area.trim() || "General",
+      task_name: newTask.task.trim(),
+      is_active: true,
+      sort_order: (checklistTemplates as any[]).length + 1,
+    });
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setNewTask({ area: "", task: "" });
+    toast.success("Checklist task added");
+    qc.invalidateQueries({ queryKey: ["fm-ops-checklist-templates", activeContractId] });
+  }
+
+  async function deactivateTemplateTask(task: ChecklistTask) {
+    if (!task.id) return;
+    if (!window.confirm(`Remove "${task.task}" from this contract's checklist template?`)) return;
+    setBusy(true);
+    const { error } = await fmDb
+      .from("fm_cleaning_checklist_templates")
+      .update({ is_active: false })
+      .eq("id", task.id);
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Checklist task removed");
+    qc.invalidateQueries({ queryKey: ["fm-ops-checklist-templates", activeContractId] });
+  }
+
+  function refreshAll() {
+    qc.invalidateQueries({ queryKey: ["fm-ops-attendance"] });
+    qc.invalidateQueries({ queryKey: ["fm-ops-wos"] });
+    qc.invalidateQueries({ queryKey: ["fm-ops-ppm"] });
+    qc.invalidateQueries({ queryKey: ["fm-ops-checks"] });
+    qc.invalidateQueries({ queryKey: ["fm-ops-checklist-templates"] });
+    qc.invalidateQueries({ queryKey: ["fm-ops-weekly"] });
+    qc.invalidateQueries({ queryKey: ["fm-ops-monthly"] });
+    qc.invalidateQueries({ queryKey: ["fm-ops-packs"] });
+    setLastRefresh(new Date());
+  }
+
+  /* ---- deep links ---- */
+  const openAttendance = (add?: boolean) =>
+    navigate({
+      to: "/fm-attendance",
+      search: { contract_id: activeContractId, date, ...(add ? { add: "1" } : {}) },
+    });
+  const openPpm = (visitId?: string) =>
+    navigate({
+      to: "/fm-ppm",
+      search: { contract_id: activeContractId, ...(visitId ? { visit_id: visitId } : {}) },
+    });
+  const openWorkOrder = (wo: any) =>
+    navigate({
+      to: "/fm-work-orders",
+      search: wo?.wo_no ? { wo: wo.wo_no } : { wo_id: wo?.id },
+    });
+
+  /* ---- attendance quick action ---- */
+  async function markFullTeamPresent() {
+    if (!activeContractId) return;
+    const activePlans = (plans as any[]).filter((p) => p.active !== false);
+    if (activePlans.length === 0) {
+      toast.error("No manpower plan for this contract");
+      return;
+    }
+    const rows: any[] = [];
+    activePlans.forEach((p) => {
+      const count = Number(p.required_headcount ?? 0);
+      for (let i = 0; i < count; i += 1) {
+        rows.push({
+          contract_id: activeContractId,
+          attendance_date: date,
+          employee_name: `${p.designation ?? p.role_name ?? "Staff"}${count > 1 ? ` ${i + 1}` : ""}`,
+          shift: p.shift_name ?? null,
+          shift_name: p.shift_name ?? null,
+          status: "Present",
+          source: "Daily Operations",
+          remarks: null,
+        });
+      }
+    });
+    if (rows.length === 0) {
+      toast.error("Planned headcount is zero");
+      return;
+    }
+    if (
+      !window.confirm(
+        `Create ${rows.length} attendance entries marked Present for ${date}? Remarks can be edited afterwards.`,
+      )
+    )
+      return;
+    setBusy(true);
+    const { error } = await fmDb.from("attendance_logs").insert(rows);
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(`${rows.length} attendance entries created`);
+    refreshAll();
+  }
+
+  /* ---- PPM quick action ---- */
+  async function convertPpm(visit: any) {
+    if (!window.confirm("Create an FM work order for this PPM visit?")) return;
+    setBusy(true);
+    try {
+      const result = await convertPpmVisitToFmWorkOrder({ ...visit, contract_id: activeContractId });
+      toast.success(`FM work order ${result.wo_no ?? ""} created`);
+      refreshAll();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not convert PPM visit");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /* ---- work order quick actions ---- */
+  async function updateWorkOrder(wo: any, kind: "responded" | "completed") {
+    const now = new Date().toISOString();
+    const patch =
+      kind === "responded"
+        ? {
+            responded_at: now,
+            response_sla_status: calculateSlaStatus({
+              dueAt: wo.response_due_at,
+              actualAt: now,
+            }),
+            status: "In Progress",
+          }
+        : {
+            completed_at: now,
+            completion_sla_status: calculateSlaStatus({
+              dueAt: wo.completion_due_at,
+              actualAt: now,
+            }),
+            status: "Completed",
+          };
+    if (!window.confirm(`Mark ${wo.wo_no ?? "this work order"} as ${kind}?`)) return;
+    setBusy(true);
+    const { error } = await fmDb
+      .from("work_orders")
+      .update(patch)
+      .eq("id", wo.id)
+      .eq("module_type", "FM");
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(`Work order marked ${kind}`);
+    refreshAll();
+  }
+
+
+
+  type ActionItem = {
+    rank: number; // lower = more urgent
+    priority: "High" | "Medium" | "Low";
+    state: string;
+    module: string;
+    description: string;
+    record: string;
+    label: string;
+    go: () => void;
+  };
+
   const actions = useMemo(() => {
-    const list: {
-      priority: "High" | "Medium" | "Low";
-      module: string;
-      description: string;
-      record: string;
-      label: string;
-      go: () => void;
-    }[] = [];
+    const list: ActionItem[] = [];
 
-    if (attendance.length === 0)
+    // 1 — breached / overdue
+    ppmOverdue.slice(0, 8).forEach((v: any) =>
       list.push({
+        rank: 1,
         priority: "High",
-        module: "Attendance",
-        description: `No attendance marked for ${date}`,
-        record: `${plannedHeadcount} planned headcount`,
-        label: "Add Attendance",
-        go: () => navigate({ to: "/fm-attendance" }),
-      });
-    else if (plannedHeadcount && coverage < 100)
-      list.push({
-        priority: "Medium",
-        module: "Attendance",
-        description: `Manpower coverage at ${coverage}%`,
-        record: `${present}/${plannedHeadcount} present`,
-        label: "Open Attendance",
-        go: () => navigate({ to: "/fm-attendance" }),
-      });
-
-    ppmOverdue.slice(0, 5).forEach((v: any) =>
-      list.push({
-        priority: "High",
+        state: "Overdue",
         module: "PPM",
         description: "Overdue PPM visit",
         record: `${v.service_categories?.name ?? "PPM"} — planned ${ppmDate(v)}`,
         label: "Open PPM",
-        go: () => navigate({ to: "/fm-ppm" }),
+        go: () => openPpm(v.id),
       }),
     );
-    ppmDueToday.slice(0, 5).forEach((v: any) =>
+    breachedWos.slice(0, 8).forEach((w: any) =>
       list.push({
-        priority: "Medium",
-        module: "PPM",
-        description: "PPM visit due today",
-        record: `${v.service_categories?.name ?? "PPM"}`,
-        label: "Open PPM",
-        go: () => navigate({ to: "/fm-ppm" }),
-      }),
-    );
-
-    breachedWos.slice(0, 5).forEach((w: any) =>
-      list.push({
+        rank: 1,
         priority: "High",
+        state: "Breached",
         module: "Work Orders",
         description: "SLA breached — close work order",
         record: `${w.wo_no ?? "WO"} · ${w.request_type ?? "-"}`,
         label: "Open Work Order",
-        go: () => navigate({ to: "/fm-work-orders" }),
+        go: () => openWorkOrder(w),
       }),
     );
-    atRiskWos.slice(0, 5).forEach((w: any) =>
+
+    // 2 — at risk
+    atRiskWos.slice(0, 8).forEach((w: any) =>
       list.push({
+        rank: 2,
         priority: "Medium",
+        state: "At Risk",
         module: "Work Orders",
         description: "SLA at risk — respond now",
         record: `${w.wo_no ?? "WO"} · ${w.request_type ?? "-"}`,
         label: "Open Work Order",
-        go: () => navigate({ to: "/fm-work-orders" }),
+        go: () => openWorkOrder(w),
+      }),
+    );
+    ppmDueToday.slice(0, 8).forEach((v: any) =>
+      list.push({
+        rank: 2,
+        priority: "Medium",
+        state: "Pending",
+        module: "PPM",
+        description: "PPM visit due today",
+        record: `${v.service_categories?.name ?? "PPM"}`,
+        label: "Open PPM",
+        go: () => openPpm(v.id),
       }),
     );
 
-    if (cleaningDone < CLEANING_TASKS.length)
+    // 3 — attendance
+    if (attendance.length === 0)
       list.push({
+        rank: 3,
+        priority: "High",
+        state: "Pending",
+        module: "Attendance",
+        description: `No attendance marked for ${date}`,
+        record: `${plannedHeadcount} planned headcount`,
+        label: "Add Attendance",
+        go: () => openAttendance(true),
+      });
+    else if (plannedHeadcount && coverage < 100)
+      list.push({
+        rank: 3,
         priority: "Medium",
+        state: "At Risk",
+        module: "Attendance",
+        description: `Manpower coverage at ${coverage}%`,
+        record: `${present}/${plannedHeadcount} present`,
+        label: "Open Attendance",
+        go: () => openAttendance(),
+      });
+
+    // 4 — cleaning
+    if (cleaningDone < cleaningTasks.length)
+      list.push({
+        rank: 4,
+        priority: "Medium",
+        state: "Pending",
         module: "Cleaning",
         description: "Daily cleaning checklist incomplete",
-        record: `${cleaningDone}/${CLEANING_TASKS.length} completed`,
+        record: `${cleaningDone}/${cleaningTasks.length} completed`,
         label: "Mark Checklist",
         go: () => document.getElementById("cleaning-widget")?.scrollIntoView({ behavior: "smooth" }),
       });
 
+    // 5 — reporting / invoicing
     if (!weeklyReport)
       list.push({
+        rank: 5,
         priority: "Medium",
+        state: "Pending",
         module: "Reporting",
         description: "Prepare weekly report",
         record: `${week.start} to ${week.end}`,
         label: "Generate Report",
-        go: () => navigate({ to: "/fm-weekly-reports" }),
+        go: () => navigate({ to: "/fm-weekly-reports", search: {} }),
       });
     if (!monthlyReport)
       list.push({
+        rank: 5,
         priority: "Medium",
+        state: "Pending",
         module: "Reporting",
         description: "Prepare monthly report",
         record: `${month.start} to ${month.end}`,
         label: "Generate Report",
-        go: () => navigate({ to: "/fm-monthly-reports" }),
+        go: () => navigate({ to: "/fm-monthly-reports", search: {} }),
       });
     if (!invoicePack)
       list.push({
+        rank: 6,
         priority: "Low",
+        state: "Pending",
         module: "Invoicing",
         description: "Generate current month invoice pack",
         record: `${month.start} to ${month.end}`,
         label: "Open Invoice Pack",
-        go: () => navigate({ to: "/fm-invoice-packs" }),
+        go: () => navigate({ to: "/fm-invoice-packs", search: {} }),
       });
 
-    return list;
+    return list.sort((a, b) => a.rank - b.rank);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     attendance.length,
     atRiskWos,
     breachedWos,
     cleaningDone,
+    cleaningTasks.length,
     coverage,
     date,
     invoicePack,
@@ -502,6 +745,16 @@ function FmDailyOperationsPage() {
     week.start,
     weeklyReport,
   ]);
+
+  const stateBadge = (s: string) =>
+    s === "Breached" || s === "Overdue"
+      ? "bg-destructive/10 text-destructive border-destructive/30"
+      : s === "At Risk"
+        ? "bg-amber-100 text-amber-800 border-amber-200"
+        : s === "Completed" || s === "On Track"
+          ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+          : "bg-muted text-muted-foreground";
+
 
   const priorityBadge = (p: string) =>
     p === "High"
@@ -545,8 +798,15 @@ function FmDailyOperationsPage() {
           <Button variant="outline" onClick={() => setDate(todayIso())}>
             Today
           </Button>
+          <Button variant="outline" onClick={refreshAll} disabled={busy}>
+            <RefreshCw className="h-4 w-4 mr-1" /> Refresh
+          </Button>
+          <span className="text-xs text-muted-foreground pb-2">
+            Updated {lastRefresh.toLocaleTimeString()}
+          </span>
         </div>
       </div>
+
 
       {!contract ? (
         <Card className="p-6 text-sm text-muted-foreground">No FM contracts found.</Card>
@@ -663,6 +923,7 @@ function FmDailyOperationsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Priority</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Module</TableHead>
                     <TableHead>Description</TableHead>
                     <TableHead>Linked record</TableHead>
@@ -677,9 +938,15 @@ function FmDailyOperationsPage() {
                           {a.priority}
                         </Badge>
                       </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={stateBadge(a.state)}>
+                          {a.state}
+                        </Badge>
+                      </TableCell>
                       <TableCell>{a.module}</TableCell>
                       <TableCell>{a.description}</TableCell>
                       <TableCell className="text-muted-foreground text-xs">{a.record}</TableCell>
+
                       <TableCell className="text-right">
                         <Button size="sm" variant="outline" onClick={a.go}>
                           {a.label}
@@ -695,15 +962,41 @@ function FmDailyOperationsPage() {
           <div className="grid gap-4 xl:grid-cols-2">
             {/* Attendance widget */}
             <Card className="p-4 space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <h2 className="text-lg font-semibold">Attendance — {date}</h2>
-                <Button size="sm" onClick={() => navigate({ to: "/fm-attendance" })}>
-                  Add Today's Attendance
-                </Button>
+                {attendance.length === 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" onClick={markFullTeamPresent} disabled={busy}>
+                      Mark Full Planned Team Present
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => openAttendance(true)}>
+                      Add Attendance Manually
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="outline" className={stateBadge("Completed")}>
+                      Present {present}
+                    </Badge>
+                    <Badge variant="outline" className={absent ? stateBadge("Breached") : undefined}>
+                      Absent {absent}
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className={stateBadge(coverage >= 100 ? "Completed" : "At Risk")}
+                    >
+                      Coverage {coverage}%
+                    </Badge>
+                    <Button size="sm" variant="outline" onClick={() => openAttendance()}>
+                      Open Attendance
+                    </Button>
+                  </div>
+                )}
               </div>
               {attendance.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No attendance marked today</p>
               ) : (
+
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -750,7 +1043,7 @@ function FmDailyOperationsPage() {
             <Card className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">PPM Visits</h2>
-                <Button size="sm" variant="outline" onClick={() => navigate({ to: "/fm-ppm" })}>
+                <Button size="sm" variant="outline" onClick={() => openPpm()}>
                   Open PPM Planner
                 </Button>
               </div>
@@ -784,19 +1077,26 @@ function FmDailyOperationsPage() {
                         <TableCell>{ppmDate(v)}</TableCell>
                         <TableCell>{v.service_categories?.name ?? "—"}</TableCell>
                         <TableCell>
-                          <Badge variant="outline">
+                          <Badge
+                            variant="outline"
+                            className={stateBadge(
+                              ppmDate(v) < date ? "Overdue" : (v.status ?? "Pending"),
+                            )}
+                          >
                             {ppmDate(v) < date ? "Overdue" : (v.status ?? "Planned")}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => navigate({ to: "/fm-ppm" })}
-                          >
-                            {v.work_order_id ? "Open PPM" : "Convert to WO"}
+                        <TableCell className="text-right space-x-1">
+                          <Button size="sm" variant="outline" onClick={() => openPpm(v.id)}>
+                            Open PPM
                           </Button>
+                          {!v.work_order_id ? (
+                            <Button size="sm" onClick={() => convertPpm(v)} disabled={busy}>
+                              Convert to FM WO
+                            </Button>
+                          ) : null}
                         </TableCell>
+
                       </TableRow>
                     ))
                   )}
@@ -809,7 +1109,7 @@ function FmDailyOperationsPage() {
           <Card className="p-4 space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">FM Work Orders & SLA</h2>
-              <Button size="sm" variant="outline" onClick={() => navigate({ to: "/fm-work-orders" })}>
+              <Button size="sm" variant="outline" onClick={() => navigate({ to: "/fm-work-orders", search: {} })}>
                 Open Work Orders
               </Button>
             </div>
@@ -824,15 +1124,17 @@ function FmDailyOperationsPage() {
                   <TableHead>SLA</TableHead>
                   <TableHead>Due</TableHead>
                   <TableHead>Assigned</TableHead>
+                  <TableHead className="text-right">Quick actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {openWos.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-sm text-muted-foreground">
+                    <TableCell colSpan={9} className="text-sm text-muted-foreground">
                       No open FM work orders.
                     </TableCell>
                   </TableRow>
+
                 ) : (
                   openWos.slice(0, 25).map((w: any) => {
                     const sla = slaOf(w);
@@ -866,7 +1168,28 @@ function FmDailyOperationsPage() {
                             : (w.scheduled_date ?? "—")}
                         </TableCell>
                         <TableCell>{w.technician_name ?? "—"}</TableCell>
+                        <TableCell className="text-right space-x-1 whitespace-nowrap">
+                          <Button size="sm" variant="outline" onClick={() => openWorkOrder(w)}>
+                            Open
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={busy}
+                            onClick={() => updateWorkOrder(w, "responded")}
+                          >
+                            Mark Responded
+                          </Button>
+                          <Button
+                            size="sm"
+                            disabled={busy}
+                            onClick={() => updateWorkOrder(w, "completed")}
+                          >
+                            Mark Completed
+                          </Button>
+                        </TableCell>
                       </TableRow>
+
                     );
                   })
                 )}
@@ -880,7 +1203,7 @@ function FmDailyOperationsPage() {
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">Cleaning / Housekeeping — {date}</h2>
                 <Badge variant="outline">
-                  {cleaningDone}/{CLEANING_TASKS.length} done
+                  {cleaningDone}/{cleaningTasks.length} done
                 </Badge>
               </div>
               <Table>
@@ -890,10 +1213,11 @@ function FmDailyOperationsPage() {
                     <TableHead>Task</TableHead>
                     <TableHead className="w-[160px]">Status</TableHead>
                     <TableHead>Remarks</TableHead>
+                    <TableHead className="w-[40px]" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {CLEANING_TASKS.map((t) => {
+                  {cleaningTasks.map((t) => {
                     const row = checkByTask.get(t.task);
                     return (
                       <TableRow key={t.task}>
@@ -927,12 +1251,49 @@ function FmDailyOperationsPage() {
                             }}
                           />
                         </TableCell>
+                        <TableCell>
+                          {t.id ? (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              title="Remove from checklist template"
+                              onClick={() => deactivateTemplateTask(t)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          ) : null}
+                        </TableCell>
                       </TableRow>
                     );
                   })}
                 </TableBody>
               </Table>
+              <div className="flex flex-wrap items-end gap-2 border-t pt-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Area</Label>
+                  <Input
+                    className="h-8 w-[150px]"
+                    placeholder="Common Areas"
+                    value={newTask.area}
+                    onChange={(e) => setNewTask({ ...newTask, area: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">New checklist task</Label>
+                  <Input
+                    className="h-8 w-[240px]"
+                    placeholder="Task name"
+                    value={newTask.task}
+                    onChange={(e) => setNewTask({ ...newTask, task: e.target.value })}
+                  />
+                </div>
+                <Button size="sm" onClick={addTemplateTask} disabled={busy || !newTask.task.trim()}>
+                  Add Task
+                </Button>
+              </div>
             </Card>
+
+
 
             {/* Reporting shortcuts */}
             <Card className="p-4 space-y-3">
@@ -946,6 +1307,7 @@ function FmDailyOperationsPage() {
                     ref: weeklyReport?.report_no,
                     label: weeklyReport ? "Open Weekly Report" : "Create Weekly Report",
                     to: "/fm-weekly-reports" as const,
+                    search: weeklyReport ? { report_id: weeklyReport.id } : {},
                   },
                   {
                     title: "Monthly Report",
@@ -954,6 +1316,7 @@ function FmDailyOperationsPage() {
                     ref: monthlyReport?.report_no,
                     label: monthlyReport ? "Open Monthly Report" : "Create Monthly Report",
                     to: "/fm-monthly-reports" as const,
+                    search: monthlyReport ? { report_id: monthlyReport.id } : {},
                   },
                   {
                     title: "Invoice Pack",
@@ -962,8 +1325,10 @@ function FmDailyOperationsPage() {
                     ref: invoicePack?.invoice_number ?? invoicePack?.invoice_no,
                     label: invoicePack ? "Open Invoice Pack" : "Create Invoice Pack",
                     to: "/fm-invoice-packs" as const,
+                    search: invoicePack ? { invoice_pack_id: invoicePack.id } : {},
                   },
                 ].map((r) => (
+
                   <div
                     key={r.title}
                     className="flex items-center justify-between gap-3 rounded-md border p-3"
@@ -978,7 +1343,7 @@ function FmDailyOperationsPage() {
                         ) : null}
                       </div>
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => navigate({ to: r.to })}>
+                    <Button size="sm" variant="outline" onClick={() => navigate({ to: r.to, search: r.search })}>
                       {r.label}
                     </Button>
                   </div>

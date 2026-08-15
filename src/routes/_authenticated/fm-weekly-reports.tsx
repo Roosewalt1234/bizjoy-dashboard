@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, Pencil, Plus, Printer, Trash2 } from "lucide-react";
@@ -48,8 +48,11 @@ import { PAGE_SIZE, paginate, PaginationBar } from "@/components/pagination-bar"
 import { buildWeeklyReportPayload, getDateRangeForWeek, REPORT_STATUSES } from "@/lib/fm-reports";
 
 export const Route = createFileRoute("/_authenticated/fm-weekly-reports")({
+  validateSearch: (search: Record<string, unknown>): { report_id?: string } =>
+    typeof search.report_id === "string" ? { report_id: search.report_id } : {},
   component: ContractWeeklyReportsPage,
 });
+
 
 const fmDb = supabase as any;
 
@@ -95,6 +98,20 @@ function ContractWeeklyReportsPage() {
       return data ?? [];
     },
   });
+
+  // Deep link: /fm-weekly-reports?report_id=... opens that report.
+  const search = Route.useSearch();
+  const openedReportId = useRef<string | null>(null);
+  useEffect(() => {
+    const id = search.report_id;
+    if (!id || openedReportId.current === id) return;
+    const match = (reports as any[]).find((row) => row.id === id);
+    if (!match) return;
+    openedReportId.current = id;
+    setViewing(match);
+  }, [reports, search.report_id]);
+
+
 
   const filteredReports = useMemo(
     () =>

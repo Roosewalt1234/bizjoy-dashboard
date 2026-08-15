@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Pencil, Plus, Trash2 } from "lucide-react";
@@ -54,8 +54,18 @@ import {
 } from "@/lib/fm-manpower";
 
 export const Route = createFileRoute("/_authenticated/fm-attendance")({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { contract_id?: string; date?: string; add?: string } => {
+    const out: { contract_id?: string; date?: string; add?: string } = {};
+    if (typeof search.contract_id === "string") out.contract_id = search.contract_id;
+    if (typeof search.date === "string") out.date = search.date;
+    if (typeof search.add === "string") out.add = search.add;
+    return out;
+  },
   component: ContractAttendancePage,
 });
+
 
 const fmDb = supabase as any;
 
@@ -74,8 +84,9 @@ const emptyForm = {
 
 function ContractAttendancePage() {
   const qc = useQueryClient();
-  const [contractFilter, setContractFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState(todayIso());
+  const search = Route.useSearch();
+  const [contractFilter, setContractFilter] = useState(search.contract_id ?? "all");
+  const [dateFilter, setDateFilter] = useState(search.date ?? todayIso());
   const [employeeFilter, setEmployeeFilter] = useState("all");
   const [shiftFilter, setShiftFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -85,6 +96,8 @@ function ContractAttendancePage() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const autoOpened = useRef(false);
+
 
   const { data: contracts = [] } = useQuery({
     queryKey: ["contracts-lookup-attendance"],
@@ -198,6 +211,16 @@ function ContractAttendancePage() {
     );
     setOpen(true);
   }
+
+  // Deep link: /fm-attendance?contract_id=..&date=..&add=1 opens the add dialog prefilled.
+  useEffect(() => {
+    if (search.add !== "1" || autoOpened.current) return;
+    autoOpened.current = true;
+    start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search.add]);
+
+
 
   async function save() {
     if (!form.contract_id) {
