@@ -33,8 +33,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { statusBadgeClasses } from "@/lib/fm-sla";
+import { calculateSlaStatus, statusBadgeClasses } from "@/lib/fm-sla";
 import { todayIso } from "@/lib/fm-manpower";
+import { convertPpmVisitToFmWorkOrder } from "@/lib/fm-ppm-convert";
 
 export const Route = createFileRoute("/_authenticated/fm-daily-operations")({
   head: () => ({
@@ -145,6 +146,8 @@ function FmDailyOperationsPage() {
   const navigate = useNavigate();
   const [date, setDate] = useState(todayIso());
   const [contractId, setContractId] = useState<string>("");
+  const [lastRefresh, setLastRefresh] = useState(new Date());
+  const [busy, setBusy] = useState(false);
 
   const week = weekBounds(date);
   const month = monthBounds(date);
