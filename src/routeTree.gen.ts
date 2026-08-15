@@ -20,7 +20,6 @@ import { Route as AuthenticatedProjectReportsRouteImport } from './routes/_authe
 import { Route as AuthenticatedPermissionsRouteImport } from './routes/_authenticated/permissions'
 import { Route as AuthenticatedMepSchedulesRouteImport } from './routes/_authenticated/mep-schedules'
 import { Route as AuthenticatedHrRouteImport } from './routes/_authenticated/hr'
-import { Route as AuthenticatedContractsRouteImport } from './routes/_authenticated/contracts'
 import { Route as AuthenticatedContractWeeklyReportsRouteImport } from './routes/_authenticated/contract-weekly-reports'
 import { Route as AuthenticatedContractSlaRouteImport } from './routes/_authenticated/contract-sla'
 import { Route as AuthenticatedContractServiceCategoriesRouteImport } from './routes/_authenticated/contract-service-categories'
@@ -97,11 +96,6 @@ const AuthenticatedMepSchedulesRoute =
 const AuthenticatedHrRoute = AuthenticatedHrRouteImport.update({
   id: '/hr',
   path: '/hr',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedContractsRoute = AuthenticatedContractsRouteImport.update({
-  id: '/contracts',
-  path: '/contracts',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedContractWeeklyReportsRoute =
@@ -211,9 +205,9 @@ const AuthenticatedCustomersIdRoute =
   } as any)
 const AuthenticatedContractsIdRoute =
   AuthenticatedContractsIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedContractsRoute,
+    id: '/contracts/$id',
+    path: '/contracts/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedCustomersIdViewRoute =
   AuthenticatedCustomersIdViewRouteImport.update({
@@ -240,7 +234,6 @@ export interface FileRoutesByFullPath {
   '/contract-service-categories': typeof AuthenticatedContractServiceCategoriesRoute
   '/contract-sla': typeof AuthenticatedContractSlaRoute
   '/contract-weekly-reports': typeof AuthenticatedContractWeeklyReportsRoute
-  '/contracts': typeof AuthenticatedContractsRouteWithChildren
   '/hr': typeof AuthenticatedHrRoute
   '/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/permissions': typeof AuthenticatedPermissionsRoute
@@ -272,7 +265,6 @@ export interface FileRoutesByTo {
   '/contract-service-categories': typeof AuthenticatedContractServiceCategoriesRoute
   '/contract-sla': typeof AuthenticatedContractSlaRoute
   '/contract-weekly-reports': typeof AuthenticatedContractWeeklyReportsRoute
-  '/contracts': typeof AuthenticatedContractsRouteWithChildren
   '/hr': typeof AuthenticatedHrRoute
   '/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/permissions': typeof AuthenticatedPermissionsRoute
@@ -307,7 +299,6 @@ export interface FileRoutesById {
   '/_authenticated/contract-service-categories': typeof AuthenticatedContractServiceCategoriesRoute
   '/_authenticated/contract-sla': typeof AuthenticatedContractSlaRoute
   '/_authenticated/contract-weekly-reports': typeof AuthenticatedContractWeeklyReportsRoute
-  '/_authenticated/contracts': typeof AuthenticatedContractsRouteWithChildren
   '/_authenticated/hr': typeof AuthenticatedHrRoute
   '/_authenticated/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/_authenticated/permissions': typeof AuthenticatedPermissionsRoute
@@ -343,7 +334,6 @@ export interface FileRouteTypes {
     | '/contract-service-categories'
     | '/contract-sla'
     | '/contract-weekly-reports'
-    | '/contracts'
     | '/hr'
     | '/mep-schedules'
     | '/permissions'
@@ -375,7 +365,6 @@ export interface FileRouteTypes {
     | '/contract-service-categories'
     | '/contract-sla'
     | '/contract-weekly-reports'
-    | '/contracts'
     | '/hr'
     | '/mep-schedules'
     | '/permissions'
@@ -409,7 +398,6 @@ export interface FileRouteTypes {
     | '/_authenticated/contract-service-categories'
     | '/_authenticated/contract-sla'
     | '/_authenticated/contract-weekly-reports'
-    | '/_authenticated/contracts'
     | '/_authenticated/hr'
     | '/_authenticated/mep-schedules'
     | '/_authenticated/permissions'
@@ -508,13 +496,6 @@ declare module '@tanstack/react-router' {
       path: '/hr'
       fullPath: '/hr'
       preLoaderRoute: typeof AuthenticatedHrRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/contracts': {
-      id: '/_authenticated/contracts'
-      path: '/contracts'
-      fullPath: '/contracts'
-      preLoaderRoute: typeof AuthenticatedContractsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/contract-weekly-reports': {
@@ -645,10 +626,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/contracts/$id': {
       id: '/_authenticated/contracts/$id'
-      path: '/$id'
+      path: '/contracts/$id'
       fullPath: '/contracts/$id'
       preLoaderRoute: typeof AuthenticatedContractsIdRouteImport
-      parentRoute: typeof AuthenticatedContractsRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/customers/$id/view': {
       id: '/_authenticated/customers/$id/view'
@@ -659,20 +640,6 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-
-interface AuthenticatedContractsRouteChildren {
-  AuthenticatedContractsIdRoute: typeof AuthenticatedContractsIdRoute
-}
-
-const AuthenticatedContractsRouteChildren: AuthenticatedContractsRouteChildren =
-  {
-    AuthenticatedContractsIdRoute: AuthenticatedContractsIdRoute,
-  }
-
-const AuthenticatedContractsRouteWithChildren =
-  AuthenticatedContractsRoute._addFileChildren(
-    AuthenticatedContractsRouteChildren,
-  )
 
 interface AuthenticatedCustomersIdRouteChildren {
   AuthenticatedCustomersIdViewRoute: typeof AuthenticatedCustomersIdViewRoute
@@ -704,7 +671,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedContractServiceCategoriesRoute: typeof AuthenticatedContractServiceCategoriesRoute
   AuthenticatedContractSlaRoute: typeof AuthenticatedContractSlaRoute
   AuthenticatedContractWeeklyReportsRoute: typeof AuthenticatedContractWeeklyReportsRoute
-  AuthenticatedContractsRoute: typeof AuthenticatedContractsRouteWithChildren
   AuthenticatedHrRoute: typeof AuthenticatedHrRoute
   AuthenticatedMepSchedulesRoute: typeof AuthenticatedMepSchedulesRoute
   AuthenticatedPermissionsRoute: typeof AuthenticatedPermissionsRoute
@@ -714,6 +680,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedServiceRoute: typeof AuthenticatedServiceRoute
   AuthenticatedWorkOrdersRoute: typeof AuthenticatedWorkOrdersRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedContractsIdRoute: typeof AuthenticatedContractsIdRoute
   AuthenticatedCustomersIdRoute: typeof AuthenticatedCustomersIdRouteWithChildren
   AuthenticatedCustomersNewRoute: typeof AuthenticatedCustomersNewRoute
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
@@ -739,7 +706,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedContractSlaRoute: AuthenticatedContractSlaRoute,
   AuthenticatedContractWeeklyReportsRoute:
     AuthenticatedContractWeeklyReportsRoute,
-  AuthenticatedContractsRoute: AuthenticatedContractsRouteWithChildren,
   AuthenticatedHrRoute: AuthenticatedHrRoute,
   AuthenticatedMepSchedulesRoute: AuthenticatedMepSchedulesRoute,
   AuthenticatedPermissionsRoute: AuthenticatedPermissionsRoute,
@@ -749,6 +715,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedServiceRoute: AuthenticatedServiceRoute,
   AuthenticatedWorkOrdersRoute: AuthenticatedWorkOrdersRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedContractsIdRoute: AuthenticatedContractsIdRoute,
   AuthenticatedCustomersIdRoute: AuthenticatedCustomersIdRouteWithChildren,
   AuthenticatedCustomersNewRoute: AuthenticatedCustomersNewRoute,
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
