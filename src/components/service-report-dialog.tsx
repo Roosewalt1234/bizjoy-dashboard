@@ -115,7 +115,7 @@ function itemsFromReport(r: any): WorkItem[] {
   return items;
 }
 
-export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }: Props) {
+export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId, moduleType = "AMC" }: Props & { moduleType?: "AMC" | "FM" }) {
   const qc = useQueryClient();
   const [form, setForm] = useState<any>(empty);
   const [items, setItems] = useState<WorkItem[]>([emptyItem()]);
