@@ -1129,7 +1129,28 @@ function FmDailyOperationsPage() {
                             : (w.scheduled_date ?? "—")}
                         </TableCell>
                         <TableCell>{w.technician_name ?? "—"}</TableCell>
+                        <TableCell className="text-right space-x-1 whitespace-nowrap">
+                          <Button size="sm" variant="outline" onClick={() => openWorkOrder(w)}>
+                            Open
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={busy}
+                            onClick={() => updateWorkOrder(w, "responded")}
+                          >
+                            Mark Responded
+                          </Button>
+                          <Button
+                            size="sm"
+                            disabled={busy}
+                            onClick={() => updateWorkOrder(w, "completed")}
+                          >
+                            Mark Completed
+                          </Button>
+                        </TableCell>
                       </TableRow>
+
                     );
                   })
                 )}
