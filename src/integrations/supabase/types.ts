@@ -47,6 +47,72 @@ export type Database = {
         }
         Relationships: []
       }
+      attendance_logs: {
+        Row: {
+          attendance_date: string
+          check_in: string | null
+          check_out: string | null
+          contract_id: string | null
+          created_at: string
+          employee_id: string | null
+          employee_name: string | null
+          id: string
+          remarks: string | null
+          shift: string | null
+          shift_name: string | null
+          source: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attendance_date?: string
+          check_in?: string | null
+          check_out?: string | null
+          contract_id?: string | null
+          created_at?: string
+          employee_id?: string | null
+          employee_name?: string | null
+          id?: string
+          remarks?: string | null
+          shift?: string | null
+          shift_name?: string | null
+          source?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attendance_date?: string
+          check_in?: string | null
+          check_out?: string | null
+          contract_id?: string | null
+          created_at?: string
+          employee_id?: string | null
+          employee_name?: string | null
+          id?: string
+          remarks?: string | null
+          shift?: string | null
+          shift_name?: string | null
+          source?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_logs_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_logs_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_log: {
         Row: {
           action: string
@@ -85,6 +151,317 @@ export type Database = {
           user_name?: string | null
         }
         Relationships: []
+      }
+      contract_assets: {
+        Row: {
+          asset_tag: string | null
+          asset_type: string | null
+          contract_id: string
+          created_at: string
+          criticality: string | null
+          description: string | null
+          floor: string | null
+          id: string
+          location: string | null
+          make: string | null
+          model: string | null
+          serial_no: string | null
+          service_category_id: string | null
+          status: string
+          updated_at: string
+          warranty_expiry: string | null
+          zone: string | null
+        }
+        Insert: {
+          asset_tag?: string | null
+          asset_type?: string | null
+          contract_id: string
+          created_at?: string
+          criticality?: string | null
+          description?: string | null
+          floor?: string | null
+          id?: string
+          location?: string | null
+          make?: string | null
+          model?: string | null
+          serial_no?: string | null
+          service_category_id?: string | null
+          status?: string
+          updated_at?: string
+          warranty_expiry?: string | null
+          zone?: string | null
+        }
+        Update: {
+          asset_tag?: string | null
+          asset_type?: string | null
+          contract_id?: string
+          created_at?: string
+          criticality?: string | null
+          description?: string | null
+          floor?: string | null
+          id?: string
+          location?: string | null
+          make?: string | null
+          model?: string | null
+          serial_no?: string | null
+          service_category_id?: string | null
+          status?: string
+          updated_at?: string
+          warranty_expiry?: string | null
+          zone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_assets_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contract_assets_service_category_id_fkey"
+            columns: ["service_category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_line_items: {
+        Row: {
+          active: boolean
+          annual_amount: number | null
+          contract_id: string
+          created_at: string
+          description: string
+          frequency: string | null
+          id: string
+          line_no: number
+          monthly_amount: number | null
+          quantity: number | null
+          scope_notes: string | null
+          service_category_id: string | null
+          sla_policy_id: string | null
+          unit_rate: number | null
+          uom: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          annual_amount?: number | null
+          contract_id: string
+          created_at?: string
+          description: string
+          frequency?: string | null
+          id?: string
+          line_no?: number
+          monthly_amount?: number | null
+          quantity?: number | null
+          scope_notes?: string | null
+          service_category_id?: string | null
+          sla_policy_id?: string | null
+          unit_rate?: number | null
+          uom?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          annual_amount?: number | null
+          contract_id?: string
+          created_at?: string
+          description?: string
+          frequency?: string | null
+          id?: string
+          line_no?: number
+          monthly_amount?: number | null
+          quantity?: number | null
+          scope_notes?: string | null
+          service_category_id?: string | null
+          sla_policy_id?: string | null
+          unit_rate?: number | null
+          uom?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_line_items_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contract_line_items_service_category_id_fkey"
+            columns: ["service_category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contract_line_items_sla_policy_id_fkey"
+            columns: ["sla_policy_id"]
+            isOneToOne: false
+            referencedRelation: "sla_policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_manpower_assignments: {
+        Row: {
+          active: boolean
+          contract_id: string
+          created_at: string
+          designation: string | null
+          employee_id: string | null
+          employee_name: string | null
+          end_date: string | null
+          id: string
+          manpower_plan_id: string | null
+          notes: string | null
+          remarks: string | null
+          role_name: string | null
+          shift_name: string | null
+          start_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          contract_id: string
+          created_at?: string
+          designation?: string | null
+          employee_id?: string | null
+          employee_name?: string | null
+          end_date?: string | null
+          id?: string
+          manpower_plan_id?: string | null
+          notes?: string | null
+          remarks?: string | null
+          role_name?: string | null
+          shift_name?: string | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          contract_id?: string
+          created_at?: string
+          designation?: string | null
+          employee_id?: string | null
+          employee_name?: string | null
+          end_date?: string | null
+          id?: string
+          manpower_plan_id?: string | null
+          notes?: string | null
+          remarks?: string | null
+          role_name?: string | null
+          shift_name?: string | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_manpower_assignments_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contract_manpower_assignments_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contract_manpower_assignments_manpower_plan_id_fkey"
+            columns: ["manpower_plan_id"]
+            isOneToOne: false
+            referencedRelation: "contract_manpower_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_manpower_plans: {
+        Row: {
+          active: boolean
+          contract_id: string
+          created_at: string
+          days_per_week: number | null
+          designation: string | null
+          end_date: string | null
+          hours_per_day: number | null
+          id: string
+          notes: string | null
+          remarks: string | null
+          required_headcount: number
+          role_name: string
+          service_category_id: string | null
+          shift_end: string | null
+          shift_name: string | null
+          shift_start: string | null
+          start_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          contract_id: string
+          created_at?: string
+          days_per_week?: number | null
+          designation?: string | null
+          end_date?: string | null
+          hours_per_day?: number | null
+          id?: string
+          notes?: string | null
+          remarks?: string | null
+          required_headcount?: number
+          role_name: string
+          service_category_id?: string | null
+          shift_end?: string | null
+          shift_name?: string | null
+          shift_start?: string | null
+          start_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          contract_id?: string
+          created_at?: string
+          days_per_week?: number | null
+          designation?: string | null
+          end_date?: string | null
+          hours_per_day?: number | null
+          id?: string
+          notes?: string | null
+          remarks?: string | null
+          required_headcount?: number
+          role_name?: string
+          service_category_id?: string | null
+          shift_end?: string | null
+          shift_name?: string | null
+          shift_start?: string | null
+          start_date?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_manpower_plans_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contract_manpower_plans_service_category_id_fkey"
+            columns: ["service_category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contract_payments: {
         Row: {
@@ -132,7 +509,11 @@ export type Database = {
           ac_duct_cleaning_date: string | null
           ac_duct_cleaning_status: string | null
           amc_ref_no: string | null
+          billing_cycle: string | null
+          building_type: string | null
+          contract_manager_id: string | null
           contract_no: string | null
+          contract_scope_type: string | null
           contract_type: string | null
           created_at: string
           customer_id: string | null
@@ -148,11 +529,16 @@ export type Database = {
           ppm_4_date: string | null
           ppm_schedule: Json | null
           remark: string | null
+          retention_percent: number | null
+          site_address: string | null
+          site_name: string | null
+          sla_profile_id: string | null
           spare_parts_amount: number | null
           start_date: string | null
           status: string | null
           title: string
           value: number | null
+          vat_percent: number | null
           water_tank_cleaning_date: string | null
           water_tank_cleaning_status: string | null
         }
@@ -160,7 +546,11 @@ export type Database = {
           ac_duct_cleaning_date?: string | null
           ac_duct_cleaning_status?: string | null
           amc_ref_no?: string | null
+          billing_cycle?: string | null
+          building_type?: string | null
+          contract_manager_id?: string | null
           contract_no?: string | null
+          contract_scope_type?: string | null
           contract_type?: string | null
           created_at?: string
           customer_id?: string | null
@@ -176,11 +566,16 @@ export type Database = {
           ppm_4_date?: string | null
           ppm_schedule?: Json | null
           remark?: string | null
+          retention_percent?: number | null
+          site_address?: string | null
+          site_name?: string | null
+          sla_profile_id?: string | null
           spare_parts_amount?: number | null
           start_date?: string | null
           status?: string | null
           title: string
           value?: number | null
+          vat_percent?: number | null
           water_tank_cleaning_date?: string | null
           water_tank_cleaning_status?: string | null
         }
@@ -188,7 +583,11 @@ export type Database = {
           ac_duct_cleaning_date?: string | null
           ac_duct_cleaning_status?: string | null
           amc_ref_no?: string | null
+          billing_cycle?: string | null
+          building_type?: string | null
+          contract_manager_id?: string | null
           contract_no?: string | null
+          contract_scope_type?: string | null
           contract_type?: string | null
           created_at?: string
           customer_id?: string | null
@@ -204,20 +603,39 @@ export type Database = {
           ppm_4_date?: string | null
           ppm_schedule?: Json | null
           remark?: string | null
+          retention_percent?: number | null
+          site_address?: string | null
+          site_name?: string | null
+          sla_profile_id?: string | null
           spare_parts_amount?: number | null
           start_date?: string | null
           status?: string | null
           title?: string
           value?: number | null
+          vat_percent?: number | null
           water_tank_cleaning_date?: string | null
           water_tank_cleaning_status?: string | null
         }
         Relationships: [
           {
+            foreignKeyName: "contracts_contract_manager_id_fkey"
+            columns: ["contract_manager_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "contracts_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_sla_profile_id_fkey"
+            columns: ["sla_profile_id"]
+            isOneToOne: false
+            referencedRelation: "sla_policies"
             referencedColumns: ["id"]
           },
         ]
@@ -644,6 +1062,496 @@ export type Database = {
           },
         ]
       }
+      invoice_pack_items: {
+        Row: {
+          amount: number
+          contract_line_item_id: string | null
+          created_at: string
+          description: string
+          id: string
+          invoice_pack_id: string
+          item_type: string
+          quantity: number
+          remarks: string | null
+          service_category_id: string | null
+          service_report_id: string | null
+          sort_order: number
+          unit: string | null
+          unit_rate: number
+          vat_applicable: boolean
+          work_order_id: string | null
+        }
+        Insert: {
+          amount?: number
+          contract_line_item_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          invoice_pack_id: string
+          item_type: string
+          quantity?: number
+          remarks?: string | null
+          service_category_id?: string | null
+          service_report_id?: string | null
+          sort_order?: number
+          unit?: string | null
+          unit_rate?: number
+          vat_applicable?: boolean
+          work_order_id?: string | null
+        }
+        Update: {
+          amount?: number
+          contract_line_item_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          invoice_pack_id?: string
+          item_type?: string
+          quantity?: number
+          remarks?: string | null
+          service_category_id?: string | null
+          service_report_id?: string | null
+          sort_order?: number
+          unit?: string | null
+          unit_rate?: number
+          vat_applicable?: boolean
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_pack_items_contract_line_item_id_fkey"
+            columns: ["contract_line_item_id"]
+            isOneToOne: false
+            referencedRelation: "contract_line_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_pack_items_invoice_pack_id_fkey"
+            columns: ["invoice_pack_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_packs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_pack_items_service_category_id_fkey"
+            columns: ["service_category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_pack_items_service_report_id_fkey"
+            columns: ["service_report_id"]
+            isOneToOne: false
+            referencedRelation: "service_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_pack_items_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_packs: {
+        Row: {
+          adjustment_amount: number
+          approved_at: string | null
+          base_contract_amount: number
+          billing_period_end: string | null
+          billing_period_start: string | null
+          client_reference: string | null
+          contract_id: string
+          created_at: string
+          deduction_amount: number
+          deductions_amount: number
+          gross_amount: number
+          id: string
+          invoice_month: string | null
+          invoice_no: string | null
+          invoice_number: string | null
+          monthly_report_id: string | null
+          net_payable: number
+          notes: string | null
+          period_end: string
+          period_start: string
+          prepared_by: string | null
+          remarks: string | null
+          report_data: Json
+          reporting_period_id: string | null
+          retention_amount: number
+          retention_percent: number
+          reviewed_by: string | null
+          status: string
+          submitted_at: string | null
+          subtotal_amount: number
+          total_amount: number
+          updated_at: string
+          variation_amount: number
+          vat_amount: number
+          vat_percent: number
+        }
+        Insert: {
+          adjustment_amount?: number
+          approved_at?: string | null
+          base_contract_amount?: number
+          billing_period_end?: string | null
+          billing_period_start?: string | null
+          client_reference?: string | null
+          contract_id: string
+          created_at?: string
+          deduction_amount?: number
+          deductions_amount?: number
+          gross_amount?: number
+          id?: string
+          invoice_month?: string | null
+          invoice_no?: string | null
+          invoice_number?: string | null
+          monthly_report_id?: string | null
+          net_payable?: number
+          notes?: string | null
+          period_end: string
+          period_start: string
+          prepared_by?: string | null
+          remarks?: string | null
+          report_data?: Json
+          reporting_period_id?: string | null
+          retention_amount?: number
+          retention_percent?: number
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string | null
+          subtotal_amount?: number
+          total_amount?: number
+          updated_at?: string
+          variation_amount?: number
+          vat_amount?: number
+          vat_percent?: number
+        }
+        Update: {
+          adjustment_amount?: number
+          approved_at?: string | null
+          base_contract_amount?: number
+          billing_period_end?: string | null
+          billing_period_start?: string | null
+          client_reference?: string | null
+          contract_id?: string
+          created_at?: string
+          deduction_amount?: number
+          deductions_amount?: number
+          gross_amount?: number
+          id?: string
+          invoice_month?: string | null
+          invoice_no?: string | null
+          invoice_number?: string | null
+          monthly_report_id?: string | null
+          net_payable?: number
+          notes?: string | null
+          period_end?: string
+          period_start?: string
+          prepared_by?: string | null
+          remarks?: string | null
+          report_data?: Json
+          reporting_period_id?: string | null
+          retention_amount?: number
+          retention_percent?: number
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string | null
+          subtotal_amount?: number
+          total_amount?: number
+          updated_at?: string
+          variation_amount?: number
+          vat_amount?: number
+          vat_percent?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_packs_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_packs_monthly_report_id_fkey"
+            columns: ["monthly_report_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_packs_reporting_period_id_fkey"
+            columns: ["reporting_period_id"]
+            isOneToOne: false
+            referencedRelation: "reporting_periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      monthly_reports: {
+        Row: {
+          approved_at: string | null
+          contract_id: string
+          created_at: string
+          id: string
+          manpower_variance: number | null
+          month_end: string
+          month_start: string
+          ppm_compliance_percent: number | null
+          prepared_by: string | null
+          reactive_closure_percent: number | null
+          remarks: string | null
+          report_data: Json
+          report_no: string | null
+          reporting_period_id: string | null
+          reviewed_by: string | null
+          sla_compliance_percent: number | null
+          status: string
+          submitted_at: string | null
+          summary: Json
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          contract_id: string
+          created_at?: string
+          id?: string
+          manpower_variance?: number | null
+          month_end: string
+          month_start: string
+          ppm_compliance_percent?: number | null
+          prepared_by?: string | null
+          reactive_closure_percent?: number | null
+          remarks?: string | null
+          report_data?: Json
+          report_no?: string | null
+          reporting_period_id?: string | null
+          reviewed_by?: string | null
+          sla_compliance_percent?: number | null
+          status?: string
+          submitted_at?: string | null
+          summary?: Json
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          contract_id?: string
+          created_at?: string
+          id?: string
+          manpower_variance?: number | null
+          month_end?: string
+          month_start?: string
+          ppm_compliance_percent?: number | null
+          prepared_by?: string | null
+          reactive_closure_percent?: number | null
+          remarks?: string | null
+          report_data?: Json
+          report_no?: string | null
+          reporting_period_id?: string | null
+          reviewed_by?: string | null
+          sla_compliance_percent?: number | null
+          status?: string
+          submitted_at?: string | null
+          summary?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_reports_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "monthly_reports_reporting_period_id_fkey"
+            columns: ["reporting_period_id"]
+            isOneToOne: false
+            referencedRelation: "reporting_periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ppm_schedules: {
+        Row: {
+          active: boolean
+          asset_id: string | null
+          contract_id: string
+          contract_line_item_id: string | null
+          created_at: string
+          end_date: string | null
+          frequency: string | null
+          id: string
+          instructions: string | null
+          interval_months: number | null
+          schedule_name: string
+          service_category_id: string | null
+          start_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          asset_id?: string | null
+          contract_id: string
+          contract_line_item_id?: string | null
+          created_at?: string
+          end_date?: string | null
+          frequency?: string | null
+          id?: string
+          instructions?: string | null
+          interval_months?: number | null
+          schedule_name: string
+          service_category_id?: string | null
+          start_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          asset_id?: string | null
+          contract_id?: string
+          contract_line_item_id?: string | null
+          created_at?: string
+          end_date?: string | null
+          frequency?: string | null
+          id?: string
+          instructions?: string | null
+          interval_months?: number | null
+          schedule_name?: string
+          service_category_id?: string | null
+          start_date?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ppm_schedules_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "contract_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ppm_schedules_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ppm_schedules_contract_line_item_id_fkey"
+            columns: ["contract_line_item_id"]
+            isOneToOne: false
+            referencedRelation: "contract_line_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ppm_schedules_service_category_id_fkey"
+            columns: ["service_category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ppm_visits: {
+        Row: {
+          asset_id: string | null
+          assigned_team: string | null
+          completed_at: string | null
+          contract_id: string
+          created_at: string
+          due_date: string | null
+          id: string
+          notes: string | null
+          planned_date: string
+          ppm_schedule_id: string | null
+          service_category_id: string | null
+          service_report_id: string | null
+          status: string
+          updated_at: string
+          work_order_id: string | null
+        }
+        Insert: {
+          asset_id?: string | null
+          assigned_team?: string | null
+          completed_at?: string | null
+          contract_id: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          planned_date: string
+          ppm_schedule_id?: string | null
+          service_category_id?: string | null
+          service_report_id?: string | null
+          status?: string
+          updated_at?: string
+          work_order_id?: string | null
+        }
+        Update: {
+          asset_id?: string | null
+          assigned_team?: string | null
+          completed_at?: string | null
+          contract_id?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          planned_date?: string
+          ppm_schedule_id?: string | null
+          service_category_id?: string | null
+          service_report_id?: string | null
+          status?: string
+          updated_at?: string
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ppm_visits_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "contract_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ppm_visits_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ppm_visits_ppm_schedule_id_fkey"
+            columns: ["ppm_schedule_id"]
+            isOneToOne: false
+            referencedRelation: "ppm_schedules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ppm_visits_service_category_id_fkey"
+            columns: ["service_category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ppm_visits_service_report_id_fkey"
+            columns: ["service_report_id"]
+            isOneToOne: false
+            referencedRelation: "service_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ppm_visits_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -837,6 +1745,53 @@ export type Database = {
         }
         Relationships: []
       }
+      reporting_periods: {
+        Row: {
+          contract_id: string | null
+          created_at: string
+          id: string
+          label: string | null
+          period_end: string
+          period_start: string
+          period_type: string
+          remarks: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          contract_id?: string | null
+          created_at?: string
+          id?: string
+          label?: string | null
+          period_end: string
+          period_start: string
+          period_type: string
+          remarks?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          contract_id?: string | null
+          created_at?: string
+          id?: string
+          label?: string | null
+          period_end?: string
+          period_start?: string
+          period_type?: string
+          remarks?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reporting_periods_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sales_leads: {
         Row: {
           company: string | null
@@ -949,6 +1904,54 @@ export type Database = {
           },
         ]
       }
+      service_categories: {
+        Row: {
+          active: boolean
+          code: string | null
+          created_at: string
+          default_resolution_hours: number | null
+          default_response_hours: number | null
+          description: string | null
+          discipline: string | null
+          id: string
+          is_ppm_enabled: boolean
+          is_reactive_enabled: boolean
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code?: string | null
+          created_at?: string
+          default_resolution_hours?: number | null
+          default_response_hours?: number | null
+          description?: string | null
+          discipline?: string | null
+          id?: string
+          is_ppm_enabled?: boolean
+          is_reactive_enabled?: boolean
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string | null
+          created_at?: string
+          default_resolution_hours?: number | null
+          default_response_hours?: number | null
+          description?: string | null
+          discipline?: string | null
+          id?: string
+          is_ppm_enabled?: boolean
+          is_reactive_enabled?: boolean
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       service_report_photos: {
         Row: {
           after_path: string | null
@@ -990,11 +1993,16 @@ export type Database = {
       service_reports: {
         Row: {
           amount_received: number | null
+          asset_id: string | null
           balance_amount: number | null
+          client_representative: string | null
+          completion_type: string | null
           contract_id: string | null
           created_at: string
           customer_id: string | null
           customer_name: string | null
+          defects_found: string | null
+          follow_up_required: boolean | null
           google_rating: number | null
           google_review: string | null
           handyman_hours: number | null
@@ -1005,9 +2013,11 @@ export type Database = {
           material_supplied_by: string | null
           next_service_date: string | null
           parts_used: string | null
+          ppm_visit_id: string | null
           problem_reported: string | null
           recommendations: string | null
           report_no: string | null
+          service_category_id: string | null
           service_date: string | null
           service_type: string | null
           signature_data: string | null
@@ -1022,11 +2032,16 @@ export type Database = {
         }
         Insert: {
           amount_received?: number | null
+          asset_id?: string | null
           balance_amount?: number | null
+          client_representative?: string | null
+          completion_type?: string | null
           contract_id?: string | null
           created_at?: string
           customer_id?: string | null
           customer_name?: string | null
+          defects_found?: string | null
+          follow_up_required?: boolean | null
           google_rating?: number | null
           google_review?: string | null
           handyman_hours?: number | null
@@ -1037,9 +2052,11 @@ export type Database = {
           material_supplied_by?: string | null
           next_service_date?: string | null
           parts_used?: string | null
+          ppm_visit_id?: string | null
           problem_reported?: string | null
           recommendations?: string | null
           report_no?: string | null
+          service_category_id?: string | null
           service_date?: string | null
           service_type?: string | null
           signature_data?: string | null
@@ -1054,11 +2071,16 @@ export type Database = {
         }
         Update: {
           amount_received?: number | null
+          asset_id?: string | null
           balance_amount?: number | null
+          client_representative?: string | null
+          completion_type?: string | null
           contract_id?: string | null
           created_at?: string
           customer_id?: string | null
           customer_name?: string | null
+          defects_found?: string | null
+          follow_up_required?: boolean | null
           google_rating?: number | null
           google_review?: string | null
           handyman_hours?: number | null
@@ -1069,9 +2091,11 @@ export type Database = {
           material_supplied_by?: string | null
           next_service_date?: string | null
           parts_used?: string | null
+          ppm_visit_id?: string | null
           problem_reported?: string | null
           recommendations?: string | null
           report_no?: string | null
+          service_category_id?: string | null
           service_date?: string | null
           service_type?: string | null
           signature_data?: string | null
@@ -1085,6 +2109,13 @@ export type Database = {
           work_order_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "service_reports_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "contract_assets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "service_reports_contract_id_fkey"
             columns: ["contract_id"]
@@ -1100,10 +2131,160 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "service_reports_ppm_visit_id_fkey"
+            columns: ["ppm_visit_id"]
+            isOneToOne: false
+            referencedRelation: "ppm_visits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_reports_service_category_id_fkey"
+            columns: ["service_category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "service_reports_work_order_id_fkey"
             columns: ["work_order_id"]
             isOneToOne: false
             referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sla_events: {
+        Row: {
+          completion_due_at: string | null
+          completion_sla_status: string | null
+          contract_id: string | null
+          created_at: string
+          delay_reason: string | null
+          event_at: string
+          event_type: string
+          exclusion_reason: string | null
+          id: string
+          response_due_at: string | null
+          response_sla_status: string | null
+          sla_policy_id: string | null
+          work_order_id: string | null
+        }
+        Insert: {
+          completion_due_at?: string | null
+          completion_sla_status?: string | null
+          contract_id?: string | null
+          created_at?: string
+          delay_reason?: string | null
+          event_at?: string
+          event_type: string
+          exclusion_reason?: string | null
+          id?: string
+          response_due_at?: string | null
+          response_sla_status?: string | null
+          sla_policy_id?: string | null
+          work_order_id?: string | null
+        }
+        Update: {
+          completion_due_at?: string | null
+          completion_sla_status?: string | null
+          contract_id?: string | null
+          created_at?: string
+          delay_reason?: string | null
+          event_at?: string
+          event_type?: string
+          exclusion_reason?: string | null
+          id?: string
+          response_due_at?: string | null
+          response_sla_status?: string | null
+          sla_policy_id?: string | null
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sla_events_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sla_events_sla_policy_id_fkey"
+            columns: ["sla_policy_id"]
+            isOneToOne: false
+            referencedRelation: "sla_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sla_events_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sla_policies: {
+        Row: {
+          active: boolean
+          completion_hours: number | null
+          completion_minutes: number | null
+          contract_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          priority: string | null
+          request_type: string | null
+          response_hours: number | null
+          response_minutes: number | null
+          service_category_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          completion_hours?: number | null
+          completion_minutes?: number | null
+          contract_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          priority?: string | null
+          request_type?: string | null
+          response_hours?: number | null
+          response_minutes?: number | null
+          service_category_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          completion_hours?: number | null
+          completion_minutes?: number | null
+          contract_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          priority?: string | null
+          request_type?: string | null
+          response_hours?: number | null
+          response_minutes?: number | null
+          service_category_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sla_policies_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sla_policies_service_category_id_fkey"
+            columns: ["service_category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
             referencedColumns: ["id"]
           },
         ]
@@ -1165,65 +2346,201 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_reports: {
+        Row: {
+          approved_at: string | null
+          contract_id: string
+          created_at: string
+          id: string
+          open_issues: number
+          ppm_completed: number
+          prepared_by: string | null
+          remarks: string | null
+          report_data: Json
+          report_no: string | null
+          reporting_period_id: string | null
+          reviewed_by: string | null
+          sla_breaches: number
+          status: string
+          submitted_at: string | null
+          summary: Json
+          updated_at: string
+          week_end: string
+          week_start: string
+          work_orders_completed: number
+        }
+        Insert: {
+          approved_at?: string | null
+          contract_id: string
+          created_at?: string
+          id?: string
+          open_issues?: number
+          ppm_completed?: number
+          prepared_by?: string | null
+          remarks?: string | null
+          report_data?: Json
+          report_no?: string | null
+          reporting_period_id?: string | null
+          reviewed_by?: string | null
+          sla_breaches?: number
+          status?: string
+          submitted_at?: string | null
+          summary?: Json
+          updated_at?: string
+          week_end: string
+          week_start: string
+          work_orders_completed?: number
+        }
+        Update: {
+          approved_at?: string | null
+          contract_id?: string
+          created_at?: string
+          id?: string
+          open_issues?: number
+          ppm_completed?: number
+          prepared_by?: string | null
+          remarks?: string | null
+          report_data?: Json
+          report_no?: string | null
+          reporting_period_id?: string | null
+          reviewed_by?: string | null
+          sla_breaches?: number
+          status?: string
+          submitted_at?: string | null
+          summary?: Json
+          updated_at?: string
+          week_end?: string
+          week_start?: string
+          work_orders_completed?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_reports_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "weekly_reports_reporting_period_id_fkey"
+            columns: ["reporting_period_id"]
+            isOneToOne: false
+            referencedRelation: "reporting_periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       work_orders: {
         Row: {
+          arrived_at: string | null
+          asset_id: string | null
+          completed_at: string | null
+          completion_due_at: string | null
+          completion_sla_status: string | null
           contract_id: string | null
           created_at: string
           customer_id: string | null
           customer_name: string | null
+          delay_reason: string | null
           id: string
           location: string | null
           notes: string | null
+          ppm_visit_id: string | null
           priority: string
           problem_reported: string | null
+          reported_at: string | null
+          request_type: string | null
           requested_date: string | null
+          responded_at: string | null
+          response_due_at: string | null
+          response_sla_status: string | null
           scheduled_date: string | null
+          service_category_id: string | null
           service_type: string | null
+          sla_exclusion_reason: string | null
           status: string
+          technician_id: string | null
           technician_name: string | null
           updated_at: string
           wo_no: string | null
           work_requested: string | null
         }
         Insert: {
+          arrived_at?: string | null
+          asset_id?: string | null
+          completed_at?: string | null
+          completion_due_at?: string | null
+          completion_sla_status?: string | null
           contract_id?: string | null
           created_at?: string
           customer_id?: string | null
           customer_name?: string | null
+          delay_reason?: string | null
           id?: string
           location?: string | null
           notes?: string | null
+          ppm_visit_id?: string | null
           priority?: string
           problem_reported?: string | null
+          reported_at?: string | null
+          request_type?: string | null
           requested_date?: string | null
+          responded_at?: string | null
+          response_due_at?: string | null
+          response_sla_status?: string | null
           scheduled_date?: string | null
+          service_category_id?: string | null
           service_type?: string | null
+          sla_exclusion_reason?: string | null
           status?: string
+          technician_id?: string | null
           technician_name?: string | null
           updated_at?: string
           wo_no?: string | null
           work_requested?: string | null
         }
         Update: {
+          arrived_at?: string | null
+          asset_id?: string | null
+          completed_at?: string | null
+          completion_due_at?: string | null
+          completion_sla_status?: string | null
           contract_id?: string | null
           created_at?: string
           customer_id?: string | null
           customer_name?: string | null
+          delay_reason?: string | null
           id?: string
           location?: string | null
           notes?: string | null
+          ppm_visit_id?: string | null
           priority?: string
           problem_reported?: string | null
+          reported_at?: string | null
+          request_type?: string | null
           requested_date?: string | null
+          responded_at?: string | null
+          response_due_at?: string | null
+          response_sla_status?: string | null
           scheduled_date?: string | null
+          service_category_id?: string | null
           service_type?: string | null
+          sla_exclusion_reason?: string | null
           status?: string
+          technician_id?: string | null
           technician_name?: string | null
           updated_at?: string
           wo_no?: string | null
           work_requested?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "work_orders_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "contract_assets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "work_orders_contract_id_fkey"
             columns: ["contract_id"]
@@ -1236,6 +2553,27 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_ppm_visit_id_fkey"
+            columns: ["ppm_visit_id"]
+            isOneToOne: false
+            referencedRelation: "ppm_visits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_service_category_id_fkey"
+            columns: ["service_category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
         ]
