@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, Pencil, Plus, Printer, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -90,6 +90,17 @@ function ContractMonthlyReportsPage() {
         .from("monthly_reports")
         .select("*, contracts:contract_id(id, title, contract_no, customer_name, site_name)")
         .order("month_start", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const { data: invoicePacks = [] } = useQuery({
+    queryKey: ["monthly-report-invoice-packs"],
+    queryFn: async () => {
+      const { data, error } = await fmDb
+        .from("invoice_packs")
+        .select("id, contract_id, invoice_month, billing_period_start, status");
       if (error) throw error;
       return data ?? [];
     },
@@ -345,6 +356,7 @@ function ContractMonthlyReportsPage() {
               <TableHead>Work Orders</TableHead>
               <TableHead>SLA</TableHead>
               <TableHead>PPM</TableHead>
+              <TableHead>Invoice Pack</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-32 text-right">Actions</TableHead>
             </TableRow>
@@ -352,19 +364,25 @@ function ContractMonthlyReportsPage() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                   Loading...
                 </TableCell>
               </TableRow>
             ) : paginate(filteredReports, page).length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                   No monthly reports found.
                 </TableCell>
               </TableRow>
             ) : (
               paginate(filteredReports, page).map((row: any) => {
                 const data = row.report_data ?? row.summary ?? {};
+                const invoicePack = (invoicePacks as any[]).find(
+                  (pack) =>
+                    pack.contract_id === row.contract_id &&
+                    (pack.invoice_month === row.month_start.slice(0, 7) ||
+                      pack.billing_period_start === row.month_start),
+                );
                 return (
                   <TableRow key={row.id}>
                     <TableCell className="font-medium">
@@ -380,6 +398,15 @@ function ContractMonthlyReportsPage() {
                     </TableCell>
                     <TableCell>{data.sla?.compliancePercent ?? 0}%</TableCell>
                     <TableCell>{data.ppm?.completionPercent ?? 0}%</TableCell>
+                    <TableCell>
+                      {invoicePack ? (
+                        <Badge variant="outline">{invoicePack.status}</Badge>
+                      ) : (
+                        <Button size="sm" variant="outline" asChild>
+                          <Link to="/contract-invoice-packs">Create Invoice Pack</Link>
+                        </Button>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Badge variant="outline">{row.status}</Badge>
                     </TableCell>

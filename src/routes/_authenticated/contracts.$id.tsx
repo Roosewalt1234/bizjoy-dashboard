@@ -120,6 +120,7 @@ function ContractDetailPage() {
         recentAttendanceResult,
         latestWeeklyReportResult,
         latestMonthlyReportResult,
+        invoicePacksResult,
       ] = await Promise.all([
         fmDb.from("contracts").select("*").eq("id", id).single(),
         fmDb
@@ -162,6 +163,12 @@ function ContractDetailPage() {
           .eq("contract_id", id)
           .order("month_start", { ascending: false })
           .limit(1),
+        fmDb
+          .from("invoice_packs")
+          .select("*")
+          .eq("contract_id", id)
+          .order("billing_period_start", { ascending: false })
+          .limit(20),
       ]);
 
       if (contractResult.error) throw contractResult.error;
@@ -174,6 +181,7 @@ function ContractDetailPage() {
       if (recentAttendanceResult.error) throw recentAttendanceResult.error;
       if (latestWeeklyReportResult.error) throw latestWeeklyReportResult.error;
       if (latestMonthlyReportResult.error) throw latestMonthlyReportResult.error;
+      if (invoicePacksResult.error) throw invoicePacksResult.error;
 
       return {
         contract: contractResult.data as ContractRecord,
@@ -186,6 +194,7 @@ function ContractDetailPage() {
         recentAttendance: (recentAttendanceResult.data ?? []) as any[],
         latestWeeklyReport: ((latestWeeklyReportResult.data as any[]) ?? [])[0] ?? null,
         latestMonthlyReport: ((latestMonthlyReportResult.data as any[]) ?? [])[0] ?? null,
+        invoicePacks: (invoicePacksResult.data ?? []) as any[],
       };
     },
   });
@@ -215,6 +224,19 @@ function ContractDetailPage() {
   const latestMonthlyData = (data?.latestMonthlyReport?.report_data ??
     data?.latestMonthlyReport?.summary ??
     {}) as any;
+  const latestInvoicePack = data?.invoicePacks?.[0] ?? null;
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const currentMonthInvoice = data?.invoicePacks?.find(
+    (pack: any) =>
+      pack.invoice_month === currentMonth ||
+      pack.billing_period_start?.slice(0, 7) === currentMonth,
+  );
+  const pendingInvoiceCount = (data?.invoicePacks ?? []).filter((pack: any) =>
+    ["Prepared", "Submitted", "Client Review"].includes(pack.status),
+  ).length;
+  const unpaidInvoiceCount = (data?.invoicePacks ?? []).filter((pack: any) =>
+    ["Approved", "Invoiced"].includes(pack.status),
+  ).length;
 
   if (isLoading) {
     return <div className="p-6 max-w-7xl mx-auto text-muted-foreground">Loading contract...</div>;
@@ -493,7 +515,45 @@ function ContractDetailPage() {
         </div>
       )}
 
-      {!["Overview", "Line Items", "Manpower", "Reports"].includes(section) && (
+      {section === "Invoice Pack" && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <SummaryCard
+              label="Current Month Status"
+              value={currentMonthInvoice?.status ?? "Not Prepared"}
+            />
+            <SummaryCard
+              label="Current Month Subtotal"
+              value={formatAED(currentMonthInvoice?.subtotal_amount)}
+            />
+            <SummaryCard
+              label="Current Month Net"
+              value={formatAED(currentMonthInvoice?.net_payable)}
+            />
+            <SummaryCard label="Pending Approval" value={pendingInvoiceCount} />
+          </div>
+          <Card className="p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="font-medium">Latest Invoice Pack</div>
+                <div className="text-sm text-muted-foreground">
+                  {latestInvoicePack
+                    ? `${latestInvoicePack.invoice_number ?? latestInvoicePack.invoice_no ?? "Invoice"} · ${latestInvoicePack.status} · ${formatAED(latestInvoicePack.net_payable)}`
+                    : "No invoice packs generated yet."}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Unpaid approved/invoiced packs: {unpaidInvoiceCount}
+                </div>
+              </div>
+              <Button asChild>
+                <Link to="/contract-invoice-packs">Invoice Packs</Link>
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {!["Overview", "Line Items", "Manpower", "Reports", "Invoice Pack"].includes(section) && (
         <Card className="p-6 text-sm text-muted-foreground">{section} coming next.</Card>
       )}
     </div>
