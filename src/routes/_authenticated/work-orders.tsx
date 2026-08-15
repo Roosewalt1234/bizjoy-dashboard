@@ -53,7 +53,7 @@ import { WorkOrderDialog } from "@/components/work-order-dialog";
 import { SERVICE_TYPES } from "@/lib/service-reports";
 import { WO_STATUS, woStatusClasses, woPriorityClasses, splitItems } from "@/lib/work-orders";
 import { usePermissions } from "@/hooks/use-permissions";
-import { calculateSlaStatus, formatDateTime, statusBadgeClasses } from "@/lib/fm-sla";
+import { calculateSlaStatus, formatDateTime, normalizePriority, statusBadgeClasses } from "@/lib/fm-sla";
 
 export const Route = createFileRoute("/_authenticated/work-orders")({
   component: WorkOrdersPage,
@@ -146,7 +146,7 @@ function WorkOrdersPage() {
   async function logSlaEvent(order: any, eventType: string, patch: Record<string, any>) {
     const now = new Date().toISOString();
     const policy = matchSlaPolicy(order, slaPolicies);
-    const payload = {
+    const payload: Record<string, any> = {
       ...patch,
       response_sla_status: patch.response_sla_status ?? order.response_sla_status,
       completion_sla_status: patch.completion_sla_status ?? order.completion_sla_status,
