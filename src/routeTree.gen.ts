@@ -37,7 +37,6 @@ import { Route as AuthenticatedAccountsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers.index'
 import { Route as AuthenticatedCustomersNewRouteImport } from './routes/_authenticated/customers.new'
 import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenticated/customers.$id'
-import { Route as AuthenticatedContractsIdRouteImport } from './routes/_authenticated/contracts.$id'
 import { Route as AuthenticatedCustomersIdViewRouteImport } from './routes/_authenticated/customers.$id.view'
 
 const AuthRoute = AuthRouteImport.update({
@@ -194,12 +193,6 @@ const AuthenticatedCustomersIdRoute =
     path: '/customers/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedContractsIdRoute =
-  AuthenticatedContractsIdRouteImport.update({
-    id: '/contracts/$id',
-    path: '/contracts/$id',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedCustomersIdViewRoute =
   AuthenticatedCustomersIdViewRouteImport.update({
     id: '/view',
@@ -232,7 +225,6 @@ export interface FileRoutesByFullPath {
   '/project-reports': typeof AuthenticatedProjectReportsRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/sales': typeof AuthenticatedSalesRoute
-  '/contracts/$id': typeof AuthenticatedContractsIdRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRouteWithChildren
   '/customers/new': typeof AuthenticatedCustomersNewRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
@@ -263,7 +255,6 @@ export interface FileRoutesByTo {
   '/projects': typeof AuthenticatedProjectsRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/': typeof AuthenticatedIndexRoute
-  '/contracts/$id': typeof AuthenticatedContractsIdRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRouteWithChildren
   '/customers/new': typeof AuthenticatedCustomersNewRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
@@ -296,7 +287,6 @@ export interface FileRoutesById {
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
-  '/_authenticated/contracts/$id': typeof AuthenticatedContractsIdRoute
   '/_authenticated/customers/$id': typeof AuthenticatedCustomersIdRouteWithChildren
   '/_authenticated/customers/new': typeof AuthenticatedCustomersNewRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
@@ -329,7 +319,6 @@ export interface FileRouteTypes {
     | '/project-reports'
     | '/projects'
     | '/sales'
-    | '/contracts/$id'
     | '/customers/$id'
     | '/customers/new'
     | '/customers/'
@@ -360,7 +349,6 @@ export interface FileRouteTypes {
     | '/projects'
     | '/sales'
     | '/'
-    | '/contracts/$id'
     | '/customers/$id'
     | '/customers/new'
     | '/customers'
@@ -392,7 +380,6 @@ export interface FileRouteTypes {
     | '/_authenticated/projects'
     | '/_authenticated/sales'
     | '/_authenticated/'
-    | '/_authenticated/contracts/$id'
     | '/_authenticated/customers/$id'
     | '/_authenticated/customers/new'
     | '/_authenticated/customers/'
@@ -602,13 +589,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/contracts/$id': {
-      id: '/_authenticated/contracts/$id'
-      path: '/contracts/$id'
-      fullPath: '/contracts/$id'
-      preLoaderRoute: typeof AuthenticatedContractsIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/customers/$id/view': {
       id: '/_authenticated/customers/$id/view'
       path: '/view'
@@ -657,7 +637,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedContractsIdRoute: typeof AuthenticatedContractsIdRoute
   AuthenticatedCustomersIdRoute: typeof AuthenticatedCustomersIdRouteWithChildren
   AuthenticatedCustomersNewRoute: typeof AuthenticatedCustomersNewRoute
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
@@ -687,7 +666,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-  AuthenticatedContractsIdRoute: AuthenticatedContractsIdRoute,
   AuthenticatedCustomersIdRoute: AuthenticatedCustomersIdRouteWithChildren,
   AuthenticatedCustomersNewRoute: AuthenticatedCustomersNewRoute,
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
