@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -15,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { summarizeAttendance, todayIso } from "@/lib/fm-manpower";
 
 export const Route = createFileRoute("/_authenticated/contracts/$id")({
   component: ContractDetailPage,
@@ -58,6 +60,7 @@ type LooseQuery = PromiseLike<{
   order: (column: string, options?: unknown) => LooseQuery;
   eq: (column: string, value: unknown) => LooseQuery;
   not: (column: string, operator: string, value: unknown) => LooseQuery;
+  limit: (count: number) => LooseQuery;
   single: () => LooseQuery;
 };
 
@@ -105,7 +108,17 @@ function ContractDetailPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["contract-detail", id],
     queryFn: async () => {
-      const [contractResult, lineItemsResult, assetsResult, workOrdersResult] = await Promise.all([
+      const today = todayIso();
+      const [
+        contractResult,
+        lineItemsResult,
+        assetsResult,
+        workOrdersResult,
+        manpowerPlansResult,
+        manpowerAssignmentsResult,
+        todayAttendanceResult,
+        recentAttendanceResult,
+      ] = await Promise.all([
         fmDb.from("contracts").select("*").eq("id", id).single(),
         fmDb
           .from("contract_line_items")
@@ -124,18 +137,37 @@ function ContractDetailPage() {
           .select("id", { count: "exact", head: true })
           .eq("contract_id", id)
           .not("status", "in", "(Completed,Cancelled,Closed)"),
+        fmDb.from("contract_manpower_plans").select("*").eq("contract_id", id),
+        fmDb.from("contract_manpower_assignments").select("*").eq("contract_id", id),
+        fmDb.from("attendance_logs").select("*").eq("contract_id", id).eq("attendance_date", today),
+        fmDb
+          .from("attendance_logs")
+          .select(
+            "id, attendance_date, employee_name, shift, shift_name, status, check_in, check_out",
+          )
+          .eq("contract_id", id)
+          .order("attendance_date", { ascending: false })
+          .limit(8),
       ]);
 
       if (contractResult.error) throw contractResult.error;
       if (lineItemsResult.error) throw lineItemsResult.error;
       if (assetsResult.error) throw assetsResult.error;
       if (workOrdersResult.error) throw workOrdersResult.error;
+      if (manpowerPlansResult.error) throw manpowerPlansResult.error;
+      if (manpowerAssignmentsResult.error) throw manpowerAssignmentsResult.error;
+      if (todayAttendanceResult.error) throw todayAttendanceResult.error;
+      if (recentAttendanceResult.error) throw recentAttendanceResult.error;
 
       return {
         contract: contractResult.data as ContractRecord,
         lineItems: (lineItemsResult.data ?? []) as LineItemRecord[],
         assetsCount: assetsResult.count ?? 0,
         openWorkOrdersCount: workOrdersResult.count ?? 0,
+        manpowerPlans: (manpowerPlansResult.data ?? []) as any[],
+        manpowerAssignments: (manpowerAssignmentsResult.data ?? []) as any[],
+        todayAttendance: (todayAttendanceResult.data ?? []) as any[],
+        recentAttendance: (recentAttendanceResult.data ?? []) as any[],
       };
     },
   });
@@ -152,6 +184,15 @@ function ContractDetailPage() {
   const serviceCategoryCount = useMemo(
     () => new Set(lineItems.map((item) => item.service_categories?.name).filter(Boolean)).size,
     [lineItems],
+  );
+  const manpowerSummary = useMemo(
+    () =>
+      summarizeAttendance(
+        data?.manpowerPlans ?? [],
+        data?.manpowerAssignments ?? [],
+        data?.todayAttendance ?? [],
+      ),
+    [data?.manpowerAssignments, data?.manpowerPlans, data?.todayAttendance],
   );
 
   if (isLoading) {
@@ -284,7 +325,58 @@ function ContractDetailPage() {
         </Card>
       )}
 
-      {!["Overview", "Line Items"].includes(section) && (
+      {section === "Manpower" && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <SummaryCard label="Required Today" value={manpowerSummary.required} />
+            <SummaryCard label="Assigned" value={manpowerSummary.assigned} />
+            <SummaryCard label="Present Today" value={manpowerSummary.present} />
+            <SummaryCard label="Shortage Today" value={manpowerSummary.shortage} />
+          </div>
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Employee</TableHead>
+                  <TableHead>Shift</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Check In</TableHead>
+                  <TableHead>Check Out</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(data.recentAttendance ?? []).length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      No recent attendance rows for this contract.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  data.recentAttendance.map((row: any) => (
+                    <TableRow key={row.id}>
+                      <TableCell>{row.attendance_date}</TableCell>
+                      <TableCell>{row.employee_name ?? "—"}</TableCell>
+                      <TableCell>{row.shift ?? row.shift_name ?? "—"}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{row.status ?? "—"}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {row.check_in ? new Date(row.check_in).toLocaleTimeString() : "—"}
+                      </TableCell>
+                      <TableCell>
+                        {row.check_out ? new Date(row.check_out).toLocaleTimeString() : "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </Card>
+        </div>
+      )}
+
+      {!["Overview", "Line Items", "Manpower"].includes(section) && (
         <Card className="p-6 text-sm text-muted-foreground">{section} coming next.</Card>
       )}
     </div>
