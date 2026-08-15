@@ -523,7 +523,7 @@ export function WorkOrdersPage({ moduleType = "AMC" }: { moduleType?: ModuleType
         <PaginationBar page={page} total={total} onPageChange={setPage} />
       </Card>
 
-      <WorkOrderDialog open={open} onOpenChange={setOpen} editing={editing} />
+      <WorkOrderDialog open={open} onOpenChange={setOpen} editing={editing} moduleType={moduleType} />
       <WorkOrderView order={viewing} policies={slaPolicies} onClose={() => setViewing(null)} />
     </div>
   );
