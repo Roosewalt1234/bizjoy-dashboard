@@ -52,6 +52,7 @@ import { Route as AuthenticatedAmcWorkOrdersRouteImport } from './routes/_authen
 import { Route as AuthenticatedAmcServiceReportsRouteImport } from './routes/_authenticated/amc-service-reports'
 import { Route as AuthenticatedAmcContractsRouteImport } from './routes/_authenticated/amc-contracts'
 import { Route as AuthenticatedAccountsRouteImport } from './routes/_authenticated/accounts'
+import { Route as AuthenticatedFmContractsIndexRouteImport } from './routes/_authenticated/fm-contracts.index'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers.index'
 import { Route as AuthenticatedFmContractsIdRouteImport } from './routes/_authenticated/fm-contracts.$id'
 import { Route as AuthenticatedCustomersNewRouteImport } from './routes/_authenticated/customers.new'
@@ -301,6 +302,12 @@ const AuthenticatedAccountsRoute = AuthenticatedAccountsRouteImport.update({
   path: '/accounts',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedFmContractsIndexRoute =
+  AuthenticatedFmContractsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedFmContractsRoute,
+  } as any)
 const AuthenticatedCustomersIndexRoute =
   AuthenticatedCustomersIndexRouteImport.update({
     id: '/customers/',
@@ -393,6 +400,7 @@ export interface FileRoutesByFullPath {
   '/customers/new': typeof AuthenticatedCustomersNewRoute
   '/fm-contracts/$id': typeof AuthenticatedFmContractsIdRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
+  '/fm-contracts/': typeof AuthenticatedFmContractsIndexRoute
   '/customers/$id/view': typeof AuthenticatedCustomersIdViewRoute
 }
 export interface FileRoutesByTo {
@@ -419,7 +427,6 @@ export interface FileRoutesByTo {
   '/fm-assets': typeof AuthenticatedFmAssetsRoute
   '/fm-attendance': typeof AuthenticatedFmAttendanceRoute
   '/fm-contract-line-items': typeof AuthenticatedFmContractLineItemsRoute
-  '/fm-contracts': typeof AuthenticatedFmContractsRouteWithChildren
   '/fm-dashboard': typeof AuthenticatedFmDashboardRoute
   '/fm-invoice-packs': typeof AuthenticatedFmInvoicePacksRoute
   '/fm-manpower': typeof AuthenticatedFmManpowerRoute
@@ -444,6 +451,7 @@ export interface FileRoutesByTo {
   '/customers/new': typeof AuthenticatedCustomersNewRoute
   '/fm-contracts/$id': typeof AuthenticatedFmContractsIdRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
+  '/fm-contracts': typeof AuthenticatedFmContractsIndexRoute
   '/customers/$id/view': typeof AuthenticatedCustomersIdViewRoute
 }
 export interface FileRoutesById {
@@ -497,6 +505,7 @@ export interface FileRoutesById {
   '/_authenticated/customers/new': typeof AuthenticatedCustomersNewRoute
   '/_authenticated/fm-contracts/$id': typeof AuthenticatedFmContractsIdRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
+  '/_authenticated/fm-contracts/': typeof AuthenticatedFmContractsIndexRoute
   '/_authenticated/customers/$id/view': typeof AuthenticatedCustomersIdViewRoute
 }
 export interface FileRouteTypes {
@@ -550,6 +559,7 @@ export interface FileRouteTypes {
     | '/customers/new'
     | '/fm-contracts/$id'
     | '/customers/'
+    | '/fm-contracts/'
     | '/customers/$id/view'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -576,7 +586,6 @@ export interface FileRouteTypes {
     | '/fm-assets'
     | '/fm-attendance'
     | '/fm-contract-line-items'
-    | '/fm-contracts'
     | '/fm-dashboard'
     | '/fm-invoice-packs'
     | '/fm-manpower'
@@ -601,6 +610,7 @@ export interface FileRouteTypes {
     | '/customers/new'
     | '/fm-contracts/$id'
     | '/customers'
+    | '/fm-contracts'
     | '/customers/$id/view'
   id:
     | '__root__'
@@ -653,6 +663,7 @@ export interface FileRouteTypes {
     | '/_authenticated/customers/new'
     | '/_authenticated/fm-contracts/$id'
     | '/_authenticated/customers/'
+    | '/_authenticated/fm-contracts/'
     | '/_authenticated/customers/$id/view'
   fileRoutesById: FileRoutesById
 }
@@ -964,6 +975,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/fm-contracts/': {
+      id: '/_authenticated/fm-contracts/'
+      path: '/'
+      fullPath: '/fm-contracts/'
+      preLoaderRoute: typeof AuthenticatedFmContractsIndexRouteImport
+      parentRoute: typeof AuthenticatedFmContractsRoute
+    }
     '/_authenticated/customers/': {
       id: '/_authenticated/customers/'
       path: '/customers'
@@ -1046,11 +1064,13 @@ const AuthenticatedContractsRouteWithChildren =
 
 interface AuthenticatedFmContractsRouteChildren {
   AuthenticatedFmContractsIdRoute: typeof AuthenticatedFmContractsIdRoute
+  AuthenticatedFmContractsIndexRoute: typeof AuthenticatedFmContractsIndexRoute
 }
 
 const AuthenticatedFmContractsRouteChildren: AuthenticatedFmContractsRouteChildren =
   {
     AuthenticatedFmContractsIdRoute: AuthenticatedFmContractsIdRoute,
+    AuthenticatedFmContractsIndexRoute: AuthenticatedFmContractsIndexRoute,
   }
 
 const AuthenticatedFmContractsRouteWithChildren =
