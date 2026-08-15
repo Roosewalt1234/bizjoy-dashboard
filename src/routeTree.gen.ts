@@ -9,34 +9,46 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AuthenticatedWorkOrdersRouteImport } from './routes/_authenticated/work-orders'
-import { Route as AuthenticatedServiceRouteImport } from './routes/_authenticated/service'
-import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
-import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
-import { Route as AuthenticatedProjectReportsRouteImport } from './routes/_authenticated/project-reports'
-import { Route as AuthenticatedPermissionsRouteImport } from './routes/_authenticated/permissions'
-import { Route as AuthenticatedMepSchedulesRouteImport } from './routes/_authenticated/mep-schedules'
-import { Route as AuthenticatedHrRouteImport } from './routes/_authenticated/hr'
-import { Route as AuthenticatedContractsRouteImport } from './routes/_authenticated/contracts'
-import { Route as AuthenticatedCleaningSchedulesRouteImport } from './routes/_authenticated/cleaning-schedules'
-import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
-import { Route as AuthenticatedAssetsRouteImport } from './routes/_authenticated/assets'
 import { Route as AuthenticatedAccountsRouteImport } from './routes/_authenticated/accounts'
+import { Route as AuthenticatedAssetsRouteImport } from './routes/_authenticated/assets'
+import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
+import { Route as AuthenticatedCleaningSchedulesRouteImport } from './routes/_authenticated/cleaning-schedules'
+import { Route as AuthenticatedContractAssetsRouteImport } from './routes/_authenticated/contract-assets'
+import { Route as AuthenticatedContractAttendanceRouteImport } from './routes/_authenticated/contract-attendance'
+import { Route as AuthenticatedContractDashboardRouteImport } from './routes/_authenticated/contract-dashboard'
+import { Route as AuthenticatedContractInvoicePacksRouteImport } from './routes/_authenticated/contract-invoice-packs'
+import { Route as AuthenticatedContractLineItemsRouteImport } from './routes/_authenticated/contract-line-items'
+import { Route as AuthenticatedContractManpowerRouteImport } from './routes/_authenticated/contract-manpower'
+import { Route as AuthenticatedContractMonthlyReportsRouteImport } from './routes/_authenticated/contract-monthly-reports'
+import { Route as AuthenticatedContractPpmRouteImport } from './routes/_authenticated/contract-ppm'
+import { Route as AuthenticatedContractServiceCategoriesRouteImport } from './routes/_authenticated/contract-service-categories'
+import { Route as AuthenticatedContractSlaRouteImport } from './routes/_authenticated/contract-sla'
+import { Route as AuthenticatedContractWeeklyReportsRouteImport } from './routes/_authenticated/contract-weekly-reports'
+import { Route as AuthenticatedContractsRouteImport } from './routes/_authenticated/contracts'
+import { Route as AuthenticatedHrRouteImport } from './routes/_authenticated/hr'
+import { Route as AuthenticatedMepSchedulesRouteImport } from './routes/_authenticated/mep-schedules'
+import { Route as AuthenticatedPermissionsRouteImport } from './routes/_authenticated/permissions'
+import { Route as AuthenticatedProjectReportsRouteImport } from './routes/_authenticated/project-reports'
+import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
+import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
+import { Route as AuthenticatedServiceRouteImport } from './routes/_authenticated/service'
+import { Route as AuthenticatedWorkOrdersRouteImport } from './routes/_authenticated/work-orders'
+import { Route as AuthenticatedContractsIdRouteImport } from './routes/_authenticated/contracts.$id'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers.index'
-import { Route as AuthenticatedCustomersNewRouteImport } from './routes/_authenticated/customers.new'
 import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenticated/customers.$id'
+import { Route as AuthenticatedCustomersNewRouteImport } from './routes/_authenticated/customers.new'
 import { Route as AuthenticatedCustomersIdViewRouteImport } from './routes/_authenticated/customers.$id.view'
 
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
@@ -44,52 +56,19 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedWorkOrdersRoute = AuthenticatedWorkOrdersRouteImport.update({
-  id: '/work-orders',
-  path: '/work-orders',
+const AuthenticatedAccountsRoute = AuthenticatedAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedServiceRoute = AuthenticatedServiceRouteImport.update({
-  id: '/service',
-  path: '/service',
+const AuthenticatedAssetsRoute = AuthenticatedAssetsRouteImport.update({
+  id: '/assets',
+  path: '/assets',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedSalesRoute = AuthenticatedSalesRouteImport.update({
-  id: '/sales',
-  path: '/sales',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedProjectsRoute = AuthenticatedProjectsRouteImport.update({
-  id: '/projects',
-  path: '/projects',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedProjectReportsRoute =
-  AuthenticatedProjectReportsRouteImport.update({
-    id: '/project-reports',
-    path: '/project-reports',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedPermissionsRoute =
-  AuthenticatedPermissionsRouteImport.update({
-    id: '/permissions',
-    path: '/permissions',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedMepSchedulesRoute =
-  AuthenticatedMepSchedulesRouteImport.update({
-    id: '/mep-schedules',
-    path: '/mep-schedules',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedHrRoute = AuthenticatedHrRouteImport.update({
-  id: '/hr',
-  path: '/hr',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedContractsRoute = AuthenticatedContractsRouteImport.update({
-  id: '/contracts',
-  path: '/contracts',
+const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCleaningSchedulesRoute =
@@ -98,37 +77,142 @@ const AuthenticatedCleaningSchedulesRoute =
     path: '/cleaning-schedules',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
-  id: '/audit',
-  path: '/audit',
+const AuthenticatedContractAssetsRoute =
+  AuthenticatedContractAssetsRouteImport.update({
+    id: '/contract-assets',
+    path: '/contract-assets',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedContractAttendanceRoute =
+  AuthenticatedContractAttendanceRouteImport.update({
+    id: '/contract-attendance',
+    path: '/contract-attendance',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedContractDashboardRoute =
+  AuthenticatedContractDashboardRouteImport.update({
+    id: '/contract-dashboard',
+    path: '/contract-dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedContractInvoicePacksRoute =
+  AuthenticatedContractInvoicePacksRouteImport.update({
+    id: '/contract-invoice-packs',
+    path: '/contract-invoice-packs',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedContractLineItemsRoute =
+  AuthenticatedContractLineItemsRouteImport.update({
+    id: '/contract-line-items',
+    path: '/contract-line-items',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedContractManpowerRoute =
+  AuthenticatedContractManpowerRouteImport.update({
+    id: '/contract-manpower',
+    path: '/contract-manpower',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedContractMonthlyReportsRoute =
+  AuthenticatedContractMonthlyReportsRouteImport.update({
+    id: '/contract-monthly-reports',
+    path: '/contract-monthly-reports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedContractPpmRoute =
+  AuthenticatedContractPpmRouteImport.update({
+    id: '/contract-ppm',
+    path: '/contract-ppm',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedContractServiceCategoriesRoute =
+  AuthenticatedContractServiceCategoriesRouteImport.update({
+    id: '/contract-service-categories',
+    path: '/contract-service-categories',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedContractSlaRoute =
+  AuthenticatedContractSlaRouteImport.update({
+    id: '/contract-sla',
+    path: '/contract-sla',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedContractWeeklyReportsRoute =
+  AuthenticatedContractWeeklyReportsRouteImport.update({
+    id: '/contract-weekly-reports',
+    path: '/contract-weekly-reports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedContractsRoute = AuthenticatedContractsRouteImport.update({
+  id: '/contracts',
+  path: '/contracts',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAssetsRoute = AuthenticatedAssetsRouteImport.update({
-  id: '/assets',
-  path: '/assets',
+const AuthenticatedHrRoute = AuthenticatedHrRouteImport.update({
+  id: '/hr',
+  path: '/hr',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAccountsRoute = AuthenticatedAccountsRouteImport.update({
-  id: '/accounts',
-  path: '/accounts',
+const AuthenticatedMepSchedulesRoute =
+  AuthenticatedMepSchedulesRouteImport.update({
+    id: '/mep-schedules',
+    path: '/mep-schedules',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPermissionsRoute =
+  AuthenticatedPermissionsRouteImport.update({
+    id: '/permissions',
+    path: '/permissions',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProjectReportsRoute =
+  AuthenticatedProjectReportsRouteImport.update({
+    id: '/project-reports',
+    path: '/project-reports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProjectsRoute = AuthenticatedProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSalesRoute = AuthenticatedSalesRouteImport.update({
+  id: '/sales',
+  path: '/sales',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedServiceRoute = AuthenticatedServiceRouteImport.update({
+  id: '/service',
+  path: '/service',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedWorkOrdersRoute = AuthenticatedWorkOrdersRouteImport.update({
+  id: '/work-orders',
+  path: '/work-orders',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedContractsIdRoute =
+  AuthenticatedContractsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedContractsRoute,
+  } as any)
 const AuthenticatedCustomersIndexRoute =
   AuthenticatedCustomersIndexRouteImport.update({
     id: '/customers/',
     path: '/customers/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedCustomersNewRoute =
-  AuthenticatedCustomersNewRouteImport.update({
-    id: '/customers/new',
-    path: '/customers/new',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedCustomersIdRoute =
   AuthenticatedCustomersIdRouteImport.update({
     id: '/customers/$id',
     path: '/customers/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCustomersNewRoute =
+  AuthenticatedCustomersNewRouteImport.update({
+    id: '/customers/new',
+    path: '/customers/new',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedCustomersIdViewRoute =
@@ -145,7 +229,18 @@ export interface FileRoutesByFullPath {
   '/assets': typeof AuthenticatedAssetsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/cleaning-schedules': typeof AuthenticatedCleaningSchedulesRoute
-  '/contracts': typeof AuthenticatedContractsRoute
+  '/contract-assets': typeof AuthenticatedContractAssetsRoute
+  '/contract-attendance': typeof AuthenticatedContractAttendanceRoute
+  '/contract-dashboard': typeof AuthenticatedContractDashboardRoute
+  '/contract-invoice-packs': typeof AuthenticatedContractInvoicePacksRoute
+  '/contract-line-items': typeof AuthenticatedContractLineItemsRoute
+  '/contract-manpower': typeof AuthenticatedContractManpowerRoute
+  '/contract-monthly-reports': typeof AuthenticatedContractMonthlyReportsRoute
+  '/contract-ppm': typeof AuthenticatedContractPpmRoute
+  '/contract-service-categories': typeof AuthenticatedContractServiceCategoriesRoute
+  '/contract-sla': typeof AuthenticatedContractSlaRoute
+  '/contract-weekly-reports': typeof AuthenticatedContractWeeklyReportsRoute
+  '/contracts': typeof AuthenticatedContractsRouteWithChildren
   '/hr': typeof AuthenticatedHrRoute
   '/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/permissions': typeof AuthenticatedPermissionsRoute
@@ -154,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/sales': typeof AuthenticatedSalesRoute
   '/service': typeof AuthenticatedServiceRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
+  '/contracts/$id': typeof AuthenticatedContractsIdRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRouteWithChildren
   '/customers/new': typeof AuthenticatedCustomersNewRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
@@ -165,7 +261,18 @@ export interface FileRoutesByTo {
   '/assets': typeof AuthenticatedAssetsRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/cleaning-schedules': typeof AuthenticatedCleaningSchedulesRoute
-  '/contracts': typeof AuthenticatedContractsRoute
+  '/contract-assets': typeof AuthenticatedContractAssetsRoute
+  '/contract-attendance': typeof AuthenticatedContractAttendanceRoute
+  '/contract-dashboard': typeof AuthenticatedContractDashboardRoute
+  '/contract-invoice-packs': typeof AuthenticatedContractInvoicePacksRoute
+  '/contract-line-items': typeof AuthenticatedContractLineItemsRoute
+  '/contract-manpower': typeof AuthenticatedContractManpowerRoute
+  '/contract-monthly-reports': typeof AuthenticatedContractMonthlyReportsRoute
+  '/contract-ppm': typeof AuthenticatedContractPpmRoute
+  '/contract-service-categories': typeof AuthenticatedContractServiceCategoriesRoute
+  '/contract-sla': typeof AuthenticatedContractSlaRoute
+  '/contract-weekly-reports': typeof AuthenticatedContractWeeklyReportsRoute
+  '/contracts': typeof AuthenticatedContractsRouteWithChildren
   '/hr': typeof AuthenticatedHrRoute
   '/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/permissions': typeof AuthenticatedPermissionsRoute
@@ -175,6 +282,7 @@ export interface FileRoutesByTo {
   '/service': typeof AuthenticatedServiceRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/': typeof AuthenticatedIndexRoute
+  '/contracts/$id': typeof AuthenticatedContractsIdRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRouteWithChildren
   '/customers/new': typeof AuthenticatedCustomersNewRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
@@ -188,7 +296,18 @@ export interface FileRoutesById {
   '/_authenticated/assets': typeof AuthenticatedAssetsRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/cleaning-schedules': typeof AuthenticatedCleaningSchedulesRoute
-  '/_authenticated/contracts': typeof AuthenticatedContractsRoute
+  '/_authenticated/contract-assets': typeof AuthenticatedContractAssetsRoute
+  '/_authenticated/contract-attendance': typeof AuthenticatedContractAttendanceRoute
+  '/_authenticated/contract-dashboard': typeof AuthenticatedContractDashboardRoute
+  '/_authenticated/contract-invoice-packs': typeof AuthenticatedContractInvoicePacksRoute
+  '/_authenticated/contract-line-items': typeof AuthenticatedContractLineItemsRoute
+  '/_authenticated/contract-manpower': typeof AuthenticatedContractManpowerRoute
+  '/_authenticated/contract-monthly-reports': typeof AuthenticatedContractMonthlyReportsRoute
+  '/_authenticated/contract-ppm': typeof AuthenticatedContractPpmRoute
+  '/_authenticated/contract-service-categories': typeof AuthenticatedContractServiceCategoriesRoute
+  '/_authenticated/contract-sla': typeof AuthenticatedContractSlaRoute
+  '/_authenticated/contract-weekly-reports': typeof AuthenticatedContractWeeklyReportsRoute
+  '/_authenticated/contracts': typeof AuthenticatedContractsRouteWithChildren
   '/_authenticated/hr': typeof AuthenticatedHrRoute
   '/_authenticated/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/_authenticated/permissions': typeof AuthenticatedPermissionsRoute
@@ -198,6 +317,7 @@ export interface FileRoutesById {
   '/_authenticated/service': typeof AuthenticatedServiceRoute
   '/_authenticated/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/contracts/$id': typeof AuthenticatedContractsIdRoute
   '/_authenticated/customers/$id': typeof AuthenticatedCustomersIdRouteWithChildren
   '/_authenticated/customers/new': typeof AuthenticatedCustomersNewRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
@@ -212,6 +332,17 @@ export interface FileRouteTypes {
     | '/assets'
     | '/audit'
     | '/cleaning-schedules'
+    | '/contract-assets'
+    | '/contract-attendance'
+    | '/contract-dashboard'
+    | '/contract-invoice-packs'
+    | '/contract-line-items'
+    | '/contract-manpower'
+    | '/contract-monthly-reports'
+    | '/contract-ppm'
+    | '/contract-service-categories'
+    | '/contract-sla'
+    | '/contract-weekly-reports'
     | '/contracts'
     | '/hr'
     | '/mep-schedules'
@@ -221,6 +352,7 @@ export interface FileRouteTypes {
     | '/sales'
     | '/service'
     | '/work-orders'
+    | '/contracts/$id'
     | '/customers/$id'
     | '/customers/new'
     | '/customers/'
@@ -232,6 +364,17 @@ export interface FileRouteTypes {
     | '/assets'
     | '/audit'
     | '/cleaning-schedules'
+    | '/contract-assets'
+    | '/contract-attendance'
+    | '/contract-dashboard'
+    | '/contract-invoice-packs'
+    | '/contract-line-items'
+    | '/contract-manpower'
+    | '/contract-monthly-reports'
+    | '/contract-ppm'
+    | '/contract-service-categories'
+    | '/contract-sla'
+    | '/contract-weekly-reports'
     | '/contracts'
     | '/hr'
     | '/mep-schedules'
@@ -242,6 +385,7 @@ export interface FileRouteTypes {
     | '/service'
     | '/work-orders'
     | '/'
+    | '/contracts/$id'
     | '/customers/$id'
     | '/customers/new'
     | '/customers'
@@ -254,6 +398,17 @@ export interface FileRouteTypes {
     | '/_authenticated/assets'
     | '/_authenticated/audit'
     | '/_authenticated/cleaning-schedules'
+    | '/_authenticated/contract-assets'
+    | '/_authenticated/contract-attendance'
+    | '/_authenticated/contract-dashboard'
+    | '/_authenticated/contract-invoice-packs'
+    | '/_authenticated/contract-line-items'
+    | '/_authenticated/contract-manpower'
+    | '/_authenticated/contract-monthly-reports'
+    | '/_authenticated/contract-ppm'
+    | '/_authenticated/contract-service-categories'
+    | '/_authenticated/contract-sla'
+    | '/_authenticated/contract-weekly-reports'
     | '/_authenticated/contracts'
     | '/_authenticated/hr'
     | '/_authenticated/mep-schedules'
@@ -264,6 +419,7 @@ export interface FileRouteTypes {
     | '/_authenticated/service'
     | '/_authenticated/work-orders'
     | '/_authenticated/'
+    | '/_authenticated/contracts/$id'
     | '/_authenticated/customers/$id'
     | '/_authenticated/customers/new'
     | '/_authenticated/customers/'
@@ -277,18 +433,18 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/': {
@@ -298,81 +454,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/work-orders': {
-      id: '/_authenticated/work-orders'
-      path: '/work-orders'
-      fullPath: '/work-orders'
-      preLoaderRoute: typeof AuthenticatedWorkOrdersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/service': {
-      id: '/_authenticated/service'
-      path: '/service'
-      fullPath: '/service'
-      preLoaderRoute: typeof AuthenticatedServiceRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/sales': {
-      id: '/_authenticated/sales'
-      path: '/sales'
-      fullPath: '/sales'
-      preLoaderRoute: typeof AuthenticatedSalesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/projects': {
-      id: '/_authenticated/projects'
-      path: '/projects'
-      fullPath: '/projects'
-      preLoaderRoute: typeof AuthenticatedProjectsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/project-reports': {
-      id: '/_authenticated/project-reports'
-      path: '/project-reports'
-      fullPath: '/project-reports'
-      preLoaderRoute: typeof AuthenticatedProjectReportsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/permissions': {
-      id: '/_authenticated/permissions'
-      path: '/permissions'
-      fullPath: '/permissions'
-      preLoaderRoute: typeof AuthenticatedPermissionsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/mep-schedules': {
-      id: '/_authenticated/mep-schedules'
-      path: '/mep-schedules'
-      fullPath: '/mep-schedules'
-      preLoaderRoute: typeof AuthenticatedMepSchedulesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/hr': {
-      id: '/_authenticated/hr'
-      path: '/hr'
-      fullPath: '/hr'
-      preLoaderRoute: typeof AuthenticatedHrRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/contracts': {
-      id: '/_authenticated/contracts'
-      path: '/contracts'
-      fullPath: '/contracts'
-      preLoaderRoute: typeof AuthenticatedContractsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/cleaning-schedules': {
-      id: '/_authenticated/cleaning-schedules'
-      path: '/cleaning-schedules'
-      fullPath: '/cleaning-schedules'
-      preLoaderRoute: typeof AuthenticatedCleaningSchedulesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/audit': {
-      id: '/_authenticated/audit'
-      path: '/audit'
-      fullPath: '/audit'
-      preLoaderRoute: typeof AuthenticatedAuditRouteImport
+    '/_authenticated/accounts': {
+      id: '/_authenticated/accounts'
+      path: '/accounts'
+      fullPath: '/accounts'
+      preLoaderRoute: typeof AuthenticatedAccountsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/assets': {
@@ -382,12 +468,166 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAssetsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/accounts': {
-      id: '/_authenticated/accounts'
-      path: '/accounts'
-      fullPath: '/accounts'
-      preLoaderRoute: typeof AuthenticatedAccountsRouteImport
+    '/_authenticated/audit': {
+      id: '/_authenticated/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AuthenticatedAuditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/cleaning-schedules': {
+      id: '/_authenticated/cleaning-schedules'
+      path: '/cleaning-schedules'
+      fullPath: '/cleaning-schedules'
+      preLoaderRoute: typeof AuthenticatedCleaningSchedulesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contract-assets': {
+      id: '/_authenticated/contract-assets'
+      path: '/contract-assets'
+      fullPath: '/contract-assets'
+      preLoaderRoute: typeof AuthenticatedContractAssetsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contract-attendance': {
+      id: '/_authenticated/contract-attendance'
+      path: '/contract-attendance'
+      fullPath: '/contract-attendance'
+      preLoaderRoute: typeof AuthenticatedContractAttendanceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contract-dashboard': {
+      id: '/_authenticated/contract-dashboard'
+      path: '/contract-dashboard'
+      fullPath: '/contract-dashboard'
+      preLoaderRoute: typeof AuthenticatedContractDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contract-invoice-packs': {
+      id: '/_authenticated/contract-invoice-packs'
+      path: '/contract-invoice-packs'
+      fullPath: '/contract-invoice-packs'
+      preLoaderRoute: typeof AuthenticatedContractInvoicePacksRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contract-line-items': {
+      id: '/_authenticated/contract-line-items'
+      path: '/contract-line-items'
+      fullPath: '/contract-line-items'
+      preLoaderRoute: typeof AuthenticatedContractLineItemsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contract-manpower': {
+      id: '/_authenticated/contract-manpower'
+      path: '/contract-manpower'
+      fullPath: '/contract-manpower'
+      preLoaderRoute: typeof AuthenticatedContractManpowerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contract-monthly-reports': {
+      id: '/_authenticated/contract-monthly-reports'
+      path: '/contract-monthly-reports'
+      fullPath: '/contract-monthly-reports'
+      preLoaderRoute: typeof AuthenticatedContractMonthlyReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contract-ppm': {
+      id: '/_authenticated/contract-ppm'
+      path: '/contract-ppm'
+      fullPath: '/contract-ppm'
+      preLoaderRoute: typeof AuthenticatedContractPpmRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contract-service-categories': {
+      id: '/_authenticated/contract-service-categories'
+      path: '/contract-service-categories'
+      fullPath: '/contract-service-categories'
+      preLoaderRoute: typeof AuthenticatedContractServiceCategoriesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contract-sla': {
+      id: '/_authenticated/contract-sla'
+      path: '/contract-sla'
+      fullPath: '/contract-sla'
+      preLoaderRoute: typeof AuthenticatedContractSlaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contract-weekly-reports': {
+      id: '/_authenticated/contract-weekly-reports'
+      path: '/contract-weekly-reports'
+      fullPath: '/contract-weekly-reports'
+      preLoaderRoute: typeof AuthenticatedContractWeeklyReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contracts': {
+      id: '/_authenticated/contracts'
+      path: '/contracts'
+      fullPath: '/contracts'
+      preLoaderRoute: typeof AuthenticatedContractsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/hr': {
+      id: '/_authenticated/hr'
+      path: '/hr'
+      fullPath: '/hr'
+      preLoaderRoute: typeof AuthenticatedHrRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mep-schedules': {
+      id: '/_authenticated/mep-schedules'
+      path: '/mep-schedules'
+      fullPath: '/mep-schedules'
+      preLoaderRoute: typeof AuthenticatedMepSchedulesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/permissions': {
+      id: '/_authenticated/permissions'
+      path: '/permissions'
+      fullPath: '/permissions'
+      preLoaderRoute: typeof AuthenticatedPermissionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/project-reports': {
+      id: '/_authenticated/project-reports'
+      path: '/project-reports'
+      fullPath: '/project-reports'
+      preLoaderRoute: typeof AuthenticatedProjectReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/projects': {
+      id: '/_authenticated/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof AuthenticatedProjectsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/sales': {
+      id: '/_authenticated/sales'
+      path: '/sales'
+      fullPath: '/sales'
+      preLoaderRoute: typeof AuthenticatedSalesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/service': {
+      id: '/_authenticated/service'
+      path: '/service'
+      fullPath: '/service'
+      preLoaderRoute: typeof AuthenticatedServiceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/work-orders': {
+      id: '/_authenticated/work-orders'
+      path: '/work-orders'
+      fullPath: '/work-orders'
+      preLoaderRoute: typeof AuthenticatedWorkOrdersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/contracts/$id': {
+      id: '/_authenticated/contracts/$id'
+      path: '/$id'
+      fullPath: '/contracts/$id'
+      preLoaderRoute: typeof AuthenticatedContractsIdRouteImport
+      parentRoute: typeof AuthenticatedContractsRoute
     }
     '/_authenticated/customers/': {
       id: '/_authenticated/customers/'
@@ -396,18 +636,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/customers/new': {
-      id: '/_authenticated/customers/new'
-      path: '/customers/new'
-      fullPath: '/customers/new'
-      preLoaderRoute: typeof AuthenticatedCustomersNewRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/customers/$id': {
       id: '/_authenticated/customers/$id'
       path: '/customers/$id'
       fullPath: '/customers/$id'
       preLoaderRoute: typeof AuthenticatedCustomersIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/customers/new': {
+      id: '/_authenticated/customers/new'
+      path: '/customers/new'
+      fullPath: '/customers/new'
+      preLoaderRoute: typeof AuthenticatedCustomersNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/customers/$id/view': {
@@ -419,6 +659,20 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedContractsRouteChildren {
+  AuthenticatedContractsIdRoute: typeof AuthenticatedContractsIdRoute
+}
+
+const AuthenticatedContractsRouteChildren: AuthenticatedContractsRouteChildren =
+  {
+    AuthenticatedContractsIdRoute: AuthenticatedContractsIdRoute,
+  }
+
+const AuthenticatedContractsRouteWithChildren =
+  AuthenticatedContractsRoute._addFileChildren(
+    AuthenticatedContractsRouteChildren,
+  )
 
 interface AuthenticatedCustomersIdRouteChildren {
   AuthenticatedCustomersIdViewRoute: typeof AuthenticatedCustomersIdViewRoute
@@ -439,7 +693,18 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAssetsRoute: typeof AuthenticatedAssetsRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedCleaningSchedulesRoute: typeof AuthenticatedCleaningSchedulesRoute
-  AuthenticatedContractsRoute: typeof AuthenticatedContractsRoute
+  AuthenticatedContractAssetsRoute: typeof AuthenticatedContractAssetsRoute
+  AuthenticatedContractAttendanceRoute: typeof AuthenticatedContractAttendanceRoute
+  AuthenticatedContractDashboardRoute: typeof AuthenticatedContractDashboardRoute
+  AuthenticatedContractInvoicePacksRoute: typeof AuthenticatedContractInvoicePacksRoute
+  AuthenticatedContractLineItemsRoute: typeof AuthenticatedContractLineItemsRoute
+  AuthenticatedContractManpowerRoute: typeof AuthenticatedContractManpowerRoute
+  AuthenticatedContractMonthlyReportsRoute: typeof AuthenticatedContractMonthlyReportsRoute
+  AuthenticatedContractPpmRoute: typeof AuthenticatedContractPpmRoute
+  AuthenticatedContractServiceCategoriesRoute: typeof AuthenticatedContractServiceCategoriesRoute
+  AuthenticatedContractSlaRoute: typeof AuthenticatedContractSlaRoute
+  AuthenticatedContractWeeklyReportsRoute: typeof AuthenticatedContractWeeklyReportsRoute
+  AuthenticatedContractsRoute: typeof AuthenticatedContractsRouteWithChildren
   AuthenticatedHrRoute: typeof AuthenticatedHrRoute
   AuthenticatedMepSchedulesRoute: typeof AuthenticatedMepSchedulesRoute
   AuthenticatedPermissionsRoute: typeof AuthenticatedPermissionsRoute
@@ -459,7 +724,22 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAssetsRoute: AuthenticatedAssetsRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedCleaningSchedulesRoute: AuthenticatedCleaningSchedulesRoute,
-  AuthenticatedContractsRoute: AuthenticatedContractsRoute,
+  AuthenticatedContractAssetsRoute: AuthenticatedContractAssetsRoute,
+  AuthenticatedContractAttendanceRoute: AuthenticatedContractAttendanceRoute,
+  AuthenticatedContractDashboardRoute: AuthenticatedContractDashboardRoute,
+  AuthenticatedContractInvoicePacksRoute:
+    AuthenticatedContractInvoicePacksRoute,
+  AuthenticatedContractLineItemsRoute: AuthenticatedContractLineItemsRoute,
+  AuthenticatedContractManpowerRoute: AuthenticatedContractManpowerRoute,
+  AuthenticatedContractMonthlyReportsRoute:
+    AuthenticatedContractMonthlyReportsRoute,
+  AuthenticatedContractPpmRoute: AuthenticatedContractPpmRoute,
+  AuthenticatedContractServiceCategoriesRoute:
+    AuthenticatedContractServiceCategoriesRoute,
+  AuthenticatedContractSlaRoute: AuthenticatedContractSlaRoute,
+  AuthenticatedContractWeeklyReportsRoute:
+    AuthenticatedContractWeeklyReportsRoute,
+  AuthenticatedContractsRoute: AuthenticatedContractsRouteWithChildren,
   AuthenticatedHrRoute: AuthenticatedHrRoute,
   AuthenticatedMepSchedulesRoute: AuthenticatedMepSchedulesRoute,
   AuthenticatedPermissionsRoute: AuthenticatedPermissionsRoute,

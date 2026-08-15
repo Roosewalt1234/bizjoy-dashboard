@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,8 @@ export const Route = createFileRoute("/_authenticated/contracts")({
 const PAYMENT_TERMS = ["Monthly", "Quarterly", "Half Yearly", "Single Payment"] as const;
 type PaymentTerm = typeof PAYMENT_TERMS[number];
 const STATUS_OPTIONS = ["Draft", "Under Review", "Active", "Expired", "Terminated"];
+const FM_SCOPE_TYPES = ["Home AMC", "Building AMC", "Facilities Management"] as const;
+const BILLING_CYCLES = ["Monthly", "Quarterly", "Half Yearly", "Annual", "One Time"] as const;
 const PAY_STATUS = ["Not Yet Due", "Due", "Overdue", "Received"] as const;
 function payStatusClasses(s: string): string {
   switch (s) {
@@ -505,7 +507,7 @@ function ContractsPage() {
               <TableHead>Next Payment Due</TableHead>
               <TableHead>Handyman Hrs</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="w-24 text-right">Actions</TableHead>
+              <TableHead className="w-32 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -559,6 +561,11 @@ function ContractsPage() {
                 <TableCell>{r.status ?? "—"}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
+                    <Button size="icon" variant="ghost" asChild>
+                      <Link to="/contracts/$id" params={{ id: r.id }}>
+                        <FileText className="h-4 w-4" />
+                      </Link>
+                    </Button>
                     <Button size="icon" variant="ghost" onClick={() => { setEditing(r); setOpen(true); }}>
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -644,6 +651,19 @@ function ContractDialog({
   const [acDuctDate, setAcDuctDate] = useState(editing?.ac_duct_cleaning_date ?? "");
   const [acDuctStatus, setAcDuctStatus] = useState(editing?.ac_duct_cleaning_status ?? "");
   const [remark, setRemark] = useState(editing?.remark ?? "");
+  const [contractScopeType, setContractScopeType] = useState<string>(editing?.contract_scope_type ?? "Home AMC");
+  const [siteName, setSiteName] = useState(editing?.site_name ?? "");
+  const [siteAddress, setSiteAddress] = useState(editing?.site_address ?? "");
+  const [buildingType, setBuildingType] = useState(editing?.building_type ?? "");
+  const [billingCycle, setBillingCycle] = useState<string>(editing?.billing_cycle ?? "");
+  const [retentionPercent, setRetentionPercent] = useState(
+    editing?.retention_percent != null ? String(editing.retention_percent) : "",
+  );
+  const [vatPercent, setVatPercent] = useState(
+    editing?.vat_percent != null ? String(editing.vat_percent) : "",
+  );
+  const [contractManagerId, setContractManagerId] = useState<string>(editing?.contract_manager_id ?? "none");
+  const [slaProfileId, setSlaProfileId] = useState<string>(editing?.sla_profile_id ?? "none");
   const [payments, setPayments] = useState<PaymentRow[]>([]);
   const [customerPickerOpen, setCustomerPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -684,6 +704,32 @@ function ContractDialog({
         .select("id, display_name, company_name")
         .order("display_name", { ascending: true })
         .limit(10000);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const { data: contractManagers = [] } = useQuery({
+    queryKey: ["contract-managers-lookup"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("employees")
+        .select("id, full_name, first_name, last_name")
+        .order("full_name", { ascending: true })
+        .limit(10000);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const { data: slaProfiles = [] } = useQuery({
+    queryKey: ["sla-profiles-lookup"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("sla_policies")
+        .select("id, name")
+        .eq("active", true)
+        .order("name", { ascending: true });
       if (error) throw error;
       return data ?? [];
     },
@@ -808,6 +854,15 @@ function ContractDialog({
         ac_duct_cleaning_date: acDuctDate || null,
         ac_duct_cleaning_status: acDuctStatus || null,
         remark: remark || null,
+        contract_scope_type: contractScopeType || null,
+        site_name: siteName || null,
+        site_address: siteAddress || null,
+        building_type: buildingType || null,
+        billing_cycle: billingCycle || null,
+        retention_percent: retentionPercent ? Number(retentionPercent) : null,
+        vat_percent: vatPercent ? Number(vatPercent) : null,
+        contract_manager_id: contractManagerId === "none" ? null : contractManagerId,
+        sla_profile_id: slaProfileId === "none" ? null : slaProfileId,
       };
 
       let contractId = editing?.id as string | undefined;
@@ -972,6 +1027,92 @@ function ContractDialog({
             </div>
           </div>
 
+
+          <Card className="p-4 space-y-4">
+            <div>
+              <Label className="text-sm font-medium">FM Contract Details</Label>
+              <p className="text-xs text-muted-foreground">
+                Optional fields for Building AMC and Facilities Management contracts.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-1">
+                <Label>Scope Type</Label>
+                <Select value={contractScopeType} onValueChange={setContractScopeType}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {FM_SCOPE_TYPES.map((scope) => <SelectItem key={scope} value={scope}>{scope}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Site Name</Label>
+                <Input value={siteName} onChange={(e) => setSiteName(e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label>Building Type</Label>
+                <Input value={buildingType} onChange={(e) => setBuildingType(e.target.value)} />
+              </div>
+              <div className="space-y-1 md:col-span-3">
+                <Label>Site Address</Label>
+                <Textarea rows={2} value={siteAddress} onChange={(e) => setSiteAddress(e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label>Billing Cycle</Label>
+                <Select value={billingCycle || undefined} onValueChange={setBillingCycle}>
+                  <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    {BILLING_CYCLES.map((cycle) => <SelectItem key={cycle} value={cycle}>{cycle}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Retention %</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={retentionPercent}
+                  onChange={(e) => setRetentionPercent(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>VAT %</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={vatPercent}
+                  onChange={(e) => setVatPercent(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Contract Manager</Label>
+                <Select value={contractManagerId} onValueChange={setContractManagerId}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {contractManagers.map((employee: any) => {
+                      const name = employee.full_name || [employee.first_name, employee.last_name].filter(Boolean).join(" ");
+                      return <SelectItem key={employee.id} value={employee.id}>{name || "Unnamed employee"}</SelectItem>;
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>SLA Profile</Label>
+                <Select value={slaProfileId} onValueChange={setSlaProfileId}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {slaProfiles.map((profile: any) => (
+                      <SelectItem key={profile.id} value={profile.id}>{profile.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </Card>
 
 
           {/* Quotes for customer */}
