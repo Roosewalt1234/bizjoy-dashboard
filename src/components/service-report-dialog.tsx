@@ -385,7 +385,7 @@ export function ServiceReportDialog({ open, onOpenChange, editing, workOrderId }
       } else {
         const { data, error } = await supabase
           .from("service_reports")
-          .insert(payload)
+          .insert({ ...payload, module_type: moduleType })
           .select("id")
           .single();
         if (error) throw error;

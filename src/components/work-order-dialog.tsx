@@ -314,7 +314,7 @@ export function WorkOrderDialog({ open, onOpenChange, editing }: Props) {
         const { error } = await supabase.from("work_orders").update(payload).eq("id", editing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("work_orders").insert(payload);
+        const { error } = await supabase.from("work_orders").insert({ ...payload, module_type: moduleType });
         if (error) throw error;
       }
 

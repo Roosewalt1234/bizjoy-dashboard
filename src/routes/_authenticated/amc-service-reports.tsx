@@ -57,6 +57,7 @@ function ServicePage() {
       const { data, error } = await supabase
         .from("service_reports")
         .select("*")
+        .eq("module_type", "AMC")
         .order("service_date", { ascending: false });
       if (error) throw error;
       return data ?? [];
