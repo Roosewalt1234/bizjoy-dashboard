@@ -278,7 +278,7 @@ export function WorkOrdersPage({ moduleType = "AMC" }: { moduleType?: ModuleType
     <div className="p-6 max-w-7xl mx-auto space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Work Orders</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{moduleType === "FM" ? "FM Work Orders" : "AMC Work Orders"}</h1>
           <p className="text-muted-foreground">Raise jobs for technicians before the site visit</p>
         </div>
         <div className="flex items-center gap-2">
