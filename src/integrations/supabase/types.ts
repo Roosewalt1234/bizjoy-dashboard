@@ -1084,6 +1084,53 @@ export type Database = {
         }
         Relationships: []
       }
+      fm_daily_cleaning_checks: {
+        Row: {
+          area: string | null
+          check_date: string
+          checked_by: string | null
+          created_at: string
+          fm_contract_id: string
+          id: string
+          remarks: string | null
+          status: string
+          task_name: string
+          updated_at: string
+        }
+        Insert: {
+          area?: string | null
+          check_date?: string
+          checked_by?: string | null
+          created_at?: string
+          fm_contract_id: string
+          id?: string
+          remarks?: string | null
+          status?: string
+          task_name: string
+          updated_at?: string
+        }
+        Update: {
+          area?: string | null
+          check_date?: string
+          checked_by?: string | null
+          created_at?: string
+          fm_contract_id?: string
+          id?: string
+          remarks?: string | null
+          status?: string
+          task_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_daily_cleaning_checks_fm_contract_id_fkey"
+            columns: ["fm_contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       followup_remarks: {
         Row: {
           created_at: string
