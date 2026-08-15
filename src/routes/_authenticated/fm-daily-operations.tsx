@@ -413,6 +413,134 @@ function FmDailyOperationsPage() {
     qc.invalidateQueries({ queryKey: ["fm-ops-checks", activeContractId, date] });
   }
 
+  function refreshAll() {
+    qc.invalidateQueries({ queryKey: ["fm-ops-attendance"] });
+    qc.invalidateQueries({ queryKey: ["fm-ops-wos"] });
+    qc.invalidateQueries({ queryKey: ["fm-ops-ppm"] });
+    qc.invalidateQueries({ queryKey: ["fm-ops-checks"] });
+    qc.invalidateQueries({ queryKey: ["fm-ops-checklist-templates"] });
+    qc.invalidateQueries({ queryKey: ["fm-ops-weekly"] });
+    qc.invalidateQueries({ queryKey: ["fm-ops-monthly"] });
+    qc.invalidateQueries({ queryKey: ["fm-ops-packs"] });
+    setLastRefresh(new Date());
+  }
+
+  /* ---- deep links ---- */
+  const openAttendance = (add?: boolean) =>
+    navigate({
+      to: "/fm-attendance",
+      search: { contract_id: activeContractId, date, ...(add ? { add: "1" } : {}) },
+    });
+  const openPpm = (visitId?: string) =>
+    navigate({
+      to: "/fm-ppm",
+      search: { contract_id: activeContractId, ...(visitId ? { visit_id: visitId } : {}) },
+    });
+  const openWorkOrder = (wo: any) =>
+    navigate({
+      to: "/fm-work-orders",
+      search: wo?.wo_no ? { wo: wo.wo_no } : { wo_id: wo?.id },
+    });
+
+  /* ---- attendance quick action ---- */
+  async function markFullTeamPresent() {
+    if (!activeContractId) return;
+    const activePlans = (plans as any[]).filter((p) => p.active !== false);
+    if (activePlans.length === 0) {
+      toast.error("No manpower plan for this contract");
+      return;
+    }
+    const rows: any[] = [];
+    activePlans.forEach((p) => {
+      const count = Number(p.required_headcount ?? 0);
+      for (let i = 0; i < count; i += 1) {
+        rows.push({
+          contract_id: activeContractId,
+          attendance_date: date,
+          employee_name: `${p.designation ?? p.role_name ?? "Staff"}${count > 1 ? ` ${i + 1}` : ""}`,
+          shift: p.shift_name ?? null,
+          shift_name: p.shift_name ?? null,
+          status: "Present",
+          source: "Daily Operations",
+          remarks: null,
+        });
+      }
+    });
+    if (rows.length === 0) {
+      toast.error("Planned headcount is zero");
+      return;
+    }
+    if (
+      !window.confirm(
+        `Create ${rows.length} attendance entries marked Present for ${date}? Remarks can be edited afterwards.`,
+      )
+    )
+      return;
+    setBusy(true);
+    const { error } = await fmDb.from("attendance_logs").insert(rows);
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(`${rows.length} attendance entries created`);
+    refreshAll();
+  }
+
+  /* ---- PPM quick action ---- */
+  async function convertPpm(visit: any) {
+    if (!window.confirm("Create an FM work order for this PPM visit?")) return;
+    setBusy(true);
+    try {
+      const result = await convertPpmVisitToFmWorkOrder({ ...visit, contract_id: activeContractId });
+      toast.success(`FM work order ${result.wo_no ?? ""} created`);
+      refreshAll();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not convert PPM visit");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /* ---- work order quick actions ---- */
+  async function updateWorkOrder(wo: any, kind: "responded" | "completed") {
+    const now = new Date().toISOString();
+    const patch =
+      kind === "responded"
+        ? {
+            responded_at: now,
+            response_sla_status: calculateSlaStatus({
+              dueAt: wo.response_due_at,
+              actualAt: now,
+            }),
+            status: "In Progress",
+          }
+        : {
+            completed_at: now,
+            completion_sla_status: calculateSlaStatus({
+              dueAt: wo.completion_due_at,
+              actualAt: now,
+            }),
+            status: "Completed",
+          };
+    if (!window.confirm(`Mark ${wo.wo_no ?? "this work order"} as ${kind}?`)) return;
+    setBusy(true);
+    const { error } = await fmDb
+      .from("work_orders")
+      .update(patch)
+      .eq("id", wo.id)
+      .eq("module_type", "FM");
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(`Work order marked ${kind}`);
+    refreshAll();
+  }
+
+
+
   const actions = useMemo(() => {
     const list: {
       priority: "High" | "Medium" | "Low";
