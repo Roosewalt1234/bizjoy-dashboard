@@ -55,11 +55,9 @@ import { WO_STATUS, woStatusClasses, woPriorityClasses, splitItems } from "@/lib
 import { usePermissions } from "@/hooks/use-permissions";
 import { calculateSlaStatus, formatDateTime, normalizePriority, statusBadgeClasses } from "@/lib/fm-sla";
 
-export const Route = createFileRoute("/_authenticated/work-orders")({
-  component: WorkOrdersPage,
-});
+export type ModuleType = "AMC" | "FM";
 
-function WorkOrdersPage() {
+export function WorkOrdersPage({ moduleType = "AMC" }: { moduleType?: ModuleType }) {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const { can } = usePermissions();
@@ -72,7 +70,7 @@ function WorkOrdersPage() {
   const [statusFilter, setStatusFilter] = useState("all");
 
   const { data: orders = [], isLoading } = useQuery({
-    queryKey: ["work_orders"],
+    queryKey: ["work_orders", moduleType],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("work_orders")
@@ -85,6 +83,7 @@ function WorkOrdersPage() {
           ppm_visits:ppm_visit_id(id, planned_date, status)
         `,
         )
+        .eq("module_type", moduleType)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
