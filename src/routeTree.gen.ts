@@ -32,6 +32,8 @@ import { Route as AuthenticatedFmDashboardRouteImport } from './routes/_authenti
 import { Route as AuthenticatedFmDailyOperationsRouteImport } from './routes/_authenticated/fm-daily-operations'
 import { Route as AuthenticatedFmContractsRouteImport } from './routes/_authenticated/fm-contracts'
 import { Route as AuthenticatedFmContractLineItemsRouteImport } from './routes/_authenticated/fm-contract-line-items'
+import { Route as AuthenticatedFmCleaningSchedulerRouteImport } from './routes/_authenticated/fm-cleaning-scheduler'
+import { Route as AuthenticatedFmCleaningAreasRouteImport } from './routes/_authenticated/fm-cleaning-areas'
 import { Route as AuthenticatedFmAttendanceRouteImport } from './routes/_authenticated/fm-attendance'
 import { Route as AuthenticatedFmAssetsRouteImport } from './routes/_authenticated/fm-assets'
 import { Route as AuthenticatedContractsRouteImport } from './routes/_authenticated/contracts'
@@ -186,6 +188,18 @@ const AuthenticatedFmContractLineItemsRoute =
   AuthenticatedFmContractLineItemsRouteImport.update({
     id: '/fm-contract-line-items',
     path: '/fm-contract-line-items',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFmCleaningSchedulerRoute =
+  AuthenticatedFmCleaningSchedulerRouteImport.update({
+    id: '/fm-cleaning-scheduler',
+    path: '/fm-cleaning-scheduler',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFmCleaningAreasRoute =
+  AuthenticatedFmCleaningAreasRouteImport.update({
+    id: '/fm-cleaning-areas',
+    path: '/fm-cleaning-areas',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedFmAttendanceRoute =
@@ -382,6 +396,8 @@ export interface FileRoutesByFullPath {
   '/contracts': typeof AuthenticatedContractsRouteWithChildren
   '/fm-assets': typeof AuthenticatedFmAssetsRoute
   '/fm-attendance': typeof AuthenticatedFmAttendanceRoute
+  '/fm-cleaning-areas': typeof AuthenticatedFmCleaningAreasRoute
+  '/fm-cleaning-scheduler': typeof AuthenticatedFmCleaningSchedulerRoute
   '/fm-contract-line-items': typeof AuthenticatedFmContractLineItemsRoute
   '/fm-contracts': typeof AuthenticatedFmContractsRouteWithChildren
   '/fm-daily-operations': typeof AuthenticatedFmDailyOperationsRoute
@@ -434,6 +450,8 @@ export interface FileRoutesByTo {
   '/contracts': typeof AuthenticatedContractsRouteWithChildren
   '/fm-assets': typeof AuthenticatedFmAssetsRoute
   '/fm-attendance': typeof AuthenticatedFmAttendanceRoute
+  '/fm-cleaning-areas': typeof AuthenticatedFmCleaningAreasRoute
+  '/fm-cleaning-scheduler': typeof AuthenticatedFmCleaningSchedulerRoute
   '/fm-contract-line-items': typeof AuthenticatedFmContractLineItemsRoute
   '/fm-daily-operations': typeof AuthenticatedFmDailyOperationsRoute
   '/fm-dashboard': typeof AuthenticatedFmDashboardRoute
@@ -488,6 +506,8 @@ export interface FileRoutesById {
   '/_authenticated/contracts': typeof AuthenticatedContractsRouteWithChildren
   '/_authenticated/fm-assets': typeof AuthenticatedFmAssetsRoute
   '/_authenticated/fm-attendance': typeof AuthenticatedFmAttendanceRoute
+  '/_authenticated/fm-cleaning-areas': typeof AuthenticatedFmCleaningAreasRoute
+  '/_authenticated/fm-cleaning-scheduler': typeof AuthenticatedFmCleaningSchedulerRoute
   '/_authenticated/fm-contract-line-items': typeof AuthenticatedFmContractLineItemsRoute
   '/_authenticated/fm-contracts': typeof AuthenticatedFmContractsRouteWithChildren
   '/_authenticated/fm-daily-operations': typeof AuthenticatedFmDailyOperationsRoute
@@ -544,6 +564,8 @@ export interface FileRouteTypes {
     | '/contracts'
     | '/fm-assets'
     | '/fm-attendance'
+    | '/fm-cleaning-areas'
+    | '/fm-cleaning-scheduler'
     | '/fm-contract-line-items'
     | '/fm-contracts'
     | '/fm-daily-operations'
@@ -596,6 +618,8 @@ export interface FileRouteTypes {
     | '/contracts'
     | '/fm-assets'
     | '/fm-attendance'
+    | '/fm-cleaning-areas'
+    | '/fm-cleaning-scheduler'
     | '/fm-contract-line-items'
     | '/fm-daily-operations'
     | '/fm-dashboard'
@@ -649,6 +673,8 @@ export interface FileRouteTypes {
     | '/_authenticated/contracts'
     | '/_authenticated/fm-assets'
     | '/_authenticated/fm-attendance'
+    | '/_authenticated/fm-cleaning-areas'
+    | '/_authenticated/fm-cleaning-scheduler'
     | '/_authenticated/fm-contract-line-items'
     | '/_authenticated/fm-contracts'
     | '/_authenticated/fm-daily-operations'
@@ -846,6 +872,20 @@ declare module '@tanstack/react-router' {
       path: '/fm-contract-line-items'
       fullPath: '/fm-contract-line-items'
       preLoaderRoute: typeof AuthenticatedFmContractLineItemsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-cleaning-scheduler': {
+      id: '/_authenticated/fm-cleaning-scheduler'
+      path: '/fm-cleaning-scheduler'
+      fullPath: '/fm-cleaning-scheduler'
+      preLoaderRoute: typeof AuthenticatedFmCleaningSchedulerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fm-cleaning-areas': {
+      id: '/_authenticated/fm-cleaning-areas'
+      path: '/fm-cleaning-areas'
+      fullPath: '/fm-cleaning-areas'
+      preLoaderRoute: typeof AuthenticatedFmCleaningAreasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/fm-attendance': {
@@ -1134,6 +1174,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedContractsRoute: typeof AuthenticatedContractsRouteWithChildren
   AuthenticatedFmAssetsRoute: typeof AuthenticatedFmAssetsRoute
   AuthenticatedFmAttendanceRoute: typeof AuthenticatedFmAttendanceRoute
+  AuthenticatedFmCleaningAreasRoute: typeof AuthenticatedFmCleaningAreasRoute
+  AuthenticatedFmCleaningSchedulerRoute: typeof AuthenticatedFmCleaningSchedulerRoute
   AuthenticatedFmContractLineItemsRoute: typeof AuthenticatedFmContractLineItemsRoute
   AuthenticatedFmContractsRoute: typeof AuthenticatedFmContractsRouteWithChildren
   AuthenticatedFmDailyOperationsRoute: typeof AuthenticatedFmDailyOperationsRoute
@@ -1186,6 +1228,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedContractsRoute: AuthenticatedContractsRouteWithChildren,
   AuthenticatedFmAssetsRoute: AuthenticatedFmAssetsRoute,
   AuthenticatedFmAttendanceRoute: AuthenticatedFmAttendanceRoute,
+  AuthenticatedFmCleaningAreasRoute: AuthenticatedFmCleaningAreasRoute,
+  AuthenticatedFmCleaningSchedulerRoute: AuthenticatedFmCleaningSchedulerRoute,
   AuthenticatedFmContractLineItemsRoute: AuthenticatedFmContractLineItemsRoute,
   AuthenticatedFmContractsRoute: AuthenticatedFmContractsRouteWithChildren,
   AuthenticatedFmDailyOperationsRoute: AuthenticatedFmDailyOperationsRoute,
