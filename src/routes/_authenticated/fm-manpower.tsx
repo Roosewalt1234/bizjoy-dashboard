@@ -48,7 +48,7 @@ import { ExportMenu } from "@/components/export-menu";
 import { PAGE_SIZE, paginate, PaginationBar } from "@/components/pagination-bar";
 import { MANPOWER_ROLES, MANPOWER_SHIFTS } from "@/lib/fm-manpower";
 
-export const Route = createFileRoute("/_authenticated/contract-manpower")({
+export const Route = createFileRoute("/_authenticated/fm-manpower")({
   component: ContractManpowerPage,
 });
 

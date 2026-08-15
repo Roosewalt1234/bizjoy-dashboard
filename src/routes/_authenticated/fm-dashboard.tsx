@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
 
-export const Route = createFileRoute("/_authenticated/contract-dashboard")({
+export const Route = createFileRoute("/_authenticated/fm-dashboard")({
   component: ContractDashboardPage,
 });
 

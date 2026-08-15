@@ -55,7 +55,7 @@ import {
   statusBadgeClasses,
 } from "@/lib/fm-sla";
 
-export const Route = createFileRoute("/_authenticated/contract-sla")({
+export const Route = createFileRoute("/_authenticated/fm-sla")({
   component: ContractSlaPage,
 });
 

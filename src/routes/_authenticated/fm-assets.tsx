@@ -47,7 +47,7 @@ import { ExportMenu } from "@/components/export-menu";
 import { PAGE_SIZE, paginate, PaginationBar } from "@/components/pagination-bar";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_authenticated/contract-assets")({
+export const Route = createFileRoute("/_authenticated/fm-assets")({
   component: ContractAssetsPage,
 });
 

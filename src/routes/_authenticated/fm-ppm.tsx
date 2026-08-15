@@ -48,7 +48,7 @@ import { PAGE_SIZE, paginate, PaginationBar } from "@/components/pagination-bar"
 import { nextDocNo } from "@/lib/doc-no";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_authenticated/contract-ppm")({
+export const Route = createFileRoute("/_authenticated/fm-ppm")({
   component: ContractPpmPage,
 });
 

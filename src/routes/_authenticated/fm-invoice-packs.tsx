@@ -58,7 +58,7 @@ import {
   money,
 } from "@/lib/fm-invoice";
 
-export const Route = createFileRoute("/_authenticated/contract-invoice-packs")({
+export const Route = createFileRoute("/_authenticated/fm-invoice-packs")({
   component: ContractInvoicePacksPage,
 });
 

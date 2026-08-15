@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from "react";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, Pencil, Plus, Printer, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -45,18 +45,20 @@ import {
 } from "@/components/ui/table";
 import { ExportMenu } from "@/components/export-menu";
 import { PAGE_SIZE, paginate, PaginationBar } from "@/components/pagination-bar";
-import { buildMonthlyReportPayload, getDateRangeForMonth, REPORT_STATUSES } from "@/lib/fm-reports";
+import { buildWeeklyReportPayload, getDateRangeForWeek, REPORT_STATUSES } from "@/lib/fm-reports";
 
-export const Route = createFileRoute("/_authenticated/contract-monthly-reports")({
-  component: ContractMonthlyReportsPage,
+export const Route = createFileRoute("/_authenticated/fm-weekly-reports")({
+  component: ContractWeeklyReportsPage,
 });
 
 const fmDb = supabase as any;
 
-function ContractMonthlyReportsPage() {
+function ContractWeeklyReportsPage() {
   const qc = useQueryClient();
+  const defaultWeek = getDateRangeForWeek();
   const [contractFilter, setContractFilter] = useState("all");
-  const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [weekStart, setWeekStart] = useState(defaultWeek.start);
+  const [weekEnd, setWeekEnd] = useState(defaultWeek.end);
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [viewing, setViewing] = useState<any | null>(null);
@@ -68,10 +70,9 @@ function ContractMonthlyReportsPage() {
     reviewed_by: "",
   });
   const [generating, setGenerating] = useState(false);
-  const range = getDateRangeForMonth(month);
 
   const { data: contracts = [] } = useQuery({
-    queryKey: ["contracts-lookup-monthly-reports"],
+    queryKey: ["contracts-lookup-weekly-reports"],
     queryFn: async () => {
       const { data, error } = await fmDb
         .from("contracts")
@@ -84,23 +85,12 @@ function ContractMonthlyReportsPage() {
   });
 
   const { data: reports = [], isLoading } = useQuery({
-    queryKey: ["monthly_reports"],
+    queryKey: ["weekly_reports"],
     queryFn: async () => {
       const { data, error } = await fmDb
-        .from("monthly_reports")
+        .from("weekly_reports")
         .select("*, contracts:contract_id(id, title, contract_no, customer_name, site_name)")
-        .order("month_start", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
-
-  const { data: invoicePacks = [] } = useQuery({
-    queryKey: ["monthly-report-invoice-packs"],
-    queryFn: async () => {
-      const { data, error } = await fmDb
-        .from("invoice_packs")
-        .select("id, contract_id, invoice_month, billing_period_start, status");
+        .order("week_start", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
@@ -111,10 +101,11 @@ function ContractMonthlyReportsPage() {
       (reports as any[]).filter((row) => {
         if (contractFilter !== "all" && row.contract_id !== contractFilter) return false;
         if (statusFilter !== "all" && row.status !== statusFilter) return false;
-        if (month && row.month_start.slice(0, 7) !== month) return false;
+        if (weekStart && row.week_end < weekStart) return false;
+        if (weekEnd && row.week_start > weekEnd) return false;
         return true;
       }),
-    [reports, contractFilter, month, statusFilter],
+    [reports, contractFilter, statusFilter, weekEnd, weekStart],
   );
 
   useEffect(() => {
@@ -177,14 +168,14 @@ function ContractMonthlyReportsPage() {
     setGenerating(true);
     try {
       const source = await fetchReportSource(contractFilter);
-      const payload = buildMonthlyReportPayload({ ...source, start: range.start, end: range.end });
+      const payload = buildWeeklyReportPayload({ ...source, start: weekStart, end: weekEnd });
       const period = await fmDb
         .from("reporting_periods")
         .select("id")
         .eq("contract_id", contractFilter)
-        .eq("period_type", "Monthly")
-        .eq("period_start", range.start)
-        .eq("period_end", range.end)
+        .eq("period_type", "Weekly")
+        .eq("period_start", weekStart)
+        .eq("period_end", weekEnd)
         .maybeSingle();
       let periodId = period.data?.id ?? null;
       if (!periodId) {
@@ -192,10 +183,10 @@ function ContractMonthlyReportsPage() {
           .from("reporting_periods")
           .insert({
             contract_id: contractFilter,
-            period_type: "Monthly",
-            period_start: range.start,
-            period_end: range.end,
-            label: `Monthly ${month}`,
+            period_type: "Weekly",
+            period_start: weekStart,
+            period_end: weekEnd,
+            label: `Weekly ${weekStart} to ${weekEnd}`,
             status: "Generated",
           })
           .select("id")
@@ -203,26 +194,24 @@ function ContractMonthlyReportsPage() {
         if (created.error) throw created.error;
         periodId = created.data.id;
       }
-      const { error } = await fmDb.from("monthly_reports").insert({
+      const { error } = await fmDb.from("weekly_reports").insert({
         contract_id: contractFilter,
         reporting_period_id: periodId,
-        month_start: range.start,
-        month_end: range.end,
-        report_no: `MR-${month}`,
+        week_start: weekStart,
+        week_end: weekEnd,
+        report_no: `WR-${weekStart}`,
         status: "Draft",
         summary: payload,
         report_data: payload,
-        ppm_compliance_percent: payload.ppm.completionPercent,
-        reactive_closure_percent: payload.workOrders.total
-          ? Math.round((payload.workOrders.completed / payload.workOrders.total) * 100)
-          : 0,
-        sla_compliance_percent: payload.sla.compliancePercent,
-        manpower_variance: payload.manpower.shortageCount,
+        ppm_completed: payload.ppm.completed,
+        work_orders_completed: payload.workOrders.completed,
+        open_issues: payload.workOrders.open,
+        sla_breaches: payload.sla.breachCount,
         remarks: "",
       });
       if (error) throw error;
-      toast.success("Monthly report generated");
-      qc.invalidateQueries({ queryKey: ["monthly_reports"] });
+      toast.success("Weekly report generated");
+      qc.invalidateQueries({ queryKey: ["weekly_reports"] });
     } catch (error: any) {
       toast.error(error.message ?? "Report generation failed");
     } finally {
@@ -243,7 +232,7 @@ function ContractMonthlyReportsPage() {
   async function saveEdit() {
     if (!editing) return;
     const { error } = await fmDb
-      .from("monthly_reports")
+      .from("weekly_reports")
       .update({
         ...editForm,
         submitted_at:
@@ -256,9 +245,9 @@ function ContractMonthlyReportsPage() {
       toast.error(error.message);
       return;
     }
-    toast.success("Monthly report updated");
+    toast.success("Weekly report updated");
     setEditing(null);
-    qc.invalidateQueries({ queryKey: ["monthly_reports"] });
+    qc.invalidateQueries({ queryKey: ["weekly_reports"] });
   }
 
   async function remove(row: any) {
@@ -266,47 +255,47 @@ function ContractMonthlyReportsPage() {
       toast.error("Only draft reports can be deleted");
       return;
     }
-    const { error } = await fmDb.from("monthly_reports").delete().eq("id", row.id);
+    const { error } = await fmDb.from("weekly_reports").delete().eq("id", row.id);
     if (error) {
       toast.error(error.message);
       return;
     }
-    toast.success("Monthly report deleted");
-    qc.invalidateQueries({ queryKey: ["monthly_reports"] });
+    toast.success("Weekly report deleted");
+    qc.invalidateQueries({ queryKey: ["weekly_reports"] });
   }
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Monthly Reports</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Weekly Reports</h1>
           <p className="text-muted-foreground">
-            Generate monthly FM client reports for operations and invoice support.
+            Generate weekly FM operational reports for client submission.
           </p>
         </div>
         <div className="flex gap-2">
           <ExportMenu
-            filename="monthly-reports"
-            sheetName="Monthly Reports"
+            filename="weekly-reports"
+            sheetName="Weekly Reports"
             rows={filteredReports}
             columns={[
               { key: "report_no", label: "Report No" },
-              { key: "month_start", label: "Month Start" },
-              { key: "month_end", label: "Month End" },
+              { key: "week_start", label: "Week Start" },
+              { key: "week_end", label: "Week End" },
               { key: "status", label: "Status" },
-              { key: "ppm_compliance_percent", label: "PPM %" },
-              { key: "sla_compliance_percent", label: "SLA %" },
-              { key: "manpower_variance", label: "Manpower Shortage" },
+              { key: "ppm_completed", label: "PPM Completed" },
+              { key: "work_orders_completed", label: "WOs Completed" },
+              { key: "sla_breaches", label: "SLA Breaches" },
             ]}
           />
           <Button onClick={generateReport} disabled={generating || contractFilter === "all"}>
-            <Plus className="h-4 w-4 mr-2" /> Generate Monthly Report
+            <Plus className="h-4 w-4 mr-2" /> Generate Weekly Report
           </Button>
         </div>
       </div>
 
       <Card className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <Filter
             label="Contract"
             value={contractFilter}
@@ -324,8 +313,20 @@ function ContractMonthlyReportsPage() {
             ))}
           </Filter>
           <div>
-            <Label className="text-xs">Month</Label>
-            <Input type="month" value={month} onChange={(event) => setMonth(event.target.value)} />
+            <Label className="text-xs">Week Start</Label>
+            <Input
+              type="date"
+              value={weekStart}
+              onChange={(event) => setWeekStart(event.target.value)}
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Week End</Label>
+            <Input
+              type="date"
+              value={weekEnd}
+              onChange={(event) => setWeekEnd(event.target.value)}
+            />
           </div>
           <Filter
             label="Status"
@@ -351,12 +352,10 @@ function ContractMonthlyReportsPage() {
             <TableRow>
               <TableHead>Report</TableHead>
               <TableHead>Contract</TableHead>
-              <TableHead>Month</TableHead>
-              <TableHead>Executive Status</TableHead>
+              <TableHead>Period</TableHead>
               <TableHead>Work Orders</TableHead>
               <TableHead>SLA</TableHead>
               <TableHead>PPM</TableHead>
-              <TableHead>Invoice Pack</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-32 text-right">Actions</TableHead>
             </TableRow>
@@ -364,49 +363,36 @@ function ContractMonthlyReportsPage() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                   Loading...
                 </TableCell>
               </TableRow>
             ) : paginate(filteredReports, page).length === 0 ? (
               <TableRow>
-                <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
-                  No monthly reports found.
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                  No weekly reports found.
                 </TableCell>
               </TableRow>
             ) : (
               paginate(filteredReports, page).map((row: any) => {
                 const data = row.report_data ?? row.summary ?? {};
-                const invoicePack = (invoicePacks as any[]).find(
-                  (pack) =>
-                    pack.contract_id === row.contract_id &&
-                    (pack.invoice_month === row.month_start.slice(0, 7) ||
-                      pack.billing_period_start === row.month_start),
-                );
                 return (
                   <TableRow key={row.id}>
                     <TableCell className="font-medium">
-                      {row.report_no ?? "Monthly Report"}
+                      {row.report_no ?? "Weekly Report"}
                     </TableCell>
                     <TableCell>
                       {row.contracts?.contract_no ?? row.contracts?.customer_name ?? "-"}
                     </TableCell>
-                    <TableCell>{row.month_start.slice(0, 7)}</TableCell>
-                    <TableCell>{data.executiveSummary?.overallStatus ?? "-"}</TableCell>
                     <TableCell>
-                      {data.workOrders?.completed ?? 0}/{data.workOrders?.total ?? 0}
+                      {row.week_start} to {row.week_end}
+                    </TableCell>
+                    <TableCell>
+                      {data.workOrders?.completed ?? row.work_orders_completed}/
+                      {data.workOrders?.total ?? "-"}
                     </TableCell>
                     <TableCell>{data.sla?.compliancePercent ?? 0}%</TableCell>
                     <TableCell>{data.ppm?.completionPercent ?? 0}%</TableCell>
-                    <TableCell>
-                      {invoicePack ? (
-                        <Badge variant="outline">{invoicePack.status}</Badge>
-                      ) : (
-                        <Button size="sm" variant="outline" asChild>
-                          <Link to="/contract-invoice-packs">Create Invoice Pack</Link>
-                        </Button>
-                      )}
-                    </TableCell>
                     <TableCell>
                       <Badge variant="outline">{row.status}</Badge>
                     </TableCell>
@@ -515,55 +501,32 @@ function ReportViewDialog({ report, onClose }: { report: any | null; onClose: ()
     >
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto print:max-w-none print:max-h-none">
         <DialogHeader>
-          <DialogTitle>{report.report_no ?? "Monthly Report"}</DialogTitle>
+          <DialogTitle>{report.report_no ?? "Weekly Report"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
               {report.contracts?.customer_name ?? report.contracts?.contract_no ?? "Contract"} ·{" "}
-              {report.month_start} to {report.month_end}
+              {report.week_start} to {report.week_end}
             </div>
             <Button variant="outline" onClick={() => window.print()}>
               <Printer className="h-4 w-4 mr-2" /> Print / Save as PDF
             </Button>
           </div>
-          <div className="rounded-md border p-3">
-            <div className="font-medium">Executive Summary</div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm mt-2">
-              <div>
-                <span className="text-muted-foreground">Contract: </span>
-                {data.executiveSummary?.contractName ?? "-"}
-              </div>
-              <div>
-                <span className="text-muted-foreground">Site: </span>
-                {data.executiveSummary?.siteName ?? "-"}
-              </div>
-              <div>
-                <span className="text-muted-foreground">Overall: </span>
-                {data.executiveSummary?.overallStatus ?? "-"}
-              </div>
-            </div>
-          </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Metric label="Completed WOs" value={data.workOrders?.completed ?? 0} />
+            <Metric label="Work Orders" value={data.workOrders?.total ?? 0} />
             <Metric label="SLA Compliance" value={`${data.sla?.compliancePercent ?? 0}%`} />
             <Metric label="PPM Completion" value={`${data.ppm?.completionPercent ?? 0}%`} />
-            <Metric
-              label="Manpower Compliance"
-              value={`${data.manpower?.compliancePercent ?? 0}%`}
-            />
+            <Metric label="Shortage" value={data.manpower?.shortageCount ?? 0} />
           </div>
-          <Section title="Work Order Summary" rows={data.workOrders} />
-          <Section title="SLA / KPI Summary" rows={data.sla} />
-          <Section title="PPM Summary" rows={data.ppm} />
-          <Section
-            title="Attendance / Manpower Summary"
-            rows={{ ...data.attendance, ...data.manpower }}
-          />
-          <Section title="Asset Summary" rows={data.assets} />
-          <Section title="Service Report Summary" rows={data.serviceReports} />
+          <Section title="Work Orders" rows={data.workOrders} />
+          <Section title="SLA / KPI" rows={data.sla} />
+          <Section title="PPM" rows={data.ppm} />
+          <Section title="Attendance / Manpower" rows={{ ...data.attendance, ...data.manpower }} />
+          <Section title="Assets" rows={data.assets} />
+          <Section title="Service Reports" rows={data.serviceReports} />
           <div className="rounded-md border p-3">
-            <div className="font-medium">Client Submission Notes</div>
+            <div className="font-medium">Client Notes</div>
             <p className="text-sm whitespace-pre-wrap text-muted-foreground">
               {report.remarks || "No notes added."}
             </p>
@@ -623,7 +586,7 @@ function EditDialog({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Monthly Report</DialogTitle>
+          <DialogTitle>Edit Weekly Report</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <Filter

@@ -22,7 +22,7 @@ import { ServiceReportDialog } from "@/components/service-report-dialog";
 import { SERVICE_TYPES, REPORT_STATUS, statusClasses } from "@/lib/service-reports";
 import { usePermissions } from "@/hooks/use-permissions";
 
-export const Route = createFileRoute("/_authenticated/service")({
+export const Route = createFileRoute("/_authenticated/amc-service-reports")({
   validateSearch: (search: Record<string, unknown>) => ({
     wo: typeof search.wo === "string" ? search.wo : undefined,
   }),
@@ -48,7 +48,7 @@ function ServicePage() {
     setEditing(null);
     setPrefillWo(wo);
     setOpen(true);
-    navigate({ to: "/service", search: {} as any, replace: true });
+    navigate({ to: "/amc-service-reports", search: {} as any, replace: true });
   }, [wo, navigate]);
 
   const { data: reports = [], isLoading } = useQuery({

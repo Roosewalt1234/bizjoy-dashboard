@@ -39,7 +39,7 @@ import {
 import { ExportMenu } from "@/components/export-menu";
 import { PAGE_SIZE, paginate, PaginationBar } from "@/components/pagination-bar";
 
-export const Route = createFileRoute("/_authenticated/contract-service-categories")({
+export const Route = createFileRoute("/_authenticated/fm-service-categories")({
   component: ContractServiceCategoriesPage,
 });
 

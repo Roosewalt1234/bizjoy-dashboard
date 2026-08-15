@@ -53,7 +53,7 @@ import {
   todayIso,
 } from "@/lib/fm-manpower";
 
-export const Route = createFileRoute("/_authenticated/contract-attendance")({
+export const Route = createFileRoute("/_authenticated/fm-attendance")({
   component: ContractAttendancePage,
 });
 
