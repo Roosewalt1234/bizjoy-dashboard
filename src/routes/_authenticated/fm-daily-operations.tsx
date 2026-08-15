@@ -484,12 +484,12 @@ function FmDailyOperationsPage() {
       }),
     );
 
-    if (cleaningDone < CLEANING_TASKS.length)
+    if (cleaningDone < cleaningTasks.length)
       list.push({
         priority: "Medium",
         module: "Cleaning",
         description: "Daily cleaning checklist incomplete",
-        record: `${cleaningDone}/${CLEANING_TASKS.length} completed`,
+        record: `${cleaningDone}/${cleaningTasks.length} completed`,
         label: "Mark Checklist",
         go: () => document.getElementById("cleaning-widget")?.scrollIntoView({ behavior: "smooth" }),
       });
@@ -921,7 +921,7 @@ function FmDailyOperationsPage() {
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">Cleaning / Housekeeping — {date}</h2>
                 <Badge variant="outline">
-                  {cleaningDone}/{CLEANING_TASKS.length} done
+                  {cleaningDone}/{cleaningTasks.length} done
                 </Badge>
               </div>
               <Table>
@@ -934,7 +934,7 @@ function FmDailyOperationsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {CLEANING_TASKS.map((t) => {
+                  {cleaningTasks.map((t) => {
                     const row = checkByTask.get(t.task);
                     return (
                       <TableRow key={t.task}>
