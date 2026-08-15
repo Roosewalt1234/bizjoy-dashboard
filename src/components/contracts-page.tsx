@@ -484,14 +484,14 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
       <Card className="p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="w-full sm:w-48">
-            <Label htmlFor="filter-title" className="text-xs">Title</Label>
+            <Label htmlFor="filter-title" className="text-xs">{isFM ? "Scope" : "Title"}</Label>
             <Select value={filterTitle} onValueChange={(v) => { setFilterTitle(v); setPage(1); }}>
               <SelectTrigger id="filter-title">
-                <SelectValue placeholder="All Titles" />
+                <SelectValue placeholder={isFM ? "All Scopes" : "All Titles"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Titles</SelectItem>
-                {CONTRACT_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                <SelectItem value="all">{isFM ? "All Scopes" : "All Titles"}</SelectItem>
+                {(isFM ? FM_SCOPE_TYPES : CONTRACT_TYPES).map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
@@ -508,17 +508,18 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
             </Select>
           </div>
           <div className="w-full sm:w-48">
-            <Label htmlFor="filter-payment" className="text-xs">Payment</Label>
+            <Label htmlFor="filter-payment" className="text-xs">{isFM ? "Billing Cycle" : "Payment"}</Label>
             <Select value={filterPayment} onValueChange={(v) => { setFilterPayment(v); setPage(1); }}>
               <SelectTrigger id="filter-payment">
-                <SelectValue placeholder="All Payments" />
+                <SelectValue placeholder={isFM ? "All Billing Cycles" : "All Payments"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Payments</SelectItem>
-                {PAYMENT_TERMS.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                <SelectItem value="all">{isFM ? "All Billing Cycles" : "All Payments"}</SelectItem>
+                {(isFM ? BILLING_CYCLES : PAYMENT_TERMS).map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
+
 
         </div>
       </Card>
