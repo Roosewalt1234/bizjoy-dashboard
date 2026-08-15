@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo, useState } from "react";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,10 +17,6 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { summarizeAttendance, todayIso } from "@/lib/fm-manpower";
-
-export const Route = createFileRoute("/_authenticated/contracts/$id")({
-  component: ContractDetailPage,
-});
 
 type ContractRecord = {
   id: string;
@@ -101,8 +97,9 @@ function statusClasses(status: string | null) {
   }
 }
 
-function ContractDetailPage() {
-  const { id } = Route.useParams();
+export type ModuleType = "AMC" | "FM";
+
+export function ContractWorkspace({ id, moduleType = "AMC" }: { id: string; moduleType?: ModuleType }) {
   const [section, setSection] = useState("Overview");
 
   const { data, isLoading } = useQuery({
@@ -246,7 +243,7 @@ function ContractDetailPage() {
     return (
       <div className="p-6 max-w-7xl mx-auto space-y-4">
         <Button variant="outline" asChild>
-          <Link to="/contracts">
+          <Link to={moduleType === "FM" ? "/fm-contracts" : "/amc-contracts"}>
             <ArrowLeft className="h-4 w-4 mr-2" /> Back to Contracts
           </Link>
         </Button>
@@ -262,8 +259,8 @@ function ContractDetailPage() {
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-2">
           <Button variant="outline" size="sm" asChild>
-            <Link to="/contracts">
-              <ArrowLeft className="h-4 w-4 mr-2" /> Contracts
+            <Link to={moduleType === "FM" ? "/fm-contracts" : "/amc-contracts"}>
+              <ArrowLeft className="h-4 w-4 mr-2" /> {moduleType === "FM" ? "FM Contracts" : "AMC Contracts"}
             </Link>
           </Button>
           <div>
