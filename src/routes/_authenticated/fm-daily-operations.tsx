@@ -923,15 +923,41 @@ function FmDailyOperationsPage() {
           <div className="grid gap-4 xl:grid-cols-2">
             {/* Attendance widget */}
             <Card className="p-4 space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <h2 className="text-lg font-semibold">Attendance — {date}</h2>
-                <Button size="sm" onClick={() => navigate({ to: "/fm-attendance" })}>
-                  Add Today's Attendance
-                </Button>
+                {attendance.length === 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" onClick={markFullTeamPresent} disabled={busy}>
+                      Mark Full Planned Team Present
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => openAttendance(true)}>
+                      Add Attendance Manually
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="outline" className={stateBadge("Completed")}>
+                      Present {present}
+                    </Badge>
+                    <Badge variant="outline" className={absent ? stateBadge("Breached") : undefined}>
+                      Absent {absent}
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className={stateBadge(coverage >= 100 ? "Completed" : "At Risk")}
+                    >
+                      Coverage {coverage}%
+                    </Badge>
+                    <Button size="sm" variant="outline" onClick={() => openAttendance()}>
+                      Open Attendance
+                    </Button>
+                  </div>
+                )}
               </div>
               {attendance.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No attendance marked today</p>
               ) : (
+
                 <Table>
                   <TableHeader>
                     <TableRow>
