@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, FileText, Pencil, Plus, Printer, RefreshCcw, Trash2 } from "lucide-react";
@@ -60,8 +60,11 @@ import {
 } from "@/lib/fm-invoice";
 
 export const Route = createFileRoute("/_authenticated/fm-invoice-packs")({
+  validateSearch: (search: Record<string, unknown>): { invoice_pack_id?: string } =>
+    typeof search.invoice_pack_id === "string" ? { invoice_pack_id: search.invoice_pack_id } : {},
   component: ContractInvoicePacksPage,
 });
+
 
 const fmDb = supabase as any;
 

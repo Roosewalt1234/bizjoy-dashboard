@@ -1084,6 +1084,50 @@ export type Database = {
         }
         Relationships: []
       }
+      fm_cleaning_checklist_templates: {
+        Row: {
+          area: string | null
+          created_at: string
+          default_priority: string
+          fm_contract_id: string
+          id: string
+          is_active: boolean
+          sort_order: number
+          task_name: string
+          updated_at: string
+        }
+        Insert: {
+          area?: string | null
+          created_at?: string
+          default_priority?: string
+          fm_contract_id: string
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          task_name: string
+          updated_at?: string
+        }
+        Update: {
+          area?: string | null
+          created_at?: string
+          default_priority?: string
+          fm_contract_id?: string
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          task_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_cleaning_checklist_templates_fm_contract_id_fkey"
+            columns: ["fm_contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fm_daily_cleaning_checks: {
         Row: {
           area: string | null
