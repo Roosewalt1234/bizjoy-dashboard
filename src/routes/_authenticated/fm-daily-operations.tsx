@@ -884,6 +884,7 @@ function FmDailyOperationsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Priority</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Module</TableHead>
                     <TableHead>Description</TableHead>
                     <TableHead>Linked record</TableHead>
@@ -898,9 +899,15 @@ function FmDailyOperationsPage() {
                           {a.priority}
                         </Badge>
                       </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={stateBadge(a.state)}>
+                          {a.state}
+                        </Badge>
+                      </TableCell>
                       <TableCell>{a.module}</TableCell>
                       <TableCell>{a.description}</TableCell>
                       <TableCell className="text-muted-foreground text-xs">{a.record}</TableCell>
+
                       <TableCell className="text-right">
                         <Button size="sm" variant="outline" onClick={a.go}>
                           {a.label}
