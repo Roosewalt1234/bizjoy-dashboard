@@ -570,7 +570,7 @@ function ContractPpmPage() {
     <div className="p-6 max-w-7xl mx-auto space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">PPM Planner</h1>
+          <h1 className="text-3xl font-bold tracking-tight">FM PPM Planner</h1>
           <p className="text-muted-foreground">
             Create normalized PPM schedules, generate visit plans, and convert visits into work
             orders.

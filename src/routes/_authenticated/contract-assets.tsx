@@ -335,7 +335,7 @@ function ContractAssetsPage() {
     <div className="p-6 max-w-7xl mx-auto space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Asset Register</h1>
+          <h1 className="text-3xl font-bold tracking-tight">FM Asset Register</h1>
           <p className="text-muted-foreground">
             Maintain contract assets for PPM planning, reactive work orders, and service reporting.
           </p>
