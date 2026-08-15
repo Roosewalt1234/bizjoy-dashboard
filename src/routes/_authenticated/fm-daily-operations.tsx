@@ -1004,7 +1004,7 @@ function FmDailyOperationsPage() {
             <Card className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">PPM Visits</h2>
-                <Button size="sm" variant="outline" onClick={() => navigate({ to: "/fm-ppm" })}>
+                <Button size="sm" variant="outline" onClick={() => openPpm()}>
                   Open PPM Planner
                 </Button>
               </div>
@@ -1070,7 +1070,7 @@ function FmDailyOperationsPage() {
           <Card className="p-4 space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">FM Work Orders & SLA</h2>
-              <Button size="sm" variant="outline" onClick={() => navigate({ to: "/fm-work-orders" })}>
+              <Button size="sm" variant="outline" onClick={() => navigate({ to: "/fm-work-orders", search: {} })}>
                 Open Work Orders
               </Button>
             </div>
@@ -1239,7 +1239,7 @@ function FmDailyOperationsPage() {
                         ) : null}
                       </div>
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => navigate({ to: r.to })}>
+                    <Button size="sm" variant="outline" onClick={() => navigate({ to: r.to, search: r.search })}>
                       {r.label}
                     </Button>
                   </div>
