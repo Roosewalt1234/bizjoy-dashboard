@@ -1389,8 +1389,10 @@ function ContractDialog({
             </Card>
           </div>
 
+          {!isFM && (<>
           {/* PPM service schedule */}
           <div className="space-y-3">
+
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div>
                 <Label className="text-sm font-medium">PPM Service Schedule</Label>
