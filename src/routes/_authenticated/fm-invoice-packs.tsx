@@ -766,7 +766,29 @@ function ContractInvoicePacksPage() {
         onClose={() => setItemDialog(null)}
         onSave={saveItem}
       />
+      <Dialog
+        open={Boolean(templateConfirm)}
+        onOpenChange={(open) => !open && setTemplateConfirm(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Replace existing contract service lines?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            This pack already has contract service lines. Generating from the billing template will
+            replace them with {templateConfirm?.length ?? 0} billable lines (the TOTAL row is always
+            excluded). Deductions and adjustments are kept.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTemplateConfirm(null)}>
+              Cancel
+            </Button>
+            <Button onClick={() => generateFromBillingTemplate(true)}>Replace lines</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 }
 
