@@ -60,7 +60,13 @@ export const Route = createFileRoute("/_authenticated/fm-daily-operations")({
 
 const fmDb = supabase as any;
 
-type ChecklistTask = { id?: string; area: string; task: string; sort_order?: number };
+type ChecklistTask = {
+  id?: string;
+  area: string;
+  task: string;
+  sort_order?: number;
+  inactive?: boolean;
+};
 
 // Fallback used only when a contract has no checklist template rows yet.
 const DEFAULT_CLEANING_TASKS: ChecklistTask[] = [
@@ -371,8 +377,9 @@ function FmDailyOperationsPage() {
     return map;
   }, [checks]);
 
-  // Daily checklist comes from the contract's template rows; existing checks
-  // for the day are reused (never duplicated) and legacy rows stay visible.
+  // Daily checklist comes from the contract's active template rows. Checks that
+  // belong to inactive/removed templates only stay visible for the day when they
+  // carry real saved activity, and are flagged as "Inactive Template".
   const cleaningTasks: ChecklistTask[] = useMemo(() => {
     const active = (checklistTemplates as any[]).filter((t) => t.is_active !== false);
     const base: ChecklistTask[] = active.length
@@ -384,13 +391,16 @@ function FmDailyOperationsPage() {
         }))
       : DEFAULT_CLEANING_TASKS;
     const names = new Set(base.map((t) => t.task));
-    const legacy = (checks as any[])
-      .filter((c) => !names.has(c.task_name))
-      .map((c) => ({ area: c.area ?? "General", task: c.task_name }));
-    return [...base, ...legacy];
+    const hasActivity = (c: any) =>
+      (c.status && c.status !== "Pending") || Boolean(c.remarks) || Boolean(c.checked_by);
+    const orphaned = (checks as any[])
+      .filter((c) => !names.has(c.task_name) && hasActivity(c))
+      .map((c) => ({ area: c.area ?? "General", task: c.task_name, inactive: true }));
+    return [...base, ...orphaned];
   }, [checklistTemplates, checks]);
 
-  const cleaningDone = cleaningTasks.filter(
+  const cleaningActiveTasks = cleaningTasks.filter((t) => !t.inactive);
+  const cleaningDone = cleaningActiveTasks.filter(
     (t) => checkByTask.get(t.task)?.status === "Completed",
   ).length;
 
