@@ -118,6 +118,8 @@ function ContractDetailPage() {
         manpowerAssignmentsResult,
         todayAttendanceResult,
         recentAttendanceResult,
+        latestWeeklyReportResult,
+        latestMonthlyReportResult,
       ] = await Promise.all([
         fmDb.from("contracts").select("*").eq("id", id).single(),
         fmDb
@@ -148,6 +150,18 @@ function ContractDetailPage() {
           .eq("contract_id", id)
           .order("attendance_date", { ascending: false })
           .limit(8),
+        fmDb
+          .from("weekly_reports")
+          .select("*")
+          .eq("contract_id", id)
+          .order("week_start", { ascending: false })
+          .limit(1),
+        fmDb
+          .from("monthly_reports")
+          .select("*")
+          .eq("contract_id", id)
+          .order("month_start", { ascending: false })
+          .limit(1),
       ]);
 
       if (contractResult.error) throw contractResult.error;
@@ -158,6 +172,8 @@ function ContractDetailPage() {
       if (manpowerAssignmentsResult.error) throw manpowerAssignmentsResult.error;
       if (todayAttendanceResult.error) throw todayAttendanceResult.error;
       if (recentAttendanceResult.error) throw recentAttendanceResult.error;
+      if (latestWeeklyReportResult.error) throw latestWeeklyReportResult.error;
+      if (latestMonthlyReportResult.error) throw latestMonthlyReportResult.error;
 
       return {
         contract: contractResult.data as ContractRecord,
@@ -168,6 +184,8 @@ function ContractDetailPage() {
         manpowerAssignments: (manpowerAssignmentsResult.data ?? []) as any[],
         todayAttendance: (todayAttendanceResult.data ?? []) as any[],
         recentAttendance: (recentAttendanceResult.data ?? []) as any[],
+        latestWeeklyReport: ((latestWeeklyReportResult.data as any[]) ?? [])[0] ?? null,
+        latestMonthlyReport: ((latestMonthlyReportResult.data as any[]) ?? [])[0] ?? null,
       };
     },
   });
@@ -194,6 +212,9 @@ function ContractDetailPage() {
       ),
     [data?.manpowerAssignments, data?.manpowerPlans, data?.todayAttendance],
   );
+  const latestMonthlyData = (data?.latestMonthlyReport?.report_data ??
+    data?.latestMonthlyReport?.summary ??
+    {}) as any;
 
   if (isLoading) {
     return <div className="p-6 max-w-7xl mx-auto text-muted-foreground">Loading contract...</div>;
@@ -376,7 +397,103 @@ function ContractDetailPage() {
         </div>
       )}
 
-      {!["Overview", "Line Items", "Manpower"].includes(section) && (
+      {section === "Reports" && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <SummaryCard
+              label="Current Month SLA"
+              value={`${latestMonthlyData.sla?.compliancePercent ?? data.latestMonthlyReport?.sla_compliance_percent ?? 0}%`}
+            />
+            <SummaryCard
+              label="Current Month PPM"
+              value={`${latestMonthlyData.ppm?.completionPercent ?? data.latestMonthlyReport?.ppm_compliance_percent ?? 0}%`}
+            />
+            <SummaryCard
+              label="Manpower Shortage"
+              value={
+                latestMonthlyData.manpower?.shortageCount ??
+                data.latestMonthlyReport?.manpower_variance ??
+                0
+              }
+            />
+            <SummaryCard
+              label="Latest Reports"
+              value={[data.latestWeeklyReport, data.latestMonthlyReport].filter(Boolean).length}
+            />
+          </div>
+          <Card className="p-4">
+            <div className="flex flex-wrap gap-2">
+              <Button asChild>
+                <Link to="/contract-weekly-reports">Weekly Reports</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/contract-monthly-reports">Monthly Reports</Link>
+              </Button>
+            </div>
+          </Card>
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Report</TableHead>
+                  <TableHead>Period</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>SLA</TableHead>
+                  <TableHead>PPM</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[data.latestWeeklyReport, data.latestMonthlyReport].filter(Boolean).length ===
+                0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      No reports generated yet.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  [
+                    { type: "Weekly", row: data.latestWeeklyReport },
+                    { type: "Monthly", row: data.latestMonthlyReport },
+                  ]
+                    .filter((item) => item.row)
+                    .map((item) => {
+                      const reportData = item.row.report_data ?? item.row.summary ?? {};
+                      const start = item.row.week_start ?? item.row.month_start;
+                      const end = item.row.week_end ?? item.row.month_end;
+                      return (
+                        <TableRow key={`${item.type}-${item.row.id}`}>
+                          <TableCell>{item.type}</TableCell>
+                          <TableCell className="font-medium">{item.row.report_no ?? "—"}</TableCell>
+                          <TableCell>
+                            {start} to {end}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{item.row.status ?? "Draft"}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            {reportData.sla?.compliancePercent ??
+                              item.row.sla_compliance_percent ??
+                              0}
+                            %
+                          </TableCell>
+                          <TableCell>
+                            {reportData.ppm?.completionPercent ??
+                              item.row.ppm_compliance_percent ??
+                              0}
+                            %
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                )}
+              </TableBody>
+            </Table>
+          </Card>
+        </div>
+      )}
+
+      {!["Overview", "Line Items", "Manpower", "Reports"].includes(section) && (
         <Card className="p-6 text-sm text-muted-foreground">{section} coming next.</Card>
       )}
     </div>
