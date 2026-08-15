@@ -81,8 +81,8 @@ const items: NavItem[] = [
       { title: "Weekly Reports", url: "/fm-weekly-reports", module: "contracts" },
       { title: "Monthly Reports", url: "/fm-monthly-reports", module: "contracts" },
       { title: "Invoice Packs", url: "/fm-invoice-packs", module: "contracts" },
-
       { title: "Project Assets", url: "/assets", module: "projects" },
+
       { title: "MEP Schedules", url: "/mep-schedules", module: "projects" },
       { title: "Cleaning Schedules", url: "/cleaning-schedules", module: "projects" },
       { title: "Project Reports", url: "/project-reports", module: "projects" },
