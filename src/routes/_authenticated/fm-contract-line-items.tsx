@@ -81,7 +81,7 @@ type LineItemRow = {
   monthly_amount: number | null;
   annual_amount: number | null;
   active: boolean;
-  contracts?: ContractLookup | null;
+  fm_contracts?: ContractLookup | null;
   service_categories?: ServiceCategory | null;
   sla_policies?: SlaPolicy | null;
 };
@@ -177,7 +177,7 @@ function ContractLineItemsPage() {
     queryKey: ["contracts-lookup-line-items"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("contracts")
+        .from("fm_contracts")
         .select("id, title, contract_no, customer_name")
         .order("created_at", { ascending: false })
         .limit(10000);
@@ -220,7 +220,7 @@ function ContractLineItemsPage() {
         .select(
           `
           *,
-          contracts:contract_id(id, title, contract_no, customer_name),
+          fm_contracts:contract_id(id, title, contract_no, customer_name),
           service_categories:service_category_id(id, name, code),
           sla_policies:sla_policy_id(id, name)
         `,
@@ -243,7 +243,7 @@ function ContractLineItemsPage() {
           row.description,
           row.uom,
           row.frequency,
-          row.contracts?.customer_name,
+          row.fm_contracts?.customer_name,
           row.service_categories?.name,
         ].some((value) => (value ?? "").toLowerCase().includes(term));
       return contractMatch && categoryMatch && textMatch;
@@ -564,7 +564,7 @@ function ContractLineItemsPage() {
               pageRows.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell>
-                    {row.contracts?.contract_no ?? row.contracts?.customer_name ?? "—"}
+                    {row.fm_contracts?.contract_no ?? row.fm_contracts?.customer_name ?? "—"}
                   </TableCell>
                   <TableCell>{row.service_categories?.name ?? "—"}</TableCell>
                   <TableCell className="font-medium">{row.description}</TableCell>

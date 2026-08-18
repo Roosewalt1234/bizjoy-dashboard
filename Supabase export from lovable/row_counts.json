@@ -1,0 +1,162 @@
+[
+  {
+    "table": "accounts_transactions",
+    "rows": 0
+  },
+  {
+    "table": "attendance_logs",
+    "rows": 0
+  },
+  {
+    "table": "audit_log",
+    "rows": 792
+  },
+  {
+    "table": "contract_assets",
+    "rows": 351
+  },
+  {
+    "table": "contract_billing_lines",
+    "rows": 5
+  },
+  {
+    "table": "contract_consumables",
+    "rows": 8
+  },
+  {
+    "table": "contract_line_items",
+    "rows": 17
+  },
+  {
+    "table": "contract_manpower_assignments",
+    "rows": 0
+  },
+  {
+    "table": "contract_manpower_plans",
+    "rows": 11
+  },
+  {
+    "table": "contract_payments",
+    "rows": 101
+  },
+  {
+    "table": "contracts",
+    "rows": 42
+  },
+  {
+    "table": "customer_contacts",
+    "rows": 2
+  },
+  {
+    "table": "customer_documents",
+    "rows": 0
+  },
+  {
+    "table": "customers",
+    "rows": 363
+  },
+  {
+    "table": "employees",
+    "rows": 2
+  },
+  {
+    "table": "fm_cleaning_checklist_templates",
+    "rows": 8
+  },
+  {
+    "table": "fm_daily_cleaning_checks",
+    "rows": 1
+  },
+  {
+    "table": "followup_remarks",
+    "rows": 0
+  },
+  {
+    "table": "handyman_hours_log",
+    "rows": 1
+  },
+  {
+    "table": "invoice_pack_items",
+    "rows": 4
+  },
+  {
+    "table": "invoice_packs",
+    "rows": 1
+  },
+  {
+    "table": "monthly_reports",
+    "rows": 1
+  },
+  {
+    "table": "ppm_schedules",
+    "rows": 6
+  },
+  {
+    "table": "ppm_visits",
+    "rows": 12
+  },
+  {
+    "table": "profiles",
+    "rows": 3
+  },
+  {
+    "table": "projects",
+    "rows": 0
+  },
+  {
+    "table": "quote_items",
+    "rows": 19
+  },
+  {
+    "table": "quotes",
+    "rows": 171
+  },
+  {
+    "table": "reporting_periods",
+    "rows": 2
+  },
+  {
+    "table": "sales_leads",
+    "rows": 2
+  },
+  {
+    "table": "sales_orders",
+    "rows": 0
+  },
+  {
+    "table": "service_categories",
+    "rows": 6
+  },
+  {
+    "table": "service_report_photos",
+    "rows": 0
+  },
+  {
+    "table": "service_reports",
+    "rows": 1
+  },
+  {
+    "table": "sla_events",
+    "rows": 0
+  },
+  {
+    "table": "sla_policies",
+    "rows": 5
+  },
+  {
+    "table": "user_permissions",
+    "rows": 0
+  },
+  {
+    "table": "user_roles",
+    "rows": 2
+  },
+  {
+    "table": "weekly_reports",
+    "rows": 1
+  },
+  {
+    "table": "work_orders",
+    "rows": 3
+  }
+]

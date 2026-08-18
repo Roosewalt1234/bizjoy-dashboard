@@ -1,0 +1,3 @@
+id,lead_name,company,email,phone,stage,source,estimated_value,currency,expected_close_date,customer_id,salesperson,notes,position,created_at,updated_at,lead_type
+9790fef8-a790-497e-9067-5e4ae29f5916,Rami - Villanova V-366,N/A ,ramiabandeh@gmail.com,,Negotiation,,5500,AED,2026-07-22,,Devika,Needs AMC for 3 BR Villa,0,2026-07-22 04:56:30.355647+00,2026-07-22 05:25:40.175269+00,Villa AMC
+57aa7bff-04ad-46e6-a139-96a86e608210,Reliance Owners Association,Reliance Owners Association,roosewalt@gmail.com,0582593747,Proposal / Quote Sent,,10000,AED,2026-07-31,,Roosewalt,"Rectification of Chilled water line actuator and Valve at Riah Towers, Jadaf.",0,2026-07-24 06:44:52.251047+00,2026-07-27 09:46:30.094577+00,Rectification work

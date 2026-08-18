@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.my_permission(text, text);

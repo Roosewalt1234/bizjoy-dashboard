@@ -1,0 +1,1 @@
+ALTER TABLE public.quotes ADD COLUMN IF NOT EXISTS probability text CHECK (probability IN ('Low','Medium','High','Very High','Assured'));

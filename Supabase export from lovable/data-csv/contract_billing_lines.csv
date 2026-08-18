@@ -1,0 +1,6 @@
+id,contract_id,service_category_id,billing_line,monthly_amount,annual_amount,vat_status,notes,sort_order,created_at,updated_at,is_total_row
+334b0e37-8c62-42a0-ba8a-f3430f411c7b,8c154c7b-8f46-4926-b810-368d8953c322,78f25dc4-8600-4359-8bc0-d4cc2ec0264a,Cleaning,24550,294600,VAT excluded,Monthly invoice line,0,2026-08-15 11:07:09.551543+00,2026-08-15 11:07:09.551543+00,f
+042ef30f-0798-47b7-ac77-add795fe7dac,8c154c7b-8f46-4926-b810-368d8953c322,c36728e7-b04a-43ff-b88c-f6b3ba84ef3f,MEP & HVAC,57667,692004,VAT excluded,Monthly invoice line,1,2026-08-15 11:07:09.551543+00,2026-08-15 11:07:09.551543+00,f
+940a5938-188e-46e0-81ba-170cfe954987,8c154c7b-8f46-4926-b810-368d8953c322,61a5fdcf-cc09-42d2-a429-79565914029a,Swimming Pool,6000,72000,VAT excluded,Monthly invoice line,2,2026-08-15 11:07:09.551543+00,2026-08-15 11:07:09.551543+00,f
+647911e7-12dc-4ced-bda8-060fc3cf0642,8c154c7b-8f46-4926-b810-368d8953c322,db8d366d-4721-4d3e-9b5d-663474ce6122,Lift Maintenance,2880,34560,VAT excluded,Monthly invoice line,3,2026-08-15 11:07:09.551543+00,2026-08-15 11:07:09.551543+00,f
+7bcb009c-9e42-4f3e-a8f9-2238082e3a43,8c154c7b-8f46-4926-b810-368d8953c322,,TOTAL,91097,1093164,VAT excluded,Should match contract grand total | Display-only summary row; excluded from subtotal/VAT/gross calculations.,4,2026-08-15 11:07:09.551543+00,2026-08-15 11:13:07.520311+00,t

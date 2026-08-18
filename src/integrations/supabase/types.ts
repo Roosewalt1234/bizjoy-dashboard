@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.15"
   }
   public: {
     Tables: {
@@ -101,7 +101,7 @@ export type Database = {
             foreignKeyName: "attendance_logs_contract_id_fkey"
             columns: ["contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
             referencedColumns: ["id"]
           },
           {
@@ -215,7 +215,7 @@ export type Database = {
             foreignKeyName: "contract_assets_contract_id_fkey"
             columns: ["contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
             referencedColumns: ["id"]
           },
           {
@@ -275,7 +275,7 @@ export type Database = {
             foreignKeyName: "contract_billing_lines_contract_id_fkey"
             columns: ["contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
             referencedColumns: ["id"]
           },
           {
@@ -332,7 +332,7 @@ export type Database = {
             foreignKeyName: "contract_consumables_contract_id_fkey"
             columns: ["contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
             referencedColumns: ["id"]
           },
         ]
@@ -397,7 +397,7 @@ export type Database = {
             foreignKeyName: "contract_line_items_contract_id_fkey"
             columns: ["contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
             referencedColumns: ["id"]
           },
           {
@@ -476,7 +476,7 @@ export type Database = {
             foreignKeyName: "contract_manpower_assignments_contract_id_fkey"
             columns: ["contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
             referencedColumns: ["id"]
           },
           {
@@ -561,7 +561,7 @@ export type Database = {
             foreignKeyName: "contract_manpower_plans_contract_id_fkey"
             columns: ["contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
             referencedColumns: ["id"]
           },
           {
@@ -1123,7 +1123,145 @@ export type Database = {
             foreignKeyName: "fm_cleaning_checklist_templates_fm_contract_id_fkey"
             columns: ["fm_contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_contract_payments: {
+        Row: {
+          contract_id: string
+          created_at: string
+          id: string
+          payment_date: string | null
+          received_date: string | null
+          sort_order: number | null
+          status: string | null
+          value: number | null
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          id?: string
+          payment_date?: string | null
+          received_date?: string | null
+          sort_order?: number | null
+          status?: string | null
+          value?: number | null
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          id?: string
+          payment_date?: string | null
+          received_date?: string | null
+          sort_order?: number | null
+          status?: string | null
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_contract_payments_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "fm_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_contracts: {
+        Row: {
+          billing_cycle: string | null
+          building_type: string | null
+          contract_manager_id: string | null
+          contract_no: string | null
+          contract_scope_type: string | null
+          created_at: string
+          customer_id: string | null
+          customer_name: string | null
+          end_date: string | null
+          id: string
+          payment_terms: string | null
+          remark: string | null
+          retention_percent: number | null
+          site_address: string | null
+          site_name: string | null
+          sla_profile_id: string | null
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string
+          value: number | null
+          vat_percent: number | null
+        }
+        Insert: {
+          billing_cycle?: string | null
+          building_type?: string | null
+          contract_manager_id?: string | null
+          contract_no?: string | null
+          contract_scope_type?: string | null
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          end_date?: string | null
+          id?: string
+          payment_terms?: string | null
+          remark?: string | null
+          retention_percent?: number | null
+          site_address?: string | null
+          site_name?: string | null
+          sla_profile_id?: string | null
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          value?: number | null
+          vat_percent?: number | null
+        }
+        Update: {
+          billing_cycle?: string | null
+          building_type?: string | null
+          contract_manager_id?: string | null
+          contract_no?: string | null
+          contract_scope_type?: string | null
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          end_date?: string | null
+          id?: string
+          payment_terms?: string | null
+          remark?: string | null
+          retention_percent?: number | null
+          site_address?: string | null
+          site_name?: string | null
+          sla_profile_id?: string | null
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          value?: number | null
+          vat_percent?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_contracts_contract_manager_id_fkey"
+            columns: ["contract_manager_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_contracts_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_contracts_sla_profile_id_fkey"
+            columns: ["sla_profile_id"]
+            isOneToOne: false
+            referencedRelation: "sla_policies"
             referencedColumns: ["id"]
           },
         ]
@@ -1170,7 +1308,335 @@ export type Database = {
             foreignKeyName: "fm_daily_cleaning_checks_fm_contract_id_fkey"
             columns: ["fm_contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_service_report_photos: {
+        Row: {
+          after_path: string | null
+          before_path: string | null
+          caption: string | null
+          created_at: string
+          id: string
+          report_id: string
+          sort_order: number
+        }
+        Insert: {
+          after_path?: string | null
+          before_path?: string | null
+          caption?: string | null
+          created_at?: string
+          id?: string
+          report_id: string
+          sort_order?: number
+        }
+        Update: {
+          after_path?: string | null
+          before_path?: string | null
+          caption?: string | null
+          created_at?: string
+          id?: string
+          report_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_service_report_photos_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "fm_service_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_service_reports: {
+        Row: {
+          asset_id: string | null
+          client_representative: string | null
+          completion_type: string | null
+          contract_id: string | null
+          created_at: string
+          customer_id: string | null
+          customer_name: string | null
+          defects_found: string | null
+          follow_up_required: boolean | null
+          hours_spent: number | null
+          id: string
+          location: string | null
+          next_service_date: string | null
+          parts_used: string | null
+          ppm_visit_id: string | null
+          problem_reported: string | null
+          recommendations: string | null
+          report_no: string | null
+          service_category_id: string | null
+          service_date: string | null
+          service_type: string | null
+          signature_data: string | null
+          signed_by: string | null
+          status: string
+          technician_name: string | null
+          time_checked_in: string | null
+          time_checked_out: string | null
+          updated_at: string
+          work_done: string | null
+          work_order_id: string | null
+        }
+        Insert: {
+          asset_id?: string | null
+          client_representative?: string | null
+          completion_type?: string | null
+          contract_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          defects_found?: string | null
+          follow_up_required?: boolean | null
+          hours_spent?: number | null
+          id?: string
+          location?: string | null
+          next_service_date?: string | null
+          parts_used?: string | null
+          ppm_visit_id?: string | null
+          problem_reported?: string | null
+          recommendations?: string | null
+          report_no?: string | null
+          service_category_id?: string | null
+          service_date?: string | null
+          service_type?: string | null
+          signature_data?: string | null
+          signed_by?: string | null
+          status?: string
+          technician_name?: string | null
+          time_checked_in?: string | null
+          time_checked_out?: string | null
+          updated_at?: string
+          work_done?: string | null
+          work_order_id?: string | null
+        }
+        Update: {
+          asset_id?: string | null
+          client_representative?: string | null
+          completion_type?: string | null
+          contract_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          defects_found?: string | null
+          follow_up_required?: boolean | null
+          hours_spent?: number | null
+          id?: string
+          location?: string | null
+          next_service_date?: string | null
+          parts_used?: string | null
+          ppm_visit_id?: string | null
+          problem_reported?: string | null
+          recommendations?: string | null
+          report_no?: string | null
+          service_category_id?: string | null
+          service_date?: string | null
+          service_type?: string | null
+          signature_data?: string | null
+          signed_by?: string | null
+          status?: string
+          technician_name?: string | null
+          time_checked_in?: string | null
+          time_checked_out?: string | null
+          updated_at?: string
+          work_done?: string | null
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_service_reports_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "contract_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_service_reports_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "fm_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_service_reports_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_service_reports_ppm_visit_id_fkey"
+            columns: ["ppm_visit_id"]
+            isOneToOne: false
+            referencedRelation: "ppm_visits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_service_reports_service_category_id_fkey"
+            columns: ["service_category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_service_reports_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "fm_work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_work_orders: {
+        Row: {
+          arrived_at: string | null
+          asset_id: string | null
+          completed_at: string | null
+          completion_due_at: string | null
+          completion_sla_status: string | null
+          contract_id: string | null
+          created_at: string
+          customer_id: string | null
+          customer_name: string | null
+          delay_reason: string | null
+          id: string
+          location: string | null
+          notes: string | null
+          ppm_visit_id: string | null
+          priority: string
+          problem_reported: string | null
+          reported_at: string | null
+          request_type: string | null
+          requested_date: string | null
+          responded_at: string | null
+          response_due_at: string | null
+          response_sla_status: string | null
+          scheduled_date: string | null
+          service_category_id: string | null
+          service_type: string | null
+          sla_exclusion_reason: string | null
+          status: string
+          technician_id: string | null
+          technician_name: string | null
+          updated_at: string
+          wo_no: string | null
+          work_requested: string | null
+        }
+        Insert: {
+          arrived_at?: string | null
+          asset_id?: string | null
+          completed_at?: string | null
+          completion_due_at?: string | null
+          completion_sla_status?: string | null
+          contract_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          delay_reason?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          ppm_visit_id?: string | null
+          priority?: string
+          problem_reported?: string | null
+          reported_at?: string | null
+          request_type?: string | null
+          requested_date?: string | null
+          responded_at?: string | null
+          response_due_at?: string | null
+          response_sla_status?: string | null
+          scheduled_date?: string | null
+          service_category_id?: string | null
+          service_type?: string | null
+          sla_exclusion_reason?: string | null
+          status?: string
+          technician_id?: string | null
+          technician_name?: string | null
+          updated_at?: string
+          wo_no?: string | null
+          work_requested?: string | null
+        }
+        Update: {
+          arrived_at?: string | null
+          asset_id?: string | null
+          completed_at?: string | null
+          completion_due_at?: string | null
+          completion_sla_status?: string | null
+          contract_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          delay_reason?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          ppm_visit_id?: string | null
+          priority?: string
+          problem_reported?: string | null
+          reported_at?: string | null
+          request_type?: string | null
+          requested_date?: string | null
+          responded_at?: string | null
+          response_due_at?: string | null
+          response_sla_status?: string | null
+          scheduled_date?: string | null
+          service_category_id?: string | null
+          service_type?: string | null
+          sla_exclusion_reason?: string | null
+          status?: string
+          technician_id?: string | null
+          technician_name?: string | null
+          updated_at?: string
+          wo_no?: string | null
+          work_requested?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_work_orders_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "contract_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_work_orders_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "fm_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_work_orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_work_orders_ppm_visit_id_fkey"
+            columns: ["ppm_visit_id"]
+            isOneToOne: false
+            referencedRelation: "ppm_visits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_work_orders_service_category_id_fkey"
+            columns: ["service_category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_work_orders_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
         ]
@@ -1347,14 +1813,14 @@ export type Database = {
             foreignKeyName: "invoice_pack_items_service_report_id_fkey"
             columns: ["service_report_id"]
             isOneToOne: false
-            referencedRelation: "service_reports"
+            referencedRelation: "fm_service_reports"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "invoice_pack_items_work_order_id_fkey"
             columns: ["work_order_id"]
             isOneToOne: false
-            referencedRelation: "work_orders"
+            referencedRelation: "fm_work_orders"
             referencedColumns: ["id"]
           },
         ]
@@ -1476,7 +1942,7 @@ export type Database = {
             foreignKeyName: "invoice_packs_contract_id_fkey"
             columns: ["contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
             referencedColumns: ["id"]
           },
           {
@@ -1567,7 +2033,7 @@ export type Database = {
             foreignKeyName: "monthly_reports_contract_id_fkey"
             columns: ["contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
             referencedColumns: ["id"]
           },
           {
@@ -1640,7 +2106,7 @@ export type Database = {
             foreignKeyName: "ppm_schedules_contract_id_fkey"
             columns: ["contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
             referencedColumns: ["id"]
           },
           {
@@ -1723,7 +2189,7 @@ export type Database = {
             foreignKeyName: "ppm_visits_contract_id_fkey"
             columns: ["contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
             referencedColumns: ["id"]
           },
           {
@@ -1744,14 +2210,14 @@ export type Database = {
             foreignKeyName: "ppm_visits_service_report_id_fkey"
             columns: ["service_report_id"]
             isOneToOne: false
-            referencedRelation: "service_reports"
+            referencedRelation: "fm_service_reports"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "ppm_visits_work_order_id_fkey"
             columns: ["work_order_id"]
             isOneToOne: false
-            referencedRelation: "work_orders"
+            referencedRelation: "fm_work_orders"
             referencedColumns: ["id"]
           },
         ]
@@ -1991,7 +2457,7 @@ export type Database = {
             foreignKeyName: "reporting_periods_contract_id_fkey"
             columns: ["contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
             referencedColumns: ["id"]
           },
         ]
@@ -2411,7 +2877,7 @@ export type Database = {
             foreignKeyName: "sla_events_contract_id_fkey"
             columns: ["contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
             referencedColumns: ["id"]
           },
           {
@@ -2425,7 +2891,7 @@ export type Database = {
             foreignKeyName: "sla_events_work_order_id_fkey"
             columns: ["work_order_id"]
             isOneToOne: false
-            referencedRelation: "work_orders"
+            referencedRelation: "fm_work_orders"
             referencedColumns: ["id"]
           },
         ]
@@ -2484,7 +2950,7 @@ export type Database = {
             foreignKeyName: "sla_policies_contract_id_fkey"
             columns: ["contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
             referencedColumns: ["id"]
           },
           {
@@ -2625,7 +3091,7 @@ export type Database = {
             foreignKeyName: "weekly_reports_contract_id_fkey"
             columns: ["contract_id"]
             isOneToOne: false
-            referencedRelation: "contracts"
+            referencedRelation: "fm_contracts"
             referencedColumns: ["id"]
           },
           {

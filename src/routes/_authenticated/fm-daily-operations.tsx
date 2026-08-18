@@ -165,7 +165,7 @@ function FmDailyOperationsPage() {
     queryKey: ["fm-ops-contracts"],
     queryFn: async () => {
       const { data, error } = await fmDb
-        .from("contracts")
+        .from("fm_contracts")
         .select(
           "id, title, contract_no, customer_name, site_name, start_date, end_date, value, billing_cycle, status",
         )
@@ -216,12 +216,11 @@ function FmDailyOperationsPage() {
     enabled,
     queryFn: async () => {
       const { data, error } = await fmDb
-        .from("work_orders")
+        .from("fm_work_orders")
         .select(
           "id, wo_no, priority, request_type, status, response_sla_status, completion_sla_status, completion_due_at, scheduled_date, technician_name, location, contract_assets(asset_tag, description)",
         )
         .eq("contract_id", activeContractId)
-        .eq("module_type", "FM")
         .order("created_at", { ascending: false })
         .limit(1000);
       if (error) throw error;
@@ -579,10 +578,9 @@ function FmDailyOperationsPage() {
     if (!window.confirm(`Mark ${wo.wo_no ?? "this work order"} as ${kind}?`)) return;
     setBusy(true);
     const { error } = await fmDb
-      .from("work_orders")
+      .from("fm_work_orders")
       .update(patch)
-      .eq("id", wo.id)
-      .eq("module_type", "FM");
+      .eq("id", wo.id);
     setBusy(false);
     if (error) {
       toast.error(error.message);

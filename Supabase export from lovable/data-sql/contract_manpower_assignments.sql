@@ -1,0 +1,1 @@
+-- contract_manpower_assignments: 0 rows

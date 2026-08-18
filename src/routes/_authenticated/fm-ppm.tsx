@@ -122,7 +122,7 @@ type PpmScheduleRow = {
   end_date: string | null;
   active: boolean;
   instructions: string | null;
-  contracts?: ContractLookup | null;
+  fm_contracts?: ContractLookup | null;
   contract_assets?: AssetLookup | null;
   service_categories?: ServiceCategory | null;
   contract_line_items?: LineItemLookup | null;
@@ -141,7 +141,7 @@ type PpmVisitRow = {
   work_order_id: string | null;
   notes: string | null;
   ppm_schedules?: { schedule_name: string } | null;
-  contracts?: ContractLookup | null;
+  fm_contracts?: ContractLookup | null;
   contract_assets?: AssetLookup | null;
   service_categories?: ServiceCategory | null;
 };
@@ -248,7 +248,7 @@ function ContractPpmPage() {
     queryKey: ["contracts-lookup-ppm"],
     queryFn: async () => {
       const { data, error } = await (supabase as unknown as LooseSupabase)
-        .from("contracts")
+        .from("fm_contracts")
         .select("id, title, contract_no, customer_id, customer_name, site_name")
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -304,7 +304,7 @@ function ContractPpmPage() {
         .select(
           `
           *,
-          contracts:contract_id(id, title, contract_no, customer_id, customer_name, site_name),
+          fm_contracts:contract_id(id, title, contract_no, customer_id, customer_name, site_name),
           contract_assets:asset_id(id, contract_id, service_category_id, asset_tag, asset_type, description, location),
           service_categories:service_category_id(id, name),
           contract_line_items:contract_line_item_id(id, contract_id, service_category_id, description)
@@ -325,7 +325,7 @@ function ContractPpmPage() {
           `
           *,
           ppm_schedules:ppm_schedule_id(schedule_name),
-          contracts:contract_id(id, title, contract_no, customer_id, customer_name, site_name),
+          fm_contracts:contract_id(id, title, contract_no, customer_id, customer_name, site_name),
           contract_assets:asset_id(id, contract_id, service_category_id, asset_tag, asset_type, description, location),
           service_categories:service_category_id(id, name)
         `,
@@ -544,11 +544,11 @@ function ContractPpmPage() {
     try {
       await convertPpmVisitToFmWorkOrder({
         ...visit,
-        contracts: visit.contracts ?? contracts.find((item) => item.id === visit.contract_id) ?? null,
+        fm_contracts: visit.fm_contracts ?? contracts.find((item) => item.id === visit.contract_id) ?? null,
       });
       toast.success("PPM visit converted to work order");
       qc.invalidateQueries({ queryKey: ["ppm_visits"] });
-      qc.invalidateQueries({ queryKey: ["work_orders"] });
+      qc.invalidateQueries({ queryKey: ["fm_work_orders"] });
     } catch (error: unknown) {
       toast.error(errorMessage(error, "Conversion failed"));
     } finally {
@@ -694,7 +694,7 @@ function ContractPpmPage() {
                     )}
                   </TableCell>
                   <TableCell>
-                    {schedule.contracts?.contract_no ?? schedule.contracts?.customer_name ?? "—"}
+                    {schedule.fm_contracts?.contract_no ?? schedule.fm_contracts?.customer_name ?? "—"}
                   </TableCell>
                   <TableCell>{schedule.service_categories?.name ?? "—"}</TableCell>
                   <TableCell>
@@ -792,7 +792,7 @@ function ContractPpmPage() {
                   <TableCell>{visit.planned_date}</TableCell>
                   <TableCell>{visit.ppm_schedules?.schedule_name ?? "—"}</TableCell>
                   <TableCell>
-                    {visit.contracts?.contract_no ?? visit.contracts?.customer_name ?? "—"}
+                    {visit.fm_contracts?.contract_no ?? visit.fm_contracts?.customer_name ?? "—"}
                   </TableCell>
                   <TableCell>
                     {visit.contract_assets?.asset_tag ?? visit.contract_assets?.description ?? "—"}

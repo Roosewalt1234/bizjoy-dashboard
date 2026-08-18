@@ -1,0 +1,2 @@
+-- fm_daily_cleaning_checks: 1 rows
+INSERT INTO public.fm_daily_cleaning_checks (id, fm_contract_id, check_date, area, task_name, status, remarks, checked_by, created_at, updated_at) VALUES ('e94d8e76-46ac-40f8-87c0-ab19266457d1', '8c154c7b-8f46-4926-b810-368d8953c322', '2026-08-15', 'Common Areas', 'Lobby cleaned', 'Completed', NULL, NULL, '2026-08-15 11:59:10.606828+00', '2026-08-15 11:59:10.606828+00');

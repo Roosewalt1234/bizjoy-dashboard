@@ -120,7 +120,7 @@ function ContractManpowerPage() {
     queryKey: ["contracts-lookup-manpower"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("contracts")
+        .from("fm_contracts")
         .select("id, title, contract_no, customer_name")
         .order("created_at", { ascending: false })
         .limit(10000);
@@ -165,7 +165,7 @@ function ContractManpowerPage() {
       const { data, error } = await fmDb
         .from("contract_manpower_plans")
         .select(
-          "*, contracts:contract_id(id, title, contract_no, customer_name), service_categories:service_category_id(id, name)",
+          "*, fm_contracts:contract_id(id, title, contract_no, customer_name), service_categories:service_category_id(id, name)",
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -179,7 +179,7 @@ function ContractManpowerPage() {
       const { data, error } = await fmDb
         .from("contract_manpower_assignments")
         .select(
-          "*, contracts:contract_id(id, title, contract_no, customer_name), employees:employee_id(id, first_name, last_name, full_name), contract_manpower_plans:manpower_plan_id(id, role_name, shift_name)",
+          "*, fm_contracts:contract_id(id, title, contract_no, customer_name), employees:employee_id(id, first_name, last_name, full_name), contract_manpower_plans:manpower_plan_id(id, role_name, shift_name)",
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -553,7 +553,7 @@ function ContractManpowerPage() {
                   paginate(filteredPlans, planPage).map((row: any) => (
                     <TableRow key={row.id}>
                       <TableCell>
-                        {row.contracts?.contract_no ?? row.contracts?.customer_name ?? "-"}
+                        {row.fm_contracts?.contract_no ?? row.fm_contracts?.customer_name ?? "-"}
                       </TableCell>
                       <TableCell>{row.service_categories?.name ?? "-"}</TableCell>
                       <TableCell>
@@ -674,7 +674,7 @@ function ContractManpowerPage() {
                   paginate(filteredAssignments, assignmentPage).map((row: any) => (
                     <TableRow key={row.id}>
                       <TableCell>
-                        {row.contracts?.contract_no ?? row.contracts?.customer_name ?? "-"}
+                        {row.fm_contracts?.contract_no ?? row.fm_contracts?.customer_name ?? "-"}
                       </TableCell>
                       <TableCell>{row.employee_name ?? row.employees?.full_name ?? "-"}</TableCell>
                       <TableCell>{row.contract_manpower_plans?.role_name ?? "-"}</TableCell>

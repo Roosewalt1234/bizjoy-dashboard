@@ -104,7 +104,7 @@ function ContractInvoicePacksPage() {
     queryKey: ["invoice-contracts"],
     queryFn: async () => {
       const { data, error } = await fmDb
-        .from("contracts")
+        .from("fm_contracts")
         .select("id, title, contract_no, customer_name, site_name, vat_percent, retention_percent")
         .order("created_at", { ascending: false })
         .limit(10000);
@@ -119,7 +119,7 @@ function ContractInvoicePacksPage() {
       const { data, error } = await fmDb
         .from("invoice_packs")
         .select(
-          "*, contracts:contract_id(id, title, contract_no, customer_name, site_name), monthly_reports:monthly_report_id(id, report_no, status, sla_compliance_percent, ppm_compliance_percent, manpower_variance, report_data)",
+          "*, fm_contracts:contract_id(id, title, contract_no, customer_name, site_name), monthly_reports:monthly_report_id(id, report_no, status, sla_compliance_percent, ppm_compliance_percent, manpower_variance, report_data)",
         )
         .order("billing_period_start", { ascending: false });
       if (error) throw error;
@@ -171,8 +171,8 @@ function ContractInvoicePacksPage() {
     () =>
       calculateInvoiceTotals(
         items as any[],
-        selectedPack?.vat_percent ?? selectedPack?.contracts?.vat_percent ?? 5,
-        selectedPack?.retention_percent ?? selectedPack?.contracts?.retention_percent ?? 0,
+        selectedPack?.vat_percent ?? selectedPack?.fm_contracts?.vat_percent ?? 5,
+        selectedPack?.retention_percent ?? selectedPack?.fm_contracts?.retention_percent ?? 0,
       ),
     [items, selectedPack],
   );
@@ -195,7 +195,7 @@ function ContractInvoicePacksPage() {
       serviceReports,
       billingLines,
     ] = await Promise.all([
-      fmDb.from("contracts").select("*").eq("id", contractId).single(),
+      fmDb.from("fm_contracts").select("*").eq("id", contractId).single(),
       fmDb
         .from("contract_line_items")
         .select("*")
@@ -208,12 +208,12 @@ function ContractInvoicePacksPage() {
         .eq("month_start", start)
         .eq("month_end", end)
         .maybeSingle(),
-      fmDb.from("work_orders").select("*").eq("contract_id", contractId),
+      fmDb.from("fm_work_orders").select("*").eq("contract_id", contractId),
       fmDb.from("ppm_visits").select("*").eq("contract_id", contractId),
       fmDb.from("attendance_logs").select("*").eq("contract_id", contractId),
       fmDb.from("contract_manpower_plans").select("*").eq("contract_id", contractId),
       fmDb.from("contract_manpower_assignments").select("*").eq("contract_id", contractId),
-      fmDb.from("service_reports").select("*").eq("contract_id", contractId),
+      fmDb.from("fm_service_reports").select("*").eq("contract_id", contractId),
       fmDb
         .from("contract_billing_lines")
         .select("*")
@@ -342,7 +342,7 @@ function ContractInvoicePacksPage() {
           remarks: "",
         })
         .select(
-          "*, contracts:contract_id(id, title, contract_no, customer_name, site_name), monthly_reports:monthly_report_id(id, report_no, status, sla_compliance_percent, ppm_compliance_percent, manpower_variance, report_data)",
+          "*, fm_contracts:contract_id(id, title, contract_no, customer_name, site_name), monthly_reports:monthly_report_id(id, report_no, status, sla_compliance_percent, ppm_compliance_percent, manpower_variance, report_data)",
         )
         .single();
       if (created.error) throw created.error;
@@ -716,7 +716,7 @@ function ContractInvoicePacksPage() {
                     {row.invoice_number ?? row.invoice_no ?? "Draft invoice"}
                   </TableCell>
                   <TableCell>
-                    {row.contracts?.contract_no ?? row.contracts?.site_name ?? row.contracts?.title}
+                    {row.fm_contracts?.contract_no ?? row.fm_contracts?.site_name ?? row.fm_contracts?.title}
                   </TableCell>
                   <TableCell>
                     {row.billing_period_start ?? row.period_start} to{" "}
@@ -876,7 +876,7 @@ function InvoicePackDetail({
             <Badge variant={getInvoiceStatusBadgeVariant(pack.status) as any}>{pack.status}</Badge>
           </div>
           <p className="text-sm text-muted-foreground">
-            {pack.contracts?.title ?? pack.contracts?.contract_no ?? "Contract"} ·{" "}
+            {pack.fm_contracts?.title ?? pack.fm_contracts?.contract_no ?? "Contract"} ·{" "}
             {pack.billing_period_start ?? pack.period_start} to{" "}
             {pack.billing_period_end ?? pack.period_end}
           </p>

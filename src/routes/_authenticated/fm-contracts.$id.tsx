@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ContractWorkspace } from "@/components/contract-workspace";
+import { FmContractWorkspace } from "@/features/fm-contracts/fm-contract-workspace";
 
 export const Route = createFileRoute("/_authenticated/fm-contracts/$id")({
   component: FmContractWorkspaceRoute,
@@ -7,5 +7,5 @@ export const Route = createFileRoute("/_authenticated/fm-contracts/$id")({
 
 function FmContractWorkspaceRoute() {
   const { id } = Route.useParams();
-  return <ContractWorkspace id={id} moduleType="FM" />;
+  return <FmContractWorkspace id={id} />;
 }

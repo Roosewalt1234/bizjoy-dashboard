@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ContractsPage } from "@/components/contracts-page";
+import { FmContractsListPage } from "@/features/fm-contracts/fm-contracts-list";
 
 export const Route = createFileRoute("/_authenticated/fm-contracts/")({
-  component: () => <ContractsPage moduleType="FM" />,
+  component: FmContractsListPage,
 });

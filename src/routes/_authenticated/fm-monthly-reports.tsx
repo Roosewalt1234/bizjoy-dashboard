@@ -77,7 +77,7 @@ function ContractMonthlyReportsPage() {
     queryKey: ["contracts-lookup-monthly-reports"],
     queryFn: async () => {
       const { data, error } = await fmDb
-        .from("contracts")
+        .from("fm_contracts")
         .select("id, title, contract_no, customer_name, site_name")
         .order("created_at", { ascending: false })
         .limit(10000);
@@ -91,7 +91,7 @@ function ContractMonthlyReportsPage() {
     queryFn: async () => {
       const { data, error } = await fmDb
         .from("monthly_reports")
-        .select("*, contracts:contract_id(id, title, contract_no, customer_name, site_name)")
+        .select("*, fm_contracts:contract_id(id, title, contract_no, customer_name, site_name)")
         .order("month_start", { ascending: false });
       if (error) throw error;
       return data ?? [];
@@ -150,8 +150,8 @@ function ContractMonthlyReportsPage() {
       assets,
       serviceReports,
     ] = await Promise.all([
-      fmDb.from("contracts").select("*").eq("id", contractId).single(),
-      fmDb.from("work_orders").select("*").eq("contract_id", contractId),
+      fmDb.from("fm_contracts").select("*").eq("id", contractId).single(),
+      fmDb.from("fm_work_orders").select("*").eq("contract_id", contractId),
       fmDb
         .from("ppm_visits")
         .select("*, service_categories:service_category_id(id, name)")
@@ -160,7 +160,7 @@ function ContractMonthlyReportsPage() {
       fmDb.from("contract_manpower_plans").select("*").eq("contract_id", contractId),
       fmDb.from("contract_manpower_assignments").select("*").eq("contract_id", contractId),
       fmDb.from("contract_assets").select("*").eq("contract_id", contractId),
-      fmDb.from("service_reports").select("*").eq("contract_id", contractId),
+      fmDb.from("fm_service_reports").select("*").eq("contract_id", contractId),
     ]);
     for (const result of [
       contract,
@@ -406,7 +406,7 @@ function ContractMonthlyReportsPage() {
                       {row.report_no ?? "Monthly Report"}
                     </TableCell>
                     <TableCell>
-                      {row.contracts?.contract_no ?? row.contracts?.customer_name ?? "-"}
+                      {row.fm_contracts?.contract_no ?? row.fm_contracts?.customer_name ?? "-"}
                     </TableCell>
                     <TableCell>{row.month_start.slice(0, 7)}</TableCell>
                     <TableCell>{data.executiveSummary?.overallStatus ?? "-"}</TableCell>
@@ -537,7 +537,7 @@ function ReportViewDialog({ report, onClose }: { report: any | null; onClose: ()
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              {report.contracts?.customer_name ?? report.contracts?.contract_no ?? "Contract"} ·{" "}
+              {report.fm_contracts?.customer_name ?? report.fm_contracts?.contract_no ?? "Contract"} ·{" "}
               {report.month_start} to {report.month_end}
             </div>
             <Button variant="outline" onClick={() => window.print()}>

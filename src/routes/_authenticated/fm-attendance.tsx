@@ -103,7 +103,7 @@ function ContractAttendancePage() {
     queryKey: ["contracts-lookup-attendance"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("contracts")
+        .from("fm_contracts")
         .select("id, title, contract_no, customer_name")
         .order("created_at", { ascending: false })
         .limit(10000);
@@ -157,7 +157,7 @@ function ContractAttendancePage() {
       const { data, error } = await fmDb
         .from("attendance_logs")
         .select(
-          "*, contracts:contract_id(id, title, contract_no, customer_name), employees:employee_id(id, first_name, last_name, full_name)",
+          "*, fm_contracts:contract_id(id, title, contract_no, customer_name), employees:employee_id(id, first_name, last_name, full_name)",
         )
         .order("attendance_date", { ascending: false })
         .order("created_at", { ascending: false });
@@ -480,7 +480,7 @@ function ContractAttendancePage() {
                 <TableRow key={row.id}>
                   <TableCell>{row.attendance_date}</TableCell>
                   <TableCell>
-                    {row.contracts?.contract_no ?? row.contracts?.customer_name ?? "-"}
+                    {row.fm_contracts?.contract_no ?? row.fm_contracts?.customer_name ?? "-"}
                   </TableCell>
                   <TableCell>{row.employee_name ?? row.employees?.full_name ?? "-"}</TableCell>
                   <TableCell>{row.shift ?? row.shift_name ?? "-"}</TableCell>

@@ -1,0 +1,5 @@
+id,invoice_pack_id,contract_line_item_id,work_order_id,service_report_id,item_type,description,quantity,unit_rate,amount,sort_order,created_at,service_category_id,unit,vat_applicable,remarks
+e351f875-c2c3-43ec-87d3-40534c607c49,a9ca5e79-c7b1-4f9e-8716-e45f7882063f,,,,Contract Service,Cleaning,1,24550,24550,1,2026-08-15 11:52:59.398525+00,78f25dc4-8600-4359-8bc0-d4cc2ec0264a,month,t,Generated from billing template
+1ae16254-809e-4447-9f7d-85881f96d2dc,a9ca5e79-c7b1-4f9e-8716-e45f7882063f,,,,Contract Service,MEP & HVAC,1,57667,57667,2,2026-08-15 11:52:59.398525+00,c36728e7-b04a-43ff-b88c-f6b3ba84ef3f,month,t,Generated from billing template
+849cc6da-9313-42df-8020-0915dc78492b,a9ca5e79-c7b1-4f9e-8716-e45f7882063f,,,,Contract Service,Swimming Pool,1,6000,6000,3,2026-08-15 11:52:59.398525+00,61a5fdcf-cc09-42d2-a429-79565914029a,month,t,Generated from billing template
+4656069d-1716-499e-a82f-df2b901a8d41,a9ca5e79-c7b1-4f9e-8716-e45f7882063f,,,,Contract Service,Lift Maintenance,1,2880,2880,4,2026-08-15 11:52:59.398525+00,db8d366d-4721-4d3e-9b5d-663474ce6122,month,t,Generated from billing template

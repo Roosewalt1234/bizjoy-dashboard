@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { WorkOrdersPage } from "@/components/work-orders-page";
+import { FmWorkOrdersListPage } from "@/features/fm-work-orders/fm-work-orders-list";
 
 export const Route = createFileRoute("/_authenticated/fm-work-orders")({
   validateSearch: (search: Record<string, unknown>): { wo?: string; wo_id?: string } => {
@@ -13,5 +13,5 @@ export const Route = createFileRoute("/_authenticated/fm-work-orders")({
 
 function FmWorkOrdersRoute() {
   const { wo, wo_id } = Route.useSearch();
-  return <WorkOrdersPage moduleType="FM" focusWo={wo} focusWoId={wo_id} />;
+  return <FmWorkOrdersListPage focusWo={wo} focusWoId={wo_id} />;
 }

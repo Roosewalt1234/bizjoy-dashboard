@@ -1,0 +1,2 @@
+-- handyman_hours_log: 1 rows
+INSERT INTO public.handyman_hours_log (id, contract_id, report_id, customer_id, customer_name, log_date, hours, notes, created_at, updated_at) VALUES ('f5d14398-6c5c-416e-82cc-0bbd76bab571', 'd506a8cf-dcb3-4050-a177-8990e4f0a4d6', 'ed80cc04-80ba-4fa3-a48a-3aacf5b27890', 'fe993911-62bb-4052-9cd3-41a99029417b', 'Wadood, Palm Jumeira, V-A84', '2026-08-06', 3, 'Report SR-023', '2026-08-06 14:15:20.085272+00', '2026-08-11 09:23:38.350202+00');

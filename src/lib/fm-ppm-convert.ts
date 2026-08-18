@@ -21,7 +21,7 @@ export type PpmVisitLike = {
   notes?: string | null;
   work_order_id?: string | null;
   ppm_schedules?: { schedule_name?: string | null } | null;
-  contracts?: {
+  fm_contracts?: {
     customer_id?: string | null;
     customer_name?: string | null;
     site_name?: string | null;
@@ -42,10 +42,10 @@ export type PpmVisitLike = {
 export async function convertPpmVisitToFmWorkOrder(visit: PpmVisitLike) {
   if (visit.work_order_id) throw new Error("This PPM visit already has a work order");
 
-  let contract = visit.contracts ?? null;
+  let contract = visit.fm_contracts ?? null;
   if (!contract) {
     const { data } = await fmDb
-      .from("contracts")
+      .from("fm_contracts")
       .select("customer_id, customer_name, site_name")
       .eq("id", visit.contract_id)
       .maybeSingle();
@@ -81,7 +81,6 @@ export async function convertPpmVisitToFmWorkOrder(visit: PpmVisitLike) {
     service_category_id: visit.service_category_id ?? null,
     request_type: "PPM",
     reported_at: new Date().toISOString(),
-    module_type: "FM",
   };
 
   const { data: policies, error: policyError } = await fmDb
@@ -114,7 +113,7 @@ export async function convertPpmVisitToFmWorkOrder(visit: PpmVisitLike) {
   payload.response_sla_status = calculateSlaStatus({ dueAt: payload.response_due_at });
   payload.completion_sla_status = calculateSlaStatus({ dueAt: payload.completion_due_at });
 
-  const { data, error } = await fmDb.from("work_orders").insert(payload).select("id, wo_no");
+  const { data, error } = await fmDb.from("fm_work_orders").insert(payload).select("id, wo_no");
   if (error) throw error;
   const inserted = Array.isArray(data) ? (data[0] as { id?: string; wo_no?: string }) : undefined;
 
