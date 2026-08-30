@@ -123,10 +123,13 @@ function PermissionsPage() {
   };
 
   if (error) {
+    const message = (error as any)?.message ?? "";
     return (
       <div className="p-6">
         <Card className="p-6 text-sm text-muted-foreground">
-          You need administrator access to manage user permissions.
+          {message.includes("Forbidden")
+            ? "You need administrator access to manage user permissions."
+            : `Could not load users: ${message || "unknown error"}`}
         </Card>
       </div>
     );

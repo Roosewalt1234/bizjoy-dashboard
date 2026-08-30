@@ -28,6 +28,15 @@ type Props = {
   onCancel: () => void;
 };
 
+function Field({ label, children, required }: any) {
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-sm">{label}{required && " *"}</Label>
+      {children}
+    </div>
+  );
+}
+
 const empty: any = {
   profile_photo: "", full_name: "", employee_id: "", email: "", phone: "",
   nationality: "", date_of_birth: "", current_visa_status: "", current_visa_expiry_date: "",
@@ -160,13 +169,6 @@ export function EmployeeForm({ initial, onSaved, onCancel }: Props) {
       setSaving(false);
     }
   }
-
-  const Field = ({ label, children, required }: any) => (
-    <div className="space-y-1.5">
-      <Label className="text-sm">{label}{required && " *"}</Label>
-      {children}
-    </div>
-  );
 
   return (
     <div className="space-y-4">

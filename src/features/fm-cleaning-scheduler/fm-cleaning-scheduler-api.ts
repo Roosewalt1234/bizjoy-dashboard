@@ -129,6 +129,40 @@ export async function deleteCleaningSchedule(id: string): Promise<void> {
 }
 
 
+export type TodaysCompletion = {
+  status: "done" | "skipped" | "issue";
+  scannedAt: string;
+  employeeName: string | null;
+};
+
+/** Most recent today's visit-item outcome per area, for the "done today?" badge on each schedule. */
+export async function fetchTodaysCompletionByArea(towerIds: string[]): Promise<Record<string, TodaysCompletion>> {
+  if (towerIds.length === 0) return {};
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const { data, error } = await (supabase as any)
+    .from("fm_cleaning_visit_items")
+    .select(
+      "area_id, status, fm_cleaning_visits!inner(scanned_at, tower_id, employees:performed_by_employee_id(full_name, first_name, last_name))",
+    )
+    .in("fm_cleaning_visits.tower_id", towerIds)
+    .gte("fm_cleaning_visits.scanned_at", startOfDay.toISOString())
+    .order("scanned_at", { foreignTable: "fm_cleaning_visits", ascending: false });
+  if (error) throw error;
+
+  const byArea: Record<string, TodaysCompletion> = {};
+  for (const row of data ?? []) {
+    if (!row.area_id || byArea[row.area_id]) continue; // keep only the most recent (rows are already newest-first)
+    const emp = row.fm_cleaning_visits?.employees;
+    byArea[row.area_id] = {
+      status: row.status,
+      scannedAt: row.fm_cleaning_visits?.scanned_at,
+      employeeName: emp ? emp.full_name || [emp.first_name, emp.last_name].filter(Boolean).join(" ") : null,
+    };
+  }
+  return byArea;
+}
+
 export async function fetchVisitsForTowers(towerIds: string[], limit = 200): Promise<CleaningVisit[]> {
   if (towerIds.length === 0) return [];
   const [{ data: visits, error: vErr }] = await Promise.all([

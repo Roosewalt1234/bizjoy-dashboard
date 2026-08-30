@@ -1,0 +1,96 @@
+{
+  "expo": {
+    "name": "Fiz Fix Cleaner",
+    "slug": "fiz-fix-cleaning",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "fizfixcleaner",
+    "userInterfaceStyle": "automatic",
+    "platforms": ["android"],
+    "ios": {
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "io.ansearly.fizfixapp.cleaner"
+    },
+    "android": {
+      "package": "io.ansearly.fizfixapp.cleaner",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "fizfixapp.ansearly.io",
+              "pathPrefix": "/checkin"
+            },
+            {
+              "scheme": "https",
+              "host": "fizfixapp.ansearly.io",
+              "pathPrefix": "/attendance"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ],
+      "permissions": [
+        "android.permission.NFC",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#208AEF",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 76
+        }
+      ],
+      "expo-sqlite",
+      "expo-background-task",
+      [
+        "react-native-nfc-manager",
+        {
+          "nfcPermission": "This app uses NFC to check in cleaning tasks and attendance.",
+          "selectIdentifiers": []
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Used to take before/after photos when completing a cleaning job."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#208AEF"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "4bc2203f-3fae-4ac0-89cd-9931fca8b12d"
+      }
+    },
+    "owner": "roosewalts-team"
+  }
+}

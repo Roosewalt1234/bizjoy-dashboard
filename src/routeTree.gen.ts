@@ -17,7 +17,6 @@ import { Route as AuthenticatedAmcContractsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAmcServiceReportsRouteImport } from './routes/_authenticated/amc-service-reports'
 import { Route as AuthenticatedAmcWorkOrdersRouteImport } from './routes/_authenticated/amc-work-orders'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
-import { Route as AuthenticatedCleaningSchedulesRouteImport } from './routes/_authenticated/cleaning-schedules'
 import { Route as AuthenticatedContractAssetsRouteImport } from './routes/_authenticated/contract-assets'
 import { Route as AuthenticatedContractAttendanceRouteImport } from './routes/_authenticated/contract-attendance'
 import { Route as AuthenticatedContractDashboardRouteImport } from './routes/_authenticated/contract-dashboard'
@@ -42,15 +41,14 @@ import { Route as AuthenticatedFmInvoicePacksRouteImport } from './routes/_authe
 import { Route as AuthenticatedFmManpowerRouteImport } from './routes/_authenticated/fm-manpower'
 import { Route as AuthenticatedFmMonthlyReportsRouteImport } from './routes/_authenticated/fm-monthly-reports'
 import { Route as AuthenticatedFmPpmRouteImport } from './routes/_authenticated/fm-ppm'
+import { Route as AuthenticatedFmReportsRouteImport } from './routes/_authenticated/fm-reports'
 import { Route as AuthenticatedFmServiceCategoriesRouteImport } from './routes/_authenticated/fm-service-categories'
 import { Route as AuthenticatedFmServiceReportsRouteImport } from './routes/_authenticated/fm-service-reports'
 import { Route as AuthenticatedFmSlaRouteImport } from './routes/_authenticated/fm-sla'
 import { Route as AuthenticatedFmWeeklyReportsRouteImport } from './routes/_authenticated/fm-weekly-reports'
 import { Route as AuthenticatedFmWorkOrdersRouteImport } from './routes/_authenticated/fm-work-orders'
 import { Route as AuthenticatedHrRouteImport } from './routes/_authenticated/hr'
-import { Route as AuthenticatedMepSchedulesRouteImport } from './routes/_authenticated/mep-schedules'
 import { Route as AuthenticatedPermissionsRouteImport } from './routes/_authenticated/permissions'
-import { Route as AuthenticatedProjectReportsRouteImport } from './routes/_authenticated/project-reports'
 import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedServiceRouteImport } from './routes/_authenticated/service'
@@ -106,12 +104,6 @@ const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedCleaningSchedulesRoute =
-  AuthenticatedCleaningSchedulesRouteImport.update({
-    id: '/cleaning-schedules',
-    path: '/cleaning-schedules',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedContractAssetsRoute =
   AuthenticatedContractAssetsRouteImport.update({
     id: '/contract-assets',
@@ -252,6 +244,11 @@ const AuthenticatedFmPpmRoute = AuthenticatedFmPpmRouteImport.update({
   path: '/fm-ppm',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedFmReportsRoute = AuthenticatedFmReportsRouteImport.update({
+  id: '/fm-reports',
+  path: '/fm-reports',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedFmServiceCategoriesRoute =
   AuthenticatedFmServiceCategoriesRouteImport.update({
     id: '/fm-service-categories',
@@ -286,22 +283,10 @@ const AuthenticatedHrRoute = AuthenticatedHrRouteImport.update({
   path: '/hr',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedMepSchedulesRoute =
-  AuthenticatedMepSchedulesRouteImport.update({
-    id: '/mep-schedules',
-    path: '/mep-schedules',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedPermissionsRoute =
   AuthenticatedPermissionsRouteImport.update({
     id: '/permissions',
     path: '/permissions',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedProjectReportsRoute =
-  AuthenticatedProjectReportsRouteImport.update({
-    id: '/project-reports',
-    path: '/project-reports',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedProjectsRoute = AuthenticatedProjectsRouteImport.update({
@@ -381,7 +366,6 @@ export interface FileRoutesByFullPath {
   '/amc-service-reports': typeof AuthenticatedAmcServiceReportsRoute
   '/amc-work-orders': typeof AuthenticatedAmcWorkOrdersRoute
   '/audit': typeof AuthenticatedAuditRoute
-  '/cleaning-schedules': typeof AuthenticatedCleaningSchedulesRoute
   '/contract-assets': typeof AuthenticatedContractAssetsRoute
   '/contract-attendance': typeof AuthenticatedContractAttendanceRoute
   '/contract-dashboard': typeof AuthenticatedContractDashboardRoute
@@ -406,15 +390,14 @@ export interface FileRoutesByFullPath {
   '/fm-manpower': typeof AuthenticatedFmManpowerRoute
   '/fm-monthly-reports': typeof AuthenticatedFmMonthlyReportsRoute
   '/fm-ppm': typeof AuthenticatedFmPpmRoute
+  '/fm-reports': typeof AuthenticatedFmReportsRoute
   '/fm-service-categories': typeof AuthenticatedFmServiceCategoriesRoute
   '/fm-service-reports': typeof AuthenticatedFmServiceReportsRoute
   '/fm-sla': typeof AuthenticatedFmSlaRoute
   '/fm-weekly-reports': typeof AuthenticatedFmWeeklyReportsRoute
   '/fm-work-orders': typeof AuthenticatedFmWorkOrdersRoute
   '/hr': typeof AuthenticatedHrRoute
-  '/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/permissions': typeof AuthenticatedPermissionsRoute
-  '/project-reports': typeof AuthenticatedProjectReportsRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/service': typeof AuthenticatedServiceRoute
@@ -435,7 +418,6 @@ export interface FileRoutesByTo {
   '/amc-service-reports': typeof AuthenticatedAmcServiceReportsRoute
   '/amc-work-orders': typeof AuthenticatedAmcWorkOrdersRoute
   '/audit': typeof AuthenticatedAuditRoute
-  '/cleaning-schedules': typeof AuthenticatedCleaningSchedulesRoute
   '/contract-assets': typeof AuthenticatedContractAssetsRoute
   '/contract-attendance': typeof AuthenticatedContractAttendanceRoute
   '/contract-dashboard': typeof AuthenticatedContractDashboardRoute
@@ -459,15 +441,14 @@ export interface FileRoutesByTo {
   '/fm-manpower': typeof AuthenticatedFmManpowerRoute
   '/fm-monthly-reports': typeof AuthenticatedFmMonthlyReportsRoute
   '/fm-ppm': typeof AuthenticatedFmPpmRoute
+  '/fm-reports': typeof AuthenticatedFmReportsRoute
   '/fm-service-categories': typeof AuthenticatedFmServiceCategoriesRoute
   '/fm-service-reports': typeof AuthenticatedFmServiceReportsRoute
   '/fm-sla': typeof AuthenticatedFmSlaRoute
   '/fm-weekly-reports': typeof AuthenticatedFmWeeklyReportsRoute
   '/fm-work-orders': typeof AuthenticatedFmWorkOrdersRoute
   '/hr': typeof AuthenticatedHrRoute
-  '/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/permissions': typeof AuthenticatedPermissionsRoute
-  '/project-reports': typeof AuthenticatedProjectReportsRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/service': typeof AuthenticatedServiceRoute
@@ -491,7 +472,6 @@ export interface FileRoutesById {
   '/_authenticated/amc-service-reports': typeof AuthenticatedAmcServiceReportsRoute
   '/_authenticated/amc-work-orders': typeof AuthenticatedAmcWorkOrdersRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
-  '/_authenticated/cleaning-schedules': typeof AuthenticatedCleaningSchedulesRoute
   '/_authenticated/contract-assets': typeof AuthenticatedContractAssetsRoute
   '/_authenticated/contract-attendance': typeof AuthenticatedContractAttendanceRoute
   '/_authenticated/contract-dashboard': typeof AuthenticatedContractDashboardRoute
@@ -516,15 +496,14 @@ export interface FileRoutesById {
   '/_authenticated/fm-manpower': typeof AuthenticatedFmManpowerRoute
   '/_authenticated/fm-monthly-reports': typeof AuthenticatedFmMonthlyReportsRoute
   '/_authenticated/fm-ppm': typeof AuthenticatedFmPpmRoute
+  '/_authenticated/fm-reports': typeof AuthenticatedFmReportsRoute
   '/_authenticated/fm-service-categories': typeof AuthenticatedFmServiceCategoriesRoute
   '/_authenticated/fm-service-reports': typeof AuthenticatedFmServiceReportsRoute
   '/_authenticated/fm-sla': typeof AuthenticatedFmSlaRoute
   '/_authenticated/fm-weekly-reports': typeof AuthenticatedFmWeeklyReportsRoute
   '/_authenticated/fm-work-orders': typeof AuthenticatedFmWorkOrdersRoute
   '/_authenticated/hr': typeof AuthenticatedHrRoute
-  '/_authenticated/mep-schedules': typeof AuthenticatedMepSchedulesRoute
   '/_authenticated/permissions': typeof AuthenticatedPermissionsRoute
-  '/_authenticated/project-reports': typeof AuthenticatedProjectReportsRoute
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/_authenticated/service': typeof AuthenticatedServiceRoute
@@ -549,7 +528,6 @@ export interface FileRouteTypes {
     | '/amc-service-reports'
     | '/amc-work-orders'
     | '/audit'
-    | '/cleaning-schedules'
     | '/contract-assets'
     | '/contract-attendance'
     | '/contract-dashboard'
@@ -574,15 +552,14 @@ export interface FileRouteTypes {
     | '/fm-manpower'
     | '/fm-monthly-reports'
     | '/fm-ppm'
+    | '/fm-reports'
     | '/fm-service-categories'
     | '/fm-service-reports'
     | '/fm-sla'
     | '/fm-weekly-reports'
     | '/fm-work-orders'
     | '/hr'
-    | '/mep-schedules'
     | '/permissions'
-    | '/project-reports'
     | '/projects'
     | '/sales'
     | '/service'
@@ -603,7 +580,6 @@ export interface FileRouteTypes {
     | '/amc-service-reports'
     | '/amc-work-orders'
     | '/audit'
-    | '/cleaning-schedules'
     | '/contract-assets'
     | '/contract-attendance'
     | '/contract-dashboard'
@@ -627,15 +603,14 @@ export interface FileRouteTypes {
     | '/fm-manpower'
     | '/fm-monthly-reports'
     | '/fm-ppm'
+    | '/fm-reports'
     | '/fm-service-categories'
     | '/fm-service-reports'
     | '/fm-sla'
     | '/fm-weekly-reports'
     | '/fm-work-orders'
     | '/hr'
-    | '/mep-schedules'
     | '/permissions'
-    | '/project-reports'
     | '/projects'
     | '/sales'
     | '/service'
@@ -658,7 +633,6 @@ export interface FileRouteTypes {
     | '/_authenticated/amc-service-reports'
     | '/_authenticated/amc-work-orders'
     | '/_authenticated/audit'
-    | '/_authenticated/cleaning-schedules'
     | '/_authenticated/contract-assets'
     | '/_authenticated/contract-attendance'
     | '/_authenticated/contract-dashboard'
@@ -683,15 +657,14 @@ export interface FileRouteTypes {
     | '/_authenticated/fm-manpower'
     | '/_authenticated/fm-monthly-reports'
     | '/_authenticated/fm-ppm'
+    | '/_authenticated/fm-reports'
     | '/_authenticated/fm-service-categories'
     | '/_authenticated/fm-service-reports'
     | '/_authenticated/fm-sla'
     | '/_authenticated/fm-weekly-reports'
     | '/_authenticated/fm-work-orders'
     | '/_authenticated/hr'
-    | '/_authenticated/mep-schedules'
     | '/_authenticated/permissions'
-    | '/_authenticated/project-reports'
     | '/_authenticated/projects'
     | '/_authenticated/sales'
     | '/_authenticated/service'
@@ -768,13 +741,6 @@ declare module '@tanstack/react-router' {
       path: '/audit'
       fullPath: '/audit'
       preLoaderRoute: typeof AuthenticatedAuditRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/cleaning-schedules': {
-      id: '/_authenticated/cleaning-schedules'
-      path: '/cleaning-schedules'
-      fullPath: '/cleaning-schedules'
-      preLoaderRoute: typeof AuthenticatedCleaningSchedulesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/contract-assets': {
@@ -945,6 +911,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFmPpmRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/fm-reports': {
+      id: '/_authenticated/fm-reports'
+      path: '/fm-reports'
+      fullPath: '/fm-reports'
+      preLoaderRoute: typeof AuthenticatedFmReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/fm-service-categories': {
       id: '/_authenticated/fm-service-categories'
       path: '/fm-service-categories'
@@ -987,25 +960,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHrRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/mep-schedules': {
-      id: '/_authenticated/mep-schedules'
-      path: '/mep-schedules'
-      fullPath: '/mep-schedules'
-      preLoaderRoute: typeof AuthenticatedMepSchedulesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/permissions': {
       id: '/_authenticated/permissions'
       path: '/permissions'
       fullPath: '/permissions'
       preLoaderRoute: typeof AuthenticatedPermissionsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/project-reports': {
-      id: '/_authenticated/project-reports'
-      path: '/project-reports'
-      fullPath: '/project-reports'
-      preLoaderRoute: typeof AuthenticatedProjectReportsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/projects': {
@@ -1159,7 +1118,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAmcServiceReportsRoute: typeof AuthenticatedAmcServiceReportsRoute
   AuthenticatedAmcWorkOrdersRoute: typeof AuthenticatedAmcWorkOrdersRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
-  AuthenticatedCleaningSchedulesRoute: typeof AuthenticatedCleaningSchedulesRoute
   AuthenticatedContractAssetsRoute: typeof AuthenticatedContractAssetsRoute
   AuthenticatedContractAttendanceRoute: typeof AuthenticatedContractAttendanceRoute
   AuthenticatedContractDashboardRoute: typeof AuthenticatedContractDashboardRoute
@@ -1184,15 +1142,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFmManpowerRoute: typeof AuthenticatedFmManpowerRoute
   AuthenticatedFmMonthlyReportsRoute: typeof AuthenticatedFmMonthlyReportsRoute
   AuthenticatedFmPpmRoute: typeof AuthenticatedFmPpmRoute
+  AuthenticatedFmReportsRoute: typeof AuthenticatedFmReportsRoute
   AuthenticatedFmServiceCategoriesRoute: typeof AuthenticatedFmServiceCategoriesRoute
   AuthenticatedFmServiceReportsRoute: typeof AuthenticatedFmServiceReportsRoute
   AuthenticatedFmSlaRoute: typeof AuthenticatedFmSlaRoute
   AuthenticatedFmWeeklyReportsRoute: typeof AuthenticatedFmWeeklyReportsRoute
   AuthenticatedFmWorkOrdersRoute: typeof AuthenticatedFmWorkOrdersRoute
   AuthenticatedHrRoute: typeof AuthenticatedHrRoute
-  AuthenticatedMepSchedulesRoute: typeof AuthenticatedMepSchedulesRoute
   AuthenticatedPermissionsRoute: typeof AuthenticatedPermissionsRoute
-  AuthenticatedProjectReportsRoute: typeof AuthenticatedProjectReportsRoute
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedServiceRoute: typeof AuthenticatedServiceRoute
@@ -1209,7 +1166,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAmcServiceReportsRoute: AuthenticatedAmcServiceReportsRoute,
   AuthenticatedAmcWorkOrdersRoute: AuthenticatedAmcWorkOrdersRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
-  AuthenticatedCleaningSchedulesRoute: AuthenticatedCleaningSchedulesRoute,
   AuthenticatedContractAssetsRoute: AuthenticatedContractAssetsRoute,
   AuthenticatedContractAttendanceRoute: AuthenticatedContractAttendanceRoute,
   AuthenticatedContractDashboardRoute: AuthenticatedContractDashboardRoute,
@@ -1238,15 +1194,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFmManpowerRoute: AuthenticatedFmManpowerRoute,
   AuthenticatedFmMonthlyReportsRoute: AuthenticatedFmMonthlyReportsRoute,
   AuthenticatedFmPpmRoute: AuthenticatedFmPpmRoute,
+  AuthenticatedFmReportsRoute: AuthenticatedFmReportsRoute,
   AuthenticatedFmServiceCategoriesRoute: AuthenticatedFmServiceCategoriesRoute,
   AuthenticatedFmServiceReportsRoute: AuthenticatedFmServiceReportsRoute,
   AuthenticatedFmSlaRoute: AuthenticatedFmSlaRoute,
   AuthenticatedFmWeeklyReportsRoute: AuthenticatedFmWeeklyReportsRoute,
   AuthenticatedFmWorkOrdersRoute: AuthenticatedFmWorkOrdersRoute,
   AuthenticatedHrRoute: AuthenticatedHrRoute,
-  AuthenticatedMepSchedulesRoute: AuthenticatedMepSchedulesRoute,
   AuthenticatedPermissionsRoute: AuthenticatedPermissionsRoute,
-  AuthenticatedProjectReportsRoute: AuthenticatedProjectReportsRoute,
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedServiceRoute: AuthenticatedServiceRoute,

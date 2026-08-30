@@ -117,12 +117,34 @@ export async function saveFmWorkOrder(input: FmWorkOrderInput, editingId?: strin
     });
   }
 
+  let previousTechnicianId: string | null = null;
+  if (editingId) {
+    const { data: existing } = await (supabase as any).from("fm_work_orders").select("technician_id").eq("id", editingId).maybeSingle();
+    previousTechnicianId = existing?.technician_id ?? null;
+  }
+
+  let workOrderId = editingId ?? null;
   if (editingId) {
     const { error } = await (supabase as any).from("fm_work_orders").update(payload).eq("id", editingId);
     if (error) throw error;
   } else {
-    const { error } = await (supabase as any).from("fm_work_orders").insert(payload);
+    const { data, error } = await (supabase as any).from("fm_work_orders").insert(payload).select("id").single();
     if (error) throw error;
+    workOrderId = data.id;
+  }
+
+  // Notify the technician/cleaner only when the assignment actually changed, not on every save.
+  if (payload.technician_id && payload.technician_id !== previousTechnicianId) {
+    supabase.functions
+      .invoke("send-push-notification", {
+        body: {
+          employeeId: payload.technician_id,
+          title: "New work assigned",
+          body: `${payload.wo_no ?? "Work order"} - ${payload.service_type || payload.request_type || "Reactive work"}`,
+          data: { type: "fm_work_order", id: workOrderId },
+        },
+      })
+      .catch((e) => console.error("Failed to send push notification", e));
   }
 
   return { noSlaPolicy: !policy && !!payload.contract_id };

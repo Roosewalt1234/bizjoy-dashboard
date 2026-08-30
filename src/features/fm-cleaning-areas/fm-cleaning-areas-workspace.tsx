@@ -818,6 +818,7 @@ function UnassignedUtilityRow({
 }) {
   const [name, setName] = useState(area.name);
   const [editing, setEditing] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
 
   const saveName = async () => {
     if (!name.trim()) {
@@ -832,6 +833,28 @@ function UnassignedUtilityRow({
       onChanged();
     } catch (e: any) {
       toast.error(e.message ?? "Failed to rename area");
+    }
+  };
+
+  const copyToken = async () => {
+    try {
+      await navigator.clipboard.writeText(area.nfc_token);
+      toast.success("NFC token copied");
+    } catch {
+      toast.error("Could not copy - copy it manually");
+    }
+  };
+
+  const regenerateToken = async () => {
+    setRegenerating(true);
+    try {
+      await regenerateAreaNfcToken(area.id);
+      toast.success("NFC token regenerated - reprint this room's tag");
+      onChanged();
+    } catch (e: any) {
+      toast.error(e.message ?? "Failed to regenerate token");
+    } finally {
+      setRegenerating(false);
     }
   };
 
@@ -893,6 +916,21 @@ function UnassignedUtilityRow({
           onChange={(e) => setQty(Number(e.target.value) || 1)}
           className="h-7 w-16"
         />
+        <Button size="icon" variant="ghost" className="h-7 w-7" title={`Copy NFC token (${area.nfc_token})`} onClick={copyToken}>
+          <Copy className="h-3.5 w-3.5" />
+        </Button>
+        {canEdit && (
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-7 w-7"
+            title="Regenerate NFC token"
+            disabled={regenerating}
+            onClick={regenerateToken}
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+          </Button>
+        )}
         {canEdit && sections.length > 0 && (
           <Select onValueChange={assign}>
             <SelectTrigger className="h-7 w-40">
@@ -1072,7 +1110,7 @@ function SectionCard({
         ) : (
           <div className="space-y-1">
             {utilityRooms.map((a) => (
-              <AreaRow key={a.id} area={a} canEdit={canEdit} canDelete={canDelete} onQty={setQty} onRename={rename} onDelete={remove} />
+              <AreaRow key={a.id} area={a} canEdit={canEdit} canDelete={canDelete} onQty={setQty} onRename={rename} onDelete={remove} onChanged={onChanged} />
             ))}
           </div>
         )}
@@ -1159,14 +1197,14 @@ function AreaBlock({
             <p className="text-xs font-medium text-muted-foreground uppercase">Sections</p>
             {sections.length === 0 && <p className="text-sm text-muted-foreground">None</p>}
             {sections.map((a) => (
-              <AreaRow key={a.id} area={a} canEdit={canEdit} canDelete={canDelete} onQty={setQty} onRename={rename} onDelete={remove} />
+              <AreaRow key={a.id} area={a} canEdit={canEdit} canDelete={canDelete} onQty={setQty} onRename={rename} onDelete={remove} onChanged={onChanged} />
             ))}
           </div>
           <div className="space-y-1">
             <p className="text-xs font-medium text-muted-foreground uppercase">Utility rooms</p>
             {utilityRooms.length === 0 && <p className="text-sm text-muted-foreground">None</p>}
             {utilityRooms.map((a) => (
-              <AreaRow key={a.id} area={a} canEdit={canEdit} canDelete={canDelete} onQty={setQty} onRename={rename} onDelete={remove} />
+              <AreaRow key={a.id} area={a} canEdit={canEdit} canDelete={canDelete} onQty={setQty} onRename={rename} onDelete={remove} onChanged={onChanged} />
             ))}
           </div>
         </div>
@@ -1182,6 +1220,7 @@ function AreaRow({
   onQty,
   onRename,
   onDelete,
+  onChanged,
 }: {
   area: CleaningArea;
   canEdit: boolean;
@@ -1189,9 +1228,11 @@ function AreaRow({
   onQty: (id: string, qty: number) => void;
   onRename: (id: string, name: string) => void;
   onDelete: (id: string) => void;
+  onChanged: () => void;
 }) {
   const [name, setName] = useState(area.name);
   const [editing, setEditing] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
 
   const saveName = () => {
     if (!name.trim()) {
@@ -1201,6 +1242,28 @@ function AreaRow({
     }
     if (name.trim() !== area.name) onRename(area.id, name.trim());
     setEditing(false);
+  };
+
+  const copyToken = async () => {
+    try {
+      await navigator.clipboard.writeText(area.nfc_token);
+      toast.success("NFC token copied");
+    } catch {
+      toast.error("Could not copy - copy it manually");
+    }
+  };
+
+  const regenerateToken = async () => {
+    setRegenerating(true);
+    try {
+      await regenerateAreaNfcToken(area.id);
+      toast.success("NFC token regenerated - reprint this room's tag");
+      onChanged();
+    } catch (e: any) {
+      toast.error(e.message ?? "Failed to regenerate token");
+    } finally {
+      setRegenerating(false);
+    }
   };
 
   return (
@@ -1234,6 +1297,21 @@ function AreaRow({
           onChange={(e) => onQty(area.id, Number(e.target.value) || 1)}
           className="h-7 w-16"
         />
+        <Button size="icon" variant="ghost" className="h-7 w-7" title={`Copy NFC token (${area.nfc_token})`} onClick={copyToken}>
+          <Copy className="h-3.5 w-3.5" />
+        </Button>
+        {canEdit && (
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-7 w-7"
+            title="Regenerate NFC token"
+            disabled={regenerating}
+            onClick={regenerateToken}
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+          </Button>
+        )}
         {canDelete && (
           <Button size="icon" variant="ghost" className="h-7 w-7" title="Remove" onClick={() => onDelete(area.id)}>
             <Trash2 className="h-3.5 w-3.5" />

@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { QRCodeSVG } from "qrcode.react";
-import { CalendarClock, MoreHorizontal, Plus, QrCode } from "lucide-react";
+import { CalendarClock, Copy, MoreHorizontal, Nfc, Plus, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -66,6 +65,7 @@ type LooseQuery = PromiseLike<{ data: unknown; error: { message?: string } | nul
   insert: (payload: unknown) => LooseQuery;
   update: (payload: unknown) => LooseQuery;
   delete: () => LooseQuery;
+  single: () => LooseQuery;
 };
 
 type LooseSupabase = {
@@ -100,6 +100,7 @@ type AssetRow = {
   criticality: string | null;
   warranty_expiry: string | null;
   status: string;
+  nfc_token: string;
   fm_contracts?: ContractLookup | null;
   service_categories?: ServiceCategory | null;
 };
@@ -145,6 +146,7 @@ type PpmScheduleForm = {
   start_date: string;
   end_date: string;
   instructions: string;
+  assigned_employee_id: string;
   active: boolean;
 };
 
@@ -155,6 +157,7 @@ const emptyPpmForm: PpmScheduleForm = {
   start_date: "",
   end_date: "",
   instructions: "",
+  assigned_employee_id: "none",
   active: true,
 };
 
@@ -228,7 +231,8 @@ function ContractAssetsPage() {
   const [form, setForm] = useState<AssetForm>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [assetToDelete, setAssetToDelete] = useState<AssetRow | null>(null);
-  const [qrAsset, setQrAsset] = useState<AssetRow | null>(null);
+  const [nfcAsset, setNfcAsset] = useState<AssetRow | null>(null);
+  const [regeneratingToken, setRegeneratingToken] = useState(false);
   const [schedulesListAsset, setSchedulesListAsset] = useState<AssetRow | null>(null);
   const [ppmDialogAsset, setPpmDialogAsset] = useState<AssetRow | null>(null);
   const [targetScheduleId, setTargetScheduleId] = useState<string | null>(null);
@@ -262,6 +266,19 @@ function ContractAssetsPage() {
         .order("name", { ascending: true });
       if (error) throw error;
       return (data ?? []) as ServiceCategory[];
+    },
+  });
+
+  const { data: technicians = [] } = useQuery({
+    queryKey: ["employees-lookup-ppm"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("employees")
+        .select("id, full_name, first_name, last_name")
+        .order("full_name", { ascending: true })
+        .limit(2000);
+      if (error) throw error;
+      return (data ?? []) as Array<{ id: string; full_name: string | null; first_name: string; last_name: string | null }>;
     },
   });
 
@@ -398,6 +415,37 @@ function ContractAssetsPage() {
     }
   }
 
+  async function copyAssetToken(token: string) {
+    try {
+      await navigator.clipboard.writeText(token);
+      toast.success("NFC token copied");
+    } catch {
+      toast.error("Could not copy - copy it manually");
+    }
+  }
+
+  async function regenerateAssetToken() {
+    if (!nfcAsset) return;
+    setRegeneratingToken(true);
+    try {
+      const { data, error } = await fmDb
+        .from("contract_assets")
+        .update({ nfc_token: crypto.randomUUID() })
+        .eq("id", nfcAsset.id)
+        .select("nfc_token")
+        .single();
+      if (error) throw error;
+      const nextToken = (data as { nfc_token: string }).nfc_token;
+      setNfcAsset((prev) => (prev ? { ...prev, nfc_token: nextToken } : prev));
+      toast.success("NFC token regenerated - reprint this asset's tag");
+      qc.invalidateQueries({ queryKey: ["contract_assets"] });
+    } catch (error: unknown) {
+      toast.error(errorMessage(error, "Failed to regenerate token"));
+    } finally {
+      setRegeneratingToken(false);
+    }
+  }
+
   async function remove(row: AssetRow) {
     const { error } = await fmDb.from("contract_assets").delete().eq("id", row.id);
     if (error) {
@@ -466,6 +514,7 @@ function ContractAssetsPage() {
         start_date: existing.start_date ?? "",
         end_date: existing.end_date ?? "",
         instructions: existing.instructions ?? "",
+        assigned_employee_id: existing.assigned_employee_id ?? "none",
         active: existing.active ?? true,
       });
 
@@ -553,6 +602,7 @@ function ContractAssetsPage() {
         start_date: ppmForm.start_date || null,
         end_date: ppmForm.end_date || null,
         instructions: ppmForm.instructions.trim() || null,
+        assigned_employee_id: ppmForm.assigned_employee_id === "none" ? null : ppmForm.assigned_employee_id,
         active: ppmForm.active,
       };
 
@@ -809,8 +859,8 @@ function ContractAssetsPage() {
                         <DropdownMenuItem onClick={() => setSchedulesListAsset(row)}>
                           PPM Schedules
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setQrAsset(row)}>
-                          Asset QR Code
+                        <DropdownMenuItem onClick={() => setNfcAsset(row)}>
+                          Asset NFC Tag
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -1126,6 +1176,26 @@ function ContractAssetsPage() {
                 onChange={(e) => setPpmForm((prev) => ({ ...prev, end_date: e.target.value }))}
               />
             </div>
+            <div className="space-y-1">
+              <Label>Assigned Technician</Label>
+              <Select
+                value={ppmForm.assigned_employee_id}
+                onValueChange={(value) => setPpmForm((prev) => ({ ...prev, assigned_employee_id: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Unassigned</SelectItem>
+                  {technicians.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.full_name || [t.first_name, t.last_name].filter(Boolean).join(" ")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">Shows up in their MEP tasks in the mobile app.</p>
+            </div>
             <div className="space-y-1 md:col-span-2">
               <Label>Instructions</Label>
               <Textarea
@@ -1230,27 +1300,42 @@ function ContractAssetsPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!qrAsset} onOpenChange={(o) => !o && setQrAsset(null)}>
+      <Dialog open={!!nfcAsset} onOpenChange={(o) => !o && setNfcAsset(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <QrCode className="h-4 w-4" /> Asset QR Code
+              <Nfc className="h-4 w-4" /> Asset NFC Tag
             </DialogTitle>
           </DialogHeader>
-          {qrAsset && (
+          {nfcAsset && (
             <div className="flex flex-col items-center gap-3 py-2">
-              <div className="p-4 bg-white rounded-md border">
-                <QRCodeSVG value={`FM-ASSET:${qrAsset.id}`} size={200} />
-              </div>
               <div className="text-center">
-                <div className="font-medium">{qrAsset.asset_tag ?? qrAsset.description ?? "Asset"}</div>
-                <div className="text-xs text-muted-foreground">{qrAsset.asset_type ?? "—"}</div>
+                <div className="font-medium">{nfcAsset.asset_tag ?? nfcAsset.description ?? "Asset"}</div>
+                <div className="text-xs text-muted-foreground">{nfcAsset.asset_type ?? "—"}</div>
               </div>
+              <div className="flex items-center gap-2 rounded border px-3 py-2 text-xs w-full justify-center">
+                <code>{nfcAsset.nfc_token}</code>
+                <Button size="icon" variant="ghost" className="h-6 w-6" title="Copy token" onClick={() => copyAssetToken(nfcAsset.nfc_token)}>
+                  <Copy className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6"
+                  title="Regenerate token"
+                  disabled={regeneratingToken}
+                  onClick={regenerateAssetToken}
+                >
+                  <RefreshCw className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground text-center">
+                Encode this token onto the asset's physical NFC tag. Regenerating replaces it - reprint the tag after.
+              </p>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setQrAsset(null)}>Close</Button>
-            <Button onClick={() => window.print()}>Print</Button>
+            <Button variant="outline" onClick={() => setNfcAsset(null)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

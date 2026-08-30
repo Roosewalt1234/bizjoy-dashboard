@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.15"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -165,6 +165,7 @@ export type Database = {
           location: string | null
           make: string | null
           model: string | null
+          nfc_token: string
           serial_no: string | null
           service_category_id: string | null
           status: string
@@ -184,6 +185,7 @@ export type Database = {
           location?: string | null
           make?: string | null
           model?: string | null
+          nfc_token?: string
           serial_no?: string | null
           service_category_id?: string | null
           status?: string
@@ -203,6 +205,7 @@ export type Database = {
           location?: string | null
           make?: string | null
           model?: string | null
+          nfc_token?: string
           serial_no?: string | null
           service_category_id?: string | null
           status?: string
@@ -962,6 +965,7 @@ export type Database = {
           emirates_id_number: string | null
           employee_id: string | null
           employment_type: string | null
+          expo_push_token: string | null
           first_name: string
           food_allowance: number | null
           full_name: string | null
@@ -1008,6 +1012,7 @@ export type Database = {
           emirates_id_number?: string | null
           employee_id?: string | null
           employment_type?: string | null
+          expo_push_token?: string | null
           first_name: string
           food_allowance?: number | null
           full_name?: string | null
@@ -1054,6 +1059,7 @@ export type Database = {
           emirates_id_number?: string | null
           employee_id?: string | null
           employment_type?: string | null
+          expo_push_token?: string | null
           first_name?: string
           food_allowance?: number | null
           full_name?: string | null
@@ -1377,31 +1383,34 @@ export type Database = {
       }
       fm_cleaning_visit_items: {
         Row: {
+          after_photo_path: string | null
           area_id: string | null
+          before_photo_path: string | null
           created_at: string
           id: string
           note: string | null
-          photo_path: string | null
           sort_order: number
           status: string
           visit_id: string
         }
         Insert: {
+          after_photo_path?: string | null
           area_id?: string | null
+          before_photo_path?: string | null
           created_at?: string
           id?: string
           note?: string | null
-          photo_path?: string | null
           sort_order?: number
           status?: string
           visit_id: string
         }
         Update: {
+          after_photo_path?: string | null
           area_id?: string | null
+          before_photo_path?: string | null
           created_at?: string
           id?: string
           note?: string | null
-          photo_path?: string | null
           sort_order?: number
           status?: string
           visit_id?: string
@@ -1852,8 +1861,10 @@ export type Database = {
       }
       fm_work_orders: {
         Row: {
+          after_photo_path: string | null
           arrived_at: string | null
           asset_id: string | null
+          before_photo_path: string | null
           completed_at: string | null
           completion_due_at: string | null
           completion_sla_status: string | null
@@ -1886,8 +1897,10 @@ export type Database = {
           work_requested: string | null
         }
         Insert: {
+          after_photo_path?: string | null
           arrived_at?: string | null
           asset_id?: string | null
+          before_photo_path?: string | null
           completed_at?: string | null
           completion_due_at?: string | null
           completion_sla_status?: string | null
@@ -1920,8 +1933,10 @@ export type Database = {
           work_requested?: string | null
         }
         Update: {
+          after_photo_path?: string | null
           arrived_at?: string | null
           asset_id?: string | null
+          before_photo_path?: string | null
           completed_at?: string | null
           completion_due_at?: string | null
           completion_sla_status?: string | null
@@ -2406,6 +2421,7 @@ export type Database = {
         Row: {
           active: boolean
           asset_id: string | null
+          assigned_employee_id: string | null
           contract_id: string
           contract_line_item_id: string | null
           created_at: string
@@ -2422,6 +2438,7 @@ export type Database = {
         Insert: {
           active?: boolean
           asset_id?: string | null
+          assigned_employee_id?: string | null
           contract_id: string
           contract_line_item_id?: string | null
           created_at?: string
@@ -2438,6 +2455,7 @@ export type Database = {
         Update: {
           active?: boolean
           asset_id?: string | null
+          assigned_employee_id?: string | null
           contract_id?: string
           contract_line_item_id?: string | null
           created_at?: string
@@ -2457,6 +2475,13 @@ export type Database = {
             columns: ["asset_id"]
             isOneToOne: false
             referencedRelation: "contract_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ppm_schedules_assigned_employee_id_fkey"
+            columns: ["assigned_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
@@ -2484,9 +2509,12 @@ export type Database = {
       }
       ppm_visits: {
         Row: {
+          after_photo_path: string | null
           asset_id: string | null
           assigned_team: string | null
+          before_photo_path: string | null
           completed_at: string | null
+          completed_by_employee_id: string | null
           contract_id: string
           created_at: string
           due_date: string | null
@@ -2501,9 +2529,12 @@ export type Database = {
           work_order_id: string | null
         }
         Insert: {
+          after_photo_path?: string | null
           asset_id?: string | null
           assigned_team?: string | null
+          before_photo_path?: string | null
           completed_at?: string | null
+          completed_by_employee_id?: string | null
           contract_id: string
           created_at?: string
           due_date?: string | null
@@ -2518,9 +2549,12 @@ export type Database = {
           work_order_id?: string | null
         }
         Update: {
+          after_photo_path?: string | null
           asset_id?: string | null
           assigned_team?: string | null
+          before_photo_path?: string | null
           completed_at?: string | null
+          completed_by_employee_id?: string | null
           contract_id?: string
           created_at?: string
           due_date?: string | null
@@ -2540,6 +2574,13 @@ export type Database = {
             columns: ["asset_id"]
             isOneToOne: false
             referencedRelation: "contract_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ppm_visits_completed_by_employee_id_fkey"
+            columns: ["completed_by_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {

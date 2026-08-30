@@ -57,10 +57,12 @@ import {
   deleteCleaningSchedule,
   fetchEmployeeOptions,
   fetchSchedulesForTowers,
+  fetchTodaysCompletionByArea,
   fetchVisitsForTowers,
   saveCleaningSchedule,
   type CleaningSchedule,
   type FrequencyType,
+  type TodaysCompletion,
 } from "./fm-cleaning-scheduler-api";
 
 function scheduleSummary(s: CleaningSchedule): string {
@@ -117,6 +119,13 @@ export function FmCleaningSchedulerWorkspacePage() {
     enabled: towerIds.length > 0,
   });
 
+  const completionQuery = useQuery({
+    queryKey: ["fm-cleaning-todays-completion", towerIds],
+    queryFn: () => fetchTodaysCompletionByArea(towerIds),
+    enabled: towerIds.length > 0,
+    refetchInterval: 60_000,
+  });
+
   const employeesQuery = useQuery({ queryKey: ["fm-cleaning-employees"], queryFn: fetchEmployeeOptions });
 
   const refreshSchedules = () => qc.invalidateQueries({ queryKey: ["fm-cleaning-schedules", towerIds] });
@@ -168,6 +177,7 @@ export function FmCleaningSchedulerWorkspacePage() {
                   key={tower.id}
                   tower={tower}
                   schedulesByFloor={schedulesQuery.data ?? {}}
+                  completionByArea={completionQuery.data ?? {}}
                   employees={employeesQuery.data ?? []}
                   canEdit={canEdit}
                   canAdd={canAdd}
@@ -237,6 +247,7 @@ export function FmCleaningSchedulerWorkspacePage() {
 function TowerScheduleCard({
   tower,
   schedulesByFloor,
+  completionByArea,
   employees,
   canEdit,
   canAdd,
@@ -246,6 +257,7 @@ function TowerScheduleCard({
 }: {
   tower: CleaningTower;
   schedulesByFloor: Record<string, CleaningSchedule[]>;
+  completionByArea: Record<string, TodaysCompletion>;
   employees: { id: string; name: string }[];
   canEdit: boolean;
   canAdd: boolean;
@@ -270,6 +282,7 @@ function TowerScheduleCard({
                     key={floor.id}
                     floor={floor}
                     schedules={schedulesByFloor[floor.id] ?? []}
+                    completionByArea={completionByArea}
                     employees={employees}
                     canEdit={canEdit}
                     canAdd={canAdd}
@@ -300,6 +313,7 @@ const emptyScheduleForm = {
 function FloorScheduleRow({
   floor,
   schedules,
+  completionByArea,
   employees,
   canEdit,
   canAdd,
@@ -309,6 +323,7 @@ function FloorScheduleRow({
 }: {
   floor: CleaningFloor;
   schedules: CleaningSchedule[];
+  completionByArea: Record<string, TodaysCompletion>;
   employees: { id: string; name: string }[];
   canEdit: boolean;
   canAdd: boolean;
@@ -339,6 +354,7 @@ function FloorScheduleRow({
                 section={section}
                 utilityRooms={floor.areas.filter((a) => a.area_type === "utility_room" && a.section_id === section.id)}
                 schedules={schedules.filter((s) => floor.areas.some((a) => a.id === s.area_id && a.section_id === section.id))}
+                completionByArea={completionByArea}
                 employees={employees}
                 canEdit={canEdit}
                 canAdd={canAdd}
@@ -358,6 +374,7 @@ function SectionScheduleCard({
   section,
   utilityRooms,
   schedules,
+  completionByArea,
   employees,
   canEdit,
   canAdd,
@@ -368,6 +385,7 @@ function SectionScheduleCard({
   section: CleaningArea;
   utilityRooms: CleaningArea[];
   schedules: CleaningSchedule[];
+  completionByArea: Record<string, TodaysCompletion>;
   employees: { id: string; name: string }[];
   canEdit: boolean;
   canAdd: boolean;
@@ -511,13 +529,27 @@ function SectionScheduleCard({
           utilityRooms.length > 0 && <p className="text-sm text-muted-foreground">No schedules yet for this section.</p>
         ) : (
           <div className="space-y-1">
-            {schedules.map((s) => (
+            {schedules.map((s) => {
+              const completion = completionByArea[s.area_id];
+              return (
               <div key={s.id} className="flex items-center justify-between gap-2 rounded border px-2 py-1.5 text-sm">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Badge variant="secondary">{s.area_name}</Badge>
                   <span>{scheduleSummary(s)}</span>
                   {s.assigned_employee_name && <span className="text-muted-foreground">- {s.assigned_employee_name}</span>}
                   {!s.active && <Badge variant="outline">inactive</Badge>}
+                  {completion ? (
+                    <Badge
+                      variant={completion.status === "issue" ? "destructive" : completion.status === "skipped" ? "outline" : "default"}
+                      title={`${new Date(completion.scannedAt).toLocaleTimeString()}${completion.employeeName ? ` - ${completion.employeeName}` : ""}`}
+                    >
+                      {completion.status === "done" ? "Done today" : completion.status === "issue" ? "Issue reported" : "Skipped today"}
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-muted-foreground">
+                      Not done today
+                    </Badge>
+                  )}
                 </div>
                 <div className="flex items-center gap-1">
                   {canEdit && (
@@ -546,7 +578,8 @@ function SectionScheduleCard({
                   )}
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </AccordionContent>

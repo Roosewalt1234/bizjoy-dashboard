@@ -168,12 +168,35 @@ export async function deleteFloor(id: string): Promise<void> {
   if (error) throw error;
 }
 
+/** Every section automatically gets its own Corridor utility room, with its own NFC tag. */
+async function attachCorridorsToSections(sections: { id: string; floorId: string }[], towerId: string): Promise<void> {
+  if (sections.length === 0) return;
+  const { data: corridorCatalog, error: cErr } = await supabase
+    .from("fm_cleaning_area_catalog")
+    .select("id")
+    .eq("name", "Corridor")
+    .maybeSingle();
+  if (cErr) throw cErr;
+  const rows = sections.map((s) => ({
+    tower_id: towerId,
+    floor_id: s.floorId,
+    section_id: s.id,
+    catalog_id: corridorCatalog?.id ?? null,
+    area_type: "utility_room" as const,
+    name: "Corridor",
+    quantity: 1,
+  }));
+  const { error } = await supabase.from("fm_cleaning_areas").insert(rows);
+  if (error) throw error;
+}
+
 /**
  * Applies catalog items to one or more targets in a single insert. A target is a floor
  * (sectionId null - used for the section catalog items, or tower-wide when floorId is also
  * null), or a section (sectionId set - used for the utility-room catalog items that belong
  * under that section). Skips catalog items a target already has. Single write path for the
  * tower-wide apply, the per-section apply, and the multi-floor bulk apply dialog.
+ * Any newly created section automatically gets its own Corridor utility room underneath it.
  */
 export async function applyCatalogToAreas(
   towerId: string,
@@ -196,8 +219,15 @@ export async function applyCatalogToAreas(
       }));
   });
   if (rows.length === 0) return;
-  const { error } = await supabase.from("fm_cleaning_areas").insert(rows);
+  const { data: inserted, error } = await supabase.from("fm_cleaning_areas").insert(rows).select("id, floor_id, area_type");
   if (error) throw error;
+
+  const newSections = ((inserted ?? []) as { id: string; floor_id: string | null; area_type: string }[]).filter(
+    (r) => r.area_type === "section" && r.floor_id,
+  );
+  if (newSections.length > 0) {
+    await attachCorridorsToSections(newSections.map((s) => ({ id: s.id, floorId: s.floor_id as string })), towerId);
+  }
 }
 
 export async function addCustomArea(
@@ -208,10 +238,16 @@ export async function addCustomArea(
   areaType: AreaType,
   quantity: number,
 ): Promise<void> {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("fm_cleaning_areas")
-    .insert({ tower_id: towerId, floor_id: floorId, section_id: sectionId, catalog_id: null, area_type: areaType, name, quantity });
+    .insert({ tower_id: towerId, floor_id: floorId, section_id: sectionId, catalog_id: null, area_type: areaType, name, quantity })
+    .select("id")
+    .single();
   if (error) throw error;
+
+  if (areaType === "section" && floorId) {
+    await attachCorridorsToSections([{ id: (data as { id: string }).id, floorId }], towerId);
+  }
 }
 
 export async function updateAreaQuantity(id: string, quantity: number): Promise<void> {
