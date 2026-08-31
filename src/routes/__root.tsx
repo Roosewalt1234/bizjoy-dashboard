@@ -125,7 +125,11 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isAuthRoute = pathname === "/auth";
+  const hydrated = useHydrated();
+  // The authenticated subtree renders with ssr:false and may redirect to /auth on the
+  // client, so the server can never know which shell is correct. Render the bare outlet
+  // during SSR/first client render and add the app chrome only after hydration.
+  const isAuthRoute = pathname === "/auth" || !hydrated;
 
   useEffect(() => {
     let mounted = true;
