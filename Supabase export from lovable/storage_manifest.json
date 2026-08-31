@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "bucket": "customer-documents",
+    "public": false,
+    "objects": []
+  },
+  {
+    "bucket": "employee-images",
+    "public": false,
+    "objects": []
+  },
+  {
+    "bucket": "service-photos",
+    "public": false,
+    "objects": []
+  }
+]

@@ -1,39 +1,59 @@
-# Fiz Fix ERP — full database export
+# Fiz Fix ERP — full backend export (31 Aug 2026)
 
-Generated 2026-08-16 UTC. Source: Lovable Cloud managed Postgres (Supabase).
+Generated from the live Lovable-managed backend immediately before disconnecting Cloud.
 
 ## Contents
-- `schema/` — 50 SQL migration files, in filename order. Run these first on the new project.
-- `data-sql/` — one `<table>.sql` of INSERT statements per table, plus `_all_tables.sql`
-  (all tables in one transaction with `session_replication_role = replica` so FK/trigger
-  order doesn't matter — this also avoids re-firing the audit_log triggers).
-- `data-csv/` — same data as CSV with headers (one file per table), for `\copy` or tooling.
-- `auth/auth_users.json` / `auth_users.csv` — 3 auth users (id, email, providers, metadata,
-  timestamps). Passwords/hashes cannot be exported; recreate users with the same UUIDs via
-  the Admin API (`POST /auth/v1/admin/users` accepts an explicit `id`) or invite them.
-- `sequences.sql` — run after import to restore WO/SR numbering.
-- `row_counts.json`, `storage_manifest.json`.
 
-## Auth ID mapping
-`public.profiles.id` = `auth.users.id` (1:1, created by the `handle_new_user` trigger).
-`public.user_roles.user_id` -> `auth.users.id` (roles: admin/user).
-`public.user_permissions.user_id` -> `auth.users.id` (per-module CRUD flags).
-`public.followup_remarks.user_id` and `audit_log.user_id` also reference auth users.
-`public.employees` has **no** auth link — employees are standalone records.
+| Folder / file | What it is |
+| --- | --- |
+| `schema/` | 63 migration files, in chronological filename order. Recreates all tables, enums, functions, triggers, RLS policies and grants. |
+| `data-sql/<table>.sql` | One file per table with plain `INSERT` statements. |
+| `data-sql/_all_tables.sql` | Every table's inserts in one file, wrapped in `SET session_replication_role = replica;` so FK order does not matter. |
+| `data-csv/<table>.csv` | Same data as CSV, header row = column names. |
+| `sequences.sql` | Restores document-number sequences. Run **after** the data import. |
+| `auth/auth_users.json` / `.csv` | Auth user records (id, email, timestamps, metadata). Passwords **cannot** be exported. |
+| `storage_manifest.json` | Buckets and their objects. All three buckets are currently empty (0 objects), so there are no files to move. |
+| `row_counts.json` | Row count per table at export time — use this to verify the import. |
 
 ## Import order
-1. Create the new Supabase project, run `schema/` migrations in order.
-2. Recreate auth users first (same UUIDs) so FKs on profiles/user_roles resolve.
-   Temporarily disable the `on_auth_user_created` trigger, or delete the auto-created
-   profile rows before importing `profiles.sql`.
-3. `psql "$NEW_DB_URL" -f data-sql/_all_tables.sql`
-4. `psql "$NEW_DB_URL" -f sequences.sql`
-5. Re-point the app: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_URL`,
-   `SUPABASE_SERVICE_ROLE_KEY`.
 
-## Storage
-Buckets `customer-documents`, `employee-images`, `service-photos` all exist but are **empty**
-(0 objects) — nothing to migrate. Recreate the buckets as private with the policies from `schema/`.
+1. Apply everything in `schema/` in filename order.
+2. Run `data-sql/_all_tables.sql`.
+3. Run `sequences.sql`.
+4. Create the three storage buckets: `customer-documents`, `employee-images`, `service-photos` (all private).
+5. Re-create the 3 auth users (see below), then verify counts against `row_counts.json`.
 
-## Totals
-1,943 data rows across 40 tables; 3 auth users; 0 storage objects.
+## Auth users → app records
+
+Passwords are not exportable. Create each user in the new project **with the same UUID** (Auth Admin API accepts an `id`), or create them normally and then update the linked rows.
+
+The auth user id is the join key for:
+
+- `public.profiles.id`
+- `public.user_roles.user_id`
+- `public.employees.auth_user_id`
+- `public.user_permissions.user_id`
+
+| Auth user id | Email | Role |
+| --- | --- | --- |
+| `70299b80-a93b-4a27-af3a-5ce1128f3da0` | roosewalt@gmail.com | admin |
+| `bacaa793-40b4-4030-957d-071e06eb9e2d` | info@fizfix.com | admin |
+| `0ffb30c0-4f8f-4b8f-94a2-48121d291547` | info@fixfix.com | (no role row) |
+
+If you cannot preserve the UUIDs, update `profiles.id`, `user_roles.user_id`, `employees.auth_user_id` and `user_permissions.user_id` to the new ids after creating the users.
+
+## Row counts at export time
+
+Key tables: customers 363, quotes 171, quote_items 19, contracts 41, contract_payments 101,
+contract_assets 351, contract_line_items 17, contract_manpower_plans 11, contract_consumables 8,
+contract_billing_lines 5, ppm_visits 12, ppm_schedules 6, sla_policies 5, service_categories 6,
+fm_contracts 1, fm_work_orders 2, fm_cleaning_area_catalog 8, fm_cleaning_checklist_templates 8,
+invoice_packs 1, invoice_pack_items 4, audit_log 808, profiles 3, user_roles 2, sales_leads 2,
+work_orders 1, service_reports 1, weekly_reports 1, monthly_reports 1.
+
+Full list in `row_counts.json`.
+
+## After importing
+
+Re-enable Google sign-in in the new project's Auth settings if it was in use, and confirm
+`/permissions` loads for an admin user.

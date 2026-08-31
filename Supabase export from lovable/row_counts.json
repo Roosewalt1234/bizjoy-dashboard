@@ -9,7 +9,7 @@
   },
   {
     "table": "audit_log",
-    "rows": 792
+    "rows": 808
   },
   {
     "table": "contract_assets",
@@ -41,7 +41,7 @@
   },
   {
     "table": "contracts",
-    "rows": 42
+    "rows": 41
   },
   {
     "table": "customer_contacts",
@@ -60,12 +60,60 @@
     "rows": 2
   },
   {
+    "table": "fm_cleaning_area_catalog",
+    "rows": 8
+  },
+  {
+    "table": "fm_cleaning_areas",
+    "rows": 0
+  },
+  {
     "table": "fm_cleaning_checklist_templates",
     "rows": 8
   },
   {
+    "table": "fm_cleaning_floors",
+    "rows": 0
+  },
+  {
+    "table": "fm_cleaning_schedules",
+    "rows": 0
+  },
+  {
+    "table": "fm_cleaning_towers",
+    "rows": 0
+  },
+  {
+    "table": "fm_cleaning_visit_items",
+    "rows": 0
+  },
+  {
+    "table": "fm_cleaning_visits",
+    "rows": 0
+  },
+  {
+    "table": "fm_contract_payments",
+    "rows": 0
+  },
+  {
+    "table": "fm_contracts",
+    "rows": 1
+  },
+  {
     "table": "fm_daily_cleaning_checks",
     "rows": 1
+  },
+  {
+    "table": "fm_service_report_photos",
+    "rows": 0
+  },
+  {
+    "table": "fm_service_reports",
+    "rows": 0
+  },
+  {
+    "table": "fm_work_orders",
+    "rows": 2
   },
   {
     "table": "followup_remarks",
@@ -157,6 +205,6 @@
   },
   {
     "table": "work_orders",
-    "rows": 3
+    "rows": 1
   }
 ]

@@ -1,5 +1,5 @@
 -- quotes: 171 rows
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('eab7d257-4417-4833-b808-e8b2d27f6185', '5159298000002735001', 'FF-AMC26-33', '2026-07-16', '2026-07-23', 'UBM OWNERS ASSOCIATION MANAGEMENT SERVICES LLC', '5159298000002741013', 'Won & Activated', 'AED', 1093164.00, 1147822.20, 'AMC FOR MEP, CLEANING, SWIMMING POOL & LIFT MAINTENANCE SERVICES - 48PARKSIDE (15th June 2026 - 14th June 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('eab7d257-4417-4833-b808-e8b2d27f6185', '5159298000002735001', 'FF-AMC26-33', '2026-07-16', '2026-07-23', 'UBM OWNERS ASSOCIATION MANAGEMENT SERVICES LLC', '5159298000002741013', 'Won & Activated', 'AED', 1093164, 1147822.2, 'AMC FOR MEP, CLEANING, SWIMMING POOL & LIFT MAINTENANCE SERVICES - 48PARKSIDE (15th June 2026 - 14th June 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
 1. Scope of Work,
 2. Contract Duration
 3. Response time & Service availability
@@ -24,8 +24,8 @@ Account Number: 0553684174001
 IBAN: AE920400000553684174001
 Swift Code: NRAKAEAK
 
-', '2026-07-16 00:00:00+00', '2026-07-24 15:04:56.733144+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('c703fdbf-b4cf-4b0f-9849-05635e14320d', '5159298000002402001', 'FF-AMC26-07', '2026-03-09', '2026-03-24', 'JACOB ABRAHAM', '5159298000001131403', 'invoiced', 'AED', 3900.00, 4095.00, 'AMC PROPOSAL-3BR- (10th MAR 2026 - 9th MAR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
+', '2026-07-16T00:00:00+00:00', '2026-07-24T15:04:56.733144+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('c703fdbf-b4cf-4b0f-9849-05635e14320d', '5159298000002402001', 'FF-AMC26-07', '2026-03-09', '2026-03-24', 'JACOB ABRAHAM', '5159298000001131403', 'invoiced', 'AED', 3900, 4095, 'AMC PROPOSAL-3BR- (10th MAR 2026 - 9th MAR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
 1. Scope of Work, 
 2. Contract Duration
 3. Response time & Service availability
@@ -44,8 +44,8 @@ Advance for every quarter, within 7 days from the date of invoice.
 3.2 Any items not explicitly mentioned in the scope of work.
 4. Contact Information:
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com 
-', '2026-03-09 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('ba211705-96c7-4bfa-ab80-f61f7f8d3cf5', NULL, 'FF-AMC26-34', '2026-07-22', '2026-08-22', 'Rami - Villanova V-366', NULL, 'sent', 'AED', 5250, 5512.5, 'Villa AMC - Rami - Villanova V-366', 'Devika', 'N/A ', NULL, 'Refer to the signed Service agreement for the following:
+', '2026-03-09T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('ba211705-96c7-4bfa-ab80-f61f7f8d3cf5', NULL, 'FF-AMC26-34', '2026-07-22', '2026-08-22', 'Rami - Villanova V-366', NULL, 'sent', 'AED', 5250, 5512.5, 'Villa AMC - Rami - Villanova V-366', 'Devika', 'N/A ', NULL, 'Refer to the signed Service agreement for the following:
 1. Scope of Work,
 2. Contract Duration
 3. Response time & Service availability
@@ -64,8 +64,8 @@ Advance for every quarter, within 7 days from the date of invoice.
 3.1 Approvals or permits from regulatory authorities (if applicable).
 3.2 Any items not explicitly mentioned in the scope of work.
 4. Contact Information:
-For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', '2026-07-22 00:00:00+00', '2026-07-24 15:06:34.67931+00', 'Villa AMC', 262.5, 'Assured');
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('d1c3b244-b055-48df-b8bd-5f492b582b6f', '5159298000002725053', 'FF-VAR26-167 (Rev.01)', '2026-07-17', '2026-07-31', 'Kaizen Procurement', '5159298000002693018', 'sent', 'AED', 1114005.00, 1169705.25, 'Rectification work- Supply & Installation of External Bollar. ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', '2026-07-22T00:00:00+00:00', '2026-07-24T15:06:34.67931+00:00', 'Villa AMC', 262.5, 'Assured');
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('d1c3b244-b055-48df-b8bd-5f492b582b6f', '5159298000002725053', 'FF-VAR26-167 (Rev.01)', '2026-07-17', '2026-07-31', 'Kaizen Procurement', '5159298000002693018', 'sent', 'AED', 1114005, 1169705.25, 'Rectification work- Supply & Installation of External Bollar. ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -96,8 +96,8 @@ Account Number: 0553684174001
 IBAN: AE920400000553684174001
 Swift Code: NRAKAEAK
 
-', '2026-07-17 00:00:00+00', '2026-07-24 15:06:49.57216+00', NULL, NULL, 'Assured');
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('f9cd39b7-7c26-4573-b08d-b8e9fc5cbed2', '5159298000002756001', 'FF-VAR26-172', '2026-07-20', '2026-08-05', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'Proposal / Quote Sent', 'AED', 450.00, 472.50, 'Leakage Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+', '2026-07-17T00:00:00+00:00', '2026-07-24T15:06:49.57216+00:00', NULL, NULL, 'Assured');
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('f9cd39b7-7c26-4573-b08d-b8e9fc5cbed2', '5159298000002756001', 'FF-VAR26-172', '2026-07-20', '2026-08-05', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'Proposal / Quote Sent', 'AED', 450, 472.5, 'Leakage Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -125,8 +125,8 @@ Account Number: 0553684174001
 IBAN: AE920400000553684174001
 Swift Code: NRAKAEAK
 
-', '2026-07-20 00:00:00+00', '2026-07-27 09:46:43.411716+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('71db54b4-b376-4c75-ae14-377baf0e4f25', '5159298000002732103', 'FF-VAR26-166', '2026-07-17', '2026-07-31', 'Kaizen Procurement', '5159298000002693018', 'Proposal / Quote Sent', 'AED', 134511.90, 141237.50, 'Rectification work', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+', '2026-07-20T00:00:00+00:00', '2026-07-27T09:46:43.411716+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('71db54b4-b376-4c75-ae14-377baf0e4f25', '5159298000002732103', 'FF-VAR26-166', '2026-07-17', '2026-07-31', 'Kaizen Procurement', '5159298000002693018', 'Proposal / Quote Sent', 'AED', 134511.9, 141237.5, 'Rectification work', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -154,8 +154,8 @@ Account Number: 0553684174001
 IBAN: AE920400000553684174001
 Swift Code: NRAKAEAK
 
-', '2026-07-17 00:00:00+00', '2026-07-27 09:47:04.650218+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('b0d73f21-7a93-4ada-b3dc-d853e3ed5450', '5159298000002686015', 'FF-VAR26-158', '2026-07-02', '2026-07-11', 'RAMI GHARZEDDINE', '5159298000002504322', 'Proposal / Quote Sent', 'AED', 1100.00, 1155.00, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+', '2026-07-17T00:00:00+00:00', '2026-07-27T09:47:04.650218+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('b0d73f21-7a93-4ada-b3dc-d853e3ed5450', '5159298000002686015', 'FF-VAR26-158', '2026-07-02', '2026-07-11', 'RAMI GHARZEDDINE', '5159298000002504322', 'Proposal / Quote Sent', 'AED', 1100, 1155, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -181,8 +181,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-07-02 00:00:00+00', '2026-07-27 09:47:13.128404+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('5309050c-eac2-4c9b-b31f-bce0b2dcf794', '5159298000002402250', 'FF-AMC26-12', '2026-03-09', '2026-03-24', 'Mr. FIROZ N BASHEER', '5159298000001124029', 'invoiced', 'AED', 3900.00, 4095.00, 'AMC PROPOSAL-3BR- (10th MAR 2026 - 9th MAR 2027)
+Swift Code: ADCBAEAA', '2026-07-02T00:00:00+00:00', '2026-07-27T09:47:13.128404+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('5309050c-eac2-4c9b-b31f-bce0b2dcf794', '5159298000002402250', 'FF-AMC26-12', '2026-03-09', '2026-03-24', 'Mr. FIROZ N BASHEER', '5159298000001124029', 'invoiced', 'AED', 3900, 4095, 'AMC PROPOSAL-3BR- (10th MAR 2026 - 9th MAR 2027)
 ', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
 1. Scope of Work, 
 2. Contract Duration
@@ -201,8 +201,8 @@ Advance for every quarter, within 7 days from the date of invoice.
 3.1 Approvals or permits from regulatory authorities (if applicable).
 3.2 Any items not explicitly mentioned in the scope of work.
 4. Contact Information:
-For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', '2026-03-09 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('c66f0de9-ed98-4ec3-8738-bcb58cad4221', '5159298000002487072', 'FF-VAR26-126', '2026-05-04', '2026-05-19', 'KHIDMAH SOLE PROPRIETORSHIP LLC', '5159298000002370343', 'expired', 'AED', 7460.00, 7833.00, 'Proposal for Supply and replacement of Pressure vessel tank ', NULL, NULL, NULL, 'NOTE: This quotation includes only pressure vessel replacement.
+For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', '2026-03-09T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('c66f0de9-ed98-4ec3-8738-bcb58cad4221', '5159298000002487072', 'FF-VAR26-126', '2026-05-04', '2026-05-19', 'KHIDMAH SOLE PROPRIETORSHIP LLC', '5159298000002370343', 'expired', 'AED', 7460, 7833, 'Proposal for Supply and replacement of Pressure vessel tank ', NULL, NULL, NULL, 'NOTE: This quotation includes only pressure vessel replacement.
 Any additional materials or repairs identified during execution will be charged separately upon client approval.
 Disposal of old pressure tanks is not included.
 If client requests scrap removal, an additional AED 500 will be charged.
@@ -238,8 +238,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-04 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('6360e5a7-5593-4d9a-af5a-62bfdff2028b', '5159298000002487089', 'FF-VAR26-127', '2026-05-05', '2026-05-20', 'Ms. SUMA SATISH', '5159298000000088675', 'expired', 'AED', 20097.50, 21102.38, 'Proposal for rectification works', NULL, NULL, NULL, 'NOTE: During guest toilet breaking works, high-noise equipment (jackhammer approx. 120 dB) will be used. Temporary noise disturbance is expected.
+Swift Code: ADCBAEAA', '2026-05-04T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('6360e5a7-5593-4d9a-af5a-62bfdff2028b', '5159298000002487089', 'FF-VAR26-127', '2026-05-05', '2026-05-20', 'Ms. SUMA SATISH', '5159298000000088675', 'expired', 'AED', 20097.5, 21102.38, 'Proposal for rectification works', NULL, NULL, NULL, 'NOTE: During guest toilet breaking works, high-noise equipment (jackhammer approx. 120 dB) will be used. Temporary noise disturbance is expected.
 While removing wash basin marble counters, if damage occurs, replacement marble will be supplied by the client at their own cost.
 After marble removal, if minor leakage is found, rectification will be carried out. Any major repair or additional work will be quoted separately.
 
@@ -269,8 +269,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-05 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('9ee1a844-0ec9-4f56-a881-d9507a22bb46', '5159298000002518001', 'FF-VAR26-136', '2026-05-18', '2026-06-02', 'MUHAMMAD RIAZ ZUBAIR', '5159298000001131627', 'expired', 'AED', 1600.00, 1680.00, 'Water Leak Survey - Dampness Snagging Inspection', NULL, NULL, NULL, 'NOTE: 
+Swift Code: ADCBAEAA', '2026-05-05T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('9ee1a844-0ec9-4f56-a881-d9507a22bb46', '5159298000002518001', 'FF-VAR26-136', '2026-05-18', '2026-06-02', 'MUHAMMAD RIAZ ZUBAIR', '5159298000001131627', 'expired', 'AED', 1600, 1680, 'Water Leak Survey - Dampness Snagging Inspection', NULL, NULL, NULL, 'NOTE: 
 1. Please note that this estimate is for inspection works only and does not include rectification, remedial or making good works which maybe required following the leak detection.
 2. For fireline jobs, after demobilizing the externaly hired compressor from the premises, if re-inspection need,
 additional cost to compressor shifting and Consumables should be bare by customer.
@@ -302,8 +302,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-18 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('cef4ebdb-5223-4b61-8c43-f1d9e2a30d3b', '5159298000002339203', 'FF-VAR26-41', '2026-02-08', '2026-02-15', 'AL RAHMANYAH TRADING LLC', '5159298000001706043', 'invoiced', 'AED', 4200.00, 4410.00, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-05-18T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('cef4ebdb-5223-4b61-8c43-f1d9e2a30d3b', '5159298000002339203', 'FF-VAR26-41', '2026-02-08', '2026-02-15', 'AL RAHMANYAH TRADING LLC', '5159298000001706043', 'invoiced', 'AED', 4200, 4410, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -322,49 +322,8 @@ The company will not be held liable for delays caused by events beyond our contr
 7. Contact Information:
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
 Payment Terms:
-1. 50% advance payment upon confirmation of the order.', '2026-02-08 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('c4c686a0-3dd8-409e-b524-ddd147174df0', '5159298000002341001', 'FF-VAR26-42', '2026-02-10', '2026-02-17', 'DHL Logistics LLC', '5159298000000088963', 'expired', 'AED', 8581.25, 9010.31, 'Rectification work- Compressor removal ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
-
-1. Scope of Work:
-This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
-2. Validity:
-This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
-3. Delivery & Execution Timeline:
-Work will commence within 1-2 days from receipt of the LPO/ advance payment/signed confirmation. 
-4. Exclusions:
-This quotation does not include:
-4.1 Approvals or permits from regulatory authorities (if applicable).
-4.2 Any items not explicitly mentioned in the scope of work.
-5. Site Conditions:
-It is assumed that the site will be accessible and ready for installation on the agreed start date. Any delays caused by site inaccessibility or unprepared conditions may incur additional charges.
-6. Force Majeure:
-The company will not be held liable for delays caused by events beyond our control, such as natural disasters, strikes, or supply chain disruptions.
-7. Contact Information:
-For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
-Payment Terms:
-1. 50% advance payment upon confirmation of the order.
-', '2026-02-10 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('bd371927-1d57-478e-94f7-73b153a97ff4', '5159298000002342039', 'FF-VAR26-43', '2026-02-12', '2026-02-19', 'ANCY', '5159298000001782001', 'invoiced', 'AED', 1758.75, 1846.69, 'Rectifications work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
-
-1. Scope of Work:
-This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
-2. Validity:
-This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
-3. Delivery & Execution Timeline:
-Work will commence within 1-2 days from receipt of the LPO/ advance payment/signed confirmation. 
-4. Exclusions:
-This quotation does not include:
-4.1 Approvals or permits from regulatory authorities (if applicable).
-4.2 Any items not explicitly mentioned in the scope of work.
-5. Site Conditions:
-It is assumed that the site will be accessible and ready for installation on the agreed start date. Any delays caused by site inaccessibility or unprepared conditions may incur additional charges.
-6. Force Majeure:
-The company will not be held liable for delays caused by events beyond our control, such as natural disasters, strikes, or supply chain disruptions.
-7. Contact Information:
-For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
-Payment Terms:
-1. 50% advance payment upon confirmation of the order.', '2026-02-12 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('030acfee-57c9-4840-9666-79dc1c4f7f50', '5159298000002342087', 'FF-VAR26-44', '2026-02-12', '2026-02-19', 'Al Rimmal Residence', '5159298000002339033', 'expired', 'AED', 857.14, 900.00, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+1. 50% advance payment upon confirmation of the order.', '2026-02-08T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('c4c686a0-3dd8-409e-b524-ddd147174df0', '5159298000002341001', 'FF-VAR26-42', '2026-02-10', '2026-02-17', 'DHL Logistics LLC', '5159298000000088963', 'expired', 'AED', 8581.25, 9010.31, 'Rectification work- Compressor removal ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -384,8 +343,29 @@ The company will not be held liable for delays caused by events beyond our contr
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
 Payment Terms:
 1. 50% advance payment upon confirmation of the order.
-2. Remaining balance to be paid upon completion of the work.', '2026-02-12 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('54ae7728-bb07-44eb-accb-9080115a5a13', '5159298000002228025', 'FF-VAR26-04(Rev.01)', '2026-04-24', '2026-05-09', 'DILEEP', '5159298000002228001', 'invoiced', 'AED', 4513.25, 4738.91, 'RECTIFICATION WORKS', NULL, NULL, NULL, 'NOTE: Quote is revised based on the current market condition.
+', '2026-02-10T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('bd371927-1d57-478e-94f7-73b153a97ff4', '5159298000002342039', 'FF-VAR26-43', '2026-02-12', '2026-02-19', 'ANCY', '5159298000001782001', 'invoiced', 'AED', 1758.75, 1846.69, 'Rectifications work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+
+1. Scope of Work:
+This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
+2. Validity:
+This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
+3. Delivery & Execution Timeline:
+Work will commence within 1-2 days from receipt of the LPO/ advance payment/signed confirmation. 
+4. Exclusions:
+This quotation does not include:
+4.1 Approvals or permits from regulatory authorities (if applicable).
+4.2 Any items not explicitly mentioned in the scope of work.
+5. Site Conditions:
+It is assumed that the site will be accessible and ready for installation on the agreed start date. Any delays caused by site inaccessibility or unprepared conditions may incur additional charges.
+6. Force Majeure:
+The company will not be held liable for delays caused by events beyond our control, such as natural disasters, strikes, or supply chain disruptions.
+7. Contact Information:
+For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
+Payment Terms:
+1. 50% advance payment upon confirmation of the order.', '2026-02-12T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('030acfee-57c9-4840-9666-79dc1c4f7f50', '5159298000002342087', 'FF-VAR26-44', '2026-02-12', '2026-02-19', 'Al Rimmal Residence', '5159298000002339033', 'expired', 'AED', 857.14, 900, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
@@ -404,8 +384,8 @@ The company will not be held liable for delays caused by events beyond our contr
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
 Payment Terms:
 1. 50% advance payment upon confirmation of the order.
-2. Remaining balance to be paid upon completion of the work.', '2026-04-24 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('4c8261eb-3fbe-4175-a45e-76a891bb7e36', '5159298000002313154', 'FF-VAR26-25(Rev.01)', '2026-03-10', '2026-03-25', 'ZAKER TRADING LLC', '5159298000001807099', 'expired', 'AED', 1860.00, 1953.00, 'BOUNDAY WALL PAINT WORK', NULL, NULL, NULL, 'NOTE: Quote is revised with discount as requested by client.
+2. Remaining balance to be paid upon completion of the work.', '2026-02-12T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('54ae7728-bb07-44eb-accb-9080115a5a13', '5159298000002228025', 'FF-VAR26-04(Rev.01)', '2026-04-24', '2026-05-09', 'DILEEP', '5159298000002228001', 'invoiced', 'AED', 4513.25, 4738.91, 'RECTIFICATION WORKS', NULL, NULL, NULL, 'NOTE: Quote is revised based on the current market condition.
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
@@ -424,8 +404,28 @@ The company will not be held liable for delays caused by events beyond our contr
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
 Payment Terms:
 1. 50% advance payment upon confirmation of the order.
-2. Remaining balance to be paid upon completion of the work.', '2026-03-10 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('1ff38178-31fa-408a-a8e3-7bcfe8ef2350', '5159298000002313168', 'FF-VAR26-26(Rev.02)', '2026-05-08', '2026-05-23', 'ZAKER TRADING LLC', '5159298000001807099', 'expired', 'AED', 5500.00, 5775.00, 'Boundary Wall – Concrete Crack Repair', NULL, NULL, NULL, 'Note: Quotation is revised with maximum possible discount as requested by client.
+2. Remaining balance to be paid upon completion of the work.', '2026-04-24T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('4c8261eb-3fbe-4175-a45e-76a891bb7e36', '5159298000002313154', 'FF-VAR26-25(Rev.01)', '2026-03-10', '2026-03-25', 'ZAKER TRADING LLC', '5159298000001807099', 'expired', 'AED', 1860, 1953, 'BOUNDAY WALL PAINT WORK', NULL, NULL, NULL, 'NOTE: Quote is revised with discount as requested by client.
+1. Scope of Work:
+This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
+2. Validity:
+This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
+3. Delivery & Execution Timeline:
+Work will commence within 1-2 days from receipt of the LPO/ advance payment/signed confirmation. 
+4. Exclusions:
+This quotation does not include:
+4.1 Approvals or permits from regulatory authorities (if applicable).
+4.2 Any items not explicitly mentioned in the scope of work.
+5. Site Conditions:
+It is assumed that the site will be accessible and ready for installation on the agreed start date. Any delays caused by site inaccessibility or unprepared conditions may incur additional charges.
+6. Force Majeure:
+The company will not be held liable for delays caused by events beyond our control, such as natural disasters, strikes, or supply chain disruptions.
+7. Contact Information:
+For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
+Payment Terms:
+1. 50% advance payment upon confirmation of the order.
+2. Remaining balance to be paid upon completion of the work.', '2026-03-10T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('1ff38178-31fa-408a-a8e3-7bcfe8ef2350', '5159298000002313168', 'FF-VAR26-26(Rev.02)', '2026-05-08', '2026-05-23', 'ZAKER TRADING LLC', '5159298000001807099', 'expired', 'AED', 5500, 5775, 'Boundary Wall – Concrete Crack Repair', NULL, NULL, NULL, 'Note: Quotation is revised with maximum possible discount as requested by client.
 Note 1: As per your request, our team was assigned to inspect the site condition, as the previous quotation was submitted in March based on the site condition at that time. During the recent site visit, it was identified that the cracks have slightly increased. Accordingly, the quotation has been revised based on the current site condition and prevailing market rates.
 
 
@@ -447,8 +447,8 @@ The company will not be held liable for delays caused by events beyond our contr
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
 Payment Terms:
 1. 50% advance payment upon confirmation of the order.
-2. Remaining balance to be paid upon completion of the work.', '2026-05-08 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('3008affc-b8fb-4684-8b6d-0f4e9f40ebd1', '5159298000002325001', 'FF-VAR26-32 (Revised)', '2026-01-31', '2026-02-21', 'vikas', '5159298000002325023', 'expired', 'AED', 2734.38, 2871.10, 'Rectification work- AC works  ', NULL, NULL, NULL, '1. Scope of Work:
+2. Remaining balance to be paid upon completion of the work.', '2026-05-08T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('3008affc-b8fb-4684-8b6d-0f4e9f40ebd1', '5159298000002325001', 'FF-VAR26-32 (Revised)', '2026-01-31', '2026-02-21', 'vikas', '5159298000002325023', 'expired', 'AED', 2734.38, 2871.1, 'Rectification work- AC works  ', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -472,8 +472,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-01-31 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('f85166e8-a094-408e-aba7-9975d325fe2b', '5159298000002328009', 'FF-VAR26-33', '2026-02-02', '2026-02-16', 'ALEX P THAZHAMON', '5159298000001698158', 'invoiced', 'AED', 2191.38, 2300.95, 'Rectification work- Net Installation ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-01-31T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('f85166e8-a094-408e-aba7-9975d325fe2b', '5159298000002328009', 'FF-VAR26-33', '2026-02-02', '2026-02-16', 'ALEX P THAZHAMON', '5159298000001698158', 'invoiced', 'AED', 2191.38, 2300.95, 'Rectification work- Net Installation ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -492,8 +492,8 @@ The company will not be held liable for delays caused by events beyond our contr
 7. Contact Information:
 For Technical clarification or assistance, please contact Shakespeare 0503747159  or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
 Payment Terms:
-1. 50% advance + 50% upon completion ', '2026-02-02 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('022eff1d-e796-4e0a-ae58-aff927f35329', '5159298000002333001', 'FF-VAR26-34', '2026-02-03', '2026-02-17', 'INSPIRE HOME', '5159298000002333015', 'expired', 'AED', 21187.50, 22246.88, 'Rectrification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+1. 50% advance + 50% upon completion ', '2026-02-02T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('022eff1d-e796-4e0a-ae58-aff927f35329', '5159298000002333001', 'FF-VAR26-34', '2026-02-03', '2026-02-17', 'INSPIRE HOME', '5159298000002333015', 'expired', 'AED', 21187.5, 22246.88, 'Rectrification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -512,8 +512,8 @@ The company will not be held liable for delays caused by events beyond our contr
 7. Contact Information:
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
 Payment Terms:
-1. 50% advance payment upon confirmation of the order.', '2026-02-03 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('608e6f34-ed4c-4375-9ed9-8de318ed703d', '5159298000002400001', 'FF-AMC26-06', '2026-03-07', '2026-03-21', 'RAYJO PAUL', '5159298000001134015', 'invoiced', 'AED', 3900.00, 4095.00, 'AMC PROPOSAL-3BR- (10th MAR 2026 - 9th MAR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
+1. 50% advance payment upon confirmation of the order.', '2026-02-03T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('608e6f34-ed4c-4375-9ed9-8de318ed703d', '5159298000002400001', 'FF-AMC26-06', '2026-03-07', '2026-03-21', 'RAYJO PAUL', '5159298000001134015', 'invoiced', 'AED', 3900, 4095, 'AMC PROPOSAL-3BR- (10th MAR 2026 - 9th MAR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
 1. Scope of Work, 
 2. Contract Duration
 3. Response time & Service availability
@@ -537,8 +537,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-07 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('c290e776-d2f8-442a-94ea-eb13b6063b37', '5159298000002335019', 'FF-VAR26-35', '2026-02-04', '2026-02-18', 'David', '5159298000002335001', 'expired', 'AED', 1871.88, 1965.47, 'Rectification works  ', NULL, NULL, NULL, 'Note- The work quoted is based on the assumption that it is a brick wall. If it''s a concreate wall, the quote will be revised
+Swift Code: ADCBAEAA', '2026-03-07T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('c290e776-d2f8-442a-94ea-eb13b6063b37', '5159298000002335019', 'FF-VAR26-35', '2026-02-04', '2026-02-18', 'David', '5159298000002335001', 'expired', 'AED', 1871.88, 1965.47, 'Rectification works  ', NULL, NULL, NULL, 'Note- The work quoted is based on the assumption that it is a brick wall. If it''s a concreate wall, the quote will be revised
 *VAT 5% will be applicable
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -558,8 +558,8 @@ The company will not be held liable for delays caused by events beyond our contr
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
 Payment Terms:
 1. 50% advance payment upon confirmation of the order.
-', '2026-02-04 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('32380101-b88a-4911-9c06-22bd7c51b147', '5159298000002336017', 'FF-VAR26-36', '2026-02-06', '2026-02-13', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 135700.00, 142485.00, 'Rectification work- ', NULL, NULL, NULL, 'NOTE: Additionally, PVC curtains for these doors is also considered in (03nos). Supply and installation of Door bottom side flap (we are unable to do this)  
+', '2026-02-04T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('32380101-b88a-4911-9c06-22bd7c51b147', '5159298000002336017', 'FF-VAR26-36', '2026-02-06', '2026-02-13', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 135700, 142485, 'Rectification work- ', NULL, NULL, NULL, 'NOTE: Additionally, PVC curtains for these doors is also considered in (03nos). Supply and installation of Door bottom side flap (we are unable to do this)  
 *VAT 5% will be applicable
 
 1. Scope of Work:
@@ -580,8 +580,8 @@ The company will not be held liable for delays caused by events beyond our contr
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
 Payment Terms:
 1. 50% advance payment upon confirmation of the order.
-2. Remaining balance to be paid upon completion of the work.', '2026-02-06 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('d94cf423-5cdd-44bd-b2ce-e030cd80a419', '5159298000002339019', 'FF-VAR26-39', '2026-02-07', '2026-02-14', 'Bramah', '5159298000002339001', 'expired', 'AED', 2678.13, 2812.04, 'Rectification work-Electric water heater', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+2. Remaining balance to be paid upon completion of the work.', '2026-02-06T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('d94cf423-5cdd-44bd-b2ce-e030cd80a419', '5159298000002339019', 'FF-VAR26-39', '2026-02-07', '2026-02-14', 'Bramah', '5159298000002339001', 'expired', 'AED', 2678.13, 2812.04, 'Rectification work-Electric water heater', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -600,29 +600,8 @@ The company will not be held liable for delays caused by events beyond our contr
 7. Contact Information:
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
 Payment Terms:
-1. 50% advance payment upon confirmation of the order.', '2026-02-07 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('18fd3ac3-0516-499f-8fdf-baba293ec839', '5159298000002339047', 'FF-VAR26-38', '2026-02-07', '2026-02-14', 'Al Rimmal Residence', '5159298000002339033', 'expired', 'AED', 2250.00, 2362.50, NULL, NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
-
-1. Scope of Work:
-This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
-2. Validity:
-This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
-3. Delivery & Execution Timeline:
-Work will commence within 1-2 days from receipt of the LPO/ advance payment/signed confirmation. 
-4. Exclusions:
-This quotation does not include:
-4.1 Approvals or permits from regulatory authorities (if applicable).
-4.2 Any items not explicitly mentioned in the scope of work.
-5. Site Conditions:
-It is assumed that the site will be accessible and ready for installation on the agreed start date. Any delays caused by site inaccessibility or unprepared conditions may incur additional charges.
-6. Force Majeure:
-The company will not be held liable for delays caused by events beyond our control, such as natural disasters, strikes, or supply chain disruptions.
-7. Contact Information:
-For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
-Payment Terms:
-1. 50% advance payment upon confirmation of the order.
-', '2026-02-07 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('5b325eaf-8595-41c3-9ff9-9c33ba2b602d', '5159298000002339181', 'FF-VAR26-40 Revised', '2026-02-07', '2026-02-21', 'INSPIRE HOME', '5159298000002333015', 'expired', 'AED', 24353.49, 25571.16, 'Rectification work-LinkedIn office 9th and 10th floor ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+1. 50% advance payment upon confirmation of the order.', '2026-02-07T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('18fd3ac3-0516-499f-8fdf-baba293ec839', '5159298000002339047', 'FF-VAR26-38', '2026-02-07', '2026-02-14', 'Al Rimmal Residence', '5159298000002339033', 'expired', 'AED', 2250, 2362.5, NULL, NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -642,8 +621,29 @@ The company will not be held liable for delays caused by events beyond our contr
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
 Payment Terms:
 1. 50% advance payment upon confirmation of the order.
-', '2026-02-07 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('b8780fe9-1660-414f-b6b7-101019b99a08', '5159298000002351078', 'FF-VAR26-45', '2026-02-14', '2026-02-21', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'expired', 'AED', 1062.50, 1115.63, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+', '2026-02-07T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('5b325eaf-8595-41c3-9ff9-9c33ba2b602d', '5159298000002339181', 'FF-VAR26-40 Revised', '2026-02-07', '2026-02-21', 'INSPIRE HOME', '5159298000002333015', 'expired', 'AED', 24353.49, 25571.16, 'Rectification work-LinkedIn office 9th and 10th floor ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+
+1. Scope of Work:
+This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
+2. Validity:
+This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
+3. Delivery & Execution Timeline:
+Work will commence within 1-2 days from receipt of the LPO/ advance payment/signed confirmation. 
+4. Exclusions:
+This quotation does not include:
+4.1 Approvals or permits from regulatory authorities (if applicable).
+4.2 Any items not explicitly mentioned in the scope of work.
+5. Site Conditions:
+It is assumed that the site will be accessible and ready for installation on the agreed start date. Any delays caused by site inaccessibility or unprepared conditions may incur additional charges.
+6. Force Majeure:
+The company will not be held liable for delays caused by events beyond our control, such as natural disasters, strikes, or supply chain disruptions.
+7. Contact Information:
+For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
+Payment Terms:
+1. 50% advance payment upon confirmation of the order.
+', '2026-02-07T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('b8780fe9-1660-414f-b6b7-101019b99a08', '5159298000002351078', 'FF-VAR26-45', '2026-02-14', '2026-02-21', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'expired', 'AED', 1062.5, 1115.63, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -669,8 +669,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-02-14 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('bff277cd-80be-4f09-aaa5-80d888c3acf1', '5159298000002356019', 'FF-VAR26-47.Revised', '2026-02-17', '2026-02-24', 'Suresh', '5159298000002356001', 'expired', 'AED', 7000.00, 7350.00, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-02-14T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('bff277cd-80be-4f09-aaa5-80d888c3acf1', '5159298000002356019', 'FF-VAR26-47.Revised', '2026-02-17', '2026-02-24', 'Suresh', '5159298000002356001', 'expired', 'AED', 7000, 7350, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -696,8 +696,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-02-17 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('6a7c1e17-f142-46f0-b25d-46d93659def1', '5159298000002358047', 'FF-VAR26-49', '2026-02-17', '2026-02-24', 'AL RAHMANYAH TRADING LLC', '5159298000001706043', 'invoiced', 'AED', 1725.00, 1811.25, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-02-17T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('6a7c1e17-f142-46f0-b25d-46d93659def1', '5159298000002358047', 'FF-VAR26-49', '2026-02-17', '2026-02-24', 'AL RAHMANYAH TRADING LLC', '5159298000001706043', 'invoiced', 'AED', 1725, 1811.25, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -723,8 +723,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-02-17 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('da831d51-05fd-4195-8fa3-e70557791126', '5159298000002371031', 'FF-VAR26-62', '2026-02-25', NULL, 'TOP BARISTAS COFFEE SHOP LLC', '5159298000000088723', 'invoiced', 'AED', 750.00, 787.50, NULL, NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-02-17T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('da831d51-05fd-4195-8fa3-e70557791126', '5159298000002371031', 'FF-VAR26-62', '2026-02-25', NULL, 'TOP BARISTAS COFFEE SHOP LLC', '5159298000000088723', 'invoiced', 'AED', 750, 787.5, NULL, NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -748,8 +748,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-02-25 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('26e17cf8-d48a-42cf-a919-f9866709dc7b', '5159298000002400080', 'FF-AMC26-04', '2026-03-07', '2026-03-21', 'ANAND VEETIIL', '5159298000001131541', 'invoiced', 'AED', 4200.00, 4410.00, 'AMC PROPOSAL-3BR (10th MAR 2026 - 9th MAR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
+Swift Code: ADCBAEAA', '2026-02-25T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('26e17cf8-d48a-42cf-a919-f9866709dc7b', '5159298000002400080', 'FF-AMC26-04', '2026-03-07', '2026-03-21', 'ANAND VEETIIL', '5159298000001131541', 'invoiced', 'AED', 4200, 4410, 'AMC PROPOSAL-3BR (10th MAR 2026 - 9th MAR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
 1. Scope of Work,
 2. Contract Duration
 3. Response time & Service availability
@@ -782,8 +782,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-07 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('3df23beb-9850-4006-bccf-06ca78802d59', '5159298000002361023', 'FF-VAR26-51', '2026-02-19', '2026-02-26', 'Wadoon', '5159298000002361009', 'expired', 'AED', 600.00, 630.00, 'Rectification work- Gas leakage ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-03-07T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('3df23beb-9850-4006-bccf-06ca78802d59', '5159298000002361023', 'FF-VAR26-51', '2026-02-19', '2026-02-26', 'Wadoon', '5159298000002361009', 'expired', 'AED', 600, 630, 'Rectification work- Gas leakage ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -809,8 +809,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-02-19 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('94b61836-ef99-488e-864b-2ed9aeddc643', '5159298000002361045', 'FF-VAR26-52', '2026-02-19', '2026-02-26', 'Wadoon', '5159298000002361009', 'expired', 'AED', 300.00, 315.00, 'Rectification work- AC ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-02-19T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('94b61836-ef99-488e-864b-2ed9aeddc643', '5159298000002361045', 'FF-VAR26-52', '2026-02-19', '2026-02-26', 'Wadoon', '5159298000002361009', 'expired', 'AED', 300, 315, 'Rectification work- AC ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -836,8 +836,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-02-19 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('22732aef-d609-4f28-95f1-279cd535150c', '5159298000002361059', 'FF-VAR26-53(Revised.3)', '2026-04-08', '2026-04-22', 'INSPIRE HOME', '5159298000002333015', 'expired', 'AED', 51434.75, 54006.49, 'Rectification work-PR 1000317729 - Supply and Installation Washroom Mirrors- ICD Brookfield Place, DIFC- Dubai', NULL, NULL, NULL, 'NOTE: Pumping work and Water gate wave opening and closing will be excluded 
+Swift Code: ADCBAEAA', '2026-02-19T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('22732aef-d609-4f28-95f1-279cd535150c', '5159298000002361059', 'FF-VAR26-53(Revised.3)', '2026-04-08', '2026-04-22', 'INSPIRE HOME', '5159298000002333015', 'expired', 'AED', 51434.75, 54006.49, 'Rectification work-PR 1000317729 - Supply and Installation Washroom Mirrors- ICD Brookfield Place, DIFC- Dubai', NULL, NULL, NULL, 'NOTE: Pumping work and Water gate wave opening and closing will be excluded 
 VAT 5% will be applicable
 
 1. Scope of Work:
@@ -865,8 +865,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-08 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('18245dff-2779-43d5-befa-dc7804a5728a', '5159298000002365001', 'FF-VAR26-54', '2026-02-21', '2026-02-28', 'INSPIRE HOME', '5159298000002333015', 'expired', 'AED', 30647.50, 32179.88, 'Rectification work- RFQ I PR 1000317806  Painting work in terrace area and balcony of Burj Avenue 81', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-04-08T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('18245dff-2779-43d5-befa-dc7804a5728a', '5159298000002365001', 'FF-VAR26-54', '2026-02-21', '2026-02-28', 'INSPIRE HOME', '5159298000002333015', 'expired', 'AED', 30647.5, 32179.88, 'Rectification work- RFQ I PR 1000317806  Painting work in terrace area and balcony of Burj Avenue 81', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -892,8 +892,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-02-21 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('f0bd2b22-4bcc-4a9c-ad64-ee0e5fb781b1', '5159298000002400118', 'FF-VAR26-71(Rev.02)', '2026-06-16', '2026-06-29', 'Emirates REIT (CEIC) PLC', '5159298000002392001', 'expired', 'AED', 760355.65, 798373.43, 'EBC 1st Floor Terrace 01, 02 & 03 - Planter Box & Cladding Refurb. Work. ', NULL, NULL, NULL, 'NOTE: Quotation is revised with validity & the price as per current market.
+Swift Code: ADCBAEAA', '2026-02-21T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('f0bd2b22-4bcc-4a9c-ad64-ee0e5fb781b1', '5159298000002400118', 'FF-VAR26-71(Rev.02)', '2026-06-16', '2026-06-29', 'Emirates REIT (CEIC) PLC', '5159298000002392001', 'expired', 'AED', 760355.65, 798373.43, 'EBC 1st Floor Terrace 01, 02 & 03 - Planter Box & Cladding Refurb. Work. ', NULL, NULL, NULL, 'NOTE: Quotation is revised with validity & the price as per current market.
 1. WARRANTY:
 a) 10 Years for water proofing against leakage and manufacturing defects shall be issued upon completion of works along with realization
 of full payment.
@@ -939,8 +939,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-16 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('b0c929a4-28b7-4fb9-a515-97e06a5324bd', '5159298000002365145', 'FF-VAR26-57', '2026-02-23', '2026-03-02', 'SVETLANA GURBANOVA', '5159298000002365127', 'invoiced', 'AED', 1428.57, 1500.00, 'Rectification work- 80 Liter water heater', NULL, NULL, NULL, 'NOTE: As per shaku, work is completed & rcvd payment through Bank transfer, shared transfer receipt in group on 24th Feb. Cmsn for agent 50dhs paid by Shaku which needs to pay back to shaku
+Swift Code: ADCBAEAA', '2026-06-16T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('b0c929a4-28b7-4fb9-a515-97e06a5324bd', '5159298000002365145', 'FF-VAR26-57', '2026-02-23', '2026-03-02', 'SVETLANA GURBANOVA', '5159298000002365127', 'invoiced', 'AED', 1428.57, 1500, 'Rectification work- 80 Liter water heater', NULL, NULL, NULL, 'NOTE: As per shaku, work is completed & rcvd payment through Bank transfer, shared transfer receipt in group on 24th Feb. Cmsn for agent 50dhs paid by Shaku which needs to pay back to shaku
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -966,8 +966,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-02-23 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('f5dd56e1-42c8-4e52-b0d3-1c1c2b9174be', '5159298000002367015', 'FF-AMC26-02', '2026-02-02', '2027-02-17', 'TOP BARISTAS COFFEE SHOP LLC', '5159298000000088723', 'invoiced', 'AED', 3000.00, 3150.00, 'AMC PROPOSAL (18th FEB 2026 - 17th FEB 2027)', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-02-23T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('f5dd56e1-42c8-4e52-b0d3-1c1c2b9174be', '5159298000002367015', 'FF-AMC26-02', '2026-02-02', '2027-02-17', 'TOP BARISTAS COFFEE SHOP LLC', '5159298000000088723', 'invoiced', 'AED', 3000, 3150, 'AMC PROPOSAL (18th FEB 2026 - 17th FEB 2027)', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -986,8 +986,8 @@ For Technical clarification or assistance, please contact Texan- 0554254818 or E
 Payment Terms:
 Advance for every half-year. Within 7 days from the date of invoice.
 • 1st Payment – Current Dated Cheque/Bank transfer
-• 2nd Payment - PDC', '2026-02-02 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('fb3f985a-ad05-4170-9fbd-13ce546fe687', '5159298000002365192', 'FF-VAR26-58(Rev.03)', '2026-06-06', '2026-06-13', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 10165.00, 10673.25, 'Rectification work- 25 Parking Bay ', NULL, NULL, NULL, 'NOTE: Quote revised with current date & added the price difference due to current market situation.
+• 2nd Payment - PDC', '2026-02-02T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('fb3f985a-ad05-4170-9fbd-13ce546fe687', '5159298000002365192', 'FF-VAR26-58(Rev.03)', '2026-06-06', '2026-06-13', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 10165, 10673.25, 'Rectification work- 25 Parking Bay ', NULL, NULL, NULL, 'NOTE: Quote revised with current date & added the price difference due to current market situation.
 NOTE 1: Quotation is revised with maximum possible discount requested by client through email. 
 NOTE 2: Quote revised with current date & added the price difference due to current market situation.
 
@@ -1016,8 +1016,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-06 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('ed542e18-131e-401b-9744-bef18e37d59e', '5159298000002365206', 'FF-VAR26-56 (Rev.01)', '2026-02-23', '2026-03-09', 'M/s. Age Group', '5159298000000087025', 'invoiced', 'AED', 1550.75, 1628.29, 'Rectification work-Thermostat and plumbing work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-06-06T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('ed542e18-131e-401b-9744-bef18e37d59e', '5159298000002365206', 'FF-VAR26-56 (Rev.01)', '2026-02-23', '2026-03-09', 'M/s. Age Group', '5159298000000087025', 'invoiced', 'AED', 1550.75, 1628.29, 'Rectification work-Thermostat and plumbing work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -1043,8 +1043,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-02-23 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('714228c1-1582-4cbd-9c0b-49b5198b0127', '5159298000002365220', 'FF-VAR26-55', '2026-02-23', '2026-03-02', 'M/s. Age Group', '5159298000000087025', 'expired', 'AED', 931.25, 977.81, 'Rectification work- Remove and Fix the Duct air leak', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-02-23T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('714228c1-1582-4cbd-9c0b-49b5198b0127', '5159298000002365220', 'FF-VAR26-55', '2026-02-23', '2026-03-02', 'M/s. Age Group', '5159298000000087025', 'expired', 'AED', 931.25, 977.81, 'Rectification work- Remove and Fix the Duct air leak', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -1070,8 +1070,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-02-23 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('1b227fc3-e4f8-42fe-b2ec-42c34b0ea648', '5159298000002370313', 'FF-VAR26-59(rev.01)', '2026-03-16', '2026-03-31', 'KUMAR MILAN', '5159298000002021033', 'invoiced', 'AED', 2380.95, 2500.00, 'Pigeon Preventive Net Installation', NULL, NULL, NULL, 'Note: Quotation is revised with discount as requested by client.
+Swift Code: ADCBAEAA', '2026-02-23T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('1b227fc3-e4f8-42fe-b2ec-42c34b0ea648', '5159298000002370313', 'FF-VAR26-59(rev.01)', '2026-03-16', '2026-03-31', 'KUMAR MILAN', '5159298000002021033', 'invoiced', 'AED', 2380.95, 2500, 'Pigeon Preventive Net Installation', NULL, NULL, NULL, 'Note: Quotation is revised with discount as requested by client.
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
@@ -1097,8 +1097,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-16 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('1259700e-5840-430b-94c2-c26e3cbc5cd5', '5159298000002370367', 'FF-VAR26-60', '2026-02-24', '2026-03-11', 'KHIDMAH SOLE PROPRIETORSHIP LLC', '5159298000002370343', 'rejected', 'AED', 4084.74, 4288.98, 'Request for Quotation for LinkedIn Office - Painting Works', NULL, NULL, NULL, 'NOTE: As requested the quotation is issued only for the painting works as one line from the previous submitted quote (FF-VAR26-40) with more line items.
+Swift Code: ADCBAEAA', '2026-03-16T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('1259700e-5840-430b-94c2-c26e3cbc5cd5', '5159298000002370367', 'FF-VAR26-60', '2026-02-24', '2026-03-11', 'KHIDMAH SOLE PROPRIETORSHIP LLC', '5159298000002370343', 'rejected', 'AED', 4084.74, 4288.98, 'Request for Quotation for LinkedIn Office - Painting Works', NULL, NULL, NULL, 'NOTE: As requested the quotation is issued only for the painting works as one line from the previous submitted quote (FF-VAR26-40) with more line items.
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
@@ -1123,8 +1123,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-02-24 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('a0c163bd-2b7c-4f5e-aff5-af04999b126b', '5159298000002371001', 'FF-VAR26-61(Rev.01)', '2026-02-25', '2026-03-24', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 80250.00, 84262.50, 'Ramp Painting works - EBC', NULL, NULL, NULL, 'Note: Quote is revised by mentioning the Warranty as req by client.
+Swift Code: ADCBAEAA', '2026-02-24T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('a0c163bd-2b7c-4f5e-aff5-af04999b126b', '5159298000002371001', 'FF-VAR26-61(Rev.01)', '2026-02-25', '2026-03-24', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 80250, 84262.5, 'Ramp Painting works - EBC', NULL, NULL, NULL, 'Note: Quote is revised by mentioning the Warranty as req by client.
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
@@ -1150,8 +1150,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-02-25 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('0111a3e7-acc3-4251-a651-43d09a4bba00', '5159298000002379001', 'FF-VAR26-63', '2026-03-01', '2026-03-17', 'ZLATINA GETOVA', '5159298000001639109', 'expired', 'AED', 2983.00, 3132.15, 'RECTIFICATION WORKS', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-02-25T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('0111a3e7-acc3-4251-a651-43d09a4bba00', '5159298000002379001', 'FF-VAR26-63', '2026-03-01', '2026-03-17', 'ZLATINA GETOVA', '5159298000001639109', 'expired', 'AED', 2983, 3132.15, 'RECTIFICATION WORKS', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -1176,8 +1176,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-01 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('c8de77c8-c028-4173-8d94-66af53ed6531', '5159298000002379031', 'FF-VAR26-64', '2026-03-01', '2026-03-16', 'VARGHESE MANGALATH', '5159298000001765053', 'invoiced', 'AED', 365.00, 383.25, 'RECTIFICATION WORKS', NULL, NULL, NULL, 'NOTE: Quotation is prepared only for the material chargs & the labor hours will be considered under free eligible callous as per AMC.
+Swift Code: ADCBAEAA', '2026-03-01T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('c8de77c8-c028-4173-8d94-66af53ed6531', '5159298000002379031', 'FF-VAR26-64', '2026-03-01', '2026-03-16', 'VARGHESE MANGALATH', '5159298000001765053', 'invoiced', 'AED', 365, 383.25, 'RECTIFICATION WORKS', NULL, NULL, NULL, 'NOTE: Quotation is prepared only for the material chargs & the labor hours will be considered under free eligible callous as per AMC.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -1203,8 +1203,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-01 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('76e082d1-b816-4374-8fe8-a66307dc4bdf', '5159298000002379045', 'FF-VAR26-65(rev.01)', '2026-03-02', '2026-03-16', 'ALEX P THAZHAMON', '5159298000001698158', 'rejected', 'AED', 330.00, 346.50, NULL, NULL, NULL, NULL, 'NOTE: Quotation is prepared only for the material charges & the labor hours will be considered under free eligible callouts as per AMC.
+Swift Code: ADCBAEAA', '2026-03-01T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('76e082d1-b816-4374-8fe8-a66307dc4bdf', '5159298000002379045', 'FF-VAR26-65(rev.01)', '2026-03-02', '2026-03-16', 'ALEX P THAZHAMON', '5159298000001698158', 'rejected', 'AED', 330, 346.5, NULL, NULL, NULL, NULL, 'NOTE: Quotation is prepared only for the material charges & the labor hours will be considered under free eligible callouts as per AMC.
 Note 1: Quote revised with discount as requested by client.
 
 1. Scope of Work:
@@ -1231,8 +1231,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-02 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('45279ac7-98b1-4ead-a02d-9c4244dc262a', '5159298000002381956', 'FF-VAR26-66(Rev.03)', '2026-03-28', '2026-04-11', 'DHL Logistics LLC', '5159298000000088963', 'expired', 'AED', 167878.25, 176272.16, 'Security Enhancement Project - DAFZA AFR', NULL, NULL, NULL, 'NOTE: As discussed on site with client representative, this quotation is provided.
+Swift Code: ADCBAEAA', '2026-03-02T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('45279ac7-98b1-4ead-a02d-9c4244dc262a', '5159298000002381956', 'FF-VAR26-66(Rev.03)', '2026-03-28', '2026-04-11', 'DHL Logistics LLC', '5159298000000088963', 'expired', 'AED', 167878.25, 176272.16, 'Security Enhancement Project - DAFZA AFR', NULL, NULL, NULL, 'NOTE: As discussed on site with client representative, this quotation is provided.
 NOTE 1: Quotation is revised with the discussed scope with our technical team by Mr. Arshad.
 NOTE 2: Quotation is revised with scope in line 2 with Brand change etc & specifications.
 
@@ -1261,8 +1261,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-28 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('f077e1ab-3da2-47a1-bb8a-d00b24501903', '5159298000002384014', 'FF-VAR26-67', '2026-03-03', '2026-03-18', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'expired', 'AED', 235.00, 246.75, 'NRV works at Maktoum Villa', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-03-28T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('f077e1ab-3da2-47a1-bb8a-d00b24501903', '5159298000002384014', 'FF-VAR26-67', '2026-03-03', '2026-03-18', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'expired', 'AED', 235, 246.75, 'NRV works at Maktoum Villa', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -1286,8 +1286,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-03 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('6bc4be38-bcca-484f-a16c-57fb26a152f5', '5159298000002384036', 'FF-VAR26-68', '2026-03-03', '2026-03-18', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'expired', 'AED', 810.00, 850.50, NULL, NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-03-03T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('6bc4be38-bcca-484f-a16c-57fb26a152f5', '5159298000002384036', 'FF-VAR26-68', '2026-03-03', '2026-03-18', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'expired', 'AED', 810, 850.5, NULL, NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -1311,8 +1311,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-03 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('bae5e3e2-a958-4adf-8fe6-0a72c1dc147b', '5159298000002392025', 'FF-VAR26-69', '2026-03-04', '2026-03-19', 'Emirates REIT (CEIC) PLC', '5159298000002392001', 'invoiced', 'AED', 48500.00, 50925.00, 'EBC Staircase Oil Painting Work', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-03-03T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('bae5e3e2-a958-4adf-8fe6-0a72c1dc147b', '5159298000002392025', 'FF-VAR26-69', '2026-03-04', '2026-03-19', 'Emirates REIT (CEIC) PLC', '5159298000002392001', 'invoiced', 'AED', 48500, 50925, 'EBC Staircase Oil Painting Work', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -1337,8 +1337,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-04 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('84f21930-64c1-4e71-b22a-6bb330fdfd0e', '5159298000002394001', 'FF-VAR26-70(Rev.02)', '2026-03-13', '2026-03-28', 'General International Group', '5159298000002392039', 'expired', 'AED', 74073.75, 77777.44, 'RFQ: Installation of six (06) ducted split units (Brand: LG / O-General) at DCC Labor Camp, Jebel Ali', NULL, NULL, NULL, 'NOTE: Quote revised with max discount as per client request. 
+Swift Code: ADCBAEAA', '2026-03-04T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('84f21930-64c1-4e71-b22a-6bb330fdfd0e', '5159298000002394001', 'FF-VAR26-70(Rev.02)', '2026-03-13', '2026-03-28', 'General International Group', '5159298000002392039', 'expired', 'AED', 74073.75, 77777.44, 'RFQ: Installation of six (06) ducted split units (Brand: LG / O-General) at DCC Labor Camp, Jebel Ali', NULL, NULL, NULL, 'NOTE: Quote revised with max discount as per client request. 
 NOTE 1: As requested by client through email, Quotation is revised with actual cost considering the job will awarded. 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -1366,8 +1366,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-13 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('d897dba9-b7a2-44f8-947c-21ed02eaf115', '5159298000002433001', 'FF-AMC26-10', '2026-03-27', '2026-04-03', 'BRAND VALUE PROJECT MANAGEMENT SERVICES CO. LLC', '5159298000001132065', 'invoiced', 'AED', 3900.00, 4095.00, 'AMC PROPOSAL-3BR- (1st MAR 2026 - 28th FEB 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
+Swift Code: ADCBAEAA', '2026-03-13T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('d897dba9-b7a2-44f8-947c-21ed02eaf115', '5159298000002433001', 'FF-AMC26-10', '2026-03-27', '2026-04-03', 'BRAND VALUE PROJECT MANAGEMENT SERVICES CO. LLC', '5159298000001132065', 'invoiced', 'AED', 3900, 4095, 'AMC PROPOSAL-3BR- (1st MAR 2026 - 28th FEB 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
 1. Scope of Work,
 2. Contract Duration
 3. Response time & Service availability
@@ -1385,8 +1385,8 @@ Advance for every quarter, within 7 days from the date of invoice.
 3.1 Approvals or permits from regulatory authorities (if applicable).
 3.2 Any items not explicitly mentioned in the scope of work.
 4. Contact Information:
-For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', '2026-03-27 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('a2c7e261-aefe-4469-ac39-0dcbb2a642c3', '5159298000002404017', 'FF-VAR26-72(Rev.01)', '2026-03-11', '2026-03-25', 'DIANA MAALOUF', '5159298000001381101', 'expired', 'AED', 3250.00, 3412.50, 'Rectification works - Rooftop', NULL, NULL, NULL, 'Note: Quotation is revised with discount as requested by client.
+For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', '2026-03-27T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('a2c7e261-aefe-4469-ac39-0dcbb2a642c3', '5159298000002404017', 'FF-VAR26-72(Rev.01)', '2026-03-11', '2026-03-25', 'DIANA MAALOUF', '5159298000001381101', 'expired', 'AED', 3250, 3412.5, 'Rectification works - Rooftop', NULL, NULL, NULL, 'Note: Quotation is revised with discount as requested by client.
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
@@ -1412,8 +1412,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-11 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('d0da2a65-6c50-4f19-82ac-b2cfe941170f', '5159298000002404049', 'FF-VAR26-73', '2026-03-10', '2026-03-25', 'AL RAHMANYAH TRADING LLC', '5159298000001706043', 'expired', 'AED', 2198.57, 2308.50, 'Rectification works', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-03-11T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('d0da2a65-6c50-4f19-82ac-b2cfe941170f', '5159298000002404049', 'FF-VAR26-73', '2026-03-10', '2026-03-25', 'AL RAHMANYAH TRADING LLC', '5159298000001706043', 'expired', 'AED', 2198.57, 2308.5, 'Rectification works', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -1437,8 +1437,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-10 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('ff1ad53e-9be0-40d1-acb4-68ea786265dc', '5159298000002406001', 'FF-AMC26-05', '2026-03-10', '2026-03-25', 'MUHAMMAD RIAZ ZUBAIR', '5159298000001131627', 'invoiced', 'AED', 6000.00, 6300.00, 'AMC PROPOSAL-3BR- PREMIUM PACKAGE (10th MAR 2026 - 9th MAR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
+Swift Code: ADCBAEAA', '2026-03-10T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('ff1ad53e-9be0-40d1-acb4-68ea786265dc', '5159298000002406001', 'FF-AMC26-05', '2026-03-10', '2026-03-25', 'MUHAMMAD RIAZ ZUBAIR', '5159298000001131627', 'invoiced', 'AED', 6000, 6300, 'AMC PROPOSAL-3BR- PREMIUM PACKAGE (10th MAR 2026 - 9th MAR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
 1. Scope of Work, 
 2. Contract Duration
 3. Response time & Service availability
@@ -1458,8 +1458,8 @@ Advance for every quarter, within 7 days from the date of invoice.
 4. Contact Information:
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com
 
-', '2026-03-10 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('53cb35e4-5b45-4e69-83f2-8142a8574fe5', '5159298000002406094', 'FF-AMC26-14', '2026-03-10', '2026-03-25', 'Mr. NAJIB KIWAN', '5159298000002406070', 'invoiced', 'AED', 5400.00, 5670.00, 'AMC PROPOSAL-4BR- (16th MAR 2026 - 15th MAR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
+', '2026-03-10T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('53cb35e4-5b45-4e69-83f2-8142a8574fe5', '5159298000002406094', 'FF-AMC26-14', '2026-03-10', '2026-03-25', 'Mr. NAJIB KIWAN', '5159298000002406070', 'invoiced', 'AED', 5400, 5670, 'AMC PROPOSAL-4BR- (16th MAR 2026 - 15th MAR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
 1. Scope of Work, 
 2. Contract Duration
 3. Response time & Service availability
@@ -1478,8 +1478,8 @@ Advance for every 6months, within 7 days from the date of invoice.
 4. Contact Information:
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com 
 
-', '2026-03-10 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('44e41f55-bf8a-4631-b585-d96a486bd0be', '5159298000002415001', 'FF-VAR26-74', '2026-03-13', '2026-03-28', 'GAURAV PARASWANI', '5159298000002012001', 'invoiced', 'AED', 550.00, 577.50, 'AC WORKS', NULL, NULL, NULL, '1. Scope of Work:
+', '2026-03-10T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('44e41f55-bf8a-4631-b585-d96a486bd0be', '5159298000002415001', 'FF-VAR26-74', '2026-03-13', '2026-03-28', 'GAURAV PARASWANI', '5159298000002012001', 'invoiced', 'AED', 550, 577.5, 'AC WORKS', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -1503,8 +1503,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-13 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('f84254ba-9bfb-4f99-b006-104ce45bfbc9', '5159298000002421289', 'FF-VAR26-76(Rev.01)', '2026-03-17', '2026-04-01', 'SWATI SHARMA', '5159298000002421265', 'invoiced', 'AED', 338.10, 355.00, 'RECTIFICATION WORKS', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-03-13T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('f84254ba-9bfb-4f99-b006-104ce45bfbc9', '5159298000002421289', 'FF-VAR26-76(Rev.01)', '2026-03-17', '2026-04-01', 'SWATI SHARMA', '5159298000002421265', 'invoiced', 'AED', 338.1, 355, 'RECTIFICATION WORKS', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -1529,8 +1529,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-17 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('f21ca51b-d150-4618-906a-1fd8deeb8c87', '5159298000002424025', 'FF-VAR26-75', '2026-03-17', '2026-04-01', 'QAVACH TECHNICAL SERVICES L.L.C', '5159298000002424001', 'expired', 'AED', 60089.37, 63093.84, 'Quote for 8 common toilets plumbing works in BIT college Dubai', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-03-17T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('f21ca51b-d150-4618-906a-1fd8deeb8c87', '5159298000002424025', 'FF-VAR26-75', '2026-03-17', '2026-04-01', 'QAVACH TECHNICAL SERVICES L.L.C', '5159298000002424001', 'expired', 'AED', 60089.37, 63093.84, 'Quote for 8 common toilets plumbing works in BIT college Dubai', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -1556,8 +1556,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-17 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('1432ae54-089b-408f-aaaa-29e2fd6df39b', '5159298000002428284', 'FF-AMC26-03', '2026-03-23', '2026-03-31', 'SOMITH WARRIER', '5159298000001121001', 'invoiced', 'AED', 3900.00, 4095.00, 'AMC PROPOSAL-3BR- (10th MAR 2026 - 9th MAR 2027', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
+Swift Code: ADCBAEAA', '2026-03-17T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('1432ae54-089b-408f-aaaa-29e2fd6df39b', '5159298000002428284', 'FF-AMC26-03', '2026-03-23', '2026-03-31', 'SOMITH WARRIER', '5159298000001121001', 'invoiced', 'AED', 3900, 4095, 'AMC PROPOSAL-3BR- (10th MAR 2026 - 9th MAR 2027', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
 1. Scope of Work, 
 2. Contract Duration
 3. Response time & Service availability
@@ -1582,8 +1582,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-23 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('36a718a7-7ea5-435b-b50f-1303874ffaa9', '5159298000002430273', 'FF-VAR26-80', '2026-03-25', '2026-04-02', 'WALID HOBLOS', '5159298000002187001', 'expired', 'AED', 250.00, 262.50, 'AC RECTIFICATION WORKS', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-03-23T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('36a718a7-7ea5-435b-b50f-1303874ffaa9', '5159298000002430273', 'FF-VAR26-80', '2026-03-25', '2026-04-02', 'WALID HOBLOS', '5159298000002187001', 'expired', 'AED', 250, 262.5, 'AC RECTIFICATION WORKS', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -1607,8 +1607,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-25 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('b213a97c-6aae-41af-b38d-9b55dfb7703b', '5159298000002429001', 'FF-VAR26-77', '2026-03-24', '2026-04-08', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 450.00, 472.50, 'Request for Quotation of CDP Supply | Inspire Home (Dubai)', NULL, NULL, NULL, 'NOTE: This item is currently in stock and available on a first-come basis. Please note that once the stock is exhausted, we will not be able to accept further orders due to shipping restrictions.
+Swift Code: ADCBAEAA', '2026-03-25T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('b213a97c-6aae-41af-b38d-9b55dfb7703b', '5159298000002429001', 'FF-VAR26-77', '2026-03-24', '2026-04-08', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 450, 472.5, 'Request for Quotation of CDP Supply | Inspire Home (Dubai)', NULL, NULL, NULL, 'NOTE: This item is currently in stock and available on a first-come basis. Please note that once the stock is exhausted, we will not be able to accept further orders due to shipping restrictions.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -1634,8 +1634,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-24 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('c5183540-b034-4755-8405-a865e34c92c0', '5159298000002481043', 'FF-AMC26-22', '2026-04-28', '2026-05-06', 'SANJEEV KUMAR', '5159298000002481031', 'invoiced', 'AED', 4500.00, 4725.00, 'AMC PROPOSAL-4BR- (28th APR 2026 - 27th APR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
+Swift Code: ADCBAEAA', '2026-03-24T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('c5183540-b034-4755-8405-a865e34c92c0', '5159298000002481043', 'FF-AMC26-22', '2026-04-28', '2026-05-06', 'SANJEEV KUMAR', '5159298000002481031', 'invoiced', 'AED', 4500, 4725, 'AMC PROPOSAL-4BR- (28th APR 2026 - 27th APR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
 1. Scope of Work,
 2. Contract Duration
 3. Response time & Service availability
@@ -1661,8 +1661,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-28 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('3f93e1cc-4c07-4621-9359-34d1f4a13019', '5159298000002430193', 'FF-VAR26-78', '2026-03-25', '2026-04-02', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 1440.00, 1512.00, 'MOCKUP WORK - EBC PLANTER BOX WORKS', NULL, NULL, NULL, 'Note: This is to inform you that the mockup work was completed on 31st December following your email approval of our quotation and confirmation for LPO issuance.
+Swift Code: ADCBAEAA', '2026-04-28T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('3f93e1cc-4c07-4621-9359-34d1f4a13019', '5159298000002430193', 'FF-VAR26-78', '2026-03-25', '2026-04-02', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 1440, 1512, 'MOCKUP WORK - EBC PLANTER BOX WORKS', NULL, NULL, NULL, 'Note: This is to inform you that the mockup work was completed on 31st December following your email approval of our quotation and confirmation for LPO issuance.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -1688,8 +1688,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-25 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('367a6c71-b0b4-4993-81f6-1fd883e4786d', '5159298000002430239', 'FF-VAR26-79(Rev.03)', '2026-05-16', '2026-05-31', 'Apex Plus facility Management LLC', '5159298000002430215', 'expired', 'AED', 119660.00, 125643.00, 'Removal of Artificial Grass and Supply & Installation of Pavement Tiles', NULL, NULL, NULL, 'Note: Quotation is revised by removing the additional scope as instructed by client.
+Swift Code: ADCBAEAA', '2026-03-25T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('367a6c71-b0b4-4993-81f6-1fd883e4786d', '5159298000002430239', 'FF-VAR26-79(Rev.03)', '2026-05-16', '2026-05-31', 'Apex Plus facility Management LLC', '5159298000002430215', 'expired', 'AED', 119660, 125643, 'Removal of Artificial Grass and Supply & Installation of Pavement Tiles', NULL, NULL, NULL, 'Note: Quotation is revised by removing the additional scope as instructed by client.
 NOTE 1: Quote is revised with maximum possible discount as requested by client.
 
 NOTE 2: The quotation has been revised as the validity of the previously submitted quotation has expired. Additionally, due to the current war situation, market prices have increased significantly. Therefore, we regret to inform you that we will not be able to proceed with the previously submitted pricing.
@@ -1736,8 +1736,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-16 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('23e89230-4124-432a-a757-f330de47e84d', '5159298000002543001', 'FF-AMC26-27', '2026-06-02', '2026-06-17', 'M/s. Age Group', '5159298000000087025', 'invoiced', 'AED', 5500.00, 5775.00, 'AMC PROPOSAL - AC UNITS', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
+Swift Code: ADCBAEAA', '2026-05-16T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('23e89230-4124-432a-a757-f330de47e84d', '5159298000002543001', 'FF-AMC26-27', '2026-06-02', '2026-06-17', 'M/s. Age Group', '5159298000000087025', 'invoiced', 'AED', 5500, 5775, 'AMC PROPOSAL - AC UNITS', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
 1. Scope of Work, 
 2. Contract Duration
 3. Response time & Service availability
@@ -1763,8 +1763,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-02 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('1df84ed9-22c6-43c2-85e4-2493c39bc3a7', '5159298000002430327', 'FF-VAR26-81', '2026-03-26', '2026-04-10', 'RAJESH SHARMA', '5159298000002430303', 'expired', 'AED', 1455.00, 1527.75, NULL, NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-06-02T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('1df84ed9-22c6-43c2-85e4-2493c39bc3a7', '5159298000002430327', 'FF-VAR26-81', '2026-03-26', '2026-04-10', 'RAJESH SHARMA', '5159298000002430303', 'expired', 'AED', 1455, 1527.75, NULL, NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -1789,8 +1789,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-26 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('c5c27b37-00b5-4807-b0b0-d9c53d7ed520', '5159298000002481001', 'FF-AMC26-20', '2026-04-27', '2026-05-05', 'DIANA MAALOUF', '5159298000001381101', 'invoiced', 'AED', 3150.00, 3307.50, 'AMC PROPOSAL-3BR- (28th APR 2026 - 27th APR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
+Swift Code: ADCBAEAA', '2026-03-26T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('c5c27b37-00b5-4807-b0b0-d9c53d7ed520', '5159298000002481001', 'FF-AMC26-20', '2026-04-27', '2026-05-05', 'DIANA MAALOUF', '5159298000001381101', 'invoiced', 'AED', 3150, 3307.5, 'AMC PROPOSAL-3BR- (28th APR 2026 - 27th APR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
 1. Scope of Work,
 2. Contract Duration
 3. Response time & Service availability
@@ -1817,8 +1817,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-27 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('f2b758f2-c370-4348-b22e-d61bc1731953', '5159298000002430349', 'FF-VAR26-82', '2026-03-26', '2026-04-10', 'SATHIAPATHI', '5159298000000088889', 'expired', 'AED', 3609.75, 3790.24, 'RECTIFICATION WORKS', NULL, NULL, NULL, 'NOTE: As discussed during the site inspection on 25th Mar for the above works, this quotation is provided.
+Swift Code: ADCBAEAA', '2026-04-27T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('f2b758f2-c370-4348-b22e-d61bc1731953', '5159298000002430349', 'FF-VAR26-82', '2026-03-26', '2026-04-10', 'SATHIAPATHI', '5159298000000088889', 'expired', 'AED', 3609.75, 3790.24, 'RECTIFICATION WORKS', NULL, NULL, NULL, 'NOTE: As discussed during the site inspection on 25th Mar for the above works, this quotation is provided.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -1845,8 +1845,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-26 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('06e0b2fc-967d-41bd-b762-3098b3e62183', '5159298000002430813', 'FF-VAR26-83', '2026-03-26', '2026-04-10', 'SEEMA NAIR', '5159298000000088409', 'expired', 'AED', 11500.00, 12075.00, 'WATERPROOFING WORKS', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-03-26T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('06e0b2fc-967d-41bd-b762-3098b3e62183', '5159298000002430813', 'FF-VAR26-83', '2026-03-26', '2026-04-10', 'SEEMA NAIR', '5159298000000088409', 'expired', 'AED', 11500, 12075, 'WATERPROOFING WORKS', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -1877,8 +1877,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-26 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('4186cf68-4469-4df8-bb08-e198e7d3f8c3', '5159298000002430835', 'FF-VAR26-84', '2026-03-26', '2026-04-10', 'SEEMA NAIR', '5159298000000088409', 'expired', 'AED', 2900.00, 3045.00, 'Pigeon Preventive Net Installation', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-03-26T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('4186cf68-4469-4df8-bb08-e198e7d3f8c3', '5159298000002430835', 'FF-VAR26-84', '2026-03-26', '2026-04-10', 'SEEMA NAIR', '5159298000000088409', 'expired', 'AED', 2900, 3045, 'Pigeon Preventive Net Installation', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -1903,8 +1903,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-26 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('d92090ff-9ce8-4554-a5d5-1041a32edb0e', '5159298000002430865', 'FF-VAR26-85(Rev.01)', '2026-03-26', '2026-04-10', 'ANAND VEETIIL', '5159298000001131541', 'invoiced', 'AED', 333.33, 350.00, 'PEST CONTROL TREATMENT', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-03-26T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('d92090ff-9ce8-4554-a5d5-1041a32edb0e', '5159298000002430865', 'FF-VAR26-85(Rev.01)', '2026-03-26', '2026-04-10', 'ANAND VEETIIL', '5159298000001131541', 'invoiced', 'AED', 333.33, 350, 'PEST CONTROL TREATMENT', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -1930,8 +1930,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-26 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('da44afec-087d-43d2-b408-05d41525f25f', '5159298000002432001', 'FF-AMC26-11', '2026-03-26', '2026-04-02', 'RICHU MUSALIAR', '5159298000001134129', 'invoiced', 'AED', 3900.00, 4095.00, 'AMC PROPOSAL-3BR- (1st MAR 2026 - 28th FEB 2027)
+Swift Code: ADCBAEAA', '2026-03-26T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('da44afec-087d-43d2-b408-05d41525f25f', '5159298000002432001', 'FF-AMC26-11', '2026-03-26', '2026-04-02', 'RICHU MUSALIAR', '5159298000001134129', 'invoiced', 'AED', 3900, 4095, 'AMC PROPOSAL-3BR- (1st MAR 2026 - 28th FEB 2027)
 ', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
 1. Scope of Work, 
 2. Contract Duration
@@ -1957,8 +1957,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-26 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('19368e35-66ba-4c25-82cc-a17925653548', '5159298000002433070', 'FF-VAR26-86', '2026-03-27', '2026-04-11', 'ZLATINA GETOVA', '5159298000001639109', 'expired', 'AED', 1200.00, 1260.00, 'WATER HEATER WORKS', NULL, NULL, NULL, 'NOTE: During the electrical works on 26th Mar, identified water heater is damaged.
+Swift Code: ADCBAEAA', '2026-03-26T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('19368e35-66ba-4c25-82cc-a17925653548', '5159298000002433070', 'FF-VAR26-86', '2026-03-27', '2026-04-11', 'ZLATINA GETOVA', '5159298000001639109', 'expired', 'AED', 1200, 1260, 'WATER HEATER WORKS', NULL, NULL, NULL, 'NOTE: During the electrical works on 26th Mar, identified water heater is damaged.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -1984,8 +1984,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-27 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('4e3ad549-4ad8-42d6-b987-2b9739a90539', '5159298000002434025', 'FF-VAR26-87', '2026-03-27', '2026-04-11', 'SUHAIL', '5159298000002434001', 'expired', 'AED', 1450.00, 1522.50, NULL, NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-03-27T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('4e3ad549-4ad8-42d6-b987-2b9739a90539', '5159298000002434025', 'FF-VAR26-87', '2026-03-27', '2026-04-11', 'SUHAIL', '5159298000002434001', 'expired', 'AED', 1450, 1522.5, NULL, NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -2012,8 +2012,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-27 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('4eddd629-8b00-498b-b105-f9bc8aa73316', '5159298000002434178', 'FF-VAR26-88', '2026-03-28', '2026-04-12', 'Khaldoun Ahmed Ibrahim Ketana', '5159298000001382045', 'expired', 'AED', 4415.50, 4636.28, 'Roof Pump set Rectification works', NULL, NULL, NULL, 'Note: As per the emergency callout on 27th Mar, our team attended the site and completed the inspection. No damage was found on the motor installed by our team, and no water had entered the motor’s electrical points. All related components were thoroughly checked. This quotation is provided is based on the request by client.
+Swift Code: ADCBAEAA', '2026-03-27T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('4eddd629-8b00-498b-b105-f9bc8aa73316', '5159298000002434178', 'FF-VAR26-88', '2026-03-28', '2026-04-12', 'Khaldoun Ahmed Ibrahim Ketana', '5159298000001382045', 'expired', 'AED', 4415.5, 4636.28, 'Roof Pump set Rectification works', NULL, NULL, NULL, 'Note: As per the emergency callout on 27th Mar, our team attended the site and completed the inspection. No damage was found on the motor installed by our team, and no water had entered the motor’s electrical points. All related components were thoroughly checked. This quotation is provided is based on the request by client.
 
 During the inspection of the Ground Floor DB, it was found that the ELCB and MCB breakers were damaged due to rainwater. The same has been informed to the client.
 
@@ -2043,8 +2043,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-28 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('66e936f6-f33d-47ba-966b-21414589c6b4', '5159298000002434200', 'FF-VAR26-89', '2026-03-28', '2026-04-12', 'MARC CHAMMAA', '5159298000001157001', 'expired', 'AED', 3466.25, 3639.56, 'AC Rectification works - 2 Units (living Room & Bedroom)', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-03-28T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('66e936f6-f33d-47ba-966b-21414589c6b4', '5159298000002434200', 'FF-VAR26-89', '2026-03-28', '2026-04-12', 'MARC CHAMMAA', '5159298000001157001', 'expired', 'AED', 3466.25, 3639.56, 'AC Rectification works - 2 Units (living Room & Bedroom)', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -2069,8 +2069,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-28 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('cd8a4e8a-a439-46ad-8428-759bf6c8a123', '5159298000002434236', 'FF-AMC26-13', '2026-03-28', '2026-04-04', 'SUJITH VARGHESE', '5159298000001159001', 'invoiced', 'AED', 4200.00, 4410.00, 'AMC PROPOSAL-4BR- (1st MAR 2026 - 28th FEB 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
+Swift Code: ADCBAEAA', '2026-03-28T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('cd8a4e8a-a439-46ad-8428-759bf6c8a123', '5159298000002434236', 'FF-AMC26-13', '2026-03-28', '2026-04-04', 'SUJITH VARGHESE', '5159298000001159001', 'invoiced', 'AED', 4200, 4410, 'AMC PROPOSAL-4BR- (1st MAR 2026 - 28th FEB 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
 1. Scope of Work,
 2. Contract Duration
 3. Response time & Service availability
@@ -2095,8 +2095,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-28 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('7b160923-4938-4b3d-b840-e99c3fcec3f2', '5159298000002436001', 'FF-VAR26-90(Rev.01)', '2026-04-02', '2026-04-14', 'MAYA MENON', '5159298000002191017', 'invoiced', 'AED', 1300.00, 1365.00, 'AC DUCT CLEANING & DISINFECTION SERVICES', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-03-28T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('7b160923-4938-4b3d-b840-e99c3fcec3f2', '5159298000002436001', 'FF-VAR26-90(Rev.01)', '2026-04-02', '2026-04-14', 'MAYA MENON', '5159298000002191017', 'invoiced', 'AED', 1300, 1365, 'AC DUCT CLEANING & DISINFECTION SERVICES', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -2125,8 +2125,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-02 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('95dd6bf0-1fd2-47f2-9d6f-221c9ef3cbe1', '5159298000002438053', 'FF-VAR26-91', '2026-03-31', '2026-04-15', 'ROHIT', '5159298000002438029', 'expired', 'AED', 5256.25, 5519.06, 'RECTIFICATION WORKS', NULL, NULL, NULL, 'NOTE: As discussed during the yesterday''s inspection for the above works, this quotation is provided with our best price.
+Swift Code: ADCBAEAA', '2026-04-02T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('95dd6bf0-1fd2-47f2-9d6f-221c9ef3cbe1', '5159298000002438053', 'FF-VAR26-91', '2026-03-31', '2026-04-15', 'ROHIT', '5159298000002438029', 'expired', 'AED', 5256.25, 5519.06, 'RECTIFICATION WORKS', NULL, NULL, NULL, 'NOTE: As discussed during the yesterday''s inspection for the above works, this quotation is provided with our best price.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -2153,8 +2153,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-03-31 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('870f32b3-29d8-4cde-b519-c7c1f5321d93', '5159298000002439001', 'FF-VAR26-92(Rev.01)', '2026-04-02', '2026-04-17', 'MAYA MENON', '5159298000002191017', 'expired', 'AED', 5095.24, 5350.00, 'GARDEN AREA ELECTRICAL RECTIFICATION WORK', NULL, NULL, NULL, 'Note: Any additional works, such as tile fixing or artificial grass installation, if required after the completion of the electrical work, will be carried out subject to the client’s approval. The cost for these works will be quoted separately.
+Swift Code: ADCBAEAA', '2026-03-31T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('870f32b3-29d8-4cde-b519-c7c1f5321d93', '5159298000002439001', 'FF-VAR26-92(Rev.01)', '2026-04-02', '2026-04-17', 'MAYA MENON', '5159298000002191017', 'expired', 'AED', 5095.24, 5350, 'GARDEN AREA ELECTRICAL RECTIFICATION WORK', NULL, NULL, NULL, 'Note: Any additional works, such as tile fixing or artificial grass installation, if required after the completion of the electrical work, will be carried out subject to the client’s approval. The cost for these works will be quoted separately.
 
 Note 1: quotation is revised with discount as requested by client.
 
@@ -2185,8 +2185,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-02 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('a9b0b223-b6ff-4258-ac87-4af20902de9e', '5159298000002439089', 'FF-VAR26-94', '2026-04-02', '2026-04-17', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 11700.00, 12285.00, 'RFQ | PR - 1000283867 | Air Curtain Replacement Work | Inspire Home', NULL, NULL, NULL, 'NOTE: Quote is revised based on current market rate.
+Swift Code: ADCBAEAA', '2026-04-02T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('a9b0b223-b6ff-4258-ac87-4af20902de9e', '5159298000002439089', 'FF-VAR26-94', '2026-04-02', '2026-04-17', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 11700, 12285, 'RFQ | PR - 1000283867 | Air Curtain Replacement Work | Inspire Home', NULL, NULL, NULL, 'NOTE: Quote is revised based on current market rate.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -2212,8 +2212,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-02 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('d1f58cf4-14ad-4c37-bd13-19560cda64ac', '5159298000002439163', 'FF-VAR26-95', '2026-04-02', '2026-04-17', 'KHIDMAH - SOLE PROPRIETORSHIP LLC', '5159298000002439139', 'expired', 'AED', 16900.00, 17745.00, 'Proposal for Sewage Pump Rectification works JB X3 - Maintenance Rectification Work', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-04-02T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('d1f58cf4-14ad-4c37-bd13-19560cda64ac', '5159298000002439163', 'FF-VAR26-95', '2026-04-02', '2026-04-17', 'KHIDMAH - SOLE PROPRIETORSHIP LLC', '5159298000002439139', 'expired', 'AED', 16900, 17745, 'Proposal for Sewage Pump Rectification works JB X3 - Maintenance Rectification Work', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -2238,8 +2238,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-02 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('c60031e1-a641-42ba-af8f-1aca1f6dd5b2', '5159298000002440025', 'FF-VAR26-93', '2026-04-03', '2026-04-18', 'D S C FACILITIES SERVICES CO. L.L.C', '5159298000002440001', 'expired', 'AED', 17875.00, 18768.75, 'Proposal for Repairing damaged underground irrigation pipe UPVC in VH Oliva village', NULL, NULL, NULL, 'NOTE: As per the site inspection discussed by both parties, this quotation is provided based on the actual scope.
+Swift Code: ADCBAEAA', '2026-04-02T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('c60031e1-a641-42ba-af8f-1aca1f6dd5b2', '5159298000002440025', 'FF-VAR26-93', '2026-04-03', '2026-04-18', 'D S C FACILITIES SERVICES CO. L.L.C', '5159298000002440001', 'expired', 'AED', 17875, 18768.75, 'Proposal for Repairing damaged underground irrigation pipe UPVC in VH Oliva village', NULL, NULL, NULL, 'NOTE: As per the site inspection discussed by both parties, this quotation is provided based on the actual scope.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -2266,8 +2266,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-03 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('666591f6-5912-494b-a20b-0da954a1de5e', '5159298000002440069', 'FF-VAR26-96', '2026-04-03', '2026-04-18', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 4780.00, 5019.00, 'Proposal for wash basin broken marble replacement with angle support - Orchid, 403', NULL, NULL, NULL, 'NOTE: This quotation is provided based on the client shared measurements & design through email.
+Swift Code: ADCBAEAA', '2026-04-03T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('666591f6-5912-494b-a20b-0da954a1de5e', '5159298000002440069', 'FF-VAR26-96', '2026-04-03', '2026-04-18', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 4780, 5019, 'Proposal for wash basin broken marble replacement with angle support - Orchid, 403', NULL, NULL, NULL, 'NOTE: This quotation is provided based on the client shared measurements & design through email.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -2293,8 +2293,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-03 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('73fde09a-ac4c-430a-861e-4c3ebb24db25', '5159298000002442001', 'FF-VAR26-97', '2026-04-04', '2026-04-19', 'KHIDMAH - SOLE PROPRIETORSHIP LLC', '5159298000002439139', 'expired', 'AED', 5381.25, 5650.31, 'Proposal for Sump Pump Rectification', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-04-03T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('73fde09a-ac4c-430a-861e-4c3ebb24db25', '5159298000002442001', 'FF-VAR26-97', '2026-04-04', '2026-04-19', 'KHIDMAH - SOLE PROPRIETORSHIP LLC', '5159298000002439139', 'expired', 'AED', 5381.25, 5650.31, 'Proposal for Sump Pump Rectification', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -2320,8 +2320,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-04 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('db5beff5-4945-46d5-ab16-5ca5e16e4ded', '5159298000002442063', 'FF-VAR26-98(Rev.01)', '2026-04-07', '2026-04-21', 'TABEER DEVELOPMENT', '5159298000002442039', 'invoiced', 'AED', 6000.00, 6300.00, 'Proposal for Manpower Supply - FM Engineer (06.04.2026 till 05.05.2026)', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-04-04T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('db5beff5-4945-46d5-ab16-5ca5e16e4ded', '5159298000002442063', 'FF-VAR26-98(Rev.01)', '2026-04-07', '2026-04-21', 'TABEER DEVELOPMENT', '5159298000002442039', 'invoiced', 'AED', 6000, 6300, 'Proposal for Manpower Supply - FM Engineer (06.04.2026 till 05.05.2026)', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -2345,8 +2345,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-07 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('3c1cf55b-e163-4e9e-8834-587884ea891f', '5159298000002442233', 'FF-VAR26-99', '2026-04-06', '2026-04-22', 'HIRESH', '5159298000002442209', 'invoiced', 'AED', 1000.00, 1050.00, 'Proposal for Snags - 2 BR Apt', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-04-07T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('3c1cf55b-e163-4e9e-8834-587884ea891f', '5159298000002442233', 'FF-VAR26-99', '2026-04-06', '2026-04-22', 'HIRESH', '5159298000002442209', 'invoiced', 'AED', 1000, 1050, 'Proposal for Snags - 2 BR Apt', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -2370,8 +2370,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-06 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('ff0973e6-9deb-4bde-9253-532a52fcdfaa', '5159298000002444001', 'FF-VAR26-100', '2026-04-08', '2026-04-23', 'Apex Plus facility Management LLC', '5159298000002430215', 'expired', 'AED', 3750.00, 3937.50, 'Proposal for AC Unit Installation works at Sharjah University', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-04-06T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('ff0973e6-9deb-4bde-9253-532a52fcdfaa', '5159298000002444001', 'FF-VAR26-100', '2026-04-08', '2026-04-23', 'Apex Plus facility Management LLC', '5159298000002430215', 'expired', 'AED', 3750, 3937.5, 'Proposal for AC Unit Installation works at Sharjah University', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -2396,8 +2396,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-08 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('b4bdde69-dd35-4523-b5b5-6952f4a85aeb', '5159298000002446092', 'FF-VAR26-101', '2026-04-09', '2026-04-24', 'OMAR HAMIE', '5159298000002438145', 'invoiced', 'AED', 2325.00, 2441.25, 'AC COMPREHENSIVE SERVICE - 5 UNITS', NULL, NULL, NULL, 'NOTE: AC General service already completed on 8th Apr as per the provided schedule.
+Swift Code: ADCBAEAA', '2026-04-08T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('b4bdde69-dd35-4523-b5b5-6952f4a85aeb', '5159298000002446092', 'FF-VAR26-101', '2026-04-09', '2026-04-24', 'OMAR HAMIE', '5159298000002438145', 'invoiced', 'AED', 2325, 2441.25, 'AC COMPREHENSIVE SERVICE - 5 UNITS', NULL, NULL, NULL, 'NOTE: AC General service already completed on 8th Apr as per the provided schedule.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -2424,8 +2424,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-09 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('c09c8cf4-cfa8-4750-b4c2-ad4f9ece70a4', '5159298000002446346', 'FF-VAR26-102(Rev.01)', '2026-04-10', '2026-04-24', 'KHIDMAH - SOLE PROPRIETORSHIP LLC', '5159298000002439139', 'expired', 'AED', 134446.00, 141168.30, 'RFQ for PR 1000322882 SOW Water proofing and facade glass seal repair, Building 24. ', NULL, NULL, NULL, 'NOTE: The scope is as per the site inspection discussion with our technical team by the Site incharge.
+Swift Code: ADCBAEAA', '2026-04-09T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('c09c8cf4-cfa8-4750-b4c2-ad4f9ece70a4', '5159298000002446346', 'FF-VAR26-102(Rev.01)', '2026-04-10', '2026-04-24', 'KHIDMAH - SOLE PROPRIETORSHIP LLC', '5159298000002439139', 'expired', 'AED', 134446, 141168.3, 'RFQ for PR 1000322882 SOW Water proofing and facade glass seal repair, Building 24. ', NULL, NULL, NULL, 'NOTE: The scope is as per the site inspection discussion with our technical team by the Site incharge.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -2453,8 +2453,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-10 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('40873ad2-94e1-45c0-958c-cad0a2200739', '5159298000002446392', 'FF-AMC26-19', '2026-04-09', '2026-04-24', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'invoiced', 'AED', 20952.38, 22000.00, 'AMC SERVICES (1st Apr 2026 to 31st Mar 2027)', NULL, NULL, NULL, '1. Scope of Services:
+Swift Code: ADCBAEAA', '2026-04-10T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('40873ad2-94e1-45c0-958c-cad0a2200739', '5159298000002446392', 'FF-AMC26-19', '2026-04-09', '2026-04-24', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'invoiced', 'AED', 20952.38, 22000, 'AMC SERVICES (1st Apr 2026 to 31st Mar 2027)', NULL, NULL, NULL, '1. Scope of Services:
 1.1 The AMC services provided under this agreement will cover maintenance, repairs, and support as per the terms outlined in the signed agreement.
 1.2 Any additional services beyond the agreed scope will be subject to separate charges.
 2. Service Response & Resolution Time:
@@ -2476,8 +2476,8 @@ INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_d
 7. Contact Information:
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
 Payment Terms: Advance for every quarter, within 7 days from the   date of invoice
-Commencement Date: 1st Apr 2026', '2026-04-09 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('304e34de-9e6f-4ece-b342-20c5a9e0a964', '5159298000002446414', 'FF-AMC26-16', '2026-04-09', '2026-04-24', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'invoiced', 'AED', 17142.86, 18000.00, 'AMC SERVICES (1st Apr 2026 to 31st Mar 2027)', NULL, NULL, NULL, '1. Scope of Services:
+Commencement Date: 1st Apr 2026', '2026-04-09T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('304e34de-9e6f-4ece-b342-20c5a9e0a964', '5159298000002446414', 'FF-AMC26-16', '2026-04-09', '2026-04-24', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'invoiced', 'AED', 17142.86, 18000, 'AMC SERVICES (1st Apr 2026 to 31st Mar 2027)', NULL, NULL, NULL, '1. Scope of Services:
 1.1 The AMC services provided under this agreement will cover maintenance, repairs, and support as per the terms outlined in the signed agreement.
 1.2 Any additional services beyond the agreed scope will be subject to separate charges.
 2. Service Response & Resolution Time:
@@ -2499,8 +2499,8 @@ INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_d
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
 Payment Terms: Advance for every quarter, within 7 days from the   date of invoice
 Commencement Date: 1st Apr 2026
-', '2026-04-09 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('523a910f-7ac6-4f0b-8708-318efe9f2958', '5159298000002446436', 'FF-AMC26-18', '2026-04-09', '2026-04-24', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'invoiced', 'AED', 24761.90, 26000.00, 'AMC SERVICES (1st Apr 2026 to 31st Mar 2027)', NULL, NULL, NULL, '1. Scope of Services:
+', '2026-04-09T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('523a910f-7ac6-4f0b-8708-318efe9f2958', '5159298000002446436', 'FF-AMC26-18', '2026-04-09', '2026-04-24', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'invoiced', 'AED', 24761.9, 26000, 'AMC SERVICES (1st Apr 2026 to 31st Mar 2027)', NULL, NULL, NULL, '1. Scope of Services:
 1.1 The AMC services provided under this agreement will cover maintenance, repairs, and support as per the terms outlined in the signed agreement.
 1.2 Any additional services beyond the agreed scope will be subject to separate charges.
 2. Service Response & Resolution Time:
@@ -2521,8 +2521,8 @@ INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_d
 7. Contact Information:
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
 Payment Terms: Advance for every quarter, within 7 days from the   date of invoice
-Commencement Date: 1st Apr 2026', '2026-04-09 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('2a5ef03c-d03b-4505-bdbe-4a6927832547', '5159298000002446458', 'FF-AMC26-17', '2026-04-09', '2026-04-24', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'invoiced', 'AED', 15238.10, 16000.00, 'AMC SERVICES (1st Apr 2026 to 31st Mar 2027)', NULL, NULL, NULL, '1. Scope of Services:
+Commencement Date: 1st Apr 2026', '2026-04-09T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('2a5ef03c-d03b-4505-bdbe-4a6927832547', '5159298000002446458', 'FF-AMC26-17', '2026-04-09', '2026-04-24', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'invoiced', 'AED', 15238.1, 16000, 'AMC SERVICES (1st Apr 2026 to 31st Mar 2027)', NULL, NULL, NULL, '1. Scope of Services:
 1.1 The AMC services provided under this agreement will cover maintenance, repairs, and support as per the terms outlined in the signed agreement.
 1.2 Any additional services beyond the agreed scope will be subject to separate charges.
 2. Service Response & Resolution Time:
@@ -2544,8 +2544,8 @@ INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_d
 For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
 Payment Terms: Advance for every quarter, within 7 days from the   date of invoice
 Commencement Date: 1st Apr 2026
-', '2026-04-09 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('78e15921-494f-4672-a945-888e13a30f83', '5159298000002456170', 'FF-VAR26-108(Rev.03)', '2026-04-21', '2026-05-14', 'HARI SIVAN', '5159298000002451003', 'invoiced', 'AED', 46446.50, 48768.83, 'VILLA RECTIFICATION WORKS', NULL, NULL, NULL, 'Note:
+', '2026-04-09T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('78e15921-494f-4672-a945-888e13a30f83', '5159298000002456170', 'FF-VAR26-108(Rev.03)', '2026-04-21', '2026-05-14', 'HARI SIVAN', '5159298000002451003', 'invoiced', 'AED', 46446.5, 48768.83, 'VILLA RECTIFICATION WORKS', NULL, NULL, NULL, 'Note:
 1. All dimensions are approximate and subject to site verification.
 2. Any additional work outside the above scope will be charged separately.
 3. Client-supplied materials must be available prior to execution.
@@ -2579,8 +2579,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-21 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('31893dd6-99d6-4eba-8a81-d395968b9bae', '5159298000002451027', 'FF-VAR26-103', '2026-04-13', '2026-04-28', 'HARI SIVAN', '5159298000002451003', 'expired', 'AED', 65393.75, 68663.44, 'VILLA RECTIFICATION WORKS', NULL, NULL, NULL, 'NOTE: Proposal is revised as per the discussion with our technical team Mr. Texan by client.
+Swift Code: ADCBAEAA', '2026-04-21T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('31893dd6-99d6-4eba-8a81-d395968b9bae', '5159298000002451027', 'FF-VAR26-103', '2026-04-13', '2026-04-28', 'HARI SIVAN', '5159298000002451003', 'expired', 'AED', 65393.75, 68663.44, 'VILLA RECTIFICATION WORKS', NULL, NULL, NULL, 'NOTE: Proposal is revised as per the discussion with our technical team Mr. Texan by client.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -2608,8 +2608,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-13 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('22251a14-b8a2-42c4-afaf-fe120d834ba8', '5159298000002451093', 'FF-VAR26-104', '2026-04-13', '2026-04-28', 'OMAR HAMIE', '5159298000002438145', 'invoiced', 'AED', 800.00, 840.00, 'AC Rectification works', NULL, NULL, NULL, 'NOTE: As per the site inspection identified the issue on 11th Apr, this proposal is provided.
+Swift Code: ADCBAEAA', '2026-04-13T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('22251a14-b8a2-42c4-afaf-fe120d834ba8', '5159298000002451093', 'FF-VAR26-104', '2026-04-13', '2026-04-28', 'OMAR HAMIE', '5159298000002438145', 'invoiced', 'AED', 800, 840, 'AC Rectification works', NULL, NULL, NULL, 'NOTE: As per the site inspection identified the issue on 11th Apr, this proposal is provided.
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
@@ -2634,8 +2634,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-13 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('f0363a9b-03dd-4ff6-b263-ea8769f064a2', '5159298000002451332', 'FF-VAR26-105 ( Rev.01)', '2026-06-25', '2026-07-08', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 2800.00, 2940.00, 'RFQ I PR 1000321345 | EBC - External Bollard Light Replacement ', NULL, NULL, NULL, 'This quotation had been revised as the current date as requested through the mail. The PO will not be accepted after the quotation validity. 
+Swift Code: ADCBAEAA', '2026-04-13T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('f0363a9b-03dd-4ff6-b263-ea8769f064a2', '5159298000002451332', 'FF-VAR26-105 ( Rev.01)', '2026-06-25', '2026-07-08', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 2800, 2940, 'RFQ I PR 1000321345 | EBC - External Bollard Light Replacement ', NULL, NULL, NULL, 'This quotation had been revised as the current date as requested through the mail. The PO will not be accepted after the quotation validity. 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
@@ -2660,8 +2660,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-25 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('f8d4f14d-f4fc-4cee-a89f-0149cf761864', '5159298000002456001', 'FF-VAR26-106', '2026-04-15', '2026-04-30', 'HIRESH', '5159298000002442209', 'expired', 'AED', 13062.50, 13715.63, 'PROPOSAL FOR SNAGS RECTIFICATION', NULL, NULL, NULL, 'NOTE: 1. This proposal is prepared as per the identified snags and shared the snag report for rectification.
+Swift Code: ADCBAEAA', '2026-06-25T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('f8d4f14d-f4fc-4cee-a89f-0149cf761864', '5159298000002456001', 'FF-VAR26-106', '2026-04-15', '2026-04-30', 'HIRESH', '5159298000002442209', 'expired', 'AED', 13062.5, 13715.63, 'PROPOSAL FOR SNAGS RECTIFICATION', NULL, NULL, NULL, 'NOTE: 1. This proposal is prepared as per the identified snags and shared the snag report for rectification.
 2. All works will be carried out as per site conditions.
 3. Any additional works identified during execution will be communicated separately.
 4. Materials and workmanship will comply with standard maintenance practices.
@@ -2692,8 +2692,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-15 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('6af628e9-a76b-42b2-8abb-45d493069fea', '5159298000002456132', 'FF-VAR26-107', '2026-04-15', '2026-04-30', 'VARGHESE', '5159298000000625001', 'expired', 'AED', 2900.00, 3045.00, 'Proposal for Pigeon Net installation work', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-04-15T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('6af628e9-a76b-42b2-8abb-45d493069fea', '5159298000002456132', 'FF-VAR26-107', '2026-04-15', '2026-04-30', 'VARGHESE', '5159298000000625001', 'expired', 'AED', 2900, 3045, 'Proposal for Pigeon Net installation work', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -2717,8 +2717,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-15 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('6a8f3261-1209-422b-a672-f6dec70010db', '5159298000002456228', 'FF-VAR26-109(Rev.03)', '2026-04-21', '2026-04-30', 'HARI SIVAN', '5159298000002451003', 'accepted', 'AED', 20007.50, 21007.88, 'VILLA RECTIFICATION WORKS', NULL, NULL, NULL, 'Notes:
+Swift Code: ADCBAEAA', '2026-04-15T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('6a8f3261-1209-422b-a672-f6dec70010db', '5159298000002456228', 'FF-VAR26-109(Rev.03)', '2026-04-21', '2026-04-30', 'HARI SIVAN', '5159298000002451003', 'accepted', 'AED', 20007.5, 21007.88, 'VILLA RECTIFICATION WORKS', NULL, NULL, NULL, 'Notes:
 1. All above works are subject to developer approval prior to execution.
 2. Final measurements and site conditions will be verified before commencement.
 3. Any additional civil or structural modifications required will be quoted separately.
@@ -2752,8 +2752,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-21 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('1998dd8e-a190-4fa1-bc6b-982a1094dd77', '5159298000002457176', 'FF-VAR26-110(Rev.02)', '2026-04-21', '2026-05-01', 'HARI SIVAN', '5159298000002451003', 'expired', 'AED', 3330.00, 3496.50, 'ANNEXURE FOR THE PREVIOUS QUOTE (FF-VAR26-108)', NULL, NULL, NULL, 'NOTE: Additional scope which was missed to mention in the previous quote.
+Swift Code: ADCBAEAA', '2026-04-21T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('1998dd8e-a190-4fa1-bc6b-982a1094dd77', '5159298000002457176', 'FF-VAR26-110(Rev.02)', '2026-04-21', '2026-05-01', 'HARI SIVAN', '5159298000002451003', 'expired', 'AED', 3330, 3496.5, 'ANNEXURE FOR THE PREVIOUS QUOTE (FF-VAR26-108)', NULL, NULL, NULL, 'NOTE: Additional scope which was missed to mention in the previous quote.
 NOTE 1: Quotation is revised by removing few line items as per client shared list through email on 17th Apr.
 
 1. Scope of Work:
@@ -2780,8 +2780,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-21 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('1bddbaac-93f7-493d-84c8-7404c5a4f521', '5159298000002457272', 'FF-AMC26-09', '2026-04-01', '2026-04-15', 'SANTHOSH KURUMBAIL', '5159298000001254216', 'invoiced', 'AED', 3900.00, 4095.00, 'AMC PROPOSAL-3BR- (2nd APR 2026 - 1st APR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
+Swift Code: ADCBAEAA', '2026-04-21T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('1bddbaac-93f7-493d-84c8-7404c5a4f521', '5159298000002457272', 'FF-AMC26-09', '2026-04-01', '2026-04-15', 'SANTHOSH KURUMBAIL', '5159298000001254216', 'invoiced', 'AED', 3900, 4095, 'AMC PROPOSAL-3BR- (2nd APR 2026 - 1st APR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
 1. Scope of Work, 
 2. Contract Duration
 3. Response time & Service availability
@@ -2808,8 +2808,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-01 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('f415a1d9-2a23-41c8-8f89-c4fd1551c120', '5159298000002457333', 'FF-AMC26-08', '2026-04-16', '2026-04-30', 'JAIRAJESH NADAR', '5159298000001289001', 'invoiced', 'AED', 3900.00, 4095.00, 'AMC PROPOSAL-3BR- (16th APR 2026 - 15th APR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
+Swift Code: ADCBAEAA', '2026-04-01T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('f415a1d9-2a23-41c8-8f89-c4fd1551c120', '5159298000002457333', 'FF-AMC26-08', '2026-04-16', '2026-04-30', 'JAIRAJESH NADAR', '5159298000001289001', 'invoiced', 'AED', 3900, 4095, 'AMC PROPOSAL-3BR- (16th APR 2026 - 15th APR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
 1. Scope of Work, 
 2. Contract Duration
 3. Response time & Service availability
@@ -2836,8 +2836,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-16 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('89a2fdc6-6147-419e-97b4-864b03ee1cc3', '5159298000002457402', 'FF-AMC26-15', '2026-04-16', '2026-04-30', 'MAKRAM GHARZEDDINE', '5159298000001320017', 'invoiced', 'AED', 3000.00, 3150.00, 'AMC PROPOSAL-3BR- (29th APR 2026 - 28th APR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
+Swift Code: ADCBAEAA', '2026-04-16T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('89a2fdc6-6147-419e-97b4-864b03ee1cc3', '5159298000002457402', 'FF-AMC26-15', '2026-04-16', '2026-04-30', 'MAKRAM GHARZEDDINE', '5159298000001320017', 'invoiced', 'AED', 3000, 3150, 'AMC PROPOSAL-3BR- (29th APR 2026 - 28th APR 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following: 
 1. Scope of Work, 
 2. Contract Duration
 3. Response time & Service availability
@@ -2864,8 +2864,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-16 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('67ccbdd8-f3f8-49f6-bace-44b7916c9f3d', '5159298000002462029', 'FF-VAR26-111', '2026-04-17', '2026-05-02', 'INSPIRE HOME', '5159298000002333015', 'expired', 'AED', 11500.00, 12075.00, NULL, NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-04-16T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('67ccbdd8-f3f8-49f6-bace-44b7916c9f3d', '5159298000002462029', 'FF-VAR26-111', '2026-04-17', '2026-05-02', 'INSPIRE HOME', '5159298000002333015', 'expired', 'AED', 11500, 12075, NULL, NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -2889,8 +2889,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-17 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('c93b1d24-b1a2-4fe3-bfab-40788d0be8e3', '5159298000002462059', 'FF-VAR26-112(Rev.02)', '2026-06-25', '2026-07-08', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 4200.00, 4410.00, 'RFQ I PR 1000321346 | EBC - Toilet Light Glass Cover Replacement I Dubai', NULL, NULL, NULL, 'Note: Quote revised with valid date as requested by client through phone. The PO will not be accepted after the quotation validity. 
+Swift Code: ADCBAEAA', '2026-04-17T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('c93b1d24-b1a2-4fe3-bfab-40788d0be8e3', '5159298000002462059', 'FF-VAR26-112(Rev.02)', '2026-06-25', '2026-07-08', '800 TEK Facilities Management LLC', '5159298000000428089', 'expired', 'AED', 4200, 4410, 'RFQ I PR 1000321346 | EBC - Toilet Light Glass Cover Replacement I Dubai', NULL, NULL, NULL, 'Note: Quote revised with valid date as requested by client through phone. The PO will not be accepted after the quotation validity. 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
@@ -2915,8 +2915,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-25 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('4fcd5373-8c6f-4993-8dcb-fef898e60c08', '5159298000002468110', 'FF-VAR26-113(Rev.01)', '2026-05-15', '2026-05-15', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'invoiced', 'AED', 3333.33, 3500.00, 'Shaft Damage & Wash Basin Repair works', NULL, NULL, NULL, 'NOTE: Quotation is revised with price discount as requested by client.
+Swift Code: ADCBAEAA', '2026-06-25T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('4fcd5373-8c6f-4993-8dcb-fef898e60c08', '5159298000002468110', 'FF-VAR26-113(Rev.01)', '2026-05-15', '2026-05-15', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'invoiced', 'AED', 3333.33, 3500, 'Shaft Damage & Wash Basin Repair works', NULL, NULL, NULL, 'NOTE: Quotation is revised with price discount as requested by client.
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
@@ -2942,8 +2942,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-15 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('71fe16c6-40d9-4484-a92d-e67ae7f29697', '5159298000002471001', 'FF-VAR26-114', '2026-04-21', '2026-05-06', 'DHL Logistics LLC', '5159298000000088963', 'expired', 'AED', 108675.00, 114108.75, 'Proposal for Supply and Installation of PVC Curtain in JAFZA 1', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-05-15T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('71fe16c6-40d9-4484-a92d-e67ae7f29697', '5159298000002471001', 'FF-VAR26-114', '2026-04-21', '2026-05-06', 'DHL Logistics LLC', '5159298000000088963', 'expired', 'AED', 108675, 114108.75, 'Proposal for Supply and Installation of PVC Curtain in JAFZA 1', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -2968,8 +2968,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-21 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('f48dde11-5443-497d-b96f-92ce8d9f526a', '5159298000002471013', 'FF-VAR26-115', '2026-04-21', '2026-05-06', 'TABEER DEVELOPMENT', '5159298000002442039', 'invoiced', 'AED', 7400.00, 7770.00, 'Proposal for Manpower supply - 2 Cleaners for 1 month - 48 Parkside, Arjan', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-04-21T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('f48dde11-5443-497d-b96f-92ce8d9f526a', '5159298000002471013', 'FF-VAR26-115', '2026-04-21', '2026-05-06', 'TABEER DEVELOPMENT', '5159298000002442039', 'invoiced', 'AED', 7400, 7770, 'Proposal for Manpower supply - 2 Cleaners for 1 month - 48 Parkside, Arjan', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -2993,8 +2993,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-21 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('069ee1a4-c5ab-4b4b-861a-e7cb217e34b7', '5159298000002471146', 'FF-VAR26-116', '2026-04-21', '2026-05-06', 'JUHI S', '5159298000002471134', 'expired', 'AED', 2237.50, 2349.38, 'RECTIFICATION WORKS', NULL, NULL, NULL, 'NOTE: A separate quotation will be shared for Toilet Waterproofing works.
+Swift Code: ADCBAEAA', '2026-04-21T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('069ee1a4-c5ab-4b4b-861a-e7cb217e34b7', '5159298000002471146', 'FF-VAR26-116', '2026-04-21', '2026-05-06', 'JUHI S', '5159298000002471134', 'expired', 'AED', 2237.5, 2349.38, 'RECTIFICATION WORKS', NULL, NULL, NULL, 'NOTE: A separate quotation will be shared for Toilet Waterproofing works.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -3021,8 +3021,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-21 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('0dec4a19-f2f2-4f2b-b95b-46b9d6b1befb', '5159298000002478106', 'FF-VAR26-117', '2026-04-24', '2026-05-09', 'Mr. AJAY GEORGE', '5159298000000088937', 'invoiced', 'AED', 1000.00, 1050.00, 'AC RECTIFICATION WORKS', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-04-21T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('0dec4a19-f2f2-4f2b-b95b-46b9d6b1befb', '5159298000002478106', 'FF-VAR26-117', '2026-04-24', '2026-05-09', 'Mr. AJAY GEORGE', '5159298000000088937', 'invoiced', 'AED', 1000, 1050, 'AC RECTIFICATION WORKS', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -3047,8 +3047,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-24 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('0d293657-3b5f-4163-80d2-62e00cc594f0', '5159298000002478130', 'FF-VAR26-118', '2026-04-25', '2026-05-10', 'INSPIRE HOME', '5159298000002333015', 'expired', 'AED', 34321.75, 36037.84, 'PROPOSAL FOR BOOSTER PUMP & MOTOR WORKS AT 22nd Floor Mechanical Room', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-04-24T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('0d293657-3b5f-4163-80d2-62e00cc594f0', '5159298000002478130', 'FF-VAR26-118', '2026-04-25', '2026-05-10', 'INSPIRE HOME', '5159298000002333015', 'expired', 'AED', 34321.75, 36037.84, 'PROPOSAL FOR BOOSTER PUMP & MOTOR WORKS AT 22nd Floor Mechanical Room', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -3073,8 +3073,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-25 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('1b114c3a-4ed5-4f44-ae3f-ab40915149c2', '5159298000002483055', 'FF-VAR26-119', '2026-04-30', '2026-05-08', 'SEEMA NAIR', '5159298000000088409', 'expired', 'AED', 4750.00, 4987.50, 'AC COMPRESSOR WORKS', NULL, NULL, NULL, 'NOTE: As per the service request for “AC not cooling,” our team was assigned and carried out a detailed inspection. Upon troubleshooting, including testing through the DB, it was identified that the compressor is faulty.
+Swift Code: ADCBAEAA', '2026-04-25T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('1b114c3a-4ed5-4f44-ae3f-ab40915149c2', '5159298000002483055', 'FF-VAR26-119', '2026-04-30', '2026-05-08', 'SEEMA NAIR', '5159298000000088409', 'expired', 'AED', 4750, 4987.5, 'AC COMPRESSOR WORKS', NULL, NULL, NULL, 'NOTE: As per the service request for “AC not cooling,” our team was assigned and carried out a detailed inspection. Upon troubleshooting, including testing through the DB, it was identified that the compressor is faulty.
 Based on this assessment, the quotation has been provided with our most competitive offer price.
 
 1. Scope of Work:
@@ -3102,8 +3102,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-30 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('af8aa36f-33e4-41fe-9f19-fe7be0f61475', '5159298000002483074', 'FF-VAR26-120', '2026-04-30', '2026-05-15', 'DILEEP', '5159298000002228001', 'expired', 'AED', 1825.00, 1916.25, 'RECTIFICATION WORKS', NULL, NULL, NULL, 'NOTE: During the previous quotation works the above work work is requested as additional requirement.
+Swift Code: ADCBAEAA', '2026-04-30T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('af8aa36f-33e4-41fe-9f19-fe7be0f61475', '5159298000002483074', 'FF-VAR26-120', '2026-04-30', '2026-05-15', 'DILEEP', '5159298000002228001', 'expired', 'AED', 1825, 1916.25, 'RECTIFICATION WORKS', NULL, NULL, NULL, 'NOTE: During the previous quotation works the above work work is requested as additional requirement.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -3129,8 +3129,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-30 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('adac71cf-2aea-41e3-ae0b-053de2fb45da', '5159298000002483081', 'FF-VAR26-121', '2026-04-30', '2026-05-15', 'RAJESH SHARMA', '5159298000002430303', 'expired', 'AED', 11884.25, 12478.46, 'Roof Waterproofing Patch Work (Garage & Terrace Areas) & Cupboard Skirting Replacement', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-04-30T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('adac71cf-2aea-41e3-ae0b-053de2fb45da', '5159298000002483081', 'FF-VAR26-121', '2026-04-30', '2026-05-15', 'RAJESH SHARMA', '5159298000002430303', 'expired', 'AED', 11884.25, 12478.46, 'Roof Waterproofing Patch Work (Garage & Terrace Areas) & Cupboard Skirting Replacement', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -3156,8 +3156,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-30 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('763a5e68-c997-4fb9-9599-156e64850d30', '5159298000002485005', 'FF-VAR26-122', '2026-04-30', '2026-05-15', 'RAYJO PAUL', '5159298000001134015', 'invoiced', 'AED', 1600.00, 1680.00, 'AC DUCT CLEANING & DISINFECTION SERVICES', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-04-30T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('763a5e68-c997-4fb9-9599-156e64850d30', '5159298000002485005', 'FF-VAR26-122', '2026-04-30', '2026-05-15', 'RAYJO PAUL', '5159298000001134015', 'invoiced', 'AED', 1600, 1680, 'AC DUCT CLEANING & DISINFECTION SERVICES', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -3182,8 +3182,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-04-30 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('0352aa6e-a4b3-47e2-9a6f-81ec37899410', '5159298000002485041', 'FF-VAR26-123 (Rev.02)', '2026-06-26', '2026-07-10', 'Mr. Suresh Menon', '5159298000000087771', 'invoiced', 'AED', 369.00, 387.45, 'Rectification work ', NULL, NULL, NULL, 'Note: This quotation had been revised as the current date as requested through the mail. The PO will not be accepted after the quotation 
+Swift Code: ADCBAEAA', '2026-04-30T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('0352aa6e-a4b3-47e2-9a6f-81ec37899410', '5159298000002485041', 'FF-VAR26-123 (Rev.02)', '2026-06-26', '2026-07-10', 'Mr. Suresh Menon', '5159298000000087771', 'invoiced', 'AED', 369, 387.45, 'Rectification work ', NULL, NULL, NULL, 'Note: This quotation had been revised as the current date as requested through the mail. The PO will not be accepted after the quotation 
 validity. 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -3210,8 +3210,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-26 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('8acfc025-0a5b-435e-ac0d-25c03844f5a6', '5159298000002485060', 'FF-VAR26-124(Rev.01)', '2026-05-22', '2026-06-06', 'INSPIRE HOME', '5159298000002333015', 'rejected', 'AED', 53806.80, 56497.14, 'Proposal for Washroom Mirrors - Supply and Installation I PR 1000317729', NULL, NULL, NULL, 'NOTE: This quotation is provided based on the requirement shared through email by Ms. Jacklyn. LPO will not be accepted after the Quotation validity due to ex stock.
+Swift Code: ADCBAEAA', '2026-06-26T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('8acfc025-0a5b-435e-ac0d-25c03844f5a6', '5159298000002485060', 'FF-VAR26-124(Rev.01)', '2026-05-22', '2026-06-06', 'INSPIRE HOME', '5159298000002333015', 'rejected', 'AED', 53806.8, 56497.14, 'Proposal for Washroom Mirrors - Supply and Installation I PR 1000317729', NULL, NULL, NULL, 'NOTE: This quotation is provided based on the requirement shared through email by Ms. Jacklyn. LPO will not be accepted after the Quotation validity due to ex stock.
 NOTE 1: As explained over the mail, this quotation is revised considering the night hours work & the current material price from the market.
 
 
@@ -3240,8 +3240,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-22 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('537cfb88-cdc8-47ad-a07a-c9f78c43926f', '5159298000002487045', 'FF-VAR26-125', '2026-05-01', '2026-05-16', 'SHAJI ABDUL KADAR', '5159298000001602001', 'rejected', 'AED', 6400.00, 6720.00, 'FCU INSTALLATION', NULL, NULL, NULL, 'Note: Due to the presence of a foul odor, it has been identified that the FCU is damaged. Accordingly, a quotation has been provided for the replacement of the complete indoor unit.
+Swift Code: ADCBAEAA', '2026-05-22T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('537cfb88-cdc8-47ad-a07a-c9f78c43926f', '5159298000002487045', 'FF-VAR26-125', '2026-05-01', '2026-05-16', 'SHAJI ABDUL KADAR', '5159298000001602001', 'rejected', 'AED', 6400, 6720, 'FCU INSTALLATION', NULL, NULL, NULL, 'Note: Due to the presence of a foul odor, it has been identified that the FCU is damaged. Accordingly, a quotation has been provided for the replacement of the complete indoor unit.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -3268,8 +3268,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-01 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('7d0664ec-5765-43de-8b96-87b445be697d', '5159298000002490017', 'FF-VAR26-128', '2026-05-05', '2026-05-20', 'CEM SOYDEMIR', '5159298000002490005', 'expired', 'AED', 6150.00, 6457.50, 'Proposal for AC Water Leakage Rectification', NULL, NULL, NULL, 'NOTE:Ceiling reinstatement, painting,  works are  included.
+Swift Code: ADCBAEAA', '2026-05-01T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('7d0664ec-5765-43de-8b96-87b445be697d', '5159298000002490017', 'FF-VAR26-128', '2026-05-05', '2026-05-20', 'CEM SOYDEMIR', '5159298000002490005', 'expired', 'AED', 6150, 6457.5, 'Proposal for AC Water Leakage Rectification', NULL, NULL, NULL, 'NOTE:Ceiling reinstatement, painting,  works are  included.
 Final cost may vary if additional hidden damages are found.
 Work will be carried out following safety standards.
 If toilet area we will cut core work water proofing the surround is included.
@@ -3299,8 +3299,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-05 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('d0d24b30-8ae3-4946-81e9-1ca6c9f028f8', '5159298000002492001', 'FF-VAR26-129', '2026-05-06', '2026-05-21', 'M/s. Age Group', '5159298000000087025', 'invoiced', 'AED', 500.00, 525.00, 'PEST CONTROL SERVICES - ONE OFF SERVICE', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-05-05T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('d0d24b30-8ae3-4946-81e9-1ca6c9f028f8', '5159298000002492001', 'FF-VAR26-129', '2026-05-06', '2026-05-21', 'M/s. Age Group', '5159298000000087025', 'invoiced', 'AED', 500, 525, 'PEST CONTROL SERVICES - ONE OFF SERVICE', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -3324,8 +3324,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-06 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('da850ad7-d2f0-40a8-aaec-9fae5069c4d8', '5159298000002493054', 'FF-VAR26-130(Rev.01)', '2026-05-06', '2026-05-21', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'invoiced', 'AED', 476.19, 500.00, 'PROPOSAL FOR AC COMPRESSOR REPLACEMENT - Lissaili Esba Farm House Masjid', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-05-06T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('da850ad7-d2f0-40a8-aaec-9fae5069c4d8', '5159298000002493054', 'FF-VAR26-130(Rev.01)', '2026-05-06', '2026-05-21', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'invoiced', 'AED', 476.19, 500, 'PROPOSAL FOR AC COMPRESSOR REPLACEMENT - Lissaili Esba Farm House Masjid', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -3349,8 +3349,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-06 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('80739d20-5e25-4f9f-b784-b2eeb819189d', '5159298000002496071', 'FF-VAR26-131', '2026-05-07', NULL, 'DHL Logistics LLC', '5159298000000088963', 'draft', 'AED', 505880.96, 531175.00, NULL, NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-05-06T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('80739d20-5e25-4f9f-b784-b2eeb819189d', '5159298000002496071', 'FF-VAR26-131', '2026-05-07', NULL, 'DHL Logistics LLC', '5159298000000088963', 'draft', 'AED', 505880.96, 531175, NULL, NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -3374,8 +3374,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-07 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('f19ce4fa-975b-4abd-8e0a-a8c3427dd3c0', '5159298000002496088', 'FF-VAR26-132', '2026-05-07', '2026-05-22', 'HARI SIVAN', '5159298000002451003', 'expired', 'AED', 4950.00, 5197.50, 'PROPOSAL FOR RECTIFICATION WORKS', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-05-07T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('f19ce4fa-975b-4abd-8e0a-a8c3427dd3c0', '5159298000002496088', 'FF-VAR26-132', '2026-05-07', '2026-05-22', 'HARI SIVAN', '5159298000002451003', 'expired', 'AED', 4950, 5197.5, 'PROPOSAL FOR RECTIFICATION WORKS', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -3400,8 +3400,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-07 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('d1f5bec9-a2bf-4717-95b4-cc25670a1692', '5159298000002497105', 'FF-VAR26-133', '2026-05-08', '2026-05-23', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'expired', 'AED', 1505.00, 1580.25, 'Split AC Service Work - Masjid Imam', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-05-07T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('d1f5bec9-a2bf-4717-95b4-cc25670a1692', '5159298000002497105', 'FF-VAR26-133', '2026-05-08', '2026-05-23', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'expired', 'AED', 1505, 1580.25, 'Split AC Service Work - Masjid Imam', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -3425,8 +3425,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-08 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('26513c5e-1db7-420c-a61f-40c88d702623', '5159298000002503006', 'FF-VAR26-134', '2026-05-11', '2026-05-26', 'General International Group', '5159298000002392039', 'expired', 'AED', 10312.50, 10828.13, NULL, NULL, NULL, NULL, 'NOTE: Note
+Swift Code: ADCBAEAA', '2026-05-08T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('26513c5e-1db7-420c-a61f-40c88d702623', '5159298000002503006', 'FF-VAR26-134', '2026-05-11', '2026-05-26', 'General International Group', '5159298000002392039', 'expired', 'AED', 10312.5, 10828.13, NULL, NULL, NULL, NULL, 'NOTE: Note
 Permanent ceiling fixing will be completed only after one week inspection and confirmation that there is no further water leakage.
 Until final work ceiling will fix temporary only 
 Track light Remain dismantled until final completion Maximum 15 days.
@@ -3455,8 +3455,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-11 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('08ed73f5-a5f4-4860-a321-4d9f3ba3fec2', '5159298000002504017', 'FF-AMC26-23', '2026-05-11', '2026-05-20', 'ADRIAN STUBBINGTON', '5159298000002504005', 'invoiced', 'AED', 4200.00, 4410.00, 'AMC PROPOSAL-4BR- (11th MAY 2026 - 10th MAY 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
+Swift Code: ADCBAEAA', '2026-05-11T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('08ed73f5-a5f4-4860-a321-4d9f3ba3fec2', '5159298000002504017', 'FF-AMC26-23', '2026-05-11', '2026-05-20', 'ADRIAN STUBBINGTON', '5159298000002504005', 'invoiced', 'AED', 4200, 4410, 'AMC PROPOSAL-4BR- (11th MAY 2026 - 10th MAY 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
 1. Scope of Work,
 2. Contract Duration
 3. Response time & Service availability
@@ -3483,8 +3483,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-11 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('68c2eff0-7956-44ff-81a6-65d29f5c2acf', '5159298000002504196', 'FF-AMC26-21', '2026-05-11', '2026-05-26', 'SHIBU', '5159298000000089327', 'invoiced', 'AED', 2380.95, 2500.00, 'AMC PROPOSAL-3BR- (7th MAY 2026 - 6th MAY 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
+Swift Code: ADCBAEAA', '2026-05-11T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('68c2eff0-7956-44ff-81a6-65d29f5c2acf', '5159298000002504196', 'FF-AMC26-21', '2026-05-11', '2026-05-26', 'SHIBU', '5159298000000089327', 'invoiced', 'AED', 2380.95, 2500, 'AMC PROPOSAL-3BR- (7th MAY 2026 - 6th MAY 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
 1. Scope of Work,
 2. Contract Duration
 3. Response time & Service availability
@@ -3508,8 +3508,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-11 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('b8531518-5441-415d-a923-1c8babb829b2', '5159298000002512001', 'FF-AMC26-24', '2026-05-15', '2026-05-30', 'Ms. SUMA SATISH', '5159298000000088675', 'invoiced', 'AED', 3800.00, 3990.00, 'AMC PROPOSAL-3BR- (16th MAY 2026 - 15th MAY 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
+Swift Code: ADCBAEAA', '2026-05-11T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('b8531518-5441-415d-a923-1c8babb829b2', '5159298000002512001', 'FF-AMC26-24', '2026-05-15', '2026-05-30', 'Ms. SUMA SATISH', '5159298000000088675', 'invoiced', 'AED', 3800, 3990, 'AMC PROPOSAL-3BR- (16th MAY 2026 - 15th MAY 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
 1. Scope of Work,
 2. Contract Duration
 3. Response time & Service availability
@@ -3536,8 +3536,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-15 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('9a593de5-9a1b-4727-9d4e-bcf0dafceb22', '5159298000002516106', 'FF-VAR26-135', '2026-05-18', '2026-06-02', 'ALEH BARANAU', '5159298000002516094', 'expired', 'AED', 12120.00, 12726.00, 'AC RECTIFICATION WORKS', NULL, NULL, NULL, 'Note:
+Swift Code: ADCBAEAA', '2026-05-15T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('9a593de5-9a1b-4727-9d4e-bcf0dafceb22', '5159298000002516106', 'FF-VAR26-135', '2026-05-18', '2026-06-02', 'ALEH BARANAU', '5159298000002516094', 'expired', 'AED', 12120, 12726, 'AC RECTIFICATION WORKS', NULL, NULL, NULL, 'Note:
 
 After completion of the work, the room temperature will be monitored for 72 hours.
 
@@ -3570,8 +3570,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-18 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('194b3563-bd7c-46e6-89bb-7a55088bc293', '5159298000002525031', 'FF-VAR26-137(Rev.02)', '2026-05-31', '2026-06-05', 'HARI SIVAN', '5159298000002451003', 'invoiced', 'AED', 16919.50, 17765.48, 'ADDITIONAL RECTIFICATION WORKS', NULL, NULL, NULL, 'NOTE: These are the additional works requested by client apart from the previous approved quotation ref No: FF-VAR26-108(Rev.03) out of which few works are already completed.
+Swift Code: ADCBAEAA', '2026-05-18T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('194b3563-bd7c-46e6-89bb-7a55088bc293', '5159298000002525031', 'FF-VAR26-137(Rev.02)', '2026-05-31', '2026-06-05', 'HARI SIVAN', '5159298000002451003', 'invoiced', 'AED', 16919.5, 17765.48, 'ADDITIONAL RECTIFICATION WORKS', NULL, NULL, NULL, 'NOTE: These are the additional works requested by client apart from the previous approved quotation ref No: FF-VAR26-108(Rev.03) out of which few works are already completed.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -3598,8 +3598,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-31 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('9f0a58a2-5c5e-46ce-9867-6685a76b5805', '5159298000002527016', 'FF-AMC26-25', '2026-05-23', '2026-05-31', 'Mr. Suresh Menon', '5159298000000087771', 'invoiced', 'AED', 3600.00, 3780.00, 'AMC PROPOSAL-3BR- (1st JUNE 2026 - 31st MAY 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
+Swift Code: ADCBAEAA', '2026-05-31T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('9f0a58a2-5c5e-46ce-9867-6685a76b5805', '5159298000002527016', 'FF-AMC26-25', '2026-05-23', '2026-05-31', 'Mr. Suresh Menon', '5159298000000087771', 'invoiced', 'AED', 3600, 3780, 'AMC PROPOSAL-3BR- (1st JUNE 2026 - 31st MAY 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
 1. Scope of Work,
 2. Contract Duration
 3. Response time & Service availability
@@ -3624,8 +3624,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-23 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('37b17334-fb57-402c-b063-3bb883de4e1e', '5159298000002533001', 'FF-VAR26-138', '2026-05-25', '2026-06-09', 'ASHOK SARDANA', '5159298000002112225', 'expired', 'AED', 7875.00, 8268.75, 'GARDEN AREA ELECTRICAL RECTIFICATION WORKS', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-05-23T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('37b17334-fb57-402c-b063-3bb883de4e1e', '5159298000002533001', 'FF-VAR26-138', '2026-05-25', '2026-06-09', 'ASHOK SARDANA', '5159298000002112225', 'expired', 'AED', 7875, 8268.75, 'GARDEN AREA ELECTRICAL RECTIFICATION WORKS', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -3650,8 +3650,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-25 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('a38d90bc-4472-46ed-a97a-6b8ae4dd9c1d', '5159298000002540001', 'FF-AMC26-26', '2026-05-30', '2026-06-14', 'RAJESH SHARMA', '5159298000002430303', 'invoiced', 'AED', 2100.00, 2205.00, 'AMC PROPOSAL-3BR- (12th JUNE 2026 - 11th DEC 2026) - HALF YEARLY', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
+Swift Code: ADCBAEAA', '2026-05-25T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('a38d90bc-4472-46ed-a97a-6b8ae4dd9c1d', '5159298000002540001', 'FF-AMC26-26', '2026-05-30', '2026-06-14', 'RAJESH SHARMA', '5159298000002430303', 'invoiced', 'AED', 2100, 2205, 'AMC PROPOSAL-3BR- (12th JUNE 2026 - 11th DEC 2026) - HALF YEARLY', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
 1. Scope of Work,
 2. Contract Duration
 3. Response time & Service availability
@@ -3676,8 +3676,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-05-30 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('36560281-6259-4a25-b6fe-915e5d108b18', '5159298000002541001', 'FF-VAR26-139', '2026-06-01', '2026-06-09', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'expired', 'AED', 666.67, 700.00, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-05-30T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('36560281-6259-4a25-b6fe-915e5d108b18', '5159298000002541001', 'FF-VAR26-139', '2026-06-01', '2026-06-09', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'expired', 'AED', 666.67, 700, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -3703,8 +3703,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-01 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('6af88243-ec32-4a30-8b49-9398c8b2e115', '5159298000002548001', 'FF-VAR26-140(Rev.01)', '2026-06-04', '2026-06-11', 'Emirates REIT (CEIC) PLC', '5159298000002392001', 'expired', 'AED', 90000.00, 94500.00, 'Proposal for EBC - Ramp Epoxy Painting  works', NULL, NULL, NULL, 'NOTE: Quotation is revised by including 1 Wall in the ramp injection as per client''s email on 4th June.
+Swift Code: ADCBAEAA', '2026-06-01T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('6af88243-ec32-4a30-8b49-9398c8b2e115', '5159298000002548001', 'FF-VAR26-140(Rev.01)', '2026-06-04', '2026-06-11', 'Emirates REIT (CEIC) PLC', '5159298000002392001', 'expired', 'AED', 90000, 94500, 'Proposal for EBC - Ramp Epoxy Painting  works', NULL, NULL, NULL, 'NOTE: Quotation is revised by including 1 Wall in the ramp injection as per client''s email on 4th June.
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -3732,8 +3732,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-04 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('25acb072-241c-4bdd-bc92-5d3c1eda6d7d', '5159298000002556001', 'FF-VAR26-142', '2026-06-05', '2026-06-15', 'OMAR HAMIE', '5159298000002438145', 'invoiced', 'AED', 235.00, 246.75, 'Rectification work for Replacement of 6 Sets Cub Board', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-06-04T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('25acb072-241c-4bdd-bc92-5d3c1eda6d7d', '5159298000002556001', 'FF-VAR26-142', '2026-06-05', '2026-06-15', 'OMAR HAMIE', '5159298000002438145', 'invoiced', 'AED', 235, 246.75, 'Rectification work for Replacement of 6 Sets Cub Board', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -3759,8 +3759,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-05 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('c4401dae-0951-4e72-8629-617495b92f0e', '5159298000002556016', 'FF-VAR26-143', '2026-06-05', '2026-06-15', 'OMAR HAMIE', '5159298000002438145', 'expired', 'AED', 3725.00, 3911.25, 'Rectification work for Living room wall crack repair ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-06-05T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('c4401dae-0951-4e72-8629-617495b92f0e', '5159298000002556016', 'FF-VAR26-143', '2026-06-05', '2026-06-15', 'OMAR HAMIE', '5159298000002438145', 'expired', 'AED', 3725, 3911.25, 'Rectification work for Living room wall crack repair ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -3786,8 +3786,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-05 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('f8e88575-46b6-4a7b-be49-1e87656dca6d', '5159298000002560007', 'FF-VAR26-141', '2026-06-08', '2026-06-15', 'SUNIL MENON', '5159298000001236429', 'invoiced', 'AED', 16062.20, 16865.31, 'Rectification work for Tile, Skirting Installation & Painting Works', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-06-05T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('f8e88575-46b6-4a7b-be49-1e87656dca6d', '5159298000002560007', 'FF-VAR26-141', '2026-06-08', '2026-06-15', 'SUNIL MENON', '5159298000001236429', 'invoiced', 'AED', 16062.2, 16865.31, 'Rectification work for Tile, Skirting Installation & Painting Works', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -3813,8 +3813,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-08 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('cf43e4b7-5756-4e5c-831a-d8ceb69fd5b1', '5159298000002568081', 'FF-VAR26-144', '2026-06-10', '2026-06-17', 'OMAR HAMIE', '5159298000002438145', 'expired', 'AED', 1093.75, 1148.44, 'Rectification work for Upstairs living room 
+Swift Code: ADCBAEAA', '2026-06-08T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('cf43e4b7-5756-4e5c-831a-d8ceb69fd5b1', '5159298000002568081', 'FF-VAR26-144', '2026-06-10', '2026-06-17', 'OMAR HAMIE', '5159298000002438145', 'expired', 'AED', 1093.75, 1148.44, 'Rectification work for Upstairs living room 
 Celling ', NULL, NULL, NULL, 'NOTE: No warranty is provided for the ceiling paint work, as the rooftop waterproofing is not adequate. In the event of rainfall, water leakage may occur again.
 VAT 5% will be applicable
 
@@ -3842,8 +3842,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-10 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('91025150-2c25-4020-a9ad-04f5c965b2fb', '5159298000002576001', 'FF-VAR26-145 ( Rev.03)', '2026-06-16', '2026-06-30', 'M/s. Age Group', '5159298000000087025', 'invoiced', 'AED', 2355.00, 2472.75, 'Rectification work- FCU Repeated Water Leakage Rectification', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-06-10T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('91025150-2c25-4020-a9ad-04f5c965b2fb', '5159298000002576001', 'FF-VAR26-145 ( Rev.03)', '2026-06-16', '2026-06-30', 'M/s. Age Group', '5159298000000087025', 'invoiced', 'AED', 2355, 2472.75, 'Rectification work- FCU Repeated Water Leakage Rectification', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -3869,8 +3869,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-16 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('3f6420ed-66fa-43c5-8487-686dc3dcea10', '5159298000002581034', 'FF-VAR26-146', '2026-06-12', '2026-06-27', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'draft', 'AED', 1500.00, 1575.00, 'Wall Mounted AC Deep Cleaning & Servicing - Dr. Abdul Rahiman Office Room & 5 Store Rooms', NULL, NULL, NULL, '1. Scope of Work:
+Swift Code: ADCBAEAA', '2026-06-16T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('3f6420ed-66fa-43c5-8487-686dc3dcea10', '5159298000002581034', 'FF-VAR26-146', '2026-06-12', '2026-06-27', 'H.H SHAIKHA HISSA MAKTOUM JUMA AL MAKTOUM', '5159298000001234001', 'draft', 'AED', 1500, 1575, 'Wall Mounted AC Deep Cleaning & Servicing - Dr. Abdul Rahiman Office Room & 5 Store Rooms', NULL, NULL, NULL, '1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
 2. Validity:
 This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
@@ -3894,8 +3894,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-12 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('90434b1d-39e6-4d3f-9adb-ea5adb245641', '5159298000002597020', 'FF-AMC26-28', '2026-07-14', '2026-07-14', 'MATHEW SUBHASH', '5159298000001254001', 'invoiced', 'AED', 4200.00, 4410.00, 'AMC PROPOSAL-4BR- (14th JULY 2026 - 13th JULY 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
+Swift Code: ADCBAEAA', '2026-06-12T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('90434b1d-39e6-4d3f-9adb-ea5adb245641', '5159298000002597020', 'FF-AMC26-28', '2026-07-14', '2026-07-14', 'MATHEW SUBHASH', '5159298000001254001', 'invoiced', 'AED', 4200, 4410, 'AMC PROPOSAL-4BR- (14th JULY 2026 - 13th JULY 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
 1. Scope of Work,
 2. Contract Duration
 3. Response time & Service availability
@@ -3913,169 +3913,8 @@ Advance for every quarter, within 7 days from the date of invoice.
 3.1 Approvals or permits from regulatory authorities (if applicable).
 3.2 Any items not explicitly mentioned in the scope of work.
 4. Contact Information:
-For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', '2026-07-14 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('2ce73003-c211-470c-a789-8387e6522fe7', '5159298000002601001', 'FF-AMC26-29', '2026-06-16', '2026-06-23', 'HARI SIVAN', '5159298000002451003', 'invoiced', 'AED', 3600.00, 3780.00, 'AMC PROPOSAL-3BR- (16th JUN 2026 - 15th JUN 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
-1. Scope of Work,
-2. Contract Duration
-3. Response time & Service availability
-4. Termination clause & Suspension
-5. Governing Law & Dispute Resolution
-6. Exclusions:
-The following are not covered under this AMC unless specified otherwise:
-6.1 Damage due to mishandling, accidents, natural calamities, or unauthorized modifications.
-6.2 Replacement of parts/components unless covered under the contract.', '1. General terms:
-1.1 All services shall be performed professionally and in accordance with industry standards.
-1.2 Any modifications to the AMC terms must be agreed upon in writing.
-2. Payment Terms:
-Advance for every quarter, within 7 days from the date of invoice.
-3. This quotation does not include:
-3.1 Approvals or permits from regulatory authorities (if applicable).
-3.2 Any items not explicitly mentioned in the scope of work.
-4. Contact Information:
-For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com
-
-Bank Account details
-Account Title: FIZ FIXTECHNICAL SERVICES LLC 
-Account Number: 12792802920001
-Currency: AED
-IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-16 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('9d6aba8e-5b04-4b35-9e18-8eac5b5d7806', '5159298000002602009', 'FF-VAR26-147', '2026-06-16', '2026-06-23', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'expired', 'AED', 2559.38, 2687.35, 'Rectification work for Gypsum board ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
-
-1. Scope of Work:
-This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
-2. Validity:
-This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
-3. Delivery & Execution Timeline:
-Work will commence within 1-2 days from receipt of the LPO/ advance payment/signed confirmation. 
-4. Exclusions:
-This quotation does not include:
-4.1 Approvals or permits from regulatory authorities (if applicable).
-4.2 Any items not explicitly mentioned in the scope of work.
-5. Site Conditions:
-It is assumed that the site will be accessible and ready for installation on the agreed start date. Any delays caused by site inaccessibility or unprepared conditions may incur additional charges.
-6. Force Majeure:
-The company will not be held liable for delays caused by events beyond our control, such as natural disasters, strikes, or supply chain disruptions.
-7. Contact Information:
-For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
-Payment Terms:
-1. 50% advance + 50% upon completion.
-
-Bank Account details
-Account Title: FIZ FIXTECHNICAL SERVICES LLC 
-Account Number: 12792802920001
-Currency: AED
-IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-16 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('d057ca96-51ef-441d-9387-a013c7a00d96', '5159298000002609001', 'FF-VAR26-148 (Rev.01)', '2026-06-17', '2026-06-24', 'GAURAV PARASWANI', '5159298000002012001', 'expired', 'AED', 2406.00, 2526.30, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
-
-1. Scope of Work:
-This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
-2. Validity:
-This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
-3. Delivery & Execution Timeline:
-Work will commence within 1-2 days from receipt of the LPO/ advance payment/signed confirmation. 
-4. Exclusions:
-This quotation does not include:
-4.1 Approvals or permits from regulatory authorities (if applicable).
-4.2 Any items not explicitly mentioned in the scope of work.
-5. Site Conditions:
-It is assumed that the site will be accessible and ready for installation on the agreed start date. Any delays caused by site inaccessibility or unprepared conditions may incur additional charges.
-6. Force Majeure:
-The company will not be held liable for delays caused by events beyond our control, such as natural disasters, strikes, or supply chain disruptions.
-7. Contact Information:
-For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
-Payment Terms:
-1. 50% advance + 50% upon completion.
-
-Bank Account details
-Account Title: FIZ FIXTECHNICAL SERVICES LLC 
-Account Number: 12792802920001
-Currency: AED
-IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-17 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('226bc6bb-e9d7-447a-b081-d444ff8a3568', '5159298000002625154', 'FF-VAR26-149 ( Rev.01)', '2026-06-22', '2026-06-29', 'Mr. NAJIB KIWAN', '5159298000002406070', 'expired', 'AED', 4459.38, 4682.35, 'Rectification work- Repainting ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
-
-1. Scope of Work:
-This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
-2. Validity:
-This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
-3. Delivery & Execution Timeline:
-Work will commence within 1-2 days from receipt of the LPO/ advance payment/signed confirmation. 
-4. Exclusions:
-This quotation does not include:
-4.1 Approvals or permits from regulatory authorities (if applicable).
-4.2 Any items not explicitly mentioned in the scope of work.
-5. Site Conditions:
-It is assumed that the site will be accessible and ready for installation on the agreed start date. Any delays caused by site inaccessibility or unprepared conditions may incur additional charges.
-6. Force Majeure:
-The company will not be held liable for delays caused by events beyond our control, such as natural disasters, strikes, or supply chain disruptions.
-7. Contact Information:
-For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
-Payment Terms:
-1. 50% advance + 50% upon completion.
-
-Bank Account details
-Account Title: FIZ FIXTECHNICAL SERVICES LLC 
-Account Number: 12792802920001
-Currency: AED
-IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-22 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('d2f9db2b-9cb5-483a-b06d-96107bb133ca', '5159298000002654069', 'FF-VAR26-151', '2026-06-23', '2026-06-30', 'SUNIL MENON', '5159298000001236429', 'invoiced', 'AED', 3705.20, 3890.46, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
-
-1. Scope of Work:
-This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
-2. Validity:
-This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
-3. Delivery & Execution Timeline:
-Work will commence within 1-2 days from receipt of the LPO/ advance payment/signed confirmation. 
-4. Exclusions:
-This quotation does not include:
-4.1 Approvals or permits from regulatory authorities (if applicable).
-4.2 Any items not explicitly mentioned in the scope of work.
-5. Site Conditions:
-It is assumed that the site will be accessible and ready for installation on the agreed start date. Any delays caused by site inaccessibility or unprepared conditions may incur additional charges.
-6. Force Majeure:
-The company will not be held liable for delays caused by events beyond our control, such as natural disasters, strikes, or supply chain disruptions.
-7. Contact Information:
-For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
-Payment Terms:
-1. 50% advance + 50% upon completion.
-
-Bank Account details
-Account Title: FIZ FIXTECHNICAL SERVICES LLC 
-Account Number: 12792802920001
-Currency: AED
-IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-23 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('e9ab2a3b-76b1-4b5f-9556-b11d6b5bcf73', '5159298000002654092', 'FF-VAR26-150', '2026-06-23', '2026-06-30', 'DHL Logistics LLC', '5159298000000088963', 'expired', 'AED', 16153.20, 16960.86, NULL, NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
-
-1. Scope of Work:
-This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
-2. Validity:
-This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
-3. Delivery & Execution Timeline:
-Work will commence within 1-2 days from receipt of the LPO/ advance payment/signed confirmation. 
-4. Exclusions:
-This quotation does not include:
-4.1 Approvals or permits from regulatory authorities (if applicable).
-4.2 Any items not explicitly mentioned in the scope of work.
-5. Site Conditions:
-It is assumed that the site will be accessible and ready for installation on the agreed start date. Any delays caused by site inaccessibility or unprepared conditions may incur additional charges.
-6. Force Majeure:
-The company will not be held liable for delays caused by events beyond our control, such as natural disasters, strikes, or supply chain disruptions.
-7. Contact Information:
-For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
-Payment Terms:
-1. 50% advance + 50% upon completion.
-
-Bank Account details
-Account Title: FIZ FIXTECHNICAL SERVICES LLC 
-Account Number: 12792802920001
-Currency: AED
-IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-23 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('dac51fe2-b6f9-4cfd-a01d-eb35bd87fcbb', '5159298000002660001', 'FF-AMC26-30', '2026-06-22', '2026-06-30', 'UNOOD TARIQ', '5159298000002452125', 'invoiced', 'AED', 5250.00, 5512.50, 'AMC PROPOSAL-4BR- (16th JUN 2026 - 15th JUN 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
+For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', '2026-07-14T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('2ce73003-c211-470c-a789-8387e6522fe7', '5159298000002601001', 'FF-AMC26-29', '2026-06-16', '2026-06-23', 'HARI SIVAN', '5159298000002451003', 'invoiced', 'AED', 3600, 3780, 'AMC PROPOSAL-3BR- (16th JUN 2026 - 15th JUN 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
 1. Scope of Work,
 2. Contract Duration
 3. Response time & Service availability
@@ -4100,8 +3939,169 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-22 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('8f5e9718-750a-4f85-99a7-612a349ebb83', '5159298000002660008', 'FF-AMC26-31', '2026-06-22', '2026-06-30', 'RAMI GHARZEDDINE', '5159298000002504322', 'invoiced', 'AED', 3500.00, 3675.00, 'AMC PROPOSAL-3BR- (19th JUN 2026 - 18th JUN 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
+Swift Code: ADCBAEAA', '2026-06-16T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('9d6aba8e-5b04-4b35-9e18-8eac5b5d7806', '5159298000002602009', 'FF-VAR26-147', '2026-06-16', '2026-06-23', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'expired', 'AED', 2559.38, 2687.35, 'Rectification work for Gypsum board ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+
+1. Scope of Work:
+This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
+2. Validity:
+This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
+3. Delivery & Execution Timeline:
+Work will commence within 1-2 days from receipt of the LPO/ advance payment/signed confirmation. 
+4. Exclusions:
+This quotation does not include:
+4.1 Approvals or permits from regulatory authorities (if applicable).
+4.2 Any items not explicitly mentioned in the scope of work.
+5. Site Conditions:
+It is assumed that the site will be accessible and ready for installation on the agreed start date. Any delays caused by site inaccessibility or unprepared conditions may incur additional charges.
+6. Force Majeure:
+The company will not be held liable for delays caused by events beyond our control, such as natural disasters, strikes, or supply chain disruptions.
+7. Contact Information:
+For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
+Payment Terms:
+1. 50% advance + 50% upon completion.
+
+Bank Account details
+Account Title: FIZ FIXTECHNICAL SERVICES LLC 
+Account Number: 12792802920001
+Currency: AED
+IBAN: AE280030012792802920001
+Swift Code: ADCBAEAA', '2026-06-16T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('d057ca96-51ef-441d-9387-a013c7a00d96', '5159298000002609001', 'FF-VAR26-148 (Rev.01)', '2026-06-17', '2026-06-24', 'GAURAV PARASWANI', '5159298000002012001', 'expired', 'AED', 2406, 2526.3, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+
+1. Scope of Work:
+This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
+2. Validity:
+This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
+3. Delivery & Execution Timeline:
+Work will commence within 1-2 days from receipt of the LPO/ advance payment/signed confirmation. 
+4. Exclusions:
+This quotation does not include:
+4.1 Approvals or permits from regulatory authorities (if applicable).
+4.2 Any items not explicitly mentioned in the scope of work.
+5. Site Conditions:
+It is assumed that the site will be accessible and ready for installation on the agreed start date. Any delays caused by site inaccessibility or unprepared conditions may incur additional charges.
+6. Force Majeure:
+The company will not be held liable for delays caused by events beyond our control, such as natural disasters, strikes, or supply chain disruptions.
+7. Contact Information:
+For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
+Payment Terms:
+1. 50% advance + 50% upon completion.
+
+Bank Account details
+Account Title: FIZ FIXTECHNICAL SERVICES LLC 
+Account Number: 12792802920001
+Currency: AED
+IBAN: AE280030012792802920001
+Swift Code: ADCBAEAA', '2026-06-17T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('226bc6bb-e9d7-447a-b081-d444ff8a3568', '5159298000002625154', 'FF-VAR26-149 ( Rev.01)', '2026-06-22', '2026-06-29', 'Mr. NAJIB KIWAN', '5159298000002406070', 'expired', 'AED', 4459.38, 4682.35, 'Rectification work- Repainting ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+
+1. Scope of Work:
+This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
+2. Validity:
+This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
+3. Delivery & Execution Timeline:
+Work will commence within 1-2 days from receipt of the LPO/ advance payment/signed confirmation. 
+4. Exclusions:
+This quotation does not include:
+4.1 Approvals or permits from regulatory authorities (if applicable).
+4.2 Any items not explicitly mentioned in the scope of work.
+5. Site Conditions:
+It is assumed that the site will be accessible and ready for installation on the agreed start date. Any delays caused by site inaccessibility or unprepared conditions may incur additional charges.
+6. Force Majeure:
+The company will not be held liable for delays caused by events beyond our control, such as natural disasters, strikes, or supply chain disruptions.
+7. Contact Information:
+For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
+Payment Terms:
+1. 50% advance + 50% upon completion.
+
+Bank Account details
+Account Title: FIZ FIXTECHNICAL SERVICES LLC 
+Account Number: 12792802920001
+Currency: AED
+IBAN: AE280030012792802920001
+Swift Code: ADCBAEAA', '2026-06-22T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('d2f9db2b-9cb5-483a-b06d-96107bb133ca', '5159298000002654069', 'FF-VAR26-151', '2026-06-23', '2026-06-30', 'SUNIL MENON', '5159298000001236429', 'invoiced', 'AED', 3705.2, 3890.46, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+
+1. Scope of Work:
+This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
+2. Validity:
+This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
+3. Delivery & Execution Timeline:
+Work will commence within 1-2 days from receipt of the LPO/ advance payment/signed confirmation. 
+4. Exclusions:
+This quotation does not include:
+4.1 Approvals or permits from regulatory authorities (if applicable).
+4.2 Any items not explicitly mentioned in the scope of work.
+5. Site Conditions:
+It is assumed that the site will be accessible and ready for installation on the agreed start date. Any delays caused by site inaccessibility or unprepared conditions may incur additional charges.
+6. Force Majeure:
+The company will not be held liable for delays caused by events beyond our control, such as natural disasters, strikes, or supply chain disruptions.
+7. Contact Information:
+For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
+Payment Terms:
+1. 50% advance + 50% upon completion.
+
+Bank Account details
+Account Title: FIZ FIXTECHNICAL SERVICES LLC 
+Account Number: 12792802920001
+Currency: AED
+IBAN: AE280030012792802920001
+Swift Code: ADCBAEAA', '2026-06-23T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('e9ab2a3b-76b1-4b5f-9556-b11d6b5bcf73', '5159298000002654092', 'FF-VAR26-150', '2026-06-23', '2026-06-30', 'DHL Logistics LLC', '5159298000000088963', 'expired', 'AED', 16153.2, 16960.86, NULL, NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+
+1. Scope of Work:
+This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
+2. Validity:
+This quotation is valid for 15 days from the date of issuance. Prices and availability of materials are subject to change beyond this period.
+3. Delivery & Execution Timeline:
+Work will commence within 1-2 days from receipt of the LPO/ advance payment/signed confirmation. 
+4. Exclusions:
+This quotation does not include:
+4.1 Approvals or permits from regulatory authorities (if applicable).
+4.2 Any items not explicitly mentioned in the scope of work.
+5. Site Conditions:
+It is assumed that the site will be accessible and ready for installation on the agreed start date. Any delays caused by site inaccessibility or unprepared conditions may incur additional charges.
+6. Force Majeure:
+The company will not be held liable for delays caused by events beyond our control, such as natural disasters, strikes, or supply chain disruptions.
+7. Contact Information:
+For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com', 'All necessary permits & permissions to be issued by client.
+Payment Terms:
+1. 50% advance + 50% upon completion.
+
+Bank Account details
+Account Title: FIZ FIXTECHNICAL SERVICES LLC 
+Account Number: 12792802920001
+Currency: AED
+IBAN: AE280030012792802920001
+Swift Code: ADCBAEAA', '2026-06-23T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('dac51fe2-b6f9-4cfd-a01d-eb35bd87fcbb', '5159298000002660001', 'FF-AMC26-30', '2026-06-22', '2026-06-30', 'UNOOD TARIQ', '5159298000002452125', 'invoiced', 'AED', 5250, 5512.5, 'AMC PROPOSAL-4BR- (16th JUN 2026 - 15th JUN 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
+1. Scope of Work,
+2. Contract Duration
+3. Response time & Service availability
+4. Termination clause & Suspension
+5. Governing Law & Dispute Resolution
+6. Exclusions:
+The following are not covered under this AMC unless specified otherwise:
+6.1 Damage due to mishandling, accidents, natural calamities, or unauthorized modifications.
+6.2 Replacement of parts/components unless covered under the contract.', '1. General terms:
+1.1 All services shall be performed professionally and in accordance with industry standards.
+1.2 Any modifications to the AMC terms must be agreed upon in writing.
+2. Payment Terms:
+Advance for every quarter, within 7 days from the date of invoice.
+3. This quotation does not include:
+3.1 Approvals or permits from regulatory authorities (if applicable).
+3.2 Any items not explicitly mentioned in the scope of work.
+4. Contact Information:
+For Technical clarification or assistance, please contact Texan- 0554254818 or Email: info@fizfix.com
+
+Bank Account details
+Account Title: FIZ FIXTECHNICAL SERVICES LLC 
+Account Number: 12792802920001
+Currency: AED
+IBAN: AE280030012792802920001
+Swift Code: ADCBAEAA', '2026-06-22T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('8f5e9718-750a-4f85-99a7-612a349ebb83', '5159298000002660008', 'FF-AMC26-31', '2026-06-22', '2026-06-30', 'RAMI GHARZEDDINE', '5159298000002504322', 'invoiced', 'AED', 3500, 3675, 'AMC PROPOSAL-3BR- (19th JUN 2026 - 18th JUN 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
 1. Scope of Work,
 2. Contract Duration
 3. Response time & Service availability
@@ -4128,8 +4128,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-22 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('11b82634-a9b8-44a2-ab50-2789fe352b91', '5159298000002654190', 'FF-VAR26-152', '2026-06-24', '2026-07-01', 'HARI SIVAN', '5159298000002451003', 'invoiced', 'AED', 7935.45, 8332.22, 'Rectification work', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-06-22T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('11b82634-a9b8-44a2-ab50-2789fe352b91', '5159298000002654190', 'FF-VAR26-152', '2026-06-24', '2026-07-01', 'HARI SIVAN', '5159298000002451003', 'invoiced', 'AED', 7935.45, 8332.22, 'Rectification work', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -4155,8 +4155,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-24 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('461a1d54-cbdc-47d9-8da8-15364596e2f3', '5159298000002669005', 'FF-VAR26-153', '2026-06-26', '2026-07-10', 'Emirates REIT (CEIC) PLC', '5159298000002392001', 'draft', 'AED', 3181.25, 3340.31, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-06-24T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('461a1d54-cbdc-47d9-8da8-15364596e2f3', '5159298000002669005', 'FF-VAR26-153', '2026-06-26', '2026-07-10', 'Emirates REIT (CEIC) PLC', '5159298000002392001', 'draft', 'AED', 3181.25, 3340.31, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -4182,8 +4182,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-26 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('02a067bf-524e-44d2-8848-5f40144b161a', '5159298000002670118', 'FF-VAR26-155 ( Rev.02)', '2026-06-29', '2026-07-08', 'Thomas Alex', '5159298000002670103', 'invoiced', 'AED', 1790.00, 1879.50, 'Rectification work ', NULL, NULL, NULL, 'Customer notes: Point 1- Instead of Fenomastic, if need to apply Anti-fungal paint 2389 (optional)
+Swift Code: ADCBAEAA', '2026-06-26T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('02a067bf-524e-44d2-8848-5f40144b161a', '5159298000002670118', 'FF-VAR26-155 ( Rev.02)', '2026-06-29', '2026-07-08', 'Thomas Alex', '5159298000002670103', 'invoiced', 'AED', 1790, 1879.5, 'Rectification work ', NULL, NULL, NULL, 'Customer notes: Point 1- Instead of Fenomastic, if need to apply Anti-fungal paint 2389 (optional)
 The amount had been revised according to the client requirement.
 NOTE: VAT 5% will be applicable
 
@@ -4211,8 +4211,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-29 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('2c3d6c64-d199-4224-8738-19411a727539', '5159298000002670131', '#FF-VAR26-154', '2026-06-29', '2026-07-10', 'SUNIL MENON', '5159298000001236429', 'expired', 'AED', 8382.00, 8801.10, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-06-29T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('2c3d6c64-d199-4224-8738-19411a727539', '5159298000002670131', '#FF-VAR26-154', '2026-06-29', '2026-07-10', 'SUNIL MENON', '5159298000001236429', 'expired', 'AED', 8382, 8801.1, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -4238,8 +4238,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-06-29 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('8807c7e6-ea6e-4a26-86e6-4efefa40e40a', '5159298000002682009', 'FF-VAR26-156', '2026-07-01', '2026-07-15', 'Seed Mena Businessmen Services LLC', '5159298000000088989', 'rejected', 'AED', 1500.00, 1575.00, 'Wall celling Rectification ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-06-29T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('8807c7e6-ea6e-4a26-86e6-4efefa40e40a', '5159298000002682009', 'FF-VAR26-156', '2026-07-01', '2026-07-15', 'Seed Mena Businessmen Services LLC', '5159298000000088989', 'rejected', 'AED', 1500, 1575, 'Wall celling Rectification ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -4265,8 +4265,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-07-01 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('548e4fee-8c51-46dd-a18d-847557f48a39', '5159298000002682055', 'FF-VAR26-157', '2026-07-01', '2026-07-15', 'STEVE BAILEY', '5159298000000088073', 'expired', 'AED', 1653.60, 1736.28, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-07-01T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('548e4fee-8c51-46dd-a18d-847557f48a39', '5159298000002682055', 'FF-VAR26-157', '2026-07-01', '2026-07-15', 'STEVE BAILEY', '5159298000000088073', 'expired', 'AED', 1653.6, 1736.28, 'Rectification work ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -4292,8 +4292,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-07-01 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('2a9c1533-9902-4066-a7eb-3439f053ef14', '5159298000002693033', '#FF-VAR26-160', '2026-07-03', '2026-07-14', 'Kaizen AMS property supervision LLC.', '5159298000002693042', 'expired', 'AED', 112150.58, 117758.11, 'Rectification work ', NULL, NULL, NULL, 'Exclusions:
+Swift Code: ADCBAEAA', '2026-07-01T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('2a9c1533-9902-4066-a7eb-3439f053ef14', '5159298000002693033', '#FF-VAR26-160', '2026-07-03', '2026-07-14', 'Kaizen AMS property supervision LLC.', '5159298000002693042', 'expired', 'AED', 112150.58, 117758.11, 'Rectification work ', NULL, NULL, NULL, 'Exclusions:
 Any additional power or control cabling.
 *Drawings.
 *Any kind of approvals.
@@ -4325,8 +4325,8 @@ Account Number: 0553684174001
 IBAN: AE920400000553684174001
 Swift Code: NRAKAEAK
 
-', '2026-07-03 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('1ba9a293-8f9e-4334-9050-c2dd1e80e798', '5159298000002707039', '#FF-VAR26-162', '2026-07-08', '2026-07-18', 'Khaldoun Ahmed Ibrahim Ketana', '5159298000001382045', 'expired', 'AED', 9540.54, 10017.57, 'Rectification work ', NULL, NULL, NULL, 'Optional: 
+', '2026-07-03T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('1ba9a293-8f9e-4334-9050-c2dd1e80e798', '5159298000002707039', '#FF-VAR26-162', '2026-07-08', '2026-07-18', 'Khaldoun Ahmed Ibrahim Ketana', '5159298000001382045', 'expired', 'AED', 9540.54, 10017.57, 'Rectification work ', NULL, NULL, NULL, 'Optional: 
 1) Fixing of New washbasin (Brand RAK)- 936
 2) Fixing of New WC (Brand RAK)- 750
 
@@ -4356,8 +4356,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-07-08 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('687c41c4-3a98-4897-935b-55d73c3743e2', '5159298000002707060', 'FF-VAR26-161', '2026-07-08', '2026-07-18', 'Kaizen Procurement', '5159298000002693018', 'expired', 'AED', 1446731.08, 1519067.63, 'Rectification work ', NULL, NULL, NULL, 'Note: Phase 1 – Replacement from the P4 Pump Room to the M4 Plant Room (up to the heat exchanger). According to the Facility Team, this work has already been completed.
+Swift Code: ADCBAEAA', '2026-07-08T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('687c41c4-3a98-4897-935b-55d73c3743e2', '5159298000002707060', 'FF-VAR26-161', '2026-07-08', '2026-07-18', 'Kaizen Procurement', '5159298000002693018', 'expired', 'AED', 1446731.08, 1519067.63, 'Rectification work ', NULL, NULL, NULL, 'Note: Phase 1 – Replacement from the P4 Pump Room to the M4 Plant Room (up to the heat exchanger). According to the Facility Team, this work has already been completed.
 Duration: - 270 days.
 
 NOTE: VAT 5% will be applicable
@@ -4386,8 +4386,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-07-08 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('6e3d3e24-19bc-41c7-a652-ba1c03228182', '5159298000002707096', 'FF-VAR26-163 (Rev.03)', '2026-07-13', '2026-07-27', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'sent', 'AED', 7142.86, 7500.00, 'AMC PROPOSAL - AC UNITS', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-07-08T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('6e3d3e24-19bc-41c7-a652-ba1c03228182', '5159298000002707096', 'FF-VAR26-163 (Rev.03)', '2026-07-13', '2026-07-27', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'sent', 'AED', 7142.86, 7500, 'AMC PROPOSAL - AC UNITS', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -4413,8 +4413,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-07-13 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('90853f21-e472-406e-b712-b9312bf1c38f', '5159298000002715023', '#FF-VAR26-164', '2026-07-10', '2026-07-17', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'invoiced', 'AED', 3300.00, 3465.00, NULL, NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-07-13T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('90853f21-e472-406e-b712-b9312bf1c38f', '5159298000002715023', '#FF-VAR26-164', '2026-07-10', '2026-07-17', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'invoiced', 'AED', 3300, 3465, NULL, NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -4440,8 +4440,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-07-10 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('66909193-7324-4fdd-be61-5001af05cb98', '5159298000002727120', 'FF-AMC26-32', '2026-07-14', '2026-07-21', 'ADLER REYES', '5159298000002727108', 'invoiced', 'AED', 4200.00, 4410.00, 'AMC PROPOSAL-4BR- (9th JULY 2026 - 8th JULY 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
+Swift Code: ADCBAEAA', '2026-07-10T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('66909193-7324-4fdd-be61-5001af05cb98', '5159298000002727120', 'FF-AMC26-32', '2026-07-14', '2026-07-21', 'ADLER REYES', '5159298000002727108', 'invoiced', 'AED', 4200, 4410, 'AMC PROPOSAL-4BR- (9th JULY 2026 - 8th JULY 2027)', NULL, NULL, NULL, 'Refer to the signed Service agreement for the following:
 1. Scope of Work,
 2. Contract Duration
 3. Response time & Service availability
@@ -4467,8 +4467,8 @@ Account Title: FIZ FIXTECHNICAL SERVICES LLC
 Account Number: 12792802920001
 Currency: AED
 IBAN: AE280030012792802920001
-Swift Code: ADCBAEAA', '2026-07-14 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('6f5549ad-b14a-4a2f-868b-6de936c7703d', '5159298000002725034', 'FF-VAR26-165', '2026-07-14', '2026-07-25', 'Shanka', '5159298000002725022', 'sent', 'AED', 7500.00, 7875.00, 'Annual Maintenance contract(AMC) ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+Swift Code: ADCBAEAA', '2026-07-14T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('6f5549ad-b14a-4a2f-868b-6de936c7703d', '5159298000002725034', 'FF-VAR26-165', '2026-07-14', '2026-07-25', 'Shanka', '5159298000002725022', 'sent', 'AED', 7500, 7875, 'Annual Maintenance contract(AMC) ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -4496,8 +4496,8 @@ Account Number: 0553684174001
 IBAN: AE920400000553684174001
 Swift Code: NRAKAEAK
 
-', '2026-07-14 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('79437aed-8c76-45bb-b9cd-3d47f8effe22', '5159298000002748014', 'FF-VAR26-171', '2026-07-20', '2026-08-03', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'invoiced', 'AED', 1680.00, 1764.00, 'Rectification works ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+', '2026-07-14T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('79437aed-8c76-45bb-b9cd-3d47f8effe22', '5159298000002748014', 'FF-VAR26-171', '2026-07-20', '2026-08-03', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'invoiced', 'AED', 1680, 1764, 'Rectification works ', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -4525,8 +4525,8 @@ Account Number: 0553684174001
 IBAN: AE920400000553684174001
 Swift Code: NRAKAEAK
 
-', '2026-07-20 00:00:00+00', '2026-07-23 05:47:15.418184+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('10d24164-891a-45de-bb48-5dc5791a099e', '5159298000002732193', 'FF-VAR26-169', '2026-07-18', '2026-07-31', 'UBM owner association', '5159298000002732181', 'Proposal / Quote Sent', 'AED', 1200.00, 1260.00, 'Rectification Work', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
+', '2026-07-20T00:00:00+00:00', '2026-07-23T05:47:15.418184+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('10d24164-891a-45de-bb48-5dc5791a099e', '5159298000002732193', 'FF-VAR26-169', '2026-07-18', '2026-07-31', 'UBM owner association', '5159298000002732181', 'Proposal / Quote Sent', 'AED', 1200, 1260, 'Rectification Work', NULL, NULL, NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -4554,8 +4554,8 @@ Account Number: 0553684174001
 IBAN: AE920400000553684174001
 Swift Code: NRAKAEAK
 
-', '2026-07-18 00:00:00+00', '2026-07-27 09:46:53.964589+00', NULL, NULL, NULL);
-INSERT INTO public.quotes (id, zoho_quote_id, quote_number, quote_date, expiry_date, customer_name, zoho_customer_id, status, currency, subtotal, total, subject, salesperson, project_name, purchase_order, notes, terms, created_at, updated_at, quote_type, vat_amount, probability) VALUES ('3ff4124d-f18f-4013-91f4-ce26444ec948', '5159298000002732205', 'FF-VAR26-170', '2026-07-20', '2026-08-05', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'sent', 'AED', 95480.7, 100254.73, 'Rectification work', NULL, 'Girls'' villa - Sheikha sheikha palace', NULL, 'NOTE: VAT 5% will be applicable
+', '2026-07-18T00:00:00+00:00', '2026-07-27T09:46:53.964589+00:00', NULL, NULL, NULL);
+INSERT INTO public.quotes ("id", "zoho_quote_id", "quote_number", "quote_date", "expiry_date", "customer_name", "zoho_customer_id", "status", "currency", "subtotal", "total", "subject", "salesperson", "project_name", "purchase_order", "notes", "terms", "created_at", "updated_at", "quote_type", "vat_amount", "probability") VALUES ('3ff4124d-f18f-4013-91f4-ce26444ec948', '5159298000002732205', 'FF-VAR26-170', '2026-07-20', '2026-08-05', 'GHADEER AL TEAR REAL ESTATE', '5159298000000087077', 'sent', 'AED', 95480.7, 100254.73, 'Rectification work', NULL, 'Girls'' villa - Sheikha sheikha palace', NULL, 'NOTE: VAT 5% will be applicable
 
 1. Scope of Work:
 This quotation covers only the items and services explicitly mentioned. Any additional work or material requirements will be quoted separately.
@@ -4583,4 +4583,4 @@ Account Number: 0553684174001
 IBAN: AE920400000553684174001
 Swift Code: NRAKAEAK
 
-', '2026-07-20 00:00:00+00', '2026-07-24 15:07:13.800612+00', 'Variation Job AMC', 4774.03, 'Very High');
+', '2026-07-20T00:00:00+00:00', '2026-07-24T15:07:13.800612+00:00', 'Variation Job AMC', 4774.03, 'Very High');
