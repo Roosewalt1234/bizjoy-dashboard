@@ -149,6 +149,12 @@ function RootComponent() {
     };
   }, [router, queryClient]);
 
+  if (!hydrated) {
+    // Auth resolution (and any redirect to /auth) only happens on the client, so the
+    // server can never render the correct tree. Emit nothing until hydration finishes.
+    return <QueryClientProvider client={queryClient}>{null}</QueryClientProvider>;
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       {isAuthRoute ? (
