@@ -8,7 +8,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -124,7 +124,12 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isAuthRoute = pathname === "/auth";
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+  // The authenticated subtree renders with ssr:false and may redirect to /auth on the
+  // client, so the server can never know which shell is correct. Render the bare outlet
+  // during SSR/first client render and add the app chrome only after hydration.
+  const isAuthRoute = pathname === "/auth" || !hydrated;
 
   useEffect(() => {
     let mounted = true;
@@ -143,6 +148,12 @@ function RootComponent() {
       unsub?.();
     };
   }, [router, queryClient]);
+
+  if (!hydrated) {
+    // Auth resolution (and any redirect to /auth) only happens on the client, so the
+    // server can never render the correct tree. Emit nothing until hydration finishes.
+    return <QueryClientProvider client={queryClient}>{null}</QueryClientProvider>;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
