@@ -1125,6 +1125,7 @@ export type Database = {
           nfc_token: string | null
           notes: string | null
           quantity: number
+          section_id: string | null
           sort_order: number
           tower_id: string
           updated_at: string
@@ -1139,6 +1140,7 @@ export type Database = {
           nfc_token?: string | null
           notes?: string | null
           quantity?: number
+          section_id?: string | null
           sort_order?: number
           tower_id: string
           updated_at?: string
@@ -1153,6 +1155,7 @@ export type Database = {
           nfc_token?: string | null
           notes?: string | null
           quantity?: number
+          section_id?: string | null
           sort_order?: number
           tower_id?: string
           updated_at?: string
@@ -1170,6 +1173,13 @@ export type Database = {
             columns: ["floor_id"]
             isOneToOne: false
             referencedRelation: "fm_cleaning_floors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_cleaning_areas_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "fm_cleaning_areas"
             referencedColumns: ["id"]
           },
           {
@@ -1269,7 +1279,8 @@ export type Database = {
       fm_cleaning_schedules: {
         Row: {
           active: boolean
-          area_type: string
+          area_id: string | null
+          area_type: string | null
           assigned_employee_id: string | null
           created_at: string
           days_of_week: number[] | null
@@ -1282,7 +1293,8 @@ export type Database = {
         }
         Insert: {
           active?: boolean
-          area_type: string
+          area_id?: string | null
+          area_type?: string | null
           assigned_employee_id?: string | null
           created_at?: string
           days_of_week?: number[] | null
@@ -1295,7 +1307,8 @@ export type Database = {
         }
         Update: {
           active?: boolean
-          area_type?: string
+          area_id?: string | null
+          area_type?: string | null
           assigned_employee_id?: string | null
           created_at?: string
           days_of_week?: number[] | null
@@ -1307,6 +1320,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fm_cleaning_schedules_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "fm_cleaning_areas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "fm_cleaning_schedules_assigned_employee_id_fkey"
             columns: ["assigned_employee_id"]
