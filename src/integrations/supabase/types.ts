@@ -950,6 +950,7 @@ export type Database = {
         Row: {
           accommodation: number | null
           assigned_branch: string | null
+          auth_user_id: string | null
           commission_rate: number | null
           created_at: string
           current_visa_expiry_date: string | null
@@ -995,6 +996,7 @@ export type Database = {
         Insert: {
           accommodation?: number | null
           assigned_branch?: string | null
+          auth_user_id?: string | null
           commission_rate?: number | null
           created_at?: string
           current_visa_expiry_date?: string | null
@@ -1040,6 +1042,7 @@ export type Database = {
         Update: {
           accommodation?: number | null
           assigned_branch?: string | null
+          auth_user_id?: string | null
           commission_rate?: number | null
           created_at?: string
           current_visa_expiry_date?: string | null
@@ -1228,6 +1231,7 @@ export type Database = {
           floor_number: number | null
           id: string
           label: string
+          nfc_token: string
           sort_order: number
           tower_id: string
           updated_at: string
@@ -1237,6 +1241,7 @@ export type Database = {
           floor_number?: number | null
           id?: string
           label: string
+          nfc_token?: string
           sort_order?: number
           tower_id: string
           updated_at?: string
@@ -1246,6 +1251,7 @@ export type Database = {
           floor_number?: number | null
           id?: string
           label?: string
+          nfc_token?: string
           sort_order?: number
           tower_id?: string
           updated_at?: string
@@ -1256,6 +1262,63 @@ export type Database = {
             columns: ["tower_id"]
             isOneToOne: false
             referencedRelation: "fm_cleaning_towers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_cleaning_schedules: {
+        Row: {
+          active: boolean
+          area_type: string
+          assigned_employee_id: string | null
+          created_at: string
+          days_of_week: number[] | null
+          floor_id: string
+          frequency_type: string
+          id: string
+          time_window_end: string | null
+          time_window_start: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          area_type: string
+          assigned_employee_id?: string | null
+          created_at?: string
+          days_of_week?: number[] | null
+          floor_id: string
+          frequency_type: string
+          id?: string
+          time_window_end?: string | null
+          time_window_start?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          area_type?: string
+          assigned_employee_id?: string | null
+          created_at?: string
+          days_of_week?: number[] | null
+          floor_id?: string
+          frequency_type?: string
+          id?: string
+          time_window_end?: string | null
+          time_window_start?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_cleaning_schedules_assigned_employee_id_fkey"
+            columns: ["assigned_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_cleaning_schedules_floor_id_fkey"
+            columns: ["floor_id"]
+            isOneToOne: false
+            referencedRelation: "fm_cleaning_floors"
             referencedColumns: ["id"]
           },
         ]
@@ -1294,6 +1357,106 @@ export type Database = {
             columns: ["contract_id"]
             isOneToOne: false
             referencedRelation: "fm_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_cleaning_visit_items: {
+        Row: {
+          area_id: string | null
+          created_at: string
+          id: string
+          note: string | null
+          photo_path: string | null
+          sort_order: number
+          status: string
+          visit_id: string
+        }
+        Insert: {
+          area_id?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          photo_path?: string | null
+          sort_order?: number
+          status?: string
+          visit_id: string
+        }
+        Update: {
+          area_id?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          photo_path?: string | null
+          sort_order?: number
+          status?: string
+          visit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_cleaning_visit_items_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "fm_cleaning_areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_cleaning_visit_items_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: false
+            referencedRelation: "fm_cleaning_visits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_cleaning_visits: {
+        Row: {
+          created_at: string
+          floor_id: string
+          id: string
+          notes: string | null
+          performed_by_employee_id: string | null
+          scanned_at: string
+          tower_id: string
+        }
+        Insert: {
+          created_at?: string
+          floor_id: string
+          id?: string
+          notes?: string | null
+          performed_by_employee_id?: string | null
+          scanned_at?: string
+          tower_id: string
+        }
+        Update: {
+          created_at?: string
+          floor_id?: string
+          id?: string
+          notes?: string | null
+          performed_by_employee_id?: string | null
+          scanned_at?: string
+          tower_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_cleaning_visits_floor_id_fkey"
+            columns: ["floor_id"]
+            isOneToOne: false
+            referencedRelation: "fm_cleaning_floors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_cleaning_visits_performed_by_employee_id_fkey"
+            columns: ["performed_by_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_cleaning_visits_tower_id_fkey"
+            columns: ["tower_id"]
+            isOneToOne: false
+            referencedRelation: "fm_cleaning_towers"
             referencedColumns: ["id"]
           },
         ]
