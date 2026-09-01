@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { MODULES } from "@/hooks/use-permissions";
 import {
   listAppUsers,
+  listEmployeesWithoutAccount,
   createAppUser,
   setUserAdmin,
   savePermissions,
@@ -48,13 +50,14 @@ const ACTIONS = ["view", "add", "edit", "delete"] as const;
 function PermissionsPage() {
   const qc = useQueryClient();
   const fetchUsers = useServerFn(listAppUsers);
+  const fetchEmployees = useServerFn(listEmployeesWithoutAccount);
   const addUser = useServerFn(createAppUser);
   const toggleAdmin = useServerFn(setUserAdmin);
   const savePerms = useServerFn(savePermissions);
   const removeUser = useServerFn(deleteAppUser);
 
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ email: "", password: "", displayName: "", admin: false });
+  const [form, setForm] = useState({ employeeId: "", password: "", admin: false });
   const [draft, setDraft] = useState<Record<string, Record<string, Record<string, boolean>>>>({});
 
   const { data, isLoading, error } = useQuery({
@@ -62,14 +65,25 @@ function PermissionsPage() {
     queryFn: () => fetchUsers({}),
   });
 
-  const invalidate = () => qc.invalidateQueries({ queryKey: ["app-users"] });
+  const { data: employeesData } = useQuery({
+    queryKey: ["employees-without-account"],
+    queryFn: () => fetchEmployees({}),
+    enabled: open,
+  });
+  const availableEmployees = employeesData?.employees ?? [];
+  const selectedEmployee = availableEmployees.find((e: any) => e.id === form.employeeId);
+
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["app-users"] });
+    qc.invalidateQueries({ queryKey: ["employees-without-account"] });
+  };
 
   const createMut = useMutation({
     mutationFn: () => addUser({ data: form }),
     onSuccess: () => {
       toast.success("User created");
       setOpen(false);
-      setForm({ email: "", password: "", displayName: "", admin: false });
+      setForm({ employeeId: "", password: "", admin: false });
       invalidate();
     },
     onError: (e: any) => toast.error(e.message ?? "Could not create user"),
@@ -154,12 +168,26 @@ function PermissionsPage() {
             <DialogHeader><DialogTitle>Add New User</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label>Full Name</Label>
-                <Input value={form.displayName} onChange={(e) => setForm({ ...form, displayName: e.target.value })} />
+                <Label>Employee</Label>
+                <Select value={form.employeeId} onValueChange={(v) => setForm({ ...form, employeeId: v })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={availableEmployees.length === 0 ? "No employees available" : "Select an employee"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableEmployees.map((emp: any) => (
+                      <SelectItem key={emp.id} value={emp.id}>
+                        {emp.full_name || `${emp.first_name} ${emp.last_name ?? ""}`.trim()}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Only active employees without an existing login are shown.
+                </p>
               </div>
               <div>
                 <Label>Email</Label>
-                <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                <Input value={selectedEmployee?.email ?? ""} disabled placeholder="Select an employee to populate email" />
               </div>
               <div>
                 <Label>Temporary Password</Label>
@@ -172,7 +200,10 @@ function PermissionsPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button onClick={() => createMut.mutate()} disabled={createMut.isPending}>
+              <Button
+                onClick={() => createMut.mutate()}
+                disabled={createMut.isPending || !form.employeeId || !selectedEmployee?.email}
+              >
                 {createMut.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Create User
               </Button>
             </DialogFooter>

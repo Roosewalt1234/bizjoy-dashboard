@@ -32,23 +32,51 @@ export const listAppUsers = createServerFn({ method: "GET" })
     };
   });
 
+/** Active employees who don't already have a login account - candidates for "Add New User". */
+export const listEmployeesWithoutAccount = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("employees")
+      .select("id, full_name, first_name, last_name, email")
+      .is("auth_user_id", null)
+      .neq("status", "Terminated")
+      .order("full_name", { ascending: true });
+    if (error) throw error;
+    return { employees: data ?? [] };
+  });
+
 export const createAppUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { email: string; password: string; displayName?: string; admin?: boolean }) => input)
+  .inputValidator((input: { employeeId: string; password: string; admin?: boolean }) => input)
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    if (!data.email || !data.password || data.password.length < 6) {
-      throw new Error("Email and a password of at least 6 characters are required");
+    if (!data.employeeId || !data.password || data.password.length < 6) {
+      throw new Error("An employee and a password of at least 6 characters are required");
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: employee, error: empErr } = await supabaseAdmin
+      .from("employees")
+      .select("id, full_name, first_name, last_name, email, auth_user_id")
+      .eq("id", data.employeeId)
+      .maybeSingle();
+    if (empErr) throw empErr;
+    if (!employee) throw new Error("Employee not found");
+    if (employee.auth_user_id) throw new Error("This employee already has a login account");
+    if (!employee.email) throw new Error("This employee has no email on file - add one before creating a login");
+
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
-      email: data.email,
+      email: employee.email,
       password: data.password,
       email_confirm: true,
-      user_metadata: { full_name: data.displayName || data.email },
+      user_metadata: { full_name: employee.full_name || `${employee.first_name} ${employee.last_name ?? ""}`.trim() },
     });
     if (error) throw new Error(error.message);
     const uid = created.user!.id;
+
+    await supabaseAdmin.from("employees").update({ auth_user_id: uid }).eq("id", employee.id);
     if (data.admin) {
       await supabaseAdmin.from("user_roles").upsert({ user_id: uid, role: "admin" }, { onConflict: "user_id,role" });
     }
