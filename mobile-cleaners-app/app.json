@@ -79,7 +79,8 @@
         {
           "color": "#208AEF"
         }
-      ]
+      ],
+      "./plugins/withNfcDiscoveredIntentFilter.js"
     ],
     "experiments": {
       "typedRoutes": true,
