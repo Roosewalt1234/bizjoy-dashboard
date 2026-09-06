@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import type { AttendanceLogRow } from "@/types/database";
+import type { AttendanceLogRow, FmContractRow } from "@/types/database";
 
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
@@ -19,12 +19,29 @@ export async function fetchTodaysAttendance(employeeId: string): Promise<Attenda
   return (data as AttendanceLogRow | null) ?? null;
 }
 
+/** The FM contract/project a site NFC tag belongs to, if any. */
+export async function resolveContractByToken(token: string): Promise<FmContractRow | null> {
+  const { data, error } = await supabase
+    .from("fm_contracts")
+    .select("id, title, site_name, nfc_token")
+    .eq("nfc_token", token)
+    .maybeSingle();
+  if (error) throw error;
+  return (data as FmContractRow | null) ?? null;
+}
+
 /**
- * Single write path for the office NFC tag tap: if there's no open attendance row for today,
- * clock in; if there's one with no check_out yet, clock out. Source is tagged "nfc_app" so
- * office-entered rows (source null/"manual") stay visually distinct in the web dashboard.
+ * Single write path for an NFC tag tap: if there's no open attendance row for today, clock in;
+ * if there's one with no check_out yet, clock out. `contractId` records which site the tap was
+ * at (null for the plain shared office tag, which has no specific project). Source is tagged
+ * "nfc_app" so office-entered rows (source null/"manual") stay visually distinct in the web
+ * dashboard.
  */
-export async function toggleAttendance(employeeId: string, employeeName: string): Promise<"in" | "out"> {
+export async function toggleAttendance(
+  employeeId: string,
+  employeeName: string,
+  contractId: string | null = null,
+): Promise<"in" | "out"> {
   const existing = await fetchTodaysAttendance(employeeId);
   const now = new Date().toISOString();
 
@@ -32,6 +49,7 @@ export async function toggleAttendance(employeeId: string, employeeName: string)
     const { error } = await supabase.from("attendance_logs").insert({
       employee_id: employeeId,
       employee_name: employeeName,
+      contract_id: contractId,
       attendance_date: todayIso(),
       check_in: now,
       status: "Present",

@@ -2,11 +2,13 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Pencil } from "lucide-react";
+import { ArrowLeft, Copy, Nfc, Pencil, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { summarizeAttendance, todayIso } from "@/lib/fm-manpower";
@@ -20,6 +22,7 @@ type FmContractRecord = {
   contract_no: string | null;
   customer_name: string | null;
   status: string | null;
+  nfc_token: string;
   start_date: string | null;
   end_date: string | null;
   value: number | null;
@@ -77,8 +80,33 @@ function statusClasses(status: string | null) {
  */
 export function FmContractWorkspace({ id }: { id: string }) {
   const [section, setSection] = useState("Overview");
+  const [nfcOpen, setNfcOpen] = useState(false);
+  const [regeneratingToken, setRegeneratingToken] = useState(false);
   const qc = useQueryClient();
   const modal = useFmContractModal();
+
+  const copyContractToken = async (token: string) => {
+    try {
+      await navigator.clipboard.writeText(token);
+      toast.success("NFC token copied");
+    } catch {
+      toast.error("Could not copy - copy it manually");
+    }
+  };
+
+  const regenerateContractToken = async () => {
+    setRegeneratingToken(true);
+    try {
+      const { error } = await supabase.from("fm_contracts").update({ nfc_token: crypto.randomUUID() }).eq("id", id);
+      if (error) throw error;
+      toast.success("NFC token regenerated - reprint this contract's tag");
+      qc.invalidateQueries({ queryKey: ["fm-contract-detail", id] });
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Failed to regenerate token");
+    } finally {
+      setRegeneratingToken(false);
+    }
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ["fm-contract-detail", id],
@@ -196,6 +224,9 @@ export function FmContractWorkspace({ id }: { id: string }) {
               <h1 className="text-3xl font-bold tracking-tight">{contract.title}</h1>
               <Button size="icon" variant="ghost" onClick={() => modal.openEdit(contract)}>
                 <Pencil className="h-4 w-4" />
+              </Button>
+              <Button size="icon" variant="ghost" title="Contract NFC Tag" onClick={() => setNfcOpen(true)}>
+                <Nfc className="h-4 w-4" />
               </Button>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
@@ -442,6 +473,45 @@ export function FmContractWorkspace({ id }: { id: string }) {
         {...modal.dialogProps}
         onSaved={() => qc.invalidateQueries({ queryKey: ["fm-contract-detail", id] })}
       />
+
+      <Dialog open={nfcOpen} onOpenChange={setNfcOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Nfc className="h-4 w-4" /> Contract NFC Tag
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-3 py-2">
+            <div className="text-center">
+              <div className="font-medium">{contract.title}</div>
+              <div className="text-xs text-muted-foreground">{contract.site_name ?? contract.customer_name ?? "—"}</div>
+            </div>
+            <div className="flex items-center gap-2 rounded border px-3 py-2 text-xs w-full justify-center">
+              <code>{contract.nfc_token}</code>
+              <Button size="icon" variant="ghost" className="h-6 w-6" title="Copy token" onClick={() => copyContractToken(contract.nfc_token)}>
+                <Copy className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-6 w-6"
+                title="Regenerate token"
+                disabled={regeneratingToken}
+                onClick={regenerateContractToken}
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground text-center">
+              Encode this token onto the site's physical NFC tag. Currently used for attendance
+              check-in/out at this project - more uses planned. Regenerating replaces it - reprint the tag after.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNfcOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

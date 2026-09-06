@@ -6,27 +6,29 @@ import { PhotoCaptureOverlay, PhotoSlot } from '@/components/photo-capture';
 import { SubmitButton, UnverifiedBanner } from '@/components/job-form-controls';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { useNfcVerified } from '@/hooks/use-nfc-verified';
 import { usePhotoCapture } from '@/hooks/use-photo-capture';
 import { useTheme } from '@/hooks/use-theme';
 import { completeReactiveWork, uploadWorkOrderPhoto, type ReactiveWorkItem } from '@/lib/reactive-work';
 
 /**
  * Completion form for a manager-assigned reactive work order. Used both from the NFC checkin
- * flow (when the order has a linked asset with a tag - verified comes from the real tap) and
- * from the plain task-list route for orders with no asset/tag to scan (verified is always true
- * there, since there's no physical tag to enforce against).
+ * flow (when the order has a linked asset with a tag - pass its nfc_token so verification comes
+ * from the real tap) and from the plain task-list route for orders with no asset/tag to scan
+ * (pass null - always verified, since there's no physical tag to enforce against).
  */
 export function ReactiveWorkForm({
   workOrder,
   employeeId,
-  verified,
+  nfcToken,
 }: {
   workOrder: ReactiveWorkItem;
   employeeId: string | null;
-  verified: boolean;
+  nfcToken: string | null;
 }) {
   const theme = useTheme();
   const router = useRouter();
+  const verified = useNfcVerified(nfcToken);
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);

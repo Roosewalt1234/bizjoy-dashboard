@@ -42,5 +42,5 @@ export default function ReactiveWorkScreen() {
     );
   }
 
-  return <ReactiveWorkForm workOrder={workOrder} employeeId={employee?.id ?? null} verified />;
+  return <ReactiveWorkForm workOrder={workOrder} employeeId={employee?.id ?? null} nfcToken={null} />;
 }

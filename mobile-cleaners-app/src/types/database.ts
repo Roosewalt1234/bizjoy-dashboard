@@ -121,6 +121,13 @@ export interface PpmVisitRow {
   after_photo_path: string | null;
 }
 
+export interface FmContractRow {
+  id: string;
+  title: string;
+  site_name: string | null;
+  nfc_token: string;
+}
+
 export interface FmWorkOrderRow {
   id: string;
   wo_no: string | null;

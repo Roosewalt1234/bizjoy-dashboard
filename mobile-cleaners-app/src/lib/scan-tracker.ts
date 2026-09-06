@@ -11,6 +11,14 @@ import * as Linking from "expo-linking";
  */
 let lastExternalScan: { token: string; at: number } | null = null;
 
+// Notified whenever a scan is recorded, so UI already mounted before the async
+// 'url' event resolves can react instead of being stuck with a stale one-time check.
+// See use-nfc-verified.ts - this is what fixes the race between a completion
+// screen mounting (as part of the same navigation the tap triggered) and this
+// module actually finishing processing that tap's URL.
+type ScanListener = (token: string) => void;
+const listeners = new Set<ScanListener>();
+
 function extractToken(url: string): string | null {
   try {
     const { path } = Linking.parse(url);
@@ -25,7 +33,9 @@ function extractToken(url: string): string | null {
 function recordIfCheckin(url: string | null) {
   if (!url) return;
   const token = extractToken(url);
-  if (token) lastExternalScan = { token, at: Date.now() };
+  if (!token) return;
+  lastExternalScan = { token, at: Date.now() };
+  listeners.forEach((listener) => listener(token));
 }
 
 let initialized = false;
@@ -43,4 +53,19 @@ export function wasScannedRecently(token: string, withinMs = 120_000): boolean {
   if (!lastExternalScan) return false;
   if (lastExternalScan.token !== token) return false;
   return Date.now() - lastExternalScan.at < withinMs;
+}
+
+/** Subscribe to future scans of this token. Returns an unsubscribe function. */
+export function onScanned(token: string, callback: () => void): () => void {
+  const listener: ScanListener = (scannedToken) => {
+    if (scannedToken === token) callback();
+  };
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+/** Subscribe to every scan regardless of token - used for the global "tag scanned" toast. */
+export function onAnyScan(callback: (token: string) => void): () => void {
+  listeners.add(callback);
+  return () => listeners.delete(callback);
 }
