@@ -230,6 +230,28 @@ export async function applyCatalogToAreas(
   }
 }
 
+/**
+ * Adds a new reusable item to the standard checklist catalog (appended after the current highest
+ * sort_order), so it shows up in every future "Apply standard checklist" / "Apply standard
+ * sections to floors" action. Returns the new catalog row's id, for linking a custom area to it.
+ */
+export async function addCatalogItem(name: string, areaType: AreaType): Promise<string> {
+  const { data: last, error: sortErr } = await supabase
+    .from("fm_cleaning_area_catalog")
+    .select("sort_order")
+    .order("sort_order", { ascending: false })
+    .limit(1);
+  if (sortErr) throw sortErr;
+  const nextSortOrder = ((last?.[0] as { sort_order: number } | undefined)?.sort_order ?? 0) + 1;
+  const { data, error } = await supabase
+    .from("fm_cleaning_area_catalog")
+    .insert({ name, area_type: areaType, sort_order: nextSortOrder })
+    .select("id")
+    .single();
+  if (error) throw error;
+  return (data as { id: string }).id;
+}
+
 export async function addCustomArea(
   towerId: string,
   floorId: string | null,
@@ -237,10 +259,12 @@ export async function addCustomArea(
   name: string,
   areaType: AreaType,
   quantity: number,
+  addToCatalog: boolean = false,
 ): Promise<void> {
+  const catalogId = addToCatalog ? await addCatalogItem(name, areaType) : null;
   const { data, error } = await supabase
     .from("fm_cleaning_areas")
-    .insert({ tower_id: towerId, floor_id: floorId, section_id: sectionId, catalog_id: null, area_type: areaType, name, quantity })
+    .insert({ tower_id: towerId, floor_id: floorId, section_id: sectionId, catalog_id: catalogId, area_type: areaType, name, quantity })
     .select("id")
     .single();
   if (error) throw error;

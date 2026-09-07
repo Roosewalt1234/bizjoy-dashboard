@@ -323,8 +323,9 @@ function TowerBody({
     name: string;
     areaType: AreaType;
     quantity: string;
+    addToCatalog: boolean;
   }>(
-    { open: false, floorId: null, sectionId: null, name: "", areaType: "section", quantity: "1" },
+    { open: false, floorId: null, sectionId: null, name: "", areaType: "section", quantity: "1", addToCatalog: false },
   );
 
   const setFloorLabel = (i: number, value: string) =>
@@ -404,14 +405,21 @@ function TowerBody({
         areaDialog.name.trim(),
         areaDialog.areaType,
         Math.max(1, Number(areaDialog.quantity) || 1),
+        areaDialog.addToCatalog,
       );
-      toast.success("Area added");
-      setAreaDialog({ open: false, floorId: null, sectionId: null, name: "", areaType: "section", quantity: "1" });
+      toast.success(areaDialog.addToCatalog ? "Area added to this tower and to the standard checklist" : "Area added");
+      setAreaDialog({ open: false, floorId: null, sectionId: null, name: "", areaType: "section", quantity: "1", addToCatalog: false });
       onChanged();
     } catch (e: any) {
       toast.error(e.message ?? "Failed to add area");
     }
   };
+
+  // Tower-wide areas span the whole tower (no floor), so only utility-room catalog items make
+  // sense here - sections are a per-floor concept (they get their own NFC tag and an auto-attached
+  // corridor per floor), added via "Apply standard sections to floors..." instead. Scoping this
+  // catalog to utility rooms keeps the two actions from overlapping/conflicting.
+  const towerWideCatalog = useMemo(() => catalog.filter((c) => c.area_type === "utility_room"), [catalog]);
 
   return (
     <div className="space-y-4">
@@ -419,15 +427,15 @@ function TowerBody({
         title="Tower-wide areas"
         hint="Items that span the whole tower rather than a single floor (e.g. one staircase serving every floor)."
         areas={tower.towerAreas}
-        catalog={catalog}
+        catalog={towerWideCatalog}
         canEdit={canEdit}
         canAdd={canAdd}
         canDelete={canDelete}
         onApplyCatalog={async () => {
-          await applyCatalogToAreas(tower.id, [{ floorId: null, sectionId: null, existing: tower.towerAreas }], catalog);
+          await applyCatalogToAreas(tower.id, [{ floorId: null, sectionId: null, existing: tower.towerAreas }], towerWideCatalog);
           onChanged();
         }}
-        onAddCustom={() => setAreaDialog({ open: true, floorId: null, sectionId: null, name: "", areaType: "utility_room", quantity: "1" })}
+        onAddCustom={() => setAreaDialog({ open: true, floorId: null, sectionId: null, name: "", areaType: "utility_room", quantity: "1", addToCatalog: false })}
         onChanged={onChanged}
       />
 
@@ -462,10 +470,10 @@ function TowerBody({
                 canDelete={canDelete}
                 onChanged={onChanged}
                 onAddCustomSection={() =>
-                  setAreaDialog({ open: true, floorId: floor.id, sectionId: null, name: "", areaType: "section", quantity: "1" })
+                  setAreaDialog({ open: true, floorId: floor.id, sectionId: null, name: "", areaType: "section", quantity: "1", addToCatalog: false })
                 }
                 onAddCustomUtility={(sectionId) =>
-                  setAreaDialog({ open: true, floorId: floor.id, sectionId, name: "", areaType: "utility_room", quantity: "1" })
+                  setAreaDialog({ open: true, floorId: floor.id, sectionId, name: "", areaType: "utility_room", quantity: "1", addToCatalog: false })
                 }
               />
             ))}
@@ -592,6 +600,19 @@ function TowerBody({
                 onChange={(e) => setAreaDialog((s) => ({ ...s, quantity: e.target.value }))}
               />
             </div>
+            <label className="flex items-start gap-2 text-sm cursor-pointer">
+              <Checkbox
+                checked={areaDialog.addToCatalog}
+                onCheckedChange={(checked) => setAreaDialog((s) => ({ ...s, addToCatalog: checked === true }))}
+              />
+              <span>
+                Also add to the standard checklist
+                <span className="block text-xs text-muted-foreground">
+                  Makes it available next time you use "Apply standard checklist" / "Apply standard sections to
+                  floors..." on any tower.
+                </span>
+              </span>
+            </label>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAreaDialog((s) => ({ ...s, open: false }))}>
