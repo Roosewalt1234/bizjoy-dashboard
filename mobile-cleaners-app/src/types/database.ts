@@ -13,6 +13,21 @@ export interface EmployeeRow {
   last_name: string | null;
   full_name: string | null;
   status: string | null;
+  can_switch_projects: boolean;
+}
+
+export interface ProjectOption {
+  id: string;
+  title: string;
+  site_name: string | null;
+}
+
+export interface StaffOption {
+  id: string;
+  full_name: string | null;
+  first_name: string;
+  email: string | null;
+  profile_photo: string | null;
 }
 
 export interface CleaningAreaRow {

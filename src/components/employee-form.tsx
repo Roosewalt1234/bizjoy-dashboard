@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -43,6 +44,7 @@ const empty: any = {
   notes: "", visa_issued_by: "", referred_by: "", employment_type: "", hire_date: "",
   salary: "", food_allowance: "", ot_amount: "", accommodation: "", transport: "",
   commission_rate: "", position: "", assigned_branch: "", status: "Active",
+  can_switch_projects: false,
   visa_expiry_date: "", passport_number: "", passport_expiry_date: "",
   emirates_id_number: "", emirates_id_expiry_date: "", ohc_number: "", ohc_expiry_date: "",
   iloe_insurance_number: "", iloe_insurance_expiry_date: "",
@@ -136,6 +138,7 @@ export function EmployeeForm({ initial, onSaved, onCancel }: Props) {
         transport: num(form.transport),
         commission_rate: num(form.commission_rate),
         status: form.status || "Active",
+        can_switch_projects: Boolean(form.can_switch_projects),
         visa_expiry_date: txt(form.visa_expiry_date),
         passport_number: txt(form.passport_number),
         passport_expiry_date: txt(form.passport_expiry_date),
@@ -275,6 +278,18 @@ export function EmployeeForm({ initial, onSaved, onCancel }: Props) {
                   <SelectItem value="Terminated">Terminated</SelectItem>
                 </SelectContent>
               </Select>
+            </Field>
+            <Field label="Mobile app device setup">
+              <div className="flex items-center gap-2 pt-1.5">
+                <Checkbox
+                  checked={!!form.can_switch_projects}
+                  onCheckedChange={(v) => set("can_switch_projects", Boolean(v))}
+                />
+                <span className="text-sm text-muted-foreground">Can switch projects (manager/admin)</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Also requires Contracts and HR view permissions (set on the Permissions page) to actually see projects and staff in the mobile app's setup screen.
+              </p>
             </Field>
           </div>
 

@@ -14,17 +14,20 @@ Notifications.setNotificationHandler({
   }),
 });
 
-let registered = false;
+let registeredForEmployeeId: string | null = null;
 
 /**
  * Requests notification permission, obtains an Expo push token for this device, and saves it on
- * the employee row (send-push-notification edge function reads it from there). Runs once per app
- * session - call whenever the signed-in employee becomes available (see root layout).
+ * the employee row (send-push-notification edge function reads it from there). Runs once per
+ * signed-in employee per app session - call whenever the signed-in employee becomes available
+ * (see root layout). Scoped per employee id (not a single session-wide flag) because the device
+ * provisioning flow signs in as two different people (admin, then the target employee) within one
+ * app session, and both need their own token registered.
  */
 export async function registerForPushNotifications(employeeId: string) {
-  if (registered) return;
+  if (registeredForEmployeeId === employeeId) return;
   if (!Device.isDevice) return; // push tokens aren't meaningful on simulators/emulators
-  registered = true;
+  registeredForEmployeeId = employeeId;
   try {
     if (Platform.OS === "android") {
       await Notifications.setNotificationChannelAsync("default", {
@@ -46,6 +49,6 @@ export async function registerForPushNotifications(employeeId: string) {
     await supabase.from("employees").update({ expo_push_token: token }).eq("id", employeeId);
   } catch (e) {
     console.error("Failed to register for push notifications", e);
-    registered = false;
+    registeredForEmployeeId = null;
   }
 }

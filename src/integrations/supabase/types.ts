@@ -954,6 +954,7 @@ export type Database = {
           accommodation: number | null
           assigned_branch: string | null
           auth_user_id: string | null
+          can_switch_projects: boolean
           commission_rate: number | null
           created_at: string
           current_visa_expiry_date: string | null
@@ -1001,6 +1002,7 @@ export type Database = {
           accommodation?: number | null
           assigned_branch?: string | null
           auth_user_id?: string | null
+          can_switch_projects?: boolean
           commission_rate?: number | null
           created_at?: string
           current_visa_expiry_date?: string | null
@@ -1048,6 +1050,7 @@ export type Database = {
           accommodation?: number | null
           assigned_branch?: string | null
           auth_user_id?: string | null
+          can_switch_projects?: boolean
           commission_rate?: number | null
           created_at?: string
           current_visa_expiry_date?: string | null

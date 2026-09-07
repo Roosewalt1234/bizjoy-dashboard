@@ -23,7 +23,7 @@ export function useAuth(): AuthState {
       }
       const { data, error } = await supabase
         .from("employees")
-        .select("id, auth_user_id, first_name, last_name, full_name, status")
+        .select("id, auth_user_id, first_name, last_name, full_name, status, can_switch_projects")
         .eq("auth_user_id", session.user.id)
         .maybeSingle();
       if (!mounted) return;
