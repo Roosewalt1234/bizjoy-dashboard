@@ -24,6 +24,10 @@ export async function fetchProjectStaff(contractId: string): Promise<StaffOption
     .eq("active", true);
   if (error) throw error;
 
+  // PostgREST's embedded `employees:employee_id(...)` infers as an array here because this
+  // app's Supabase client is deliberately untyped (see supabase.ts) - employee_id is actually
+  // a to-one FK, so the real runtime shape is { employees: StaffOption | null }[]. Go through
+  // `unknown` to bypass the structural type mismatch TS can't otherwise resolve.
   const rows = (data ?? []) as unknown as { employees: StaffOption | null }[];
   const seen = new Set<string>();
   const staff: StaffOption[] = [];
