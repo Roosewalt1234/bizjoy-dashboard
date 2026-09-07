@@ -231,6 +231,43 @@ export async function applyCatalogToAreas(
 }
 
 /**
+ * Applies a tower's own Tower-wide sections (its live "Sections" list - e.g. "A Wing", whatever
+ * this specific tower has been set up with) onto one or more of its floors, instead of the global
+ * catalog's fixed section templates. Matches existing sections by name (a tower-wide section may
+ * not have a catalog_id, so name is the only reliable key here) and skips a floor for any section
+ * it already has. Each newly created section still gets its own Corridor utility room, same as any
+ * other section.
+ */
+export async function applyTowerSectionsToFloors(
+  towerId: string,
+  towerSections: { name: string; catalog_id: string | null; sort_order: number }[],
+  targets: { floorId: string; existingSectionNames: Set<string> }[],
+): Promise<void> {
+  const rows = targets.flatMap(({ floorId, existingSectionNames }) =>
+    towerSections
+      .filter((s) => !existingSectionNames.has(s.name))
+      .map((s) => ({
+        tower_id: towerId,
+        floor_id: floorId,
+        section_id: null,
+        catalog_id: s.catalog_id,
+        area_type: "section" as const,
+        name: s.name,
+        quantity: 1,
+        sort_order: s.sort_order,
+      })),
+  );
+  if (rows.length === 0) return;
+  const { data: inserted, error } = await supabase.from("fm_cleaning_areas").insert(rows).select("id, floor_id");
+  if (error) throw error;
+
+  await attachCorridorsToSections(
+    (inserted as { id: string; floor_id: string }[]).map((r) => ({ id: r.id, floorId: r.floor_id })),
+    towerId,
+  );
+}
+
+/**
  * Adds a new reusable item to the standard checklist catalog (appended after the current highest
  * sort_order), so it shows up in every future "Apply standard checklist" / "Apply standard
  * sections to floors" action. Returns the new catalog row's id, for linking a custom area to it.

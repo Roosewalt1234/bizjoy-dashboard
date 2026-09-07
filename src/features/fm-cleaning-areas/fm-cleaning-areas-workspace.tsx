@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Copy, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -40,6 +40,7 @@ import {
   addCustomArea,
   addFloors,
   applyCatalogToAreas,
+  applyTowerSectionsToFloors,
   createTowersWithFloors,
   deleteArea,
   deleteFloor,
@@ -340,11 +341,21 @@ function TowerBody({
     selected: new Set(),
   });
 
-  const openChecklistDialog = () =>
+  // The "standard sections" applied to floors are this tower's OWN Tower-wide sections (e.g.
+  // "A Wing") - not the global catalog's fixed Left/Right/Center templates, which don't
+  // necessarily match how this tower is actually laid out.
+  const towerSections = useMemo(() => tower.towerAreas.filter((a) => a.area_type === "section"), [tower.towerAreas]);
+
+  const openChecklistDialog = () => {
+    if (towerSections.length === 0) {
+      toast.error('Add at least one section under "Tower-wide areas" first (e.g. "A Wing"), then apply it to floors here.');
+      return;
+    }
     setChecklistDialog({
       open: true,
       selected: new Set(tower.floors.filter((f) => f.floor_number != null).map((f) => f.id)),
     });
+  };
 
   const toggleChecklistFloor = (id: string, checked: boolean) =>
     setChecklistDialog((s) => {
@@ -363,10 +374,13 @@ function TowerBody({
     try {
       // Only the sections themselves - utility rooms are added per-section afterward,
       // since each one needs to be assigned to a specific section (and its own NFC tag).
-      await applyCatalogToAreas(
+      await applyTowerSectionsToFloors(
         tower.id,
-        targetFloors.map((f) => ({ floorId: f.id, sectionId: null, existing: f.areas.filter((a) => a.area_type === "section") })),
-        catalog.filter((c) => c.area_type === "section"),
+        towerSections.map((s) => ({ name: s.name, catalog_id: s.catalog_id, sort_order: s.sort_order })),
+        targetFloors.map((f) => ({
+          floorId: f.id,
+          existingSectionNames: new Set(f.areas.filter((a) => a.area_type === "section").map((a) => a.name)),
+        })),
       );
       toast.success(`Standard sections applied to ${targetFloors.length} floor${targetFloors.length > 1 ? "s" : ""}`);
       setChecklistDialog({ open: false, selected: new Set() });
@@ -431,18 +445,9 @@ function TowerBody({
         canEdit={canEdit}
         canAdd={canAdd}
         canDelete={canDelete}
-        onApplyCatalog={async () => {
-          await applyCatalogToAreas(tower.id, [{ floorId: null, sectionId: null, existing: tower.towerAreas }], towerWideCatalog);
-          onChanged();
-        }}
         onAddCustom={() => setAreaDialog({ open: true, floorId: null, sectionId: null, name: "", areaType: "utility_room", quantity: "1", addToCatalog: false })}
-        onChanged={onChanged}
-      />
-
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h4 className="text-sm font-medium">Floors</h4>
-          <div className="flex gap-2">
+        extraActions={
+          <>
             {canAdd && tower.floors.length > 0 && (
               <Button size="sm" variant="outline" onClick={openChecklistDialog}>
                 Apply standard sections to floors...
@@ -453,7 +458,14 @@ function TowerBody({
                 <Plus className="h-3 w-3 mr-1" /> Add floor
               </Button>
             )}
-          </div>
+          </>
+        }
+        onChanged={onChanged}
+      />
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h4 className="text-sm font-medium">Floors</h4>
         </div>
         {tower.floors.length === 0 ? (
           <p className="text-sm text-muted-foreground">No floors yet.</p>
@@ -523,9 +535,10 @@ function TowerBody({
           </DialogHeader>
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground">
-              Adds the Left/Right/Center sections to each selected floor. Typical numbered floors are selected by
-              default. Special floors like Podium or Recreation are left optional. Add utility rooms afterward,
-              per section, from inside each section.
+              Adds {towerSections.map((s) => s.name).join(", ")} (this tower's sections, from "Tower-wide areas"
+              above) to each selected floor. Typical numbered floors are selected by default. Special floors like
+              Podium or Recreation are left optional. Add utility rooms afterward, per section, from inside each
+              section.
             </p>
             <div className="flex gap-2">
               <Button
@@ -1150,6 +1163,7 @@ function AreaBlock({
   canDelete,
   onApplyCatalog,
   onAddCustom,
+  extraActions,
   onChanged,
 }: {
   title: string;
@@ -1161,6 +1175,7 @@ function AreaBlock({
   canDelete: boolean;
   onApplyCatalog?: () => void;
   onAddCustom: () => void;
+  extraActions?: ReactNode;
   onChanged: () => void;
 }) {
   const sections = useMemo(() => areas.filter((a) => a.area_type === "section"), [areas]);
@@ -1205,9 +1220,10 @@ function AreaBlock({
         )}
         {canAdd && (
           <Button size="sm" variant="outline" onClick={onAddCustom}>
-            <Plus className="h-3 w-3 mr-1" /> Add custom
+            <Plus className="h-3 w-3 mr-1" /> Add custom Section or Utility Area
           </Button>
         )}
+        {extraActions}
       </div>
 
       {areas.length === 0 ? (
