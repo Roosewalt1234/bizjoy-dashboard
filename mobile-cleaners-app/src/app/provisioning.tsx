@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import { ActivityIndicator, Alert, Pressable, StyleSheet, TextInput } from "react-native";
+import { ActivityIndicator, Alert, Pressable, StyleSheet, TextInput, View } from "react-native";
 
 import { ManagerProjectPicker } from "@/components/manager-project-picker";
 import { StaffPhotoGrid } from "@/components/staff-photo-grid";
@@ -69,6 +69,11 @@ export default function ProvisioningScreen() {
     setStep("project-pick");
   }
 
+  async function cancelSetup() {
+    await supabase.auth.signOut();
+    router.replace("/login");
+  }
+
   async function signInAsEmployee() {
     if (!staff || !employeePassword) {
       setEmployeeError("Enter the password");
@@ -133,7 +138,7 @@ export default function ProvisioningScreen() {
         >
           {adminLoading ? <ActivityIndicator color="#fff" /> : <ThemedText style={styles.buttonText}>Continue</ThemedText>}
         </Pressable>
-        <Pressable onPress={() => router.replace("/login")} style={styles.cancel}>
+        <Pressable onPress={() => router.replace("/login")} disabled={adminLoading} style={styles.cancel}>
           <ThemedText themeColor="textSecondary">Cancel</ThemedText>
         </Pressable>
       </ThemedView>
@@ -142,24 +147,34 @@ export default function ProvisioningScreen() {
 
   if (step === "project-pick") {
     return (
-      <ManagerProjectPicker
-        onSelect={(p) => {
-          setProject(p);
-          setStep("staff-pick");
-        }}
-      />
+      <View style={{ flex: 1 }}>
+        <ManagerProjectPicker
+          onSelect={(p) => {
+            setProject(p);
+            setStep("staff-pick");
+          }}
+        />
+        <Pressable onPress={cancelSetup} style={styles.cancel}>
+          <ThemedText themeColor="textSecondary">Cancel setup</ThemedText>
+        </Pressable>
+      </View>
     );
   }
 
   if (step === "staff-pick" && project) {
     return (
-      <StaffPhotoGrid
-        contractId={project.id}
-        onSelect={(s) => {
-          setStaff(s);
-          setStep("employee-credentials");
-        }}
-      />
+      <View style={{ flex: 1 }}>
+        <StaffPhotoGrid
+          contractId={project.id}
+          onSelect={(s) => {
+            setStaff(s);
+            setStep("employee-credentials");
+          }}
+        />
+        <Pressable onPress={cancelSetup} style={styles.cancel}>
+          <ThemedText themeColor="textSecondary">Cancel setup</ThemedText>
+        </Pressable>
+      </View>
     );
   }
 
