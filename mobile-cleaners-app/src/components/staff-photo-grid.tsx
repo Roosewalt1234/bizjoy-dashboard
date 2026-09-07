@@ -26,10 +26,12 @@ export function StaffPhotoGrid({ contractId, onSelect }: Props) {
   const theme = useTheme();
   const [staff, setStaff] = useState<StaffOption[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [failedPhotoIds, setFailedPhotoIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let mounted = true;
     setStaff(null);
+    setError(null);
     fetchProjectStaff(contractId)
       .then((rows) => {
         if (mounted) setStaff(rows);
@@ -59,8 +61,12 @@ export function StaffPhotoGrid({ contractId, onSelect }: Props) {
         <ScrollView contentContainerStyle={styles.grid}>
           {staff.map((person) => (
             <Pressable key={person.id} onPress={() => onSelect(person)} style={styles.tile}>
-              {person.profile_photo ? (
-                <Image source={{ uri: person.profile_photo }} style={styles.photo} />
+              {person.profile_photo && !failedPhotoIds.has(person.id) ? (
+                <Image
+                  source={{ uri: person.profile_photo }}
+                  style={styles.photo}
+                  onError={() => setFailedPhotoIds((prev) => new Set(prev).add(person.id))}
+                />
               ) : (
                 <View style={[styles.photo, styles.placeholder, { backgroundColor: theme.backgroundSelected }]}>
                   <ThemedText type="subtitle">{initials(person)}</ThemedText>
