@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useRouter } from 'expo-router';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -8,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 
 export default function LoginScreen() {
   const theme = useTheme();
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -31,6 +33,16 @@ export default function LoginScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <Pressable
+        onPress={() => router.push('/provisioning')}
+        hitSlop={12}
+        style={styles.setupButton}
+        accessibilityLabel="Set up this device"
+      >
+        <ThemedText themeColor="textSecondary" style={{ fontSize: 20 }}>
+          ⚙️
+        </ThemedText>
+      </Pressable>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -95,6 +107,13 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  setupButton: {
+    position: 'absolute',
+    top: 56,
+    right: 20,
+    zIndex: 1,
+    padding: 8,
+  },
   scroll: { flexGrow: 1, justifyContent: 'center', padding: 24, gap: 12 },
   title: { fontSize: 32, marginBottom: 4 },
   subtitle: { marginBottom: 24 },

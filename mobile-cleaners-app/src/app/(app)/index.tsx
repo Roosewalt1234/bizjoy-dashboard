@@ -54,7 +54,9 @@ export default function TodaysTasksScreen() {
     <ThemedView style={styles.container}>
       <View style={[styles.header, { borderColor: theme.backgroundSelected }]}>
         <View>
-          <ThemedText type="subtitle">{employee?.full_name ?? employee?.first_name}</ThemedText>
+          <ThemedText type="subtitle" onLongPress={() => router.push('/provisioning')}>
+            {employee?.full_name ?? employee?.first_name}
+          </ThemedText>
           <ThemedText themeColor="textSecondary">
             {loading
               ? 'Loading...'
