@@ -41,6 +41,8 @@ export function ManagerProjectPicker({ onSelect }: Props) {
       {error && <ThemedText style={styles.error}>{error}</ThemedText>}
       {projects === null ? (
         <ActivityIndicator />
+      ) : projects.length === 0 ? (
+        <ThemedText themeColor="textSecondary">No projects found.</ThemedText>
       ) : (
         <ScrollView contentContainerStyle={styles.list}>
           {projects.map((project) => (
