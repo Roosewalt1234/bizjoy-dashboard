@@ -287,6 +287,9 @@ export function EmployeeForm({ initial, onSaved, onCancel }: Props) {
                 />
                 <span className="text-sm text-muted-foreground">Can switch projects (manager/admin)</span>
               </div>
+              <p className="text-xs text-muted-foreground">
+                Also requires Contracts and HR view permissions (set on the Permissions page) to actually see projects and staff in the mobile app's setup screen.
+              </p>
             </Field>
           </div>
 
