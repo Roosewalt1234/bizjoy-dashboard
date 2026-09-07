@@ -84,6 +84,56 @@ git commit -m "chore: regenerate Supabase types for employees.can_switch_project
 
 ---
 
+### Task 1b: Database — close self-escalation on `can_switch_projects`
+
+*(Added during execution: the Task 1 code quality review found that `employees` has a permissive self-update RLS policy, `employees_self_update_push_token` (`USING`/`WITH CHECK`: `auth_user_id = auth.uid()`), which — being a separate permissive policy from the properly HR-gated `employees_update` policy — has no column restriction and lets any signed-in employee change ANY column on their own row via a direct PostgREST call, including the new `can_switch_projects` flag. Since Task 9's admin-gated provisioning screen trusts this exact flag to authorize setting up other employees' devices, this is a self-privilege-escalation path that must close before that trust is meaningful. Confirmed live via Supabase MCP: `employees_update` correctly gates on `app_private.can(auth.uid(), 'hr', 'edit')`; `employees_self_update_push_token` does not gate on anything but row ownership, and RLS policies for the same command are OR'd, so passing either permits the update. Fix: a `BEFORE UPDATE` trigger that blocks changes to `can_switch_projects` specifically, unless the caller has `hr`/`edit` permission — leaving the self-service push-token update path (and every other column's existing self-update behavior) untouched, per user decision to fix this narrowly rather than broadly re-scope `employees` RLS.)*
+
+**Files:**
+- Migration applied via Supabase MCP.
+
+- [ ] **Step 1: Apply the guard trigger migration**
+
+Use the Supabase MCP `apply_migration` tool with:
+- `name`: `phase_27_employees_guard_can_switch_projects`
+- `query`:
+```sql
+create or replace function app_private.guard_can_switch_projects()
+returns trigger
+language plpgsql
+as $$
+begin
+  if new.can_switch_projects is distinct from old.can_switch_projects
+     and not app_private.can(auth.uid(), 'hr', 'edit') then
+    raise exception 'Not authorized to change can_switch_projects';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists employees_guard_can_switch_projects on public.employees;
+create trigger employees_guard_can_switch_projects
+before update on public.employees
+for each row execute function app_private.guard_can_switch_projects();
+```
+
+Note: `app_private.can` is itself `SECURITY DEFINER` (confirmed via `pg_proc.prosecdef`), so this trigger function does not need to be `SECURITY DEFINER` itself — it only ever calls into an already-privileged function, never reads privileged tables directly.
+
+- [ ] **Step 2: Verify the trigger blocks self-escalation**
+
+Using the Supabase MCP `execute_sql` tool, as a sanity check confirm the trigger and function exist:
+```sql
+select tgname, tgrelid::regclass from pg_trigger where tgname = 'employees_guard_can_switch_projects';
+```
+Expected: one row, `tgrelid` = `employees`.
+
+A full end-to-end negative test (signing in as a non-HR employee and attempting the PATCH) is not practical from the MCP's service-role connection, which bypasses RLS entirely — service-role access was not the vulnerability. Accept the trigger's presence plus the code review's confirmation of the underlying RLS policy behavior as sufficient verification for this narrow fix.
+
+- [ ] **Step 3: Commit**
+
+No local files changed (this is a database-only migration, like Task 1). Nothing to commit in this step — the migration is the change of record, tracked in Supabase's own migration history (verifiable via `list_migrations`).
+
+---
+
 ### Task 2: Web — "Can switch projects" checkbox on the Employee form
 
 **Files:**
