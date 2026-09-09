@@ -147,7 +147,7 @@ function ContractManpowerPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("employees")
-        .select("id, first_name, last_name, full_name, designation, status")
+        .select("id, first_name, last_name, full_name, designation, status, staffing_model")
         .order("first_name", { ascending: true })
         .limit(10000);
       if (error) throw error;
@@ -990,11 +990,13 @@ function AssignmentDialog({
               ))}
           </SelectField>
           <SelectField label="Employee" value={form.employee_id} onValueChange={pickEmployee}>
-            {employees.map((e: any) => (
-              <SelectItem key={e.id} value={e.id}>
-                {e.name}
-              </SelectItem>
-            ))}
+            {employees
+              .filter((e: any) => e.staffing_model !== "AMC")
+              .map((e: any) => (
+                <SelectItem key={e.id} value={e.id}>
+                  {e.name}
+                </SelectItem>
+              ))}
           </SelectField>
           <SelectField
             label="Role"
