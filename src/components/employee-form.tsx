@@ -45,6 +45,7 @@ const empty: any = {
   salary: "", food_allowance: "", ot_amount: "", accommodation: "", transport: "",
   commission_rate: "", position: "", assigned_branch: "", status: "Active",
   can_switch_projects: false,
+  staffing_model: "",
   visa_expiry_date: "", passport_number: "", passport_expiry_date: "",
   emirates_id_number: "", emirates_id_expiry_date: "", ohc_number: "", ohc_expiry_date: "",
   iloe_insurance_number: "", iloe_insurance_expiry_date: "",
@@ -139,6 +140,7 @@ export function EmployeeForm({ initial, onSaved, onCancel }: Props) {
         commission_rate: num(form.commission_rate),
         status: form.status || "Active",
         can_switch_projects: Boolean(form.can_switch_projects),
+        staffing_model: form.staffing_model || null,
         visa_expiry_date: txt(form.visa_expiry_date),
         passport_number: txt(form.passport_number),
         passport_expiry_date: txt(form.passport_expiry_date),
@@ -278,6 +280,19 @@ export function EmployeeForm({ initial, onSaved, onCancel }: Props) {
                   <SelectItem value="Terminated">Terminated</SelectItem>
                 </SelectContent>
               </Select>
+            </Field>
+            <Field label="Staffing Model">
+              <Select value={form.staffing_model || undefined} onValueChange={(v) => set("staffing_model", v)}>
+                <SelectTrigger><SelectValue placeholder="Unclassified" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="FM">FM (dedicated to one project at a time)</SelectItem>
+                  <SelectItem value="AMC">AMC (shared pool, any AMC job)</SelectItem>
+                  <SelectItem value="Both">Both</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                FM staff can be assigned to specific FM contracts on the FM Manpower page. AMC staff work across all AMC contracts and are never pre-assigned.
+              </p>
             </Field>
             <Field label="Mobile app device setup">
               <div className="flex items-center gap-2 pt-1.5">
