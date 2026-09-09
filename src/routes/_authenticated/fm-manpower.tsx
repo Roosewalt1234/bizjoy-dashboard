@@ -991,7 +991,7 @@ function AssignmentDialog({
           </SelectField>
           <SelectField label="Employee" value={form.employee_id} onValueChange={pickEmployee}>
             {employees
-              .filter((e: any) => e.staffing_model !== "AMC")
+              .filter((e: any) => e.staffing_model !== "AMC" || e.id === form.employee_id)
               .map((e: any) => (
                 <SelectItem key={e.id} value={e.id}>
                   {e.name}
