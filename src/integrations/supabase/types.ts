@@ -993,6 +993,7 @@ export type Database = {
           profile_photo: string | null
           referred_by: string | null
           salary: number | null
+          staffing_model: string | null
           status: string | null
           transport: number | null
           visa_expiry_date: string | null
@@ -1041,6 +1042,7 @@ export type Database = {
           profile_photo?: string | null
           referred_by?: string | null
           salary?: number | null
+          staffing_model?: string | null
           status?: string | null
           transport?: number | null
           visa_expiry_date?: string | null
@@ -1089,6 +1091,7 @@ export type Database = {
           profile_photo?: string | null
           referred_by?: string | null
           salary?: number | null
+          staffing_model?: string | null
           status?: string | null
           transport?: number | null
           visa_expiry_date?: string | null
