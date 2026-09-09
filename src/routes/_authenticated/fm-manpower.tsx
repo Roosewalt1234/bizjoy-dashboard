@@ -147,7 +147,7 @@ function ContractManpowerPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("employees")
-        .select("id, first_name, last_name, full_name, designation, status, staffing_model")
+        .select("id, first_name, last_name, full_name, status, staffing_model")
         .order("first_name", { ascending: true })
         .limit(10000);
       if (error) throw error;
