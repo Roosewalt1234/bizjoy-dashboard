@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -26,6 +29,7 @@ function HRPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
   const [page, setPage] = useState(1);
+  const [staffingFilter, setStaffingFilter] = useState("all");
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["employees"],
@@ -36,10 +40,16 @@ function HRPage() {
     },
   });
 
-  const total = rows.length;
+  const filteredRows = useMemo(() => {
+    if (staffingFilter === "all") return rows as any[];
+    if (staffingFilter === "unclassified") return (rows as any[]).filter((r) => !r.staffing_model);
+    return (rows as any[]).filter((r) => r.staffing_model === staffingFilter);
+  }, [rows, staffingFilter]);
+
+  const total = filteredRows.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
-  const pageRows = paginate(rows as any[], page);
+  const pageRows = paginate(filteredRows, page);
 
 
   async function remove(id: string) {
@@ -64,10 +74,11 @@ function HRPage() {
           <ExportMenu
             filename="employees"
             sheetName="Employees"
-            rows={rows as any[]}
+            rows={filteredRows}
             columns={[
               { key: "employee_id", label: "Employee ID" },
               { key: "full_name", label: "Full Name", format: (v, r) => v ?? [r.first_name, r.last_name].filter(Boolean).join(" ") },
+              { key: "staffing_model", label: "Staffing Model", format: (v) => v ?? "Unclassified" },
               { key: "position", label: "Position" },
               { key: "department", label: "Department" },
               { key: "nationality", label: "Nationality" },
@@ -88,12 +99,27 @@ function HRPage() {
         </div>
       </div>
 
+      <div className="flex items-center gap-2">
+        <Label className="text-xs">Staffing Model</Label>
+        <Select value={staffingFilter} onValueChange={(v) => { setStaffingFilter(v); setPage(1); }}>
+          <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="FM">FM</SelectItem>
+            <SelectItem value="AMC">AMC</SelectItem>
+            <SelectItem value="Both">Both</SelectItem>
+            <SelectItem value="unclassified">Unclassified</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       <Card>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Employee ID</TableHead>
               <TableHead>Name</TableHead>
+              <TableHead>Staffing Model</TableHead>
               <TableHead>Position</TableHead>
               <TableHead>Nationality</TableHead>
               <TableHead>Phone</TableHead>
@@ -103,13 +129,20 @@ function HRPage() {
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
-            ) : rows.length === 0 ? (
-              <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No employees yet.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+            ) : pageRows.length === 0 ? (
+              <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">No employees found.</TableCell></TableRow>
             ) : pageRows.map((r: any) => (
               <TableRow key={r.id}>
                 <TableCell>{r.employee_id ?? "—"}</TableCell>
                 <TableCell>{r.full_name ?? ([r.first_name, r.last_name].filter(Boolean).join(" ") || "—")}</TableCell>
+                <TableCell>
+                  {r.staffing_model ? (
+                    <Badge variant="outline">{r.staffing_model}</Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-muted-foreground">Unclassified</Badge>
+                  )}
+                </TableCell>
                 <TableCell>{r.position ?? "—"}</TableCell>
                 <TableCell>{r.nationality ?? "—"}</TableCell>
                 <TableCell>{r.phone ?? "—"}</TableCell>
