@@ -40,6 +40,30 @@ function HRPage() {
     },
   });
 
+  const { data: activeAssignments = [] } = useQuery({
+    queryKey: ["employees-active-fm-assignments"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("contract_manpower_assignments")
+        .select("employee_id, fm_contracts:contract_id(contract_no, customer_name)")
+        .eq("active", true);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const assignmentsByEmployee = useMemo(() => {
+    const map = new Map<string, string[]>();
+    for (const row of activeAssignments as any[]) {
+      if (!row.employee_id) continue;
+      const label = row.fm_contracts?.contract_no ?? row.fm_contracts?.customer_name ?? "Unnamed contract";
+      const existing = map.get(row.employee_id) ?? [];
+      existing.push(label);
+      map.set(row.employee_id, existing);
+    }
+    return map;
+  }, [activeAssignments]);
+
   const filteredRows = useMemo(() => {
     if (staffingFilter === "all") return rows as any[];
     if (staffingFilter === "unclassified") return (rows as any[]).filter((r) => !r.staffing_model);
@@ -120,6 +144,7 @@ function HRPage() {
               <TableHead>Employee ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Staffing Model</TableHead>
+              <TableHead>Assigned To</TableHead>
               <TableHead>Position</TableHead>
               <TableHead>Nationality</TableHead>
               <TableHead>Phone</TableHead>
@@ -129,9 +154,9 @@ function HRPage() {
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
             ) : pageRows.length === 0 ? (
-              <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">No employees found.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">No employees found.</TableCell></TableRow>
             ) : pageRows.map((r: any) => (
               <TableRow key={r.id}>
                 <TableCell>{r.employee_id ?? "—"}</TableCell>
@@ -142,6 +167,11 @@ function HRPage() {
                   ) : (
                     <Badge variant="outline" className="text-muted-foreground">Unclassified</Badge>
                   )}
+                </TableCell>
+                <TableCell>
+                  {(assignmentsByEmployee.get(r.id) ?? []).length > 0
+                    ? (assignmentsByEmployee.get(r.id) ?? []).join(", ")
+                    : "—"}
                 </TableCell>
                 <TableCell>{r.position ?? "—"}</TableCell>
                 <TableCell>{r.nationality ?? "—"}</TableCell>
