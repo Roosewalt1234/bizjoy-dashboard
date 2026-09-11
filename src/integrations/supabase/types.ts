@@ -17,31 +17,34 @@ export type Database = {
       accounts_transactions: {
         Row: {
           amount: number | null
-          category: string | null
+          contract_id: string | null
           created_at: string
           currency: string | null
           description: string | null
           id: string
+          project_type: string | null
           transaction_date: string | null
           type: string | null
         }
         Insert: {
           amount?: number | null
-          category?: string | null
+          contract_id?: string | null
           created_at?: string
           currency?: string | null
           description?: string | null
           id?: string
+          project_type?: string | null
           transaction_date?: string | null
           type?: string | null
         }
         Update: {
           amount?: number | null
-          category?: string | null
+          contract_id?: string | null
           created_at?: string
           currency?: string | null
           description?: string | null
           id?: string
+          project_type?: string | null
           transaction_date?: string | null
           type?: string | null
         }
