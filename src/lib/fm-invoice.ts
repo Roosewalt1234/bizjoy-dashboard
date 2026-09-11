@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { SLA_REQUEST_TYPES } from "./fm-sla";
+
 type AnyRow = Record<string, any>;
 
 export const INVOICE_PACK_STATUSES = [
@@ -193,7 +195,7 @@ export function buildClientSubmissionSummary(input: {
   const completedWorkOrders = workOrders.filter((row) =>
     ["Completed", "Closed"].includes(row.status),
   ).length;
-  const split = ["Emergency", "Reactive", "Corrective", "PPM", "Inspection", "Other"].reduce<
+  const split = SLA_REQUEST_TYPES.reduce<
     Record<string, number>
   >((acc, type) => {
     acc[type] = workOrders.filter((row) => row.request_type === type).length;

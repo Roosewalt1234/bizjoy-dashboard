@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { SLA_REQUEST_TYPES } from "./fm-sla";
+
 type AnyRow = Record<string, any>;
 
 export const REPORT_STATUSES = ["Draft", "Generated", "Submitted", "Approved", "Rejected"] as const;
@@ -70,7 +72,7 @@ export function calculateWorkOrderSummary(workOrders: AnyRow[], start: string, e
     (row) => !["Completed", "Cancelled", "Closed"].includes(row.status),
   ).length;
   const byRequestType = Object.fromEntries(
-    ["Emergency", "Reactive", "Corrective", "PPM", "Inspection", "Other"].map((type) => [
+    SLA_REQUEST_TYPES.map((type) => [
       type,
       rows.filter((row) => row.request_type === type).length,
     ]),

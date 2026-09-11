@@ -14,6 +14,7 @@ export const SLA_REQUEST_TYPES = [
   "Corrective",
   "PPM",
   "Inspection",
+  "Complimentary",
   "Other",
 ] as const;
 
