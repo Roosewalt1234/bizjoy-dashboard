@@ -51,7 +51,16 @@ const items: NavItem[] = [
   { title: "Customers", url: "/customers", icon: Users, module: "customers" },
   { title: "Sales", url: "/sales", icon: ShoppingCart, module: "sales" },
   { title: "HR", url: "/hr", icon: UserCog, module: "hr" },
-  { title: "Accounts", url: "/accounts", icon: Wallet, module: "accounts" },
+  {
+    title: "Accounts",
+    url: "/accounts",
+    icon: Wallet,
+    module: "accounts",
+    children: [
+      { title: "Ledger", url: "/accounts", module: "accounts" },
+      { title: "Outstanding Amounts", url: "/accounts-outstanding", module: "accounts" },
+    ],
+  },
   {
     title: "AMC Contracts",
     url: "/amc-contracts",
