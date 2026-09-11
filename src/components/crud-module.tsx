@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -30,6 +30,12 @@ export type FieldDef = {
   required?: boolean;
 };
 
+export type AddButtonDef = {
+  label: string;
+  createTitle?: string;
+  presetValues?: Record<string, any>;
+};
+
 type Props = {
   title: string;
   description: string;
@@ -37,14 +43,17 @@ type Props = {
   fields: FieldDef[];
   listColumns: string[];
   createTitle?: string;
+  /** When provided, renders one "Add" button per entry instead of a single generic Add button. */
+  addButtons?: AddButtonDef[];
 };
 
-export function CrudModule({ title, description, table, fields, listColumns, createTitle }: Props) {
+export function CrudModule({ title, description, table, fields, listColumns, createTitle, addButtons }: Props) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
   const [form, setForm] = useState<any>({});
   const [page, setPage] = useState(1);
+  const [activeCreate, setActiveCreate] = useState<AddButtonDef | null>(null);
 
 
   const { data: rows = [], isLoading } = useQuery({
@@ -62,16 +71,19 @@ export function CrudModule({ title, description, table, fields, listColumns, cre
   const pageRows = paginate(rows, page);
 
 
-  function openNew() {
+  function openNew(button?: AddButtonDef) {
     setEditing(null);
     const initial: any = {};
     fields.forEach((f) => { initial[f.key] = f.type === "number" ? "" : ""; });
+    if (button?.presetValues) Object.assign(initial, button.presetValues);
     setForm(initial);
+    setActiveCreate(button ?? null);
     setOpen(true);
   }
   function openEdit(row: any) {
     setEditing(row);
     setForm({ ...row });
+    setActiveCreate(null);
     setOpen(true);
   }
 
@@ -124,13 +136,19 @@ export function CrudModule({ title, description, table, fields, listColumns, cre
             columns={listColumns.map((c) => ({ key: c, label: columnLabels[c] ?? c }))}
             sheetName={title}
           />
+          {addButtons && addButtons.length > 0 ? (
+            addButtons.map((btn) => (
+              <Button key={btn.label} onClick={() => openNew(btn)}>
+                <Plus className="h-4 w-4 mr-2" /> {btn.label}
+              </Button>
+            ))
+          ) : (
+            <Button onClick={() => openNew()}><Plus className="h-4 w-4 mr-2" /> Add</Button>
+          )}
           <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={openNew}><Plus className="h-4 w-4 mr-2" /> Add</Button>
-            </DialogTrigger>
             <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editing ? `Edit ${title}` : (createTitle ?? `New ${title}`)}</DialogTitle>
+              <DialogTitle>{editing ? `Edit ${title}` : (activeCreate?.createTitle ?? createTitle ?? `New ${title}`)}</DialogTitle>
             </DialogHeader>
             <form onSubmit={save} className="space-y-3">
               {fields.map((f) => (

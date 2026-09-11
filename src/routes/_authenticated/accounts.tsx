@@ -16,6 +16,10 @@ export const Route = createFileRoute("/_authenticated/accounts")({
         { key: "currency", label: "Currency", type: "select", options: ["AED", "Euro", "USD"] },
       ]}
       listColumns={["transaction_date", "type", "category", "amount", "currency"]}
+      addButtons={[
+        { label: "Add Expense", createTitle: "New Expense", presetValues: { type: "Expense" } },
+        { label: "Add Invoice", createTitle: "New Invoice", presetValues: { type: "Income" } },
+      ]}
     />
   ),
 });
