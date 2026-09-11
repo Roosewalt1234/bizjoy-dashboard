@@ -207,7 +207,7 @@ export function AppSidebar() {
                             <SidebarMenuSubItem key={child.url}>
                               <SidebarMenuSubButton
                                 asChild
-                                isActive={pathname.startsWith(child.url)}
+                                isActive={pathname === child.url}
                               >
                                 <Link to={child.url}>{child.title}</Link>
                               </SidebarMenuSubButton>

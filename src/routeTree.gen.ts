@@ -13,6 +13,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedAccountsRouteImport } from './routes/_authenticated/accounts'
+import { Route as AuthenticatedAccountsOutstandingRouteImport } from './routes/_authenticated/accounts-outstanding'
 import { Route as AuthenticatedAmcContractsRouteImport } from './routes/_authenticated/amc-contracts'
 import { Route as AuthenticatedAmcServiceReportsRouteImport } from './routes/_authenticated/amc-service-reports'
 import { Route as AuthenticatedAmcWorkOrdersRouteImport } from './routes/_authenticated/amc-work-orders'
@@ -81,6 +82,12 @@ const AuthenticatedAccountsRoute = AuthenticatedAccountsRouteImport.update({
   path: '/accounts',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAccountsOutstandingRoute =
+  AuthenticatedAccountsOutstandingRouteImport.update({
+    id: '/accounts-outstanding',
+    path: '/accounts-outstanding',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAmcContractsRoute =
   AuthenticatedAmcContractsRouteImport.update({
     id: '/amc-contracts',
@@ -362,6 +369,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/accounts': typeof AuthenticatedAccountsRoute
+  '/accounts-outstanding': typeof AuthenticatedAccountsOutstandingRoute
   '/amc-contracts': typeof AuthenticatedAmcContractsRouteWithChildren
   '/amc-service-reports': typeof AuthenticatedAmcServiceReportsRoute
   '/amc-work-orders': typeof AuthenticatedAmcWorkOrdersRoute
@@ -414,6 +422,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/accounts': typeof AuthenticatedAccountsRoute
+  '/accounts-outstanding': typeof AuthenticatedAccountsOutstandingRoute
   '/amc-contracts': typeof AuthenticatedAmcContractsRouteWithChildren
   '/amc-service-reports': typeof AuthenticatedAmcServiceReportsRoute
   '/amc-work-orders': typeof AuthenticatedAmcWorkOrdersRoute
@@ -468,6 +477,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/accounts': typeof AuthenticatedAccountsRoute
+  '/_authenticated/accounts-outstanding': typeof AuthenticatedAccountsOutstandingRoute
   '/_authenticated/amc-contracts': typeof AuthenticatedAmcContractsRouteWithChildren
   '/_authenticated/amc-service-reports': typeof AuthenticatedAmcServiceReportsRoute
   '/_authenticated/amc-work-orders': typeof AuthenticatedAmcWorkOrdersRoute
@@ -524,6 +534,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/accounts'
+    | '/accounts-outstanding'
     | '/amc-contracts'
     | '/amc-service-reports'
     | '/amc-work-orders'
@@ -576,6 +587,7 @@ export interface FileRouteTypes {
   to:
     | '/auth'
     | '/accounts'
+    | '/accounts-outstanding'
     | '/amc-contracts'
     | '/amc-service-reports'
     | '/amc-work-orders'
@@ -629,6 +641,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/accounts'
+    | '/_authenticated/accounts-outstanding'
     | '/_authenticated/amc-contracts'
     | '/_authenticated/amc-service-reports'
     | '/_authenticated/amc-work-orders'
@@ -713,6 +726,13 @@ declare module '@tanstack/react-router' {
       path: '/accounts'
       fullPath: '/accounts'
       preLoaderRoute: typeof AuthenticatedAccountsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/accounts-outstanding': {
+      id: '/_authenticated/accounts-outstanding'
+      path: '/accounts-outstanding'
+      fullPath: '/accounts-outstanding'
+      preLoaderRoute: typeof AuthenticatedAccountsOutstandingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/amc-contracts': {
@@ -1114,6 +1134,7 @@ const AuthenticatedCustomersIdRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountsRoute: typeof AuthenticatedAccountsRoute
+  AuthenticatedAccountsOutstandingRoute: typeof AuthenticatedAccountsOutstandingRoute
   AuthenticatedAmcContractsRoute: typeof AuthenticatedAmcContractsRouteWithChildren
   AuthenticatedAmcServiceReportsRoute: typeof AuthenticatedAmcServiceReportsRoute
   AuthenticatedAmcWorkOrdersRoute: typeof AuthenticatedAmcWorkOrdersRoute
@@ -1162,6 +1183,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountsRoute: AuthenticatedAccountsRoute,
+  AuthenticatedAccountsOutstandingRoute: AuthenticatedAccountsOutstandingRoute,
   AuthenticatedAmcContractsRoute: AuthenticatedAmcContractsRouteWithChildren,
   AuthenticatedAmcServiceReportsRoute: AuthenticatedAmcServiceReportsRoute,
   AuthenticatedAmcWorkOrdersRoute: AuthenticatedAmcWorkOrdersRoute,
