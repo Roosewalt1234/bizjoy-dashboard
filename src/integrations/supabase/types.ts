@@ -23,9 +23,12 @@ export type Database = {
           description: string | null
           id: string
           payment_method: string | null
+          payment_schedule_id: string | null
           payment_type: string | null
           pemo_card_id: string | null
           project_type: string | null
+          quote_id: string | null
+          receipt_type: string | null
           transaction_date: string | null
           type: string | null
         }
@@ -37,9 +40,12 @@ export type Database = {
           description?: string | null
           id?: string
           payment_method?: string | null
+          payment_schedule_id?: string | null
           payment_type?: string | null
           pemo_card_id?: string | null
           project_type?: string | null
+          quote_id?: string | null
+          receipt_type?: string | null
           transaction_date?: string | null
           type?: string | null
         }
@@ -51,9 +57,12 @@ export type Database = {
           description?: string | null
           id?: string
           payment_method?: string | null
+          payment_schedule_id?: string | null
           payment_type?: string | null
           pemo_card_id?: string | null
           project_type?: string | null
+          quote_id?: string | null
+          receipt_type?: string | null
           transaction_date?: string | null
           type?: string | null
         }
@@ -63,6 +72,13 @@ export type Database = {
             columns: ["pemo_card_id"]
             isOneToOne: false
             referencedRelation: "pemo_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accounts_transactions_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
         ]
