@@ -301,6 +301,18 @@ function LedgerPage() {
 
   async function saveReceipt(e: React.FormEvent) {
     e.preventDefault();
+    if (!receiptForm.receipt_type) {
+      toast.error("Select whether this receipt is against an invoice or an advance payment.");
+      return;
+    }
+    if (receiptForm.receipt_type === "invoice" && !receiptForm.payment_schedule_id) {
+      toast.error("Select which outstanding invoice this receipt is for.");
+      return;
+    }
+    if (receiptForm.receipt_type === "advance" && !receiptForm.quote_id) {
+      toast.error("Select which quotation this advance payment is for.");
+      return;
+    }
     const selectedSchedule = outstandingSchedules.find((s) => s.id === receiptForm.payment_schedule_id);
     const payload: any = {
       transaction_date: receiptForm.transaction_date || null,
