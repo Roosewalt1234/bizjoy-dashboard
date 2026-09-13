@@ -41,7 +41,7 @@ type LedgerForm = {
   amount: string;
   project_type: ProjectType | "none";
   contract_id: string;
-  payment_type: "Credit" | "Cash" | "";
+  payment_type: "Credit" | "Cash" | "PEMO" | "";
   payment_method: "PEMO" | "Bank Transfer" | "Cash" | "";
   pemo_card_id: string;
 };
@@ -179,7 +179,12 @@ function LedgerPage() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const isExpense = activeType === "Expense";
-    const paymentMethod = isExpense && form.payment_type === "Cash" ? form.payment_method : "";
+    const isPemo = isExpense && form.payment_type === "PEMO";
+    const paymentMethod = isPemo
+      ? "PEMO"
+      : isExpense && form.payment_type === "Cash"
+        ? form.payment_method
+        : "";
     const payload: any = {
       transaction_date: form.transaction_date || null,
       description: form.description || null,
@@ -188,7 +193,7 @@ function LedgerPage() {
       contract_id: form.project_type === "none" ? null : form.contract_id || null,
       payment_type: isExpense && form.payment_type ? form.payment_type : null,
       payment_method: paymentMethod || null,
-      pemo_card_id: paymentMethod === "PEMO" && form.pemo_card_id ? form.pemo_card_id : null,
+      pemo_card_id: isPemo && form.pemo_card_id ? form.pemo_card_id : null,
     };
     // Type/currency are only set on create - editing an existing entry never changes what
     // button originally created it or its currency, both of which are fixed at creation time.
@@ -339,6 +344,7 @@ function LedgerPage() {
                     <SelectContent>
                       <SelectItem value="Credit">Credit</SelectItem>
                       <SelectItem value="Cash">Cash</SelectItem>
+                      <SelectItem value="PEMO">PEMO</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -348,14 +354,13 @@ function LedgerPage() {
                     <Select value={form.payment_method} onValueChange={setPaymentMethod}>
                       <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="PEMO">PEMO</SelectItem>
                         <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
                         <SelectItem value="Cash">Cash</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 )}
-                {form.payment_method === "PEMO" && (
+                {form.payment_type === "PEMO" && (
                   <div className="space-y-1">
                     <Label>Card</Label>
                     <Select value={form.pemo_card_id} onValueChange={(v) => setForm({ ...form, pemo_card_id: v })}>
