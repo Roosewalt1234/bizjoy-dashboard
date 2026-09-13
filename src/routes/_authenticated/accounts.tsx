@@ -79,6 +79,52 @@ function cardLabel(c: PemoCardOption): string {
   return empName ? `${c.label} - ${empName}` : c.label;
 }
 
+type OutstandingScheduleOption = {
+  id: string;
+  type: "AMC" | "FM";
+  contractId: string;
+  label: string;
+  amount: number;
+  dueDate: string;
+};
+
+// Mirrors the exact "outstanding" definition already used on the Outstanding Amounts page
+// (src/routes/_authenticated/accounts-outstanding.tsx): no received_date, and the due date is
+// strictly before today (today itself is "Not Yet Due", not outstanding).
+function isOutstanding(paymentDate: string | null, receivedDate: string | null): boolean {
+  if (receivedDate || !paymentDate) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(paymentDate);
+  target.setHours(0, 0, 0, 0);
+  return target.getTime() < today.getTime();
+}
+
+type QuoteOption = {
+  id: string;
+  quote_number: string | null;
+  customer_name: string | null;
+  total: number | null;
+};
+
+type ReceiptForm = {
+  transaction_date: string;
+  receipt_type: "invoice" | "advance" | "";
+  payment_schedule_id: string;
+  quote_id: string;
+  amount: string;
+  description: string;
+};
+
+const emptyReceiptForm: ReceiptForm = {
+  transaction_date: "",
+  receipt_type: "",
+  payment_schedule_id: "",
+  quote_id: "",
+  amount: "",
+  description: "",
+};
+
 function LedgerPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -129,6 +175,66 @@ function LedgerPage() {
     },
   });
 
+  const { data: amcOutstanding = [] } = useQuery({
+    queryKey: ["receipt-outstanding-amc"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contract_payments")
+        .select("id, contract_id, payment_date, received_date, value, contracts:contract_id(title, contract_no, customer_name)")
+        .order("payment_date", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+  });
+
+  const { data: fmOutstanding = [] } = useQuery({
+    queryKey: ["receipt-outstanding-fm"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("fm_contract_payments")
+        .select("id, contract_id, payment_date, received_date, value, fm_contracts:contract_id(title, contract_no, customer_name)")
+        .order("payment_date", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+  });
+
+  const { data: quotes = [] } = useQuery({
+    queryKey: ["receipt-quotes"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("quotes")
+        .select("id, quote_number, customer_name, total")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as QuoteOption[];
+    },
+  });
+
+  const outstandingSchedules = useMemo<OutstandingScheduleOption[]>(() => {
+    const amc = (amcOutstanding as any[])
+      .filter((p) => isOutstanding(p.payment_date, p.received_date))
+      .map((p) => ({
+        id: p.id as string,
+        type: "AMC" as const,
+        contractId: p.contract_id as string,
+        label: `AMC - ${p.contracts?.contract_no ?? p.contracts?.customer_name ?? "Untitled"} - Due ${p.payment_date}`,
+        amount: Number(p.value) || 0,
+        dueDate: p.payment_date as string,
+      }));
+    const fm = (fmOutstanding as any[])
+      .filter((p) => isOutstanding(p.payment_date, p.received_date))
+      .map((p) => ({
+        id: p.id as string,
+        type: "FM" as const,
+        contractId: p.contract_id as string,
+        label: `FM - ${p.fm_contracts?.contract_no ?? p.fm_contracts?.customer_name ?? "Untitled"} - Due ${p.payment_date}`,
+        amount: Number(p.value) || 0,
+        dueDate: p.payment_date as string,
+      }));
+    return [...amc, ...fm].sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+  }, [amcOutstanding, fmOutstanding]);
+
   const contractsById = useMemo(() => {
     const map = new Map<string, ContractOption>();
     for (const c of fmContracts) map.set(c.id, c);
@@ -174,6 +280,64 @@ function LedgerPage() {
 
   function setPaymentMethod(v: string) {
     setForm((f) => ({ ...f, payment_method: v as LedgerForm["payment_method"], pemo_card_id: "" }));
+  }
+
+  const [receiptOpen, setReceiptOpen] = useState(false);
+  const [receiptForm, setReceiptForm] = useState<ReceiptForm>(emptyReceiptForm);
+
+  function openNewReceipt() {
+    setReceiptForm(emptyReceiptForm);
+    setReceiptOpen(true);
+  }
+
+  function setReceiptType(v: string) {
+    setReceiptForm((f) => ({ ...f, receipt_type: v as ReceiptForm["receipt_type"], payment_schedule_id: "", quote_id: "", amount: "" }));
+  }
+
+  function pickSchedule(v: string) {
+    const sched = outstandingSchedules.find((s) => s.id === v);
+    setReceiptForm((f) => ({ ...f, payment_schedule_id: v, amount: sched ? String(sched.amount) : f.amount }));
+  }
+
+  async function saveReceipt(e: React.FormEvent) {
+    e.preventDefault();
+    const selectedSchedule = outstandingSchedules.find((s) => s.id === receiptForm.payment_schedule_id);
+    const payload: any = {
+      transaction_date: receiptForm.transaction_date || null,
+      description: receiptForm.description || null,
+      amount: receiptForm.amount === "" ? null : Number(receiptForm.amount),
+      type: "Income",
+      currency: "AED",
+      receipt_type: receiptForm.receipt_type || null,
+      project_type: receiptForm.receipt_type === "invoice" && selectedSchedule ? selectedSchedule.type : null,
+      contract_id: receiptForm.receipt_type === "invoice" && selectedSchedule ? selectedSchedule.contractId : null,
+      payment_schedule_id: receiptForm.receipt_type === "invoice" ? receiptForm.payment_schedule_id || null : null,
+      quote_id: receiptForm.receipt_type === "advance" ? receiptForm.quote_id || null : null,
+    };
+    try {
+      const { error } = await supabase.from("accounts_transactions").insert(payload);
+      if (error) throw error;
+      toast.success("Payment receipt recorded");
+      // Best-effort follow-up: mark the settled installment as received, the same way the
+      // AMC/FM contract pages already do. If this fails, the receipt itself is still saved -
+      // matching the same insert-then-best-effort-update pattern used for PEMO linking.
+      if (receiptForm.receipt_type === "invoice" && selectedSchedule) {
+        const table = selectedSchedule.type === "AMC" ? "contract_payments" : "fm_contract_payments";
+        const { error: scheduleError } = await supabase
+          .from(table)
+          .update({ received_date: receiptForm.transaction_date || null })
+          .eq("id", selectedSchedule.id);
+        if (scheduleError) {
+          toast.error("Receipt saved, but marking the invoice as received failed - update it manually.");
+        }
+      }
+      setReceiptOpen(false);
+      qc.invalidateQueries({ queryKey: ["accounts_transactions"] });
+      qc.invalidateQueries({ queryKey: ["receipt-outstanding-amc"] });
+      qc.invalidateQueries({ queryKey: ["receipt-outstanding-fm"] });
+    } catch (err: any) {
+      toast.error(err.message ?? "Save failed");
+    }
   }
 
   async function save(e: React.FormEvent) {
@@ -276,6 +440,7 @@ function LedgerPage() {
           />
           <Button onClick={() => openNew("Expense")}><Plus className="h-4 w-4 mr-2" /> Add Expense</Button>
           <Button onClick={() => openNew("Income")}><Plus className="h-4 w-4 mr-2" /> Add Invoice</Button>
+          <Button variant="outline" onClick={openNewReceipt}><Plus className="h-4 w-4 mr-2" /> Payment Receipt</Button>
         </div>
       </div>
 
@@ -381,6 +546,88 @@ function LedgerPage() {
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
               <Button type="submit">{editing ? "Update" : "Create"}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={receiptOpen} onOpenChange={setReceiptOpen}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Payment Receipt</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={saveReceipt} className="space-y-3">
+            <div className="space-y-1">
+              <Label>Date *</Label>
+              <Input
+                type="date"
+                required
+                value={receiptForm.transaction_date}
+                onChange={(e) => setReceiptForm({ ...receiptForm, transaction_date: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Type</Label>
+              <Select value={receiptForm.receipt_type} onValueChange={setReceiptType}>
+                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="invoice">Against Invoice</SelectItem>
+                  <SelectItem value="advance">Advance Payment</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {receiptForm.receipt_type === "invoice" && (
+              <div className="space-y-1">
+                <Label>Outstanding Invoice</Label>
+                <Select value={receiptForm.payment_schedule_id} onValueChange={pickSchedule}>
+                  <SelectTrigger><SelectValue placeholder="Select an outstanding invoice..." /></SelectTrigger>
+                  <SelectContent>
+                    {outstandingSchedules.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.label} - AED {s.amount.toLocaleString()}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {receiptForm.receipt_type === "advance" && (
+              <div className="space-y-1">
+                <Label>Quotation</Label>
+                <Select value={receiptForm.quote_id} onValueChange={(v) => setReceiptForm({ ...receiptForm, quote_id: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select a quotation..." /></SelectTrigger>
+                  <SelectContent>
+                    {quotes.map((q) => (
+                      <SelectItem key={q.id} value={q.id}>
+                        {q.quote_number ?? "Untitled"} - {q.customer_name ?? "Unknown"} (AED {Number(q.total ?? 0).toLocaleString()})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <div className="space-y-1">
+              <Label>Amount *</Label>
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                value={receiptForm.amount}
+                onChange={(e) => setReceiptForm({ ...receiptForm, amount: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Description</Label>
+              <Textarea
+                rows={2}
+                value={receiptForm.description}
+                onChange={(e) => setReceiptForm({ ...receiptForm, description: e.target.value })}
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setReceiptOpen(false)}>Cancel</Button>
+              <Button type="submit">Save Receipt</Button>
             </DialogFooter>
           </form>
         </DialogContent>
