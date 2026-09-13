@@ -153,7 +153,14 @@ function PemoManagementPage() {
   }
   async function removeCard(id: string) {
     const { error } = await supabase.from("pemo_cards").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      if (error.code === "23503") {
+        toast.error("Cannot delete a card with transaction history - mark it Inactive instead.");
+      } else {
+        toast.error(error.message);
+      }
+      return;
+    }
     toast.success("Deleted");
     qc.invalidateQueries({ queryKey: ["pemo_cards"] });
   }
@@ -455,9 +462,13 @@ function PemoManagementPage() {
             </div>
             <div className="space-y-1">
               <Label>Employee</Label>
-              <Select value={cardForm.employee_id || undefined} onValueChange={(v) => setCardForm({ ...cardForm, employee_id: v })}>
+              <Select
+                value={cardForm.employee_id || "none"}
+                onValueChange={(v) => setCardForm({ ...cardForm, employee_id: v === "none" ? "" : v })}
+              >
                 <SelectTrigger><SelectValue placeholder="Unassigned" /></SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">Unassigned</SelectItem>
                   {employees.map((e) => <SelectItem key={e.id} value={e.id}>{employeeName(e)}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -484,7 +495,7 @@ function PemoManagementPage() {
             </div>
             <div className="space-y-1">
               <Label>Amount</Label>
-              <Input type="number" step="0.01" min="0" value={depositForm.amount} onChange={(e) => setDepositForm({ ...depositForm, amount: e.target.value })} />
+              <Input type="number" step="0.01" min="0.01" required value={depositForm.amount} onChange={(e) => setDepositForm({ ...depositForm, amount: e.target.value })} />
             </div>
             <div className="space-y-1">
               <Label>Note</Label>
@@ -508,9 +519,13 @@ function PemoManagementPage() {
             </div>
             <div className="space-y-1">
               <Label>Card</Label>
-              <Select value={txForm.card_id || undefined} onValueChange={(v) => setTxForm({ ...txForm, card_id: v })}>
+              <Select
+                value={txForm.card_id || "none"}
+                onValueChange={(v) => setTxForm({ ...txForm, card_id: v === "none" ? "" : v })}
+              >
                 <SelectTrigger><SelectValue placeholder="Select a card..." /></SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
                   {cards.map((c) => <SelectItem key={c.id} value={c.id}>{c.label}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -525,7 +540,7 @@ function PemoManagementPage() {
             </div>
             <div className="space-y-1">
               <Label>Amount</Label>
-              <Input type="number" step="0.01" min="0" value={txForm.amount} onChange={(e) => setTxForm({ ...txForm, amount: e.target.value })} />
+              <Input type="number" step="0.01" min="0.01" required value={txForm.amount} onChange={(e) => setTxForm({ ...txForm, amount: e.target.value })} />
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setTxOpen(false)}>Cancel</Button>
