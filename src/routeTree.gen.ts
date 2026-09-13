@@ -49,6 +49,7 @@ import { Route as AuthenticatedFmSlaRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedFmWeeklyReportsRouteImport } from './routes/_authenticated/fm-weekly-reports'
 import { Route as AuthenticatedFmWorkOrdersRouteImport } from './routes/_authenticated/fm-work-orders'
 import { Route as AuthenticatedHrRouteImport } from './routes/_authenticated/hr'
+import { Route as AuthenticatedPemoManagementRouteImport } from './routes/_authenticated/pemo-management'
 import { Route as AuthenticatedPermissionsRouteImport } from './routes/_authenticated/permissions'
 import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
@@ -290,6 +291,12 @@ const AuthenticatedHrRoute = AuthenticatedHrRouteImport.update({
   path: '/hr',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPemoManagementRoute =
+  AuthenticatedPemoManagementRouteImport.update({
+    id: '/pemo-management',
+    path: '/pemo-management',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPermissionsRoute =
   AuthenticatedPermissionsRouteImport.update({
     id: '/permissions',
@@ -405,6 +412,7 @@ export interface FileRoutesByFullPath {
   '/fm-weekly-reports': typeof AuthenticatedFmWeeklyReportsRoute
   '/fm-work-orders': typeof AuthenticatedFmWorkOrdersRoute
   '/hr': typeof AuthenticatedHrRoute
+  '/pemo-management': typeof AuthenticatedPemoManagementRoute
   '/permissions': typeof AuthenticatedPermissionsRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/sales': typeof AuthenticatedSalesRoute
@@ -457,6 +465,7 @@ export interface FileRoutesByTo {
   '/fm-weekly-reports': typeof AuthenticatedFmWeeklyReportsRoute
   '/fm-work-orders': typeof AuthenticatedFmWorkOrdersRoute
   '/hr': typeof AuthenticatedHrRoute
+  '/pemo-management': typeof AuthenticatedPemoManagementRoute
   '/permissions': typeof AuthenticatedPermissionsRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/sales': typeof AuthenticatedSalesRoute
@@ -513,6 +522,7 @@ export interface FileRoutesById {
   '/_authenticated/fm-weekly-reports': typeof AuthenticatedFmWeeklyReportsRoute
   '/_authenticated/fm-work-orders': typeof AuthenticatedFmWorkOrdersRoute
   '/_authenticated/hr': typeof AuthenticatedHrRoute
+  '/_authenticated/pemo-management': typeof AuthenticatedPemoManagementRoute
   '/_authenticated/permissions': typeof AuthenticatedPermissionsRoute
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
@@ -570,6 +580,7 @@ export interface FileRouteTypes {
     | '/fm-weekly-reports'
     | '/fm-work-orders'
     | '/hr'
+    | '/pemo-management'
     | '/permissions'
     | '/projects'
     | '/sales'
@@ -622,6 +633,7 @@ export interface FileRouteTypes {
     | '/fm-weekly-reports'
     | '/fm-work-orders'
     | '/hr'
+    | '/pemo-management'
     | '/permissions'
     | '/projects'
     | '/sales'
@@ -677,6 +689,7 @@ export interface FileRouteTypes {
     | '/_authenticated/fm-weekly-reports'
     | '/_authenticated/fm-work-orders'
     | '/_authenticated/hr'
+    | '/_authenticated/pemo-management'
     | '/_authenticated/permissions'
     | '/_authenticated/projects'
     | '/_authenticated/sales'
@@ -980,6 +993,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHrRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/pemo-management': {
+      id: '/_authenticated/pemo-management'
+      path: '/pemo-management'
+      fullPath: '/pemo-management'
+      preLoaderRoute: typeof AuthenticatedPemoManagementRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/permissions': {
       id: '/_authenticated/permissions'
       path: '/permissions'
@@ -1170,6 +1190,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFmWeeklyReportsRoute: typeof AuthenticatedFmWeeklyReportsRoute
   AuthenticatedFmWorkOrdersRoute: typeof AuthenticatedFmWorkOrdersRoute
   AuthenticatedHrRoute: typeof AuthenticatedHrRoute
+  AuthenticatedPemoManagementRoute: typeof AuthenticatedPemoManagementRoute
   AuthenticatedPermissionsRoute: typeof AuthenticatedPermissionsRoute
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
@@ -1223,6 +1244,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFmWeeklyReportsRoute: AuthenticatedFmWeeklyReportsRoute,
   AuthenticatedFmWorkOrdersRoute: AuthenticatedFmWorkOrdersRoute,
   AuthenticatedHrRoute: AuthenticatedHrRoute,
+  AuthenticatedPemoManagementRoute: AuthenticatedPemoManagementRoute,
   AuthenticatedPermissionsRoute: AuthenticatedPermissionsRoute,
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
