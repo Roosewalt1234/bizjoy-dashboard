@@ -179,7 +179,10 @@ function LedgerPage() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const isExpense = activeType === "Expense";
-    const isPemo = isExpense && form.payment_type === "PEMO";
+    // Also recognize the legacy pattern (payment_type: "Cash", payment_method: "PEMO") from
+    // before PEMO was flattened into its own Payment Type, so editing an old-style row doesn't
+    // silently drop its pemo_card_id on save.
+    const isPemo = isExpense && (form.payment_type === "PEMO" || form.payment_method === "PEMO");
     const paymentMethod = isPemo
       ? "PEMO"
       : isExpense && form.payment_type === "Cash"
