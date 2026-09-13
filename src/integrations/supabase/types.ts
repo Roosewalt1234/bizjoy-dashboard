@@ -22,6 +22,9 @@ export type Database = {
           currency: string | null
           description: string | null
           id: string
+          payment_method: string | null
+          payment_type: string | null
+          pemo_card_id: string | null
           project_type: string | null
           transaction_date: string | null
           type: string | null
@@ -33,6 +36,9 @@ export type Database = {
           currency?: string | null
           description?: string | null
           id?: string
+          payment_method?: string | null
+          payment_type?: string | null
+          pemo_card_id?: string | null
           project_type?: string | null
           transaction_date?: string | null
           type?: string | null
@@ -44,11 +50,22 @@ export type Database = {
           currency?: string | null
           description?: string | null
           id?: string
+          payment_method?: string | null
+          payment_type?: string | null
+          pemo_card_id?: string | null
           project_type?: string | null
           transaction_date?: string | null
           type?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "accounts_transactions_pemo_card_id_fkey"
+            columns: ["pemo_card_id"]
+            isOneToOne: false
+            referencedRelation: "pemo_cards"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       attendance_logs: {
         Row: {
@@ -2425,6 +2442,113 @@ export type Database = {
             columns: ["reporting_period_id"]
             isOneToOne: false
             referencedRelation: "reporting_periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pemo_cards: {
+        Row: {
+          active: boolean
+          created_at: string
+          employee_id: string | null
+          id: string
+          label: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          employee_id?: string | null
+          id?: string
+          label: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          employee_id?: string | null
+          id?: string
+          label?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pemo_cards_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pemo_deposits: {
+        Row: {
+          amount: number
+          created_at: string
+          deposited_on: string
+          id: string
+          note: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          deposited_on?: string
+          id?: string
+          note?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          deposited_on?: string
+          id?: string
+          note?: string | null
+        }
+        Relationships: []
+      }
+      pemo_transactions: {
+        Row: {
+          accounts_transaction_id: string | null
+          amount: number
+          card_id: string | null
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          occurred_on: string
+          source: string
+        }
+        Insert: {
+          accounts_transaction_id?: string | null
+          amount: number
+          card_id?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          occurred_on?: string
+          source?: string
+        }
+        Update: {
+          accounts_transaction_id?: string | null
+          amount?: number
+          card_id?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          occurred_on?: string
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pemo_transactions_accounts_transaction_id_fkey"
+            columns: ["accounts_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pemo_transactions_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "pemo_cards"
             referencedColumns: ["id"]
           },
         ]
