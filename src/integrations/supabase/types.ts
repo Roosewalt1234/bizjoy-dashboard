@@ -2511,6 +2511,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          invoice_ref: string | null
           occurred_on: string
           source: string
         }
@@ -2522,6 +2523,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          invoice_ref?: string | null
           occurred_on?: string
           source?: string
         }
@@ -2533,6 +2535,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          invoice_ref?: string | null
           occurred_on?: string
           source?: string
         }
