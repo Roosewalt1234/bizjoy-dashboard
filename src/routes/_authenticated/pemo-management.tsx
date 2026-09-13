@@ -1,10 +1,9 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Settings, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -19,7 +18,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/pemo-management")({
   component: PemoManagementPage,
@@ -49,6 +47,20 @@ type PemoTransaction = {
   category: string | null;
   card_id: string | null;
   source: "manual" | "ledger" | "openclaw";
+  invoice_ref: string | null;
+};
+
+type StatementRow = {
+  id: string;
+  kind: "deposit" | "transaction";
+  date: string;
+  description: string;
+  cardLabel: string | null;
+  credit: number;
+  debit: number;
+  invoiceRef: string | null;
+  balance: number;
+  raw: PemoDeposit | PemoTransaction;
 };
 
 function employeeName(e: EmployeeOption | undefined | null): string {
@@ -58,12 +70,6 @@ function employeeName(e: EmployeeOption | undefined | null): string {
 
 function fmtAED(n: number) {
   return new Intl.NumberFormat("en-AE", { style: "currency", currency: "AED", maximumFractionDigits: 0 }).format(n);
-}
-
-function sourceBadgeClasses(source: string): string {
-  if (source === "openclaw") return "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-200";
-  if (source === "ledger") return "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/40 dark:text-blue-200";
-  return "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800/60 dark:text-slate-200";
 }
 
 function PemoManagementPage() {
@@ -90,7 +96,7 @@ function PemoManagementPage() {
   const { data: deposits = [] } = useQuery({
     queryKey: ["pemo_deposits"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("pemo_deposits").select("*").order("deposited_on", { ascending: false });
+      const { data, error } = await supabase.from("pemo_deposits").select("*").order("deposited_on", { ascending: true });
       if (error) throw error;
       return (data ?? []) as PemoDeposit[];
     },
@@ -99,7 +105,7 @@ function PemoManagementPage() {
   const { data: transactions = [] } = useQuery({
     queryKey: ["pemo_transactions"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("pemo_transactions").select("*").order("occurred_on", { ascending: false });
+      const { data, error } = await supabase.from("pemo_transactions").select("*").order("occurred_on", { ascending: true });
       if (error) throw error;
       return (data ?? []) as PemoTransaction[];
     },
@@ -112,11 +118,50 @@ function PemoManagementPage() {
   const totalSpent = useMemo(() => transactions.reduce((sum, t) => sum + Number(t.amount), 0), [transactions]);
   const balance = totalDeposited - totalSpent;
 
+  const statementRows = useMemo<StatementRow[]>(() => {
+    const depositRows: StatementRow[] = deposits.map((d) => ({
+      id: `deposit-${d.id}`,
+      kind: "deposit",
+      date: d.deposited_on,
+      description: d.note ?? "Deposit",
+      cardLabel: null,
+      credit: Number(d.amount),
+      debit: 0,
+      invoiceRef: null,
+      balance: 0,
+      raw: d,
+    }));
+    const txRows: StatementRow[] = transactions.map((t) => ({
+      id: `tx-${t.id}`,
+      kind: "transaction",
+      date: t.occurred_on,
+      description: t.description ?? "-",
+      cardLabel: t.card_id ? cardsById.get(t.card_id)?.label ?? null : null,
+      credit: 0,
+      debit: Number(t.amount),
+      invoiceRef: t.invoice_ref,
+      balance: 0,
+      raw: t,
+    }));
+    const merged = [...depositRows, ...txRows].sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+    let running = 0;
+    for (const row of merged) {
+      running += row.credit - row.debit;
+      row.balance = running;
+    }
+    return merged.reverse();
+  }, [deposits, transactions, cardsById]);
+
   const [cardFilter, setCardFilter] = useState("all");
-  const filteredTransactions = useMemo(
-    () => (cardFilter === "all" ? transactions : transactions.filter((t) => t.card_id === cardFilter)),
-    [transactions, cardFilter],
+  const filteredStatementRows = useMemo(
+    () =>
+      cardFilter === "all"
+        ? statementRows
+        : statementRows.filter((r) => r.kind === "transaction" && (r.raw as PemoTransaction).card_id === cardFilter),
+    [statementRows, cardFilter],
   );
+
+  const [cardsManagerOpen, setCardsManagerOpen] = useState(false);
 
   const [cardOpen, setCardOpen] = useState(false);
   const [editingCard, setEditingCard] = useState<PemoCard | null>(null);
@@ -211,13 +256,8 @@ function PemoManagementPage() {
 
   const [txOpen, setTxOpen] = useState(false);
   const [editingTx, setEditingTx] = useState<PemoTransaction | null>(null);
-  const [txForm, setTxForm] = useState({ occurred_on: "", amount: "", description: "", category: "", card_id: "" });
+  const [txForm, setTxForm] = useState({ occurred_on: "", amount: "", description: "", category: "", card_id: "", invoice_ref: "" });
 
-  function openNewTx() {
-    setEditingTx(null);
-    setTxForm({ occurred_on: "", amount: "", description: "", category: "", card_id: "" });
-    setTxOpen(true);
-  }
   function openEditTx(t: PemoTransaction) {
     setEditingTx(t);
     setTxForm({
@@ -226,29 +266,25 @@ function PemoManagementPage() {
       description: t.description ?? "",
       category: t.category ?? "",
       card_id: t.card_id ?? "",
+      invoice_ref: t.invoice_ref ?? "",
     });
     setTxOpen(true);
   }
   async function saveTx(e: React.FormEvent) {
     e.preventDefault();
+    if (!editingTx) return;
     const payload: any = {
       occurred_on: txForm.occurred_on || null,
       amount: txForm.amount === "" ? null : Number(txForm.amount),
       description: txForm.description || null,
       category: txForm.category || null,
       card_id: txForm.card_id || null,
+      invoice_ref: txForm.invoice_ref || null,
     };
     try {
-      if (editingTx) {
-        const { error } = await supabase.from("pemo_transactions").update(payload).eq("id", editingTx.id);
-        if (error) throw error;
-        toast.success("Transaction updated");
-      } else {
-        payload.source = "manual";
-        const { error } = await supabase.from("pemo_transactions").insert(payload);
-        if (error) throw error;
-        toast.success("Transaction added");
-      }
+      const { error } = await supabase.from("pemo_transactions").update(payload).eq("id", editingTx.id);
+      if (error) throw error;
+      toast.success("Transaction updated");
       setTxOpen(false);
       qc.invalidateQueries({ queryKey: ["pemo_transactions"] });
     } catch (err: any) {
@@ -260,6 +296,15 @@ function PemoManagementPage() {
     if (error) { toast.error(error.message); return; }
     toast.success("Deleted");
     qc.invalidateQueries({ queryKey: ["pemo_transactions"] });
+  }
+
+  function editStatementRow(row: StatementRow) {
+    if (row.kind === "deposit") openEditDeposit(row.raw as PemoDeposit);
+    else openEditTx(row.raw as PemoTransaction);
+  }
+  function removeStatementRow(row: StatementRow) {
+    if (row.kind === "deposit") removeDeposit(row.raw.id);
+    else removeTx(row.raw.id);
   }
 
   return (
@@ -284,12 +329,82 @@ function PemoManagementPage() {
         </Card>
       </div>
 
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Cards</h2>
-          <Button size="sm" onClick={openNewCard}><Plus className="h-4 w-4 mr-2" /> Add Card</Button>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setCardsManagerOpen(true)}>
+            <Settings className="h-4 w-4 mr-2" /> Manage Addon Cards
+          </Button>
+          <Button onClick={openNewDeposit}><Plus className="h-4 w-4 mr-2" /> Add Deposit</Button>
         </div>
-        <Card>
+        <Select value={cardFilter} onValueChange={setCardFilter}>
+          <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Cards</SelectItem>
+            {cards.map((c) => <SelectItem key={c.id} value={c.id}>{c.label}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Card>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Date</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Card</TableHead>
+              <TableHead className="text-right">Credit</TableHead>
+              <TableHead className="text-right">Debit</TableHead>
+              <TableHead className="text-right">Balance</TableHead>
+              <TableHead>Invoice Ref</TableHead>
+              <TableHead className="w-24 text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredStatementRows.length === 0 ? (
+              <TableRow><TableCell colSpan={8} className="text-center py-6 text-muted-foreground">No activity yet.</TableCell></TableRow>
+            ) : filteredStatementRows.map((row) => (
+              <TableRow key={row.id}>
+                <TableCell>{row.date}</TableCell>
+                <TableCell>{row.description}</TableCell>
+                <TableCell>{row.cardLabel ?? "—"}</TableCell>
+                <TableCell className="text-right">{row.credit > 0 ? fmtAED(row.credit) : "—"}</TableCell>
+                <TableCell className="text-right">{row.debit > 0 ? fmtAED(row.debit) : "—"}</TableCell>
+                <TableCell className="text-right">{fmtAED(row.balance)}</TableCell>
+                <TableCell>{row.invoiceRef ?? "—"}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-1">
+                    <Button size="icon" variant="ghost" onClick={() => editStatementRow(row)}><Pencil className="h-4 w-4" /></Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="icon" variant="ghost"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete this {row.kind === "deposit" ? "deposit" : "transaction"}?</AlertDialogTitle>
+                          <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => removeStatementRow(row)}>Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
+
+      <Dialog open={cardsManagerOpen} onOpenChange={setCardsManagerOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Manage Addon Cards</DialogTitle>
+          </DialogHeader>
+          <div className="flex justify-end">
+            <Button size="sm" onClick={openNewCard}><Plus className="h-4 w-4 mr-2" /> Add Card</Button>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
@@ -331,126 +446,11 @@ function PemoManagementPage() {
               ))}
             </TableBody>
           </Table>
-        </Card>
-      </div>
-
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Deposits</h2>
-          <Button size="sm" onClick={openNewDeposit}><Plus className="h-4 w-4 mr-2" /> Add Deposit</Button>
-        </div>
-        <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Note</TableHead>
-                <TableHead className="w-24 text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {deposits.length === 0 ? (
-                <TableRow><TableCell colSpan={4} className="text-center py-6 text-muted-foreground">No deposits yet.</TableCell></TableRow>
-              ) : deposits.map((d) => (
-                <TableRow key={d.id}>
-                  <TableCell>{d.deposited_on}</TableCell>
-                  <TableCell>{fmtAED(Number(d.amount))}</TableCell>
-                  <TableCell>{d.note ?? "—"}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button size="icon" variant="ghost" onClick={() => openEditDeposit(d)}><Pencil className="h-4 w-4" /></Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button size="icon" variant="ghost"><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete this deposit?</AlertDialogTitle>
-                            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => removeDeposit(d.id)}>Delete</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
-      </div>
-
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Transactions</h2>
-          <div className="flex items-center gap-2">
-            <Select value={cardFilter} onValueChange={setCardFilter}>
-              <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Cards</SelectItem>
-                {cards.map((c) => <SelectItem key={c.id} value={c.id}>{c.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Button size="sm" onClick={openNewTx}><Plus className="h-4 w-4 mr-2" /> Add Transaction</Button>
-          </div>
-        </div>
-        <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Card</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead className="w-24 text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredTransactions.length === 0 ? (
-                <TableRow><TableCell colSpan={7} className="text-center py-6 text-muted-foreground">No transactions yet.</TableCell></TableRow>
-              ) : filteredTransactions.map((t) => {
-                const card = t.card_id ? cardsById.get(t.card_id) : null;
-                return (
-                  <TableRow key={t.id}>
-                    <TableCell>{t.occurred_on}</TableCell>
-                    <TableCell>{card?.label ?? "—"}</TableCell>
-                    <TableCell>{t.description ?? "—"}</TableCell>
-                    <TableCell>{t.category ?? "—"}</TableCell>
-                    <TableCell><Badge variant="outline" className={cn("font-medium", sourceBadgeClasses(t.source))}>{t.source}</Badge></TableCell>
-                    <TableCell className="text-right">{fmtAED(Number(t.amount))}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button size="icon" variant="ghost" onClick={() => openEditTx(t)}><Pencil className="h-4 w-4" /></Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="icon" variant="ghost"><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete this transaction?</AlertDialogTitle>
-                              <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => removeTx(t.id)}>Delete</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </Card>
-      </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCardsManagerOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={cardOpen} onOpenChange={setCardOpen}>
         <DialogContent className="max-w-md">
@@ -511,7 +511,7 @@ function PemoManagementPage() {
 
       <Dialog open={txOpen} onOpenChange={setTxOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>{editingTx ? "Edit Transaction" : "Add Transaction"}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Edit Transaction</DialogTitle></DialogHeader>
           <form onSubmit={saveTx} className="space-y-3">
             <div className="space-y-1">
               <Label>Date *</Label>
@@ -539,12 +539,16 @@ function PemoManagementPage() {
               <Input value={txForm.category} onChange={(e) => setTxForm({ ...txForm, category: e.target.value })} />
             </div>
             <div className="space-y-1">
+              <Label>Invoice Ref</Label>
+              <Input value={txForm.invoice_ref} onChange={(e) => setTxForm({ ...txForm, invoice_ref: e.target.value })} />
+            </div>
+            <div className="space-y-1">
               <Label>Amount</Label>
               <Input type="number" step="0.01" min="0.01" required value={txForm.amount} onChange={(e) => setTxForm({ ...txForm, amount: e.target.value })} />
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setTxOpen(false)}>Cancel</Button>
-              <Button type="submit">{editingTx ? "Update" : "Create"}</Button>
+              <Button type="submit">Update</Button>
             </DialogFooter>
           </form>
         </DialogContent>
