@@ -59,6 +59,7 @@ const items: NavItem[] = [
     children: [
       { title: "Ledger", url: "/accounts", module: "accounts" },
       { title: "Outstanding Amounts", url: "/accounts-outstanding", module: "accounts" },
+      { title: "PEMO Management", url: "/pemo-management", module: "accounts" },
     ],
   },
   {
