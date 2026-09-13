@@ -41,6 +41,9 @@ type LedgerForm = {
   amount: string;
   project_type: ProjectType | "none";
   contract_id: string;
+  payment_type: "Credit" | "Cash" | "";
+  payment_method: "PEMO" | "Bank Transfer" | "Cash" | "";
+  pemo_card_id: string;
 };
 
 const emptyForm: LedgerForm = {
@@ -49,6 +52,9 @@ const emptyForm: LedgerForm = {
   amount: "",
   project_type: "none",
   contract_id: "",
+  payment_type: "",
+  payment_method: "",
+  pemo_card_id: "",
 };
 
 function projectBadgeClasses(type: ProjectType): string {
@@ -59,6 +65,18 @@ function projectBadgeClasses(type: ProjectType): string {
 
 function contractLabel(c: ContractOption): string {
   return (c.contract_no ? `${c.contract_no} - ` : "") + (c.customer_name ?? c.title ?? "Untitled");
+}
+
+type PemoCardOption = {
+  id: string;
+  label: string;
+  employees: { full_name: string | null; first_name: string | null; last_name: string | null } | null;
+};
+
+function cardLabel(c: PemoCardOption): string {
+  const emp = c.employees;
+  const empName = emp ? emp.full_name ?? [emp.first_name, emp.last_name].filter(Boolean).join(" ") : null;
+  return empName ? `${c.label} - ${empName}` : c.label;
 }
 
 function LedgerPage() {
@@ -99,6 +117,18 @@ function LedgerPage() {
     },
   });
 
+  const { data: pemoCards = [] } = useQuery({
+    queryKey: ["ledger-pemo-cards"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("pemo_cards")
+        .select("id, label, employees:employee_id(full_name, first_name, last_name)")
+        .eq("active", true);
+      if (error) throw error;
+      return (data ?? []) as PemoCardOption[];
+    },
+  });
+
   const contractsById = useMemo(() => {
     const map = new Map<string, ContractOption>();
     for (const c of fmContracts) map.set(c.id, c);
@@ -127,6 +157,9 @@ function LedgerPage() {
       amount: row.amount != null ? String(row.amount) : "",
       project_type: (row.project_type as ProjectType) ?? "none",
       contract_id: row.contract_id ?? "",
+      payment_type: (row.payment_type as LedgerForm["payment_type"]) ?? "",
+      payment_method: (row.payment_method as LedgerForm["payment_method"]) ?? "",
+      pemo_card_id: row.pemo_card_id ?? "",
     });
     setOpen(true);
   }
@@ -135,14 +168,27 @@ function LedgerPage() {
     setForm((f) => ({ ...f, project_type: v as ProjectType | "none", contract_id: "" }));
   }
 
+  function setPaymentType(v: string) {
+    setForm((f) => ({ ...f, payment_type: v as LedgerForm["payment_type"], payment_method: "", pemo_card_id: "" }));
+  }
+
+  function setPaymentMethod(v: string) {
+    setForm((f) => ({ ...f, payment_method: v as LedgerForm["payment_method"], pemo_card_id: "" }));
+  }
+
   async function save(e: React.FormEvent) {
     e.preventDefault();
+    const isExpense = activeType === "Expense";
+    const paymentMethod = isExpense && form.payment_type === "Cash" ? form.payment_method : "";
     const payload: any = {
       transaction_date: form.transaction_date || null,
       description: form.description || null,
       amount: form.amount === "" ? null : Number(form.amount),
       project_type: form.project_type === "none" ? null : form.project_type,
       contract_id: form.project_type === "none" ? null : form.contract_id || null,
+      payment_type: isExpense && form.payment_type ? form.payment_type : null,
+      payment_method: paymentMethod || null,
+      pemo_card_id: paymentMethod === "PEMO" && form.pemo_card_id ? form.pemo_card_id : null,
     };
     // Type/currency are only set on create - editing an existing entry never changes what
     // button originally created it or its currency, both of which are fixed at creation time.
@@ -151,14 +197,36 @@ function LedgerPage() {
       payload.currency = "AED";
     }
     try {
+      let insertedId: string | null = null;
       if (editing) {
         const { error } = await supabase.from("accounts_transactions").update(payload).eq("id", editing.id);
         if (error) throw error;
         toast.success("Updated");
       } else {
-        const { error } = await supabase.from("accounts_transactions").insert(payload);
+        const { data: inserted, error } = await supabase
+          .from("accounts_transactions")
+          .insert(payload)
+          .select("id")
+          .single();
         if (error) throw error;
+        insertedId = inserted?.id ?? null;
         toast.success("Created");
+      }
+      // Linking: a newly-created PEMO expense also gets its own row in pemo_transactions,
+      // so PEMO Management and the Ledger stay in sync from a single entry point. This only
+      // happens on create - editing an existing entry never re-syncs or deletes a prior link.
+      if (!editing && payload.pemo_card_id && insertedId) {
+        const { error: pemoError } = await supabase.from("pemo_transactions").insert({
+          occurred_on: payload.transaction_date,
+          amount: payload.amount,
+          description: payload.description,
+          card_id: payload.pemo_card_id,
+          source: "ledger",
+          accounts_transaction_id: insertedId,
+        });
+        if (pemoError) {
+          toast.error("Expense saved, but the linked PEMO record failed - add it manually in PEMO Management.");
+        }
       }
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["accounts_transactions"] });
@@ -257,10 +325,51 @@ function LedgerPage() {
               <Input
                 type="number"
                 step="0.01"
+                min="0"
                 value={form.amount}
                 onChange={(e) => setForm({ ...form, amount: e.target.value })}
               />
             </div>
+            {activeType === "Expense" && (
+              <>
+                <div className="space-y-1">
+                  <Label>Payment Type</Label>
+                  <Select value={form.payment_type} onValueChange={setPaymentType}>
+                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Credit">Credit</SelectItem>
+                      <SelectItem value="Cash">Cash</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {form.payment_type === "Cash" && (
+                  <div className="space-y-1">
+                    <Label>Payment Method</Label>
+                    <Select value={form.payment_method} onValueChange={setPaymentMethod}>
+                      <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PEMO">PEMO</SelectItem>
+                        <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                        <SelectItem value="Cash">Cash</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                {form.payment_method === "PEMO" && (
+                  <div className="space-y-1">
+                    <Label>Card</Label>
+                    <Select value={form.pemo_card_id} onValueChange={(v) => setForm({ ...form, pemo_card_id: v })}>
+                      <SelectTrigger><SelectValue placeholder="Select a card..." /></SelectTrigger>
+                      <SelectContent>
+                        {pemoCards.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>{cardLabel(c)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </>
+            )}
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
               <Button type="submit">{editing ? "Update" : "Create"}</Button>
