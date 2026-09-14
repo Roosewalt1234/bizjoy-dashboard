@@ -13,9 +13,8 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Card } from "@/components/ui/card";
 import { Plus, Trash2, Loader2, ChevronsUpDown } from "lucide-react";
 import { toast } from "sonner";
-import { SERVICE_TYPES } from "@/lib/service-reports";
 import { WO_STATUS, WO_PRIORITY, splitItems } from "@/lib/work-orders";
-import { SLA_REQUEST_TYPES } from "@/lib/fm-sla";
+import { FM_WORK_ORDER_SERVICE_TYPES, FM_WORK_ORDER_REQUEST_TYPES } from "./fm-work-order-constants";
 import { saveFmWorkOrder, nextDocNo, type WorkItem } from "./fm-work-orders-api";
 
 type FmWorkOrderModalProps = {
@@ -267,7 +266,7 @@ export function FmWorkOrderModal({ open, editing, onOpenChange }: FmWorkOrderMod
                 <Select value={form.service_type || undefined} onValueChange={(v) => set("service_type", v)}>
                   <SelectTrigger><SelectValue placeholder="Select type..." /></SelectTrigger>
                   <SelectContent className="max-h-72">
-                    {SERVICE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                    {FM_WORK_ORDER_SERVICE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -276,7 +275,7 @@ export function FmWorkOrderModal({ open, editing, onOpenChange }: FmWorkOrderMod
                 <Select value={form.request_type || undefined} onValueChange={(v) => set("request_type", v)}>
                   <SelectTrigger><SelectValue placeholder="Request type" /></SelectTrigger>
                   <SelectContent>
-                    {SLA_REQUEST_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                    {FM_WORK_ORDER_REQUEST_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
