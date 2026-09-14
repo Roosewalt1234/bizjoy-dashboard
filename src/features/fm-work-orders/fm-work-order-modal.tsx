@@ -276,6 +276,9 @@ export function FmWorkOrderModal({ open, editing, onOpenChange }: FmWorkOrderMod
                   <SelectTrigger><SelectValue placeholder="Request type" /></SelectTrigger>
                   <SelectContent>
                     {FM_WORK_ORDER_REQUEST_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                    {form.request_type && !(FM_WORK_ORDER_REQUEST_TYPES as readonly string[]).includes(form.request_type) && (
+                      <SelectItem value={form.request_type}>{form.request_type}</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
