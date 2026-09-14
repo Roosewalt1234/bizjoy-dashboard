@@ -14,12 +14,15 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { CheckCircle2, Clock, Pause, Play, Plus, Pencil, Trash2, Eye, Wrench, ClipboardCheck } from "lucide-react";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { CheckCircle2, Clock, Pause, Play, Plus, Pencil, Trash2, Eye, Wrench, ClipboardCheck, MoreVertical } from "lucide-react";
 import { toast } from "sonner";
 import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar";
 import { ExportMenu } from "@/components/export-menu";
-import { SERVICE_TYPES } from "@/lib/service-reports";
 import { WO_STATUS, woStatusClasses, woPriorityClasses, splitItems } from "@/lib/work-orders";
+import { FM_WORK_ORDER_SERVICE_TYPES, FM_WORK_ORDER_REQUEST_TYPES } from "./fm-work-order-constants";
 import { usePermissions } from "@/hooks/use-permissions";
 import { calculateSlaStatus, formatDateTime, normalizePriority, statusBadgeClasses } from "@/lib/fm-sla";
 import { deleteFmWorkOrder } from "./fm-work-orders-api";
@@ -52,6 +55,7 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState(focusWo ?? "");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [requestTypeFilter, setRequestTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const focusHandled = useRef<string | null>(null);
 
@@ -91,12 +95,13 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
     const q = search.trim().toLowerCase();
     return (orders as any[]).filter((r) => {
       if (typeFilter !== "all" && r.service_type !== typeFilter) return false;
+      if (requestTypeFilter !== "all" && r.request_type !== requestTypeFilter) return false;
       if (statusFilter !== "all" && r.status !== statusFilter) return false;
       if (!q) return true;
       return [r.wo_no, r.customer_name, r.technician_name, r.location, r.contract_assets?.asset_tag, r.service_categories?.name]
         .some((v) => (v ?? "").toString().toLowerCase().includes(q));
     });
-  }, [orders, search, typeFilter, statusFilter]);
+  }, [orders, search, typeFilter, requestTypeFilter, statusFilter]);
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -153,39 +158,35 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
     qc.invalidateQueries({ queryKey: ["fm_work_orders"] });
   }
 
-  function timestampActions(order: any) {
+  function timestampActionItems(order: any) {
     const now = new Date().toISOString();
     const paused = Boolean(order.delay_reason || order.sla_exclusion_reason);
     const responseStatus = calculateSlaStatus({ dueAt: order.response_due_at, actualAt: now, paused });
     const completionStatus = calculateSlaStatus({ dueAt: order.completion_due_at, actualAt: now, paused });
     return (
       <>
-        <Button size="sm" variant="outline" title="Acknowledge" onClick={() => logSlaEvent(order, "Acknowledged", { status: "In Progress" })}>
-          <Clock className="h-3 w-3 mr-1" /> Ack
-        </Button>
-        <Button
-          size="sm" variant="outline" title="Mark responded"
+        <DropdownMenuItem onClick={() => logSlaEvent(order, "Acknowledged", { status: "In Progress" })}>
+          <Clock className="h-4 w-4" /> Acknowledge
+        </DropdownMenuItem>
+        <DropdownMenuItem
           onClick={() => logSlaEvent(order, "Responded", { responded_at: now, response_sla_status: responseStatus, status: "In Progress" })}
         >
-          Responded
-        </Button>
-        <Button size="sm" variant="outline" title="Mark arrived" onClick={() => logSlaEvent(order, "Arrived", { arrived_at: now, status: "In Progress" })}>
-          Arrived
-        </Button>
-        <Button
-          size="sm" variant="outline" title="Mark completed"
+          Mark Responded
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => logSlaEvent(order, "Arrived", { arrived_at: now, status: "In Progress" })}>
+          Mark Arrived
+        </DropdownMenuItem>
+        <DropdownMenuItem
           onClick={() => logSlaEvent(order, "Completed", { completed_at: now, completion_sla_status: completionStatus, status: "Completed" })}
         >
-          <CheckCircle2 className="h-3 w-3 mr-1" /> Done
-        </Button>
-        <Button
-          size="sm" variant="outline" title="Pause SLA"
+          <CheckCircle2 className="h-4 w-4" /> Mark Completed
+        </DropdownMenuItem>
+        <DropdownMenuItem
           onClick={() => logSlaEvent(order, "Paused", { delay_reason: order.delay_reason || "Paused", response_sla_status: "Paused", completion_sla_status: "Paused" })}
         >
-          <Pause className="h-3 w-3" />
-        </Button>
-        <Button
-          size="sm" variant="outline" title="Resume SLA"
+          <Pause className="h-4 w-4" /> Pause SLA
+        </DropdownMenuItem>
+        <DropdownMenuItem
           onClick={() => logSlaEvent(order, "Resumed", {
             delay_reason: null,
             sla_exclusion_reason: null,
@@ -193,8 +194,8 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
             completion_sla_status: calculateSlaStatus({ dueAt: order.completion_due_at, actualAt: order.completed_at }),
           })}
         >
-          <Play className="h-3 w-3" />
-        </Button>
+          <Play className="h-4 w-4" /> Resume SLA
+        </DropdownMenuItem>
       </>
     );
   }
@@ -252,7 +253,14 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
           <SelectTrigger className="md:w-56"><SelectValue placeholder="Service type" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All service types</SelectItem>
-            {SERVICE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+            {FM_WORK_ORDER_SERVICE_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={requestTypeFilter} onValueChange={(v) => { setRequestTypeFilter(v); setPage(1); }}>
+          <SelectTrigger className="md:w-48"><SelectValue placeholder="Request type" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All request types</SelectItem>
+            {FM_WORK_ORDER_REQUEST_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
@@ -279,7 +287,7 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
               <TableHead>Response SLA</TableHead>
               <TableHead>Completion SLA</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="w-80 text-right">Actions</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -304,44 +312,51 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
                   <TableCell><Badge variant="outline" className={statusBadgeClasses(r.completion_sla_status)}>{r.completion_sla_status ?? "—"}</Badge></TableCell>
                   <TableCell><Badge variant="outline" className={woStatusClasses(r.status)}>{r.status}</Badge></TableCell>
                   <TableCell className="text-right">
-                    <div className="flex flex-wrap justify-end gap-1">
-                      {timestampActions(r)}
-                      <Button size="icon" variant="ghost" title="View" onClick={() => setViewing(r)}>
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      {can("service", "add") && (
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          title="Create work completion report"
-                          onClick={() => navigate({ to: "/fm-service-reports", search: { wo: r.id } as any })}
-                        >
-                          <ClipboardCheck className="h-4 w-4" />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="icon" variant="ghost" title="Actions">
+                          <MoreVertical className="h-4 w-4" />
                         </Button>
-                      )}
-                      {can("service", "edit") && (
-                        <Button size="icon" variant="ghost" title="Edit / reassign / reschedule" onClick={() => modal.openEdit(r)}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {can("service", "delete") && (
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="icon" variant="ghost" title="Delete"><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete work order?</AlertDialogTitle>
-                              <AlertDialogDescription>This cannot be undone.</AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => remove(r.id)}>Delete</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      )}
-                    </div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {timestampActionItems(r)}
+                        <DropdownMenuItem onClick={() => setViewing(r)}>
+                          <Eye className="h-4 w-4" /> View
+                        </DropdownMenuItem>
+                        {can("service", "add") && (
+                          <DropdownMenuItem onClick={() => navigate({ to: "/fm-service-reports", search: { wo: r.id } as any })}>
+                            <ClipboardCheck className="h-4 w-4" /> Create Work Completion Report
+                          </DropdownMenuItem>
+                        )}
+                        {can("service", "edit") && (
+                          <DropdownMenuItem onClick={() => modal.openEdit(r)}>
+                            <Pencil className="h-4 w-4" /> Edit / Reassign / Reschedule
+                          </DropdownMenuItem>
+                        )}
+                        {can("service", "delete") && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <DropdownMenuItem
+                                onSelect={(e) => e.preventDefault()}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" /> Delete
+                              </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete work order?</AlertDialogTitle>
+                                <AlertDialogDescription>This cannot be undone.</AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => remove(r.id)}>Delete</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))
