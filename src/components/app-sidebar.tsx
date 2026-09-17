@@ -50,7 +50,16 @@ const items: NavItem[] = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Customers", url: "/customers", icon: Users, module: "customers" },
   { title: "Sales", url: "/sales", icon: ShoppingCart, module: "sales" },
-  { title: "HR", url: "/hr", icon: UserCog, module: "hr" },
+  {
+    title: "HR",
+    url: "/hr",
+    icon: UserCog,
+    module: "hr",
+    children: [
+      { title: "Employees", url: "/hr", module: "hr" },
+      { title: "Attendance", url: "/fm-attendance", module: "contracts" },
+    ],
+  },
   {
     title: "Accounts",
     url: "/accounts",
@@ -88,7 +97,6 @@ const items: NavItem[] = [
       { title: "FM Service Reports", url: "/fm-service-reports", module: "service" },
       { title: "SLA & KPI Tracker", url: "/fm-sla", module: "contracts" },
       { title: "Manpower Planning", url: "/fm-manpower", module: "contracts" },
-      { title: "Attendance", url: "/fm-attendance", module: "contracts" },
       { title: "Weekly Reports", url: "/fm-weekly-reports", module: "contracts" },
       { title: "Monthly Reports", url: "/fm-monthly-reports", module: "contracts" },
       { title: "Invoice Packs", url: "/fm-invoice-packs", module: "contracts" },
