@@ -69,6 +69,28 @@ export const Route = createFileRoute("/_authenticated/fm-attendance")({
 
 const fmDb = supabase as any;
 
+const DUBAI_TIMEZONE = "Asia/Dubai";
+
+/** Formats a timestamptz value as HH:MM AM/PM in Dubai local time, regardless of the viewer's browser timezone. */
+function formatDubaiTime(value: string): string {
+  return new Date(value).toLocaleTimeString("en-US", {
+    timeZone: DUBAI_TIMEZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
+/** Extracts 24-hour "HH:MM" in Dubai local time from a timestamptz value, for populating an <input type="time">. */
+function toDubaiHHMM(value: string): string {
+  return new Date(value).toLocaleTimeString("en-GB", {
+    timeZone: DUBAI_TIMEZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
 const emptyForm = {
   contract_id: "",
   employee_id: "",
@@ -197,8 +219,8 @@ function ContractAttendancePage() {
             employee_name: row.employee_name ?? row.employees?.full_name ?? "",
             attendance_date: row.attendance_date ?? todayIso(),
             shift: row.shift ?? row.shift_name ?? "Day Shift",
-            check_in: row.check_in ? new Date(row.check_in).toISOString().slice(11, 16) : "",
-            check_out: row.check_out ? new Date(row.check_out).toISOString().slice(11, 16) : "",
+            check_in: row.check_in ? toDubaiHHMM(row.check_in) : "",
+            check_out: row.check_out ? toDubaiHHMM(row.check_out) : "",
             status: row.status ?? "Present",
             source: row.source ?? "Manual",
             remarks: row.remarks ?? "",
@@ -234,12 +256,11 @@ function ContractAttendancePage() {
     setSaving(true);
     try {
       const employee = employees.find((item: any) => item.id === form.employee_id);
-      const checkIn = form.check_in
-        ? new Date(`${form.attendance_date}T${form.check_in}:00`).toISOString()
-        : null;
-      const checkOut = form.check_out
-        ? new Date(`${form.attendance_date}T${form.check_out}:00`).toISOString()
-        : null;
+      // Built as an explicit +04:00 (Dubai) offset string rather than routing
+      // through `new Date(...).toISOString()`, which would instead assume
+      // the typed time is in the viewing browser's own local timezone.
+      const checkIn = form.check_in ? `${form.attendance_date}T${form.check_in}:00+04:00` : null;
+      const checkOut = form.check_out ? `${form.attendance_date}T${form.check_out}:00+04:00` : null;
       const payload = {
         contract_id: form.contract_id,
         employee_id: form.employee_id || null,
@@ -484,12 +505,8 @@ function ContractAttendancePage() {
                   </TableCell>
                   <TableCell>{row.employee_name ?? row.employees?.full_name ?? "-"}</TableCell>
                   <TableCell>{row.shift ?? row.shift_name ?? "-"}</TableCell>
-                  <TableCell>
-                    {row.check_in ? new Date(row.check_in).toLocaleTimeString() : "-"}
-                  </TableCell>
-                  <TableCell>
-                    {row.check_out ? new Date(row.check_out).toLocaleTimeString() : "-"}
-                  </TableCell>
+                  <TableCell>{row.check_in ? formatDubaiTime(row.check_in) : "-"}</TableCell>
+                  <TableCell>{row.check_out ? formatDubaiTime(row.check_out) : "-"}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{row.status}</Badge>
                   </TableCell>
