@@ -23,6 +23,8 @@ export type FmContractInput = {
   contract_scope_type: string;
   site_name: string;
   site_address: string;
+  site_lat: string;
+  site_lng: string;
   building_type: string;
   billing_cycle: string;
   retention_percent: string;
@@ -96,6 +98,8 @@ export async function saveFmContract(input: FmContractInput, editingId?: string)
     contract_scope_type: input.contract_scope_type || null,
     site_name: input.site_name || null,
     site_address: input.site_address || null,
+    site_lat: input.site_lat ? Number(input.site_lat) : null,
+    site_lng: input.site_lng ? Number(input.site_lng) : null,
     building_type: input.building_type || null,
     billing_cycle: input.billing_cycle || null,
     retention_percent: input.retention_percent ? Number(input.retention_percent) : null,

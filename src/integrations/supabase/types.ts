@@ -1594,6 +1594,8 @@ export type Database = {
           remark: string | null
           retention_percent: number | null
           site_address: string | null
+          site_lat: number | null
+          site_lng: number | null
           site_name: string | null
           sla_profile_id: string | null
           start_date: string | null
@@ -1619,6 +1621,8 @@ export type Database = {
           remark?: string | null
           retention_percent?: number | null
           site_address?: string | null
+          site_lat?: number | null
+          site_lng?: number | null
           site_name?: string | null
           sla_profile_id?: string | null
           start_date?: string | null
@@ -1644,6 +1648,8 @@ export type Database = {
           remark?: string | null
           retention_percent?: number | null
           site_address?: string | null
+          site_lat?: number | null
+          site_lng?: number | null
           site_name?: string | null
           sla_profile_id?: string | null
           start_date?: string | null

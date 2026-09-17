@@ -42,6 +42,8 @@ export function FmContractModal({ open, editing, onOpenChange, onSaved }: FmCont
   const [contractScopeType, setContractScopeType] = useState<string>(editing?.contract_scope_type ?? "Facilities Management");
   const [siteName, setSiteName] = useState(editing?.site_name ?? "");
   const [siteAddress, setSiteAddress] = useState(editing?.site_address ?? "");
+  const [siteLat, setSiteLat] = useState(editing?.site_lat != null ? String(editing.site_lat) : "");
+  const [siteLng, setSiteLng] = useState(editing?.site_lng != null ? String(editing.site_lng) : "");
   const [buildingType, setBuildingType] = useState(editing?.building_type ?? "");
   const [billingCycle, setBillingCycle] = useState<string>(editing?.billing_cycle ?? "");
   const [retentionPercent, setRetentionPercent] = useState(editing?.retention_percent != null ? String(editing.retention_percent) : "");
@@ -143,6 +145,8 @@ export function FmContractModal({ open, editing, onOpenChange, onSaved }: FmCont
         contract_scope_type: contractScopeType,
         site_name: siteName,
         site_address: siteAddress,
+        site_lat: siteLat,
+        site_lng: siteLng,
         building_type: buildingType,
         billing_cycle: billingCycle,
         retention_percent: retentionPercent,
@@ -264,6 +268,29 @@ export function FmContractModal({ open, editing, onOpenChange, onSaved }: FmCont
               <div className="space-y-1 md:col-span-3">
                 <Label>Site Address</Label>
                 <Textarea rows={2} value={siteAddress} onChange={(e) => setSiteAddress(e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label>Site Latitude</Label>
+                <Input
+                  type="number"
+                  step="any"
+                  placeholder="e.g. 25.0657"
+                  value={siteLat}
+                  onChange={(e) => setSiteLat(e.target.value)}
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Required for mobile app GPS check-in. Right-click the site on Google Maps and copy the coordinates.
+                </p>
+              </div>
+              <div className="space-y-1">
+                <Label>Site Longitude</Label>
+                <Input
+                  type="number"
+                  step="any"
+                  placeholder="e.g. 55.2065"
+                  value={siteLng}
+                  onChange={(e) => setSiteLng(e.target.value)}
+                />
               </div>
               <div className="space-y-1">
                 <Label>Billing Cycle</Label>
