@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarDays, Droplets, Pencil, Plus, Trash2, Wind } from "lucide-react";
@@ -153,6 +153,16 @@ function statusClasses(status: string) {
     default:
       return "bg-muted text-muted-foreground border-border";
   }
+}
+
+// Used both for <SelectItem> option labels (contract_no + customer_name/title)
+// and for display-side fallbacks (contract_no ?? customer_name) — the two
+// differ slightly (option labels always show a name, display fallbacks can
+// end in "—"), so this covers the option-label form; display call sites
+// keep their own short `?? "—"` fallback inline since factoring that too
+// would need an overload for a one-line saving.
+function contractLabel(contract: Pick<ContractLookup, "contract_no" | "customer_name" | "title">) {
+  return (contract.contract_no ? `${contract.contract_no} - ` : "") + (contract.customer_name ?? contract.title);
 }
 
 const emptyScheduleForm = {
@@ -643,7 +653,7 @@ function AmcSchedulingPage() {
                     <SelectItem value="all">All Contracts</SelectItem>
                     {contracts.map((contract) => (
                       <SelectItem key={contract.id} value={contract.id}>
-                        {(contract.contract_no ? `${contract.contract_no} - ` : "") + (contract.customer_name ?? contract.title)}
+                        {contractLabel(contract)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -798,7 +808,7 @@ function AmcSchedulingPage() {
                 <SelectContent className="max-h-72">
                   {contracts.map((contract) => (
                     <SelectItem key={contract.id} value={contract.id}>
-                      {(contract.contract_no ? `${contract.contract_no} - ` : "") + (contract.customer_name ?? contract.title)}
+                      {contractLabel(contract)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -856,7 +866,7 @@ function AmcSchedulingPage() {
                 <SelectContent className="max-h-72">
                   {contracts.map((contract) => (
                     <SelectItem key={contract.id} value={contract.id}>
-                      {(contract.contract_no ? `${contract.contract_no} - ` : "") + (contract.customer_name ?? contract.title)}
+                      {contractLabel(contract)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -932,7 +942,7 @@ function AmcSchedulingPage() {
                 <SelectContent className="max-h-72">
                   {contracts.map((contract) => (
                     <SelectItem key={contract.id} value={contract.id}>
-                      {(contract.contract_no ? `${contract.contract_no} - ` : "") + (contract.customer_name ?? contract.title)}
+                      {contractLabel(contract)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -984,6 +994,24 @@ function AmcSchedulingPage() {
             <DialogTitle>Set Cleaning Dates</DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-1">
+              <Label>Contract *</Label>
+              <Select
+                value={cleaningForm.contract_id || undefined}
+                onValueChange={(v) => setCleaningForm((prev) => ({ ...prev, contract_id: v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select contract..." />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {contracts.map((contract) => (
+                    <SelectItem key={contract.id} value={contract.id}>
+                      {contractLabel(contract)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-1">
               <Label>Water Tank Cleaning Date</Label>
               <Input
