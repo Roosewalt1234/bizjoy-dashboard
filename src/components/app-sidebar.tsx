@@ -78,6 +78,7 @@ const items: NavItem[] = [
     module: "contracts",
     children: [
       { title: "AMC Contracts", url: "/amc-contracts", module: "contracts" },
+      { title: "AMC Scheduling", url: "/amc-scheduling", module: "contracts" },
       { title: "AMC Work Orders", url: "/amc-work-orders", module: "service" },
       { title: "AMC Work Completion Reports", url: "/amc-service-reports", module: "service" },
     ],
