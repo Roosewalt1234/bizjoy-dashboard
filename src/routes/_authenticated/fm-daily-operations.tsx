@@ -169,7 +169,6 @@ function FmDailyOperationsPage() {
         .select(
           "id, title, contract_no, customer_name, site_name, start_date, end_date, value, billing_cycle, status",
         )
-        .eq("module_type", "FM")
         .order("created_at", { ascending: false })
         .limit(1000);
       if (error) throw error;
