@@ -92,7 +92,7 @@ function toDubaiHHMM(value: string): string {
 }
 
 const emptyForm = {
-  contract_id: "",
+  contractKey: "",
   employee_id: "",
   employee_name: "",
   attendance_date: todayIso(),
@@ -107,7 +107,9 @@ const emptyForm = {
 function ContractAttendancePage() {
   const qc = useQueryClient();
   const search = Route.useSearch();
-  const [contractFilter, setContractFilter] = useState(search.contract_id ?? "all");
+  const [contractFilter, setContractFilter] = useState(
+    search.contract_id ? `fm:${search.contract_id}` : "all",
+  );
   const [dateFilter, setDateFilter] = useState(search.date ?? todayIso());
   const [employeeFilter, setEmployeeFilter] = useState("all");
   const [shiftFilter, setShiftFilter] = useState("all");
@@ -133,6 +135,36 @@ function ContractAttendancePage() {
       return data ?? [];
     },
   });
+
+  const { data: amcContracts = [] } = useQuery({
+    queryKey: ["amc-contracts-lookup-attendance"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contracts")
+        .select("id, title, contract_no, customer_name")
+        .order("created_at", { ascending: false })
+        .limit(10000);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  // One combined list for the filter dropdown and the manual add/edit
+  // form's contract picker. Values are prefixed "fm:"/"amc:" so a
+  // selection unambiguously says which table AND which id it means.
+  const combinedContracts = useMemo(
+    () => [
+      ...contracts.map((c: any) => ({ ...c, key: `fm:${c.id}`, siteType: "FM" as const })),
+      ...amcContracts.map((c: any) => ({ ...c, key: `amc:${c.id}`, siteType: "AMC" as const })),
+    ],
+    [contracts, amcContracts],
+  );
+
+  function contractKeyOf(row: any): string | null {
+    if (row.contract_id) return `fm:${row.contract_id}`;
+    if (row.amc_contract_id) return `amc:${row.amc_contract_id}`;
+    return null;
+  }
 
   const { data: employees = [] } = useQuery({
     queryKey: ["employees-lookup-attendance"],
@@ -179,7 +211,7 @@ function ContractAttendancePage() {
       const { data, error } = await fmDb
         .from("attendance_logs")
         .select(
-          "*, fm_contracts:contract_id(id, title, contract_no, customer_name), employees:employee_id(id, first_name, last_name, full_name)",
+          "*, fm_contracts:contract_id(id, title, contract_no, customer_name), amc_contracts:amc_contract_id(id, title, contract_no, customer_name), employees:employee_id(id, first_name, last_name, full_name)",
         )
         .order("attendance_date", { ascending: false })
         .order("created_at", { ascending: false });
@@ -190,7 +222,7 @@ function ContractAttendancePage() {
 
   const filteredRows = useMemo(() => {
     return (rows as any[]).filter((row) => {
-      if (contractFilter !== "all" && row.contract_id !== contractFilter) return false;
+      if (contractFilter !== "all" && contractKeyOf(row) !== contractFilter) return false;
       if (dateFilter && row.attendance_date !== dateFilter) return false;
       if (employeeFilter !== "all" && row.employee_id !== employeeFilter) return false;
       if (shiftFilter !== "all" && (row.shift ?? row.shift_name) !== shiftFilter) return false;
@@ -214,7 +246,7 @@ function ContractAttendancePage() {
     setForm(
       row
         ? {
-            contract_id: row.contract_id ?? "",
+            contractKey: contractKeyOf(row) ?? "",
             employee_id: row.employee_id ?? "",
             employee_name: row.employee_name ?? row.employees?.full_name ?? "",
             attendance_date: row.attendance_date ?? todayIso(),
@@ -227,7 +259,7 @@ function ContractAttendancePage() {
           }
         : {
             ...emptyForm,
-            contract_id: contractFilter === "all" ? "" : contractFilter,
+            contractKey: contractFilter === "all" ? "" : contractFilter,
             attendance_date: dateFilter || todayIso(),
           },
     );
@@ -245,7 +277,7 @@ function ContractAttendancePage() {
 
 
   async function save() {
-    if (!form.contract_id) {
+    if (!form.contractKey) {
       toast.error("Select a contract");
       return;
     }
@@ -261,8 +293,11 @@ function ContractAttendancePage() {
       // the typed time is in the viewing browser's own local timezone.
       const checkIn = form.check_in ? `${form.attendance_date}T${form.check_in}:00+04:00` : null;
       const checkOut = form.check_out ? `${form.attendance_date}T${form.check_out}:00+04:00` : null;
+      const [siteType, rawId] = form.contractKey.split(":");
       const payload = {
-        contract_id: form.contract_id,
+        contract_id: siteType === "fm" ? rawId : null,
+        amc_contract_id: siteType === "amc" ? rawId : null,
+        site_type: siteType === "amc" ? "AMC" : "FM",
         employee_id: form.employee_id || null,
         employee_name: (employee?.name ?? form.employee_name) || null,
         attendance_date: form.attendance_date,
@@ -345,9 +380,9 @@ function ContractAttendancePage() {
     <div className="p-6 max-w-7xl mx-auto space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">FM Attendance</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Attendance</h1>
           <p className="text-muted-foreground">
-            Record daily FM attendance and compare planned headcount against actual presence.
+            Record daily attendance and compare planned FM headcount against actual presence.
           </p>
         </div>
         <div className="flex gap-2">
@@ -386,9 +421,10 @@ function ContractAttendancePage() {
             }}
           >
             <SelectItem value="all">All Contracts</SelectItem>
-            {contracts.map((contract: any) => (
-              <SelectItem key={contract.id} value={contract.id}>
-                {(contract.contract_no ? `${contract.contract_no} - ` : "") +
+            {combinedContracts.map((contract: any) => (
+              <SelectItem key={contract.key} value={contract.key}>
+                {(contract.siteType === "AMC" ? "[AMC] " : "[FM] ") +
+                  (contract.contract_no ? `${contract.contract_no} - ` : "") +
                   (contract.customer_name ?? contract.title ?? "Untitled")}
               </SelectItem>
             ))}
@@ -501,7 +537,16 @@ function ContractAttendancePage() {
                 <TableRow key={row.id}>
                   <TableCell>{row.attendance_date}</TableCell>
                   <TableCell>
-                    {row.fm_contracts?.contract_no ?? row.fm_contracts?.customer_name ?? "-"}
+                    <div className="flex items-center gap-1.5">
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                        {row.amc_contract_id ? "AMC" : "FM"}
+                      </Badge>
+                      <span>
+                        {row.amc_contract_id
+                          ? (row.amc_contracts?.contract_no ?? row.amc_contracts?.customer_name ?? "-")
+                          : (row.fm_contracts?.contract_no ?? row.fm_contracts?.customer_name ?? "-")}
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell>{row.employee_name ?? row.employees?.full_name ?? "-"}</TableCell>
                   <TableCell>{row.shift ?? row.shift_name ?? "-"}</TableCell>
@@ -530,12 +575,13 @@ function ContractAttendancePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <SelectField
               label="Contract"
-              value={form.contract_id}
-              onValueChange={(value) => setForm((prev) => ({ ...prev, contract_id: value }))}
+              value={form.contractKey}
+              onValueChange={(value) => setForm((prev) => ({ ...prev, contractKey: value }))}
             >
-              {contracts.map((contract: any) => (
-                <SelectItem key={contract.id} value={contract.id}>
-                  {(contract.contract_no ? `${contract.contract_no} - ` : "") +
+              {combinedContracts.map((contract: any) => (
+                <SelectItem key={contract.key} value={contract.key}>
+                  {(contract.siteType === "AMC" ? "[AMC] " : "[FM] ") +
+                    (contract.contract_no ? `${contract.contract_no} - ` : "") +
                     (contract.customer_name ?? contract.title ?? "Untitled")}
                 </SelectItem>
               ))}
