@@ -183,11 +183,26 @@ function ContractAttendancePage() {
     },
   });
 
+  // contract_manpower_plans/assignments are FM-only tables (no AMC
+  // equivalent), so these two queries only ever filter by a bare FM
+  // contract id — never the "fm:"/"amc:" prefixed key contractFilter
+  // holds when a specific contract is selected. An AMC selection has no
+  // FM contract id to filter by, so the summary metrics correctly show
+  // zero rather than silently matching nothing against a raw prefixed
+  // string (which would look the same but for the wrong reason).
+  const fmContractIdFilter =
+    contractFilter === "all"
+      ? "all"
+      : contractFilter.startsWith("fm:")
+        ? contractFilter.slice(3)
+        : null;
+
   const { data: plans = [] } = useQuery({
-    queryKey: ["attendance-manpower-plans", contractFilter],
+    queryKey: ["attendance-manpower-plans", fmContractIdFilter],
+    enabled: fmContractIdFilter !== null,
     queryFn: async () => {
       let query = fmDb.from("contract_manpower_plans").select("*");
-      if (contractFilter !== "all") query = query.eq("contract_id", contractFilter);
+      if (fmContractIdFilter !== "all") query = query.eq("contract_id", fmContractIdFilter);
       const { data, error } = await query;
       if (error) throw error;
       return data ?? [];
@@ -195,10 +210,11 @@ function ContractAttendancePage() {
   });
 
   const { data: assignments = [] } = useQuery({
-    queryKey: ["attendance-manpower-assignments", contractFilter],
+    queryKey: ["attendance-manpower-assignments", fmContractIdFilter],
+    enabled: fmContractIdFilter !== null,
     queryFn: async () => {
       let query = fmDb.from("contract_manpower_assignments").select("*");
-      if (contractFilter !== "all") query = query.eq("contract_id", contractFilter);
+      if (fmContractIdFilter !== "all") query = query.eq("contract_id", fmContractIdFilter);
       const { data, error } = await query;
       if (error) throw error;
       return data ?? [];
@@ -335,8 +351,14 @@ function ContractAttendancePage() {
   }
 
   async function generateTodaySheet() {
-    if (contractFilter === "all") {
-      toast.error("Select a contract first");
+    // FM-only: contract_manpower_assignments has no AMC equivalent, so
+    // this needs the bare FM contract id, not the "fm:"/"amc:" prefixed
+    // filter key. The button itself is hidden below unless a real FM
+    // contract is selected, so this guard should never actually fire
+    // from the UI — it stays as a direct safeguard against the function
+    // being called with the wrong kind of selection.
+    if (!fmContractIdFilter || fmContractIdFilter === "all") {
+      toast.error("Select an FM contract first");
       return;
     }
     setGenerating(true);
@@ -347,13 +369,13 @@ function ContractAttendancePage() {
       );
       const existing = new Set(
         (rows as any[])
-          .filter((row) => row.contract_id === contractFilter && row.attendance_date === today)
+          .filter((row) => row.contract_id === fmContractIdFilter && row.attendance_date === today)
           .map((row) => `${row.employee_id}|${row.shift ?? row.shift_name}`),
       );
       const toInsert = active
         .filter((assignment) => !existing.has(`${assignment.employee_id}|${assignment.shift_name}`))
         .map((assignment) => ({
-          contract_id: contractFilter,
+          contract_id: fmContractIdFilter,
           employee_id: assignment.employee_id ?? null,
           employee_name: assignment.employee_name ?? null,
           attendance_date: today,
@@ -386,7 +408,7 @@ function ContractAttendancePage() {
           </p>
         </div>
         <div className="flex gap-2">
-          {contractFilter !== "all" && (
+          {fmContractIdFilter && fmContractIdFilter !== "all" && (
             <Button variant="outline" onClick={generateTodaySheet} disabled={generating}>
               Generate Today's Attendance Sheet
             </Button>
