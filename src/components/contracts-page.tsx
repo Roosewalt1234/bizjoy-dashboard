@@ -746,6 +746,8 @@ function ContractDialog({
   );
   const [acDuctDate, setAcDuctDate] = useState(editing?.ac_duct_cleaning_date ?? "");
   const [acDuctStatus, setAcDuctStatus] = useState(editing?.ac_duct_cleaning_status ?? "");
+  const [siteLat, setSiteLat] = useState(editing?.site_lat != null ? String(editing.site_lat) : "");
+  const [siteLng, setSiteLng] = useState(editing?.site_lng != null ? String(editing.site_lng) : "");
   const [remark, setRemark] = useState(editing?.remark ?? "");
   const [contractScopeType, setContractScopeType] = useState<string>(
     editing?.contract_scope_type ?? (moduleType === "FM" ? "Facilities Management" : "Home AMC"),
@@ -974,6 +976,8 @@ function ContractDialog({
             ac_duct_cleaning_date: acDuctDate || null,
             ac_duct_cleaning_status: acDuctStatus || null,
             contract_scope_type: contractScopeType || null,
+            site_lat: siteLat ? Number(siteLat) : null,
+            site_lng: siteLng ? Number(siteLng) : null,
           };
 
 
@@ -1508,6 +1512,32 @@ function ContractDialog({
                   {WATER_STATUS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label>Site Latitude</Label>
+              <Input
+                type="number"
+                step="any"
+                placeholder="e.g. 25.0657"
+                value={siteLat}
+                onChange={(e) => setSiteLat(e.target.value)}
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Required for mobile app GPS check-in. Right-click the site on Google Maps and copy the coordinates.
+              </p>
+            </div>
+            <div className="space-y-1">
+              <Label>Site Longitude</Label>
+              <Input
+                type="number"
+                step="any"
+                placeholder="e.g. 55.2065"
+                value={siteLng}
+                onChange={(e) => setSiteLng(e.target.value)}
+              />
             </div>
           </div>
           </>)}
