@@ -12,6 +12,8 @@ import {
   History,
   Shield,
   ChevronRight,
+  KeyRound,
+  Loader2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -31,6 +33,17 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -148,6 +161,49 @@ export function AppSidebar() {
     navigate({ to: "/auth", replace: true });
   };
 
+  const [pwOpen, setPwOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
+
+  const handleChangePassword = async () => {
+    if (newPassword.length < 6) {
+      toast.error("New password must be at least 6 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("New passwords do not match");
+      return;
+    }
+    if (!email) {
+      toast.error("Could not determine your account email");
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      const { error: reauthError } = await supabase.auth.signInWithPassword({
+        email,
+        password: currentPassword,
+      });
+      if (reauthError) {
+        toast.error("Current password is incorrect");
+        return;
+      }
+      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+      if (updateError) throw updateError;
+      toast.success("Password changed");
+      setPwOpen(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      toast.error(error.message ?? "Could not change password");
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="px-4 py-4">
@@ -239,6 +295,58 @@ export function AppSidebar() {
           </div>
         )}
         <SidebarMenu>
+          <SidebarMenuItem>
+            <Dialog open={pwOpen} onOpenChange={setPwOpen}>
+              <DialogTrigger asChild>
+                <SidebarMenuButton>
+                  <KeyRound className="h-4 w-4" />
+                  <span>Change Password</span>
+                </SidebarMenuButton>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Change Password</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label>Current Password</Label>
+                    <Input
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>New Password</Label>
+                    <Input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Confirm New Password</Label>
+                    <Input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setPwOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleChangePassword}
+                    disabled={changingPassword || !currentPassword || !newPassword || !confirmPassword}
+                  >
+                    {changingPassword && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Change Password
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleSignOut}>
               <LogOut className="h-4 w-4" />
