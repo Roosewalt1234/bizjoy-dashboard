@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Shield, UserPlus, Trash2, Loader2 } from "lucide-react";
+import { Shield, UserPlus, Trash2, Loader2, Eye, EyeOff } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +58,7 @@ function PermissionsPage() {
 
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ employeeId: "", password: "", admin: false });
+  const [showPassword, setShowPassword] = useState(false);
   const [draft, setDraft] = useState<Record<string, Record<string, Record<string, boolean>>>>({});
 
   const { data, isLoading, error } = useQuery({
@@ -84,6 +85,7 @@ function PermissionsPage() {
       toast.success("User created");
       setOpen(false);
       setForm({ employeeId: "", password: "", admin: false });
+      setShowPassword(false);
       invalidate();
     },
     onError: (e: any) => toast.error(e.message ?? "Could not create user"),
@@ -191,7 +193,22 @@ function PermissionsPage() {
               </div>
               <div>
                 <Label>Temporary Password</Label>
-                <Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <Switch checked={form.admin} onCheckedChange={(v) => setForm({ ...form, admin: v })} />
