@@ -63,7 +63,10 @@ async function zohoFetch(accessToken: string, path: string) {
   const separator = path.includes("?") ? "&" : "?";
   const url = `${ZOHO_BOOKS_BASE}${path}${separator}organization_id=${ZOHO_ORG_ID}`;
   const resp = await fetch(url, {
-    headers: { Authorization: `Zoho-oauthtoken ${accessToken}` },
+    headers: {
+      Authorization: `Zoho-oauthtoken ${accessToken}`,
+      "User-Agent": "bizjoy-dashboard-zoho-sync/1.0",
+    },
   });
   const json = await resp.json();
   if (!resp.ok || json.code !== 0) {
