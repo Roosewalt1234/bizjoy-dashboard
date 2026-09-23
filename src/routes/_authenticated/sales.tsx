@@ -194,6 +194,57 @@ interface QuoteItem {
 
 const VAT_RATE = 0.05;
 
+interface Estimate {
+  id: string;
+  lead_id: string | null;
+  customer_name: string | null;
+  estimate_number: string | null;
+  estimate_date: string | null;
+  status: string | null;
+  quote_id: string | null;
+  notes: string | null;
+}
+
+interface EstimateItem {
+  id?: string;
+  description: string;
+  material_cost: number;
+  material_markup_pct: number;
+  labor_hours: number;
+  labor_rate: number;
+  subcontractor_cost: number;
+  subcontractor_markup_pct: number;
+  apply_overhead: boolean;
+  overhead_pct: number;
+}
+
+function emptyEstimateItem(): EstimateItem {
+  return {
+    description: "",
+    material_cost: 0,
+    material_markup_pct: 15,
+    labor_hours: 0,
+    labor_rate: 25,
+    subcontractor_cost: 0,
+    subcontractor_markup_pct: 15,
+    apply_overhead: true,
+    overhead_pct: 25,
+  };
+}
+
+// Same formula chain as the reference Excel sheet (FF-VAR26-192):
+// E=D×115%, H=G×25, J=I×115%, K=E+H+J, M=K×125% (skipped for
+// pure-subcontract lines) - computed live here instead of via spreadsheet
+// formulas.
+function computeLineSellAmount(it: EstimateItem): number {
+  const materialSell = (Number(it.material_cost) || 0) * (1 + (Number(it.material_markup_pct) || 0) / 100);
+  const laborSell = (Number(it.labor_hours) || 0) * (Number(it.labor_rate) || 0);
+  const subcontSell = (Number(it.subcontractor_cost) || 0) * (1 + (Number(it.subcontractor_markup_pct) || 0) / 100);
+  const lineSubtotal = materialSell + laborSell + subcontSell;
+  const withOverhead = it.apply_overhead ? lineSubtotal * (1 + (Number(it.overhead_pct) || 0) / 100) : lineSubtotal;
+  return +withOverhead.toFixed(2);
+}
+
 
 function SalesPage() {
   return (
@@ -2626,6 +2677,385 @@ function QuoteDialog({
           {!viewOnly && (
             <Button onClick={save} disabled={saving}>
               {saving ? "Saving…" : quote ? "Update" : "Create"}
+            </Button>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EstimateDialog({
+  open,
+  onOpenChange,
+  estimate,
+  prefill,
+  leadId,
+  viewOnly,
+  onSaved,
+}: {
+  open: boolean;
+  onOpenChange: (b: boolean) => void;
+  estimate: Estimate | null;
+  prefill?: Partial<Estimate> | null;
+  leadId?: string | null;
+  viewOnly: boolean;
+  onSaved: () => void;
+}) {
+  const [form, setForm] = useState<Partial<Estimate>>({});
+  const [items, setItems] = useState<EstimateItem[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+
+    if (estimate) {
+      setForm(estimate);
+      (supabase.from as any)("estimate_items")
+        .select(
+          "id, description, material_cost, material_markup_pct, labor_hours, labor_rate, subcontractor_cost, subcontractor_markup_pct, apply_overhead, overhead_pct",
+        )
+        .eq("estimate_id", estimate.id)
+        .order("sort_order", { ascending: true })
+        .then(({ data }: any) =>
+          setItems(
+            (data ?? []).map((r: any) => ({
+              id: r.id,
+              description: r.description ?? "",
+              material_cost: Number(r.material_cost ?? 0),
+              material_markup_pct: Number(r.material_markup_pct ?? 15),
+              labor_hours: Number(r.labor_hours ?? 0),
+              labor_rate: Number(r.labor_rate ?? 25),
+              subcontractor_cost: Number(r.subcontractor_cost ?? 0),
+              subcontractor_markup_pct: Number(r.subcontractor_markup_pct ?? 15),
+              apply_overhead: r.apply_overhead ?? true,
+              overhead_pct: Number(r.overhead_pct ?? 25),
+            })),
+          ),
+        );
+    } else {
+      (supabase.rpc as any)("next_doc_no", { kind: "estimate" }).then(({ data }: any) => {
+        setForm({
+          estimate_number: data ?? "",
+          estimate_date: new Date().toISOString().split("T")[0],
+          customer_name: "",
+          status: "Draft",
+          notes: "",
+          ...(prefill ?? {}),
+        });
+      });
+      setItems([emptyEstimateItem()]);
+    }
+  }, [open, estimate]);
+
+  function updateItem(idx: number, patch: Partial<EstimateItem>) {
+    setItems((prev) => {
+      const next = [...prev];
+      const merged = { ...next[idx], ...patch };
+      // Convenience default: a line that's pure subcontracted work (no
+      // material/labor entered yet) skips overhead automatically the
+      // moment a subcontractor cost is first typed in, matching the
+      // reference sheet's behavior - but the checkbox stays fully
+      // user-editable afterward, this only fires on that first transition.
+      const enteringFirstSubcontCost =
+        (Number(next[idx].subcontractor_cost) || 0) === 0 &&
+        (Number(merged.subcontractor_cost) || 0) > 0 &&
+        (Number(merged.material_cost) || 0) === 0 &&
+        (Number(merged.labor_hours) || 0) === 0;
+      if (enteringFirstSubcontCost && patch.subcontractor_cost !== undefined) {
+        merged.apply_overhead = false;
+      }
+      next[idx] = merged;
+      return next;
+    });
+  }
+
+  function addItem() {
+    setItems((prev) => [...prev, emptyEstimateItem()]);
+  }
+
+  function removeItem(idx: number) {
+    setItems((prev) => prev.filter((_, i) => i !== idx));
+  }
+
+  const sellAmounts = items.map(computeLineSellAmount);
+  const subtotal = sellAmounts.reduce((s, a) => s + a, 0);
+  const vat = +(subtotal * VAT_RATE).toFixed(2);
+  const grandTotal = +(subtotal + vat).toFixed(2);
+
+  async function save() {
+    if (!form.estimate_number?.trim() || !form.customer_name?.trim()) {
+      toast.error("Estimate number and customer name are required");
+      return;
+    }
+    setSaving(true);
+    const payload = {
+      lead_id: leadId ?? estimate?.lead_id ?? null,
+      estimate_number: form.estimate_number,
+      estimate_date: form.estimate_date || null,
+      customer_name: form.customer_name,
+      status: form.status || "Draft",
+      notes: form.notes || null,
+    };
+    let estimateId = estimate?.id;
+    if (estimate) {
+      const { error } = await (supabase.from as any)("estimates").update(payload).eq("id", estimate.id);
+      if (error) {
+        setSaving(false);
+        toast.error(error.message);
+        return;
+      }
+    } else {
+      const { data, error } = await (supabase.from as any)("estimates").insert(payload).select("id").single();
+      if (error) {
+        setSaving(false);
+        toast.error(error.message);
+        return;
+      }
+      estimateId = data?.id;
+    }
+
+    if (estimateId) {
+      await (supabase.from as any)("estimate_items").delete().eq("estimate_id", estimateId);
+      const rows = items
+        .filter((it) => it.description.trim())
+        .map((it, i) => ({
+          estimate_id: estimateId,
+          sort_order: i,
+          description: it.description,
+          material_cost: Number(it.material_cost) || 0,
+          material_markup_pct: Number(it.material_markup_pct) || 0,
+          labor_hours: Number(it.labor_hours) || 0,
+          labor_rate: Number(it.labor_rate) || 0,
+          subcontractor_cost: Number(it.subcontractor_cost) || 0,
+          subcontractor_markup_pct: Number(it.subcontractor_markup_pct) || 0,
+          apply_overhead: it.apply_overhead,
+          overhead_pct: Number(it.overhead_pct) || 0,
+          sell_amount: computeLineSellAmount(it),
+        }));
+      if (rows.length) {
+        const { error: itemsError } = await (supabase.from as any)("estimate_items").insert(rows);
+        if (itemsError) {
+          setSaving(false);
+          toast.error(itemsError.message);
+          return;
+        }
+      }
+    }
+
+    setSaving(false);
+    toast.success(estimate ? "Updated" : "Created");
+    onSaved();
+  }
+
+  const title = viewOnly ? "View Estimate" : estimate ? "Edit Estimate" : "Create Estimate";
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="grid gap-1.5">
+              <Label>Estimate number *</Label>
+              <Input
+                readOnly={viewOnly}
+                value={form.estimate_number ?? ""}
+                onChange={(e) => setForm({ ...form, estimate_number: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label>Estimate date</Label>
+              <Input
+                type="date"
+                readOnly={viewOnly}
+                value={form.estimate_date ?? ""}
+                onChange={(e) => setForm({ ...form, estimate_date: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label>Status</Label>
+              <Input value={form.status ?? "Draft"} readOnly />
+            </div>
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label>Customer name *</Label>
+            <Input
+              readOnly={viewOnly}
+              value={form.customer_name ?? ""}
+              onChange={(e) => setForm({ ...form, customer_name: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">Cost buildup</Label>
+              {!viewOnly && (
+                <Button type="button" size="sm" variant="outline" onClick={addItem}>
+                  + Add Item
+                </Button>
+              )}
+            </div>
+            <div className="rounded-md border overflow-x-auto">
+              <table className="w-full text-sm min-w-[1100px]">
+                <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+                  <tr>
+                    <th className="text-left px-2 py-2 font-medium min-w-[220px]">Description</th>
+                    <th className="text-right px-2 py-2 font-medium w-24">Material</th>
+                    <th className="text-right px-2 py-2 font-medium w-20">Mat. %</th>
+                    <th className="text-right px-2 py-2 font-medium w-20">Labor Hrs</th>
+                    <th className="text-right px-2 py-2 font-medium w-20">Labor Rate</th>
+                    <th className="text-right px-2 py-2 font-medium w-24">Sub Cont</th>
+                    <th className="text-right px-2 py-2 font-medium w-20">Sub %</th>
+                    <th className="text-center px-2 py-2 font-medium w-16">OH?</th>
+                    <th className="text-right px-2 py-2 font-medium w-16">OH %</th>
+                    <th className="text-right px-3 py-2 font-medium w-28">Sell Amount</th>
+                    {!viewOnly && <th className="w-10"></th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((it, idx) => (
+                    <tr key={idx} className="border-t">
+                      <td className="px-1 py-1">
+                        <Input
+                          readOnly={viewOnly}
+                          value={it.description}
+                          onChange={(e) => updateItem(idx, { description: e.target.value })}
+                          placeholder="Line description"
+                          className="border-0 shadow-none focus-visible:ring-0"
+                        />
+                      </td>
+                      <td className="px-1 py-1">
+                        <Input
+                          type="number"
+                          readOnly={viewOnly}
+                          value={it.material_cost}
+                          onChange={(e) => updateItem(idx, { material_cost: Number(e.target.value) })}
+                          className="border-0 shadow-none focus-visible:ring-0 text-right"
+                        />
+                      </td>
+                      <td className="px-1 py-1">
+                        <Input
+                          type="number"
+                          readOnly={viewOnly}
+                          value={it.material_markup_pct}
+                          onChange={(e) => updateItem(idx, { material_markup_pct: Number(e.target.value) })}
+                          className="border-0 shadow-none focus-visible:ring-0 text-right"
+                        />
+                      </td>
+                      <td className="px-1 py-1">
+                        <Input
+                          type="number"
+                          readOnly={viewOnly}
+                          value={it.labor_hours}
+                          onChange={(e) => updateItem(idx, { labor_hours: Number(e.target.value) })}
+                          className="border-0 shadow-none focus-visible:ring-0 text-right"
+                        />
+                      </td>
+                      <td className="px-1 py-1">
+                        <Input
+                          type="number"
+                          readOnly={viewOnly}
+                          value={it.labor_rate}
+                          onChange={(e) => updateItem(idx, { labor_rate: Number(e.target.value) })}
+                          className="border-0 shadow-none focus-visible:ring-0 text-right"
+                        />
+                      </td>
+                      <td className="px-1 py-1">
+                        <Input
+                          type="number"
+                          readOnly={viewOnly}
+                          value={it.subcontractor_cost}
+                          onChange={(e) => updateItem(idx, { subcontractor_cost: Number(e.target.value) })}
+                          className="border-0 shadow-none focus-visible:ring-0 text-right"
+                        />
+                      </td>
+                      <td className="px-1 py-1">
+                        <Input
+                          type="number"
+                          readOnly={viewOnly}
+                          value={it.subcontractor_markup_pct}
+                          onChange={(e) => updateItem(idx, { subcontractor_markup_pct: Number(e.target.value) })}
+                          className="border-0 shadow-none focus-visible:ring-0 text-right"
+                        />
+                      </td>
+                      <td className="px-1 py-1 text-center">
+                        <input
+                          type="checkbox"
+                          disabled={viewOnly}
+                          checked={it.apply_overhead}
+                          onChange={(e) => updateItem(idx, { apply_overhead: e.target.checked })}
+                          className="h-4 w-4"
+                        />
+                      </td>
+                      <td className="px-1 py-1">
+                        <Input
+                          type="number"
+                          readOnly={viewOnly}
+                          value={it.overhead_pct}
+                          onChange={(e) => updateItem(idx, { overhead_pct: Number(e.target.value) })}
+                          className="border-0 shadow-none focus-visible:ring-0 text-right"
+                        />
+                      </td>
+                      <td className="px-3 py-1 text-right tabular-nums font-medium">
+                        {computeLineSellAmount(it).toFixed(2)}
+                      </td>
+                      {!viewOnly && (
+                        <td className="px-1 py-1 text-right">
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            onClick={() => removeItem(idx)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex justify-end">
+              <div className="w-64 space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="tabular-nums">{subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">VAT (5%)</span>
+                  <span className="tabular-nums">{vat.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between border-t pt-1 font-semibold">
+                  <span>Grand Total (AED)</span>
+                  <span className="tabular-nums">{grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label>Notes</Label>
+            <Textarea
+              readOnly={viewOnly}
+              rows={4}
+              value={form.notes ?? ""}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            {viewOnly ? "Close" : "Cancel"}
+          </Button>
+          {!viewOnly && (
+            <Button onClick={save} disabled={saving}>
+              {saving ? "Saving…" : estimate ? "Update" : "Create"}
             </Button>
           )}
         </DialogFooter>
