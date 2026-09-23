@@ -259,12 +259,16 @@ function SalesPage() {
         <TabsList>
           <TabsTrigger value="funnel">Sales Funnel</TabsTrigger>
           <TabsTrigger value="quotes">Quotes</TabsTrigger>
+          <TabsTrigger value="estimates">Estimates</TabsTrigger>
         </TabsList>
         <TabsContent value="funnel" className="mt-4">
           <FunnelBoard />
         </TabsContent>
         <TabsContent value="quotes" className="mt-4">
           <QuotesList />
+        </TabsContent>
+        <TabsContent value="estimates" className="mt-4">
+          <EstimatesList />
         </TabsContent>
       </Tabs>
     </div>
@@ -3061,5 +3065,276 @@ function EstimateDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function EstimatesList() {
+  const [estimates, setEstimates] = useState<Estimate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingEstimate, setEditingEstimate] = useState<Estimate | null>(null);
+  const [viewEstimate, setViewEstimate] = useState<Estimate | null>(null);
+  const [prefill, setPrefill] = useState<Partial<Estimate> | null>(null);
+  const [prefillLeadId, setPrefillLeadId] = useState<string | null>(null);
+  const [pickLeadOpen, setPickLeadOpen] = useState(false);
+  const [page, setPage] = useState(1);
+
+  async function load() {
+    setLoading(true);
+    const { data, error } = await (supabase.from as any)("estimates")
+      .select("id, lead_id, customer_name, estimate_number, estimate_date, status, quote_id, notes")
+      .order("estimate_date", { ascending: false })
+      .limit(1000);
+    if (error) toast.error(error.message);
+    else setEstimates((data as Estimate[]) ?? []);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function removeEstimate(id: string) {
+    if (!confirm("Delete this estimate?")) return;
+    const { error } = await (supabase.from as any)("estimates").delete().eq("id", id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Deleted");
+      load();
+    }
+  }
+
+  async function convertToQuote(est: Estimate) {
+    if (est.status === "Converted") return;
+    if (!confirm(`Convert ${est.estimate_number} to a quote?`)) return;
+
+    const { data: itemRows, error: itemsErr } = await (supabase.from as any)("estimate_items")
+      .select("description, sort_order, material_cost, material_markup_pct, labor_hours, labor_rate, subcontractor_cost, subcontractor_markup_pct, apply_overhead, overhead_pct")
+      .eq("estimate_id", est.id)
+      .order("sort_order", { ascending: true });
+    if (itemsErr) return toast.error(itemsErr.message);
+
+    let leadPrefill: Partial<Quote> = {};
+    if (est.lead_id) {
+      const { data: lead } = await (supabase.from as any)("sales_leads").select("*").eq("id", est.lead_id).maybeSingle();
+      if (lead) {
+        leadPrefill = {
+          project_name: lead.company ?? "",
+          quote_type: lead.lead_type ?? "",
+          salesperson: lead.salesperson ?? "",
+          subject: lead.lead_type ? `${lead.lead_type} - ${lead.lead_name}` : lead.lead_name,
+        };
+      }
+    }
+
+    const sellAmounts = (itemRows ?? []).map((r: any) => computeLineSellAmount(r as EstimateItem));
+    const subtotal = sellAmounts.reduce((s: number, a: number) => s + a, 0);
+    const vat = +(subtotal * VAT_RATE).toFixed(2);
+    const grandTotal = +(subtotal + vat).toFixed(2);
+
+    const quotePayload = {
+      quote_number: est.estimate_number,
+      quote_date: new Date().toISOString().split("T")[0],
+      customer_name: est.customer_name,
+      status: "Pending Quotation",
+      currency: "AED",
+      subtotal,
+      vat_amount: vat,
+      total: grandTotal,
+      notes: est.notes ?? null,
+      terms: DEFAULT_TERMS_TEXT,
+      ...leadPrefill,
+    };
+    const { data: newQuote, error: quoteErr } = await (supabase.from as any)("quotes").insert(quotePayload).select("*").single();
+    if (quoteErr) return toast.error(quoteErr.message);
+
+    const quoteItemRows = (itemRows ?? []).map((r: any, i: number) => ({
+      quote_id: newQuote.id,
+      description: r.description,
+      quantity: 1,
+      unit_price: computeLineSellAmount(r as EstimateItem),
+      amount: computeLineSellAmount(r as EstimateItem),
+      sort_order: i,
+    }));
+    if (quoteItemRows.length) {
+      const { error: qiErr } = await (supabase.from as any)("quote_items").insert(quoteItemRows);
+      if (qiErr) return toast.error(qiErr.message);
+    }
+
+    const { error: updateErr } = await (supabase.from as any)("estimates")
+      .update({ status: "Converted", quote_id: newQuote.id })
+      .eq("id", est.id);
+    if (updateErr) toast.error(`Quote created, but estimate wasn't marked converted: ${updateErr.message}`);
+
+    toast.success("Converted to quote");
+    load();
+
+    setEditingQuoteFromConversion(newQuote as Quote);
+  }
+
+  // Reuses the existing QuoteDialog to let the user immediately polish the
+  // freshly-converted quote (customer details, dates, terms) before it's
+  // actually sent - the conversion hands off a priced starting point, not
+  // a locked document.
+  const [convertedQuote, setConvertedQuote] = useState<Quote | null>(null);
+  function setEditingQuoteFromConversion(q: Quote) {
+    setConvertedQuote(q);
+  }
+
+  const filtered = estimates.filter((e) => {
+    if (!search) return true;
+    const s = search.toLowerCase();
+    return (
+      e.estimate_number?.toLowerCase().includes(s) ||
+      e.customer_name?.toLowerCase().includes(s)
+    );
+  });
+
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  useEffect(() => { setPage(1); }, [search]);
+  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
+  const pageRows = paginate(filtered, page);
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        <div className="relative flex-1 min-w-[240px] max-w-md">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            className="pl-8"
+            placeholder="Search estimate #, customer…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <Button
+          size="sm"
+          onClick={() => {
+            setEditingEstimate(null);
+            setViewEstimate(null);
+            setPrefill(null);
+            setPickLeadOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4 mr-1" /> Create Estimate
+        </Button>
+        <div className="ml-auto text-sm text-muted-foreground">{filtered.length} estimates</div>
+      </div>
+
+      <div className="border rounded-lg bg-background">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Estimate #</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Customer</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="w-40 text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8">Loading…</TableCell>
+              </TableRow>
+            ) : filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No estimates found.</TableCell>
+              </TableRow>
+            ) : (
+              pageRows.map((e) => (
+                <TableRow key={e.id}>
+                  <TableCell className="font-medium">{e.estimate_number}</TableCell>
+                  <TableCell>{e.estimate_date}</TableCell>
+                  <TableCell>{e.customer_name}</TableCell>
+                  <TableCell>
+                    <Badge variant={e.status === "Converted" ? "default" : "outline"}>{e.status}</Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="icon" variant="ghost" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setViewEstimate(null);
+                            setEditingEstimate(e);
+                            setDialogOpen(true);
+                          }}
+                          disabled={e.status === "Converted"}
+                        >
+                          <Pencil className="h-4 w-4 mr-2" /> Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setEditingEstimate(null);
+                            setViewEstimate(e);
+                            setDialogOpen(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-2" /> View
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => convertToQuote(e)} disabled={e.status === "Converted"}>
+                          <ArrowRightCircle className="h-4 w-4 mr-2" /> Convert to Quote
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => removeEstimate(e.id)} className="text-destructive">
+                          <Trash2 className="h-4 w-4 mr-2" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+        <PaginationBar page={page} total={total} onPageChange={setPage} />
+      </div>
+
+      <PickLeadForQuoteDialog
+        open={pickLeadOpen}
+        onOpenChange={setPickLeadOpen}
+        onPicked={(lead) => {
+          setPickLeadOpen(false);
+          setPrefillLeadId(lead?.id ?? null);
+          setPrefill(lead ? { customer_name: lead.lead_name } : {});
+          setDialogOpen(true);
+        }}
+      />
+
+      <EstimateDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        estimate={viewEstimate ?? editingEstimate}
+        prefill={prefill}
+        leadId={prefillLeadId}
+        viewOnly={!!viewEstimate || (editingEstimate?.status === "Converted")}
+        onSaved={() => {
+          setDialogOpen(false);
+          setEditingEstimate(null);
+          setViewEstimate(null);
+          setPrefill(null);
+          setPrefillLeadId(null);
+          load();
+        }}
+      />
+
+      <QuoteDialog
+        open={!!convertedQuote}
+        onOpenChange={(o) => { if (!o) setConvertedQuote(null); }}
+        quote={convertedQuote}
+        prefill={null}
+        leadId={null}
+        viewOnly={false}
+        onSaved={() => setConvertedQuote(null)}
+      />
+    </div>
   );
 }
