@@ -1,20 +1,28 @@
-// Syncs quotations (Zoho Books calls them "Estimates") from Zoho Books into
-// this dashboard's quotes/quote_items tables, three times a day via pg_cron.
-// One-directional (Zoho -> dashboard): never writes back to Zoho, never
-// deletes a quote/quote_items row here even if it disappears from Zoho's
-// results, and never touches the two dashboard-only columns (probability,
-// quote_type) - the upsert below lists every column it writes explicitly.
+// Upserts quotations (Zoho Books calls them "Estimates") into this
+// dashboard's quotes/quote_items tables. One-directional (Zoho -> dashboard):
+// never writes back to Zoho, never deletes a quote/quote_items row here even
+// if it disappears from Zoho's results, and never touches the two
+// dashboard-only columns (probability, quote_type) - the upsert below lists
+// every column it writes explicitly.
+//
+// This function does NOT call Zoho itself. Supabase's outbound requests to
+// Zoho's accounts.zoho.com token endpoint were consistently rejected
+// ("invalid_code") even with verified-correct credentials, while the exact
+// same request succeeded every time from an ordinary residential/office
+// network - strongly indicating Zoho blocks/flags requests from Supabase's
+// shared cloud IP ranges. Rather than fight that, an n8n workflow (running
+// on different infrastructure) does the Zoho OAuth token refresh and
+// estimate fetching/pagination, then POSTs the raw estimate objects here for
+// just the database upsert - reusing all the mapping/upsert logic that was
+// already built and verified, without re-implementing it inside n8n.
 //
 // Auth: not user-facing - checks a shared secret header, same pattern as
-// convert-ppm-visit. Uses its OWN secret name (ZOHO_SYNC_AUTOMATION_SECRET)
-// rather than convert-ppm-visit's AUTOMATION_SHARED_SECRET, since that one
-// is already in use by n8n for PPM-visit conversion and must not be
-// rotated/shared here. Deploy with verify_jwt=false and set these Edge
-// Function secrets via the Supabase Dashboard before calling it:
-//   ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET, ZOHO_REFRESH_TOKEN,
-//   ZOHO_ORGANIZATION_ID, ZOHO_SYNC_AUTOMATION_SECRET
+// convert-ppm-visit. Deploy with verify_jwt=false and set this Edge
+// Function secret via the Supabase Dashboard before calling it:
+//   ZOHO_SYNC_AUTOMATION_SECRET
 //
-// POST body: {} (no parameters - always does a full sync of every estimate)
+// POST body: { "estimates": [ <Zoho Books estimate objects - the "estimate"
+//   field from GET /books/v3/estimates/{id}, one per array entry> ] }
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -23,78 +31,15 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const AUTOMATION_SECRET = Deno.env.get("ZOHO_SYNC_AUTOMATION_SECRET");
 
-const ZOHO_CLIENT_ID = Deno.env.get("ZOHO_CLIENT_ID")!;
-const ZOHO_CLIENT_SECRET = Deno.env.get("ZOHO_CLIENT_SECRET")!;
-const ZOHO_REFRESH_TOKEN = Deno.env.get("ZOHO_REFRESH_TOKEN")!;
-const ZOHO_ORG_ID = Deno.env.get("ZOHO_ORGANIZATION_ID")!;
-
-const ZOHO_ACCOUNTS_BASE = "https://accounts.zoho.com";
-const ZOHO_BOOKS_BASE = "https://www.zohoapis.com/books/v3";
-
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
-
-async function getAccessToken(): Promise<string> {
-  const resp = await fetch(`${ZOHO_ACCOUNTS_BASE}/oauth/v2/token`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      // Zoho's OAuth endpoint appears to reject/mishandle requests with no
-      // User-Agent (which curl/PowerShell send automatically but Deno's
-      // fetch() does not) - confirmed by the same payload succeeding from
-      // curl/PowerShell but failing identically every time from here
-      // without one.
-      "User-Agent": "bizjoy-dashboard-zoho-sync/1.0",
-    },
-    body: new URLSearchParams({
-      grant_type: "refresh_token",
-      client_id: ZOHO_CLIENT_ID,
-      client_secret: ZOHO_CLIENT_SECRET,
-      refresh_token: ZOHO_REFRESH_TOKEN,
-    }),
-  });
-  const json = await resp.json();
-  if (!resp.ok || !json.access_token) {
-    throw new Error(`Zoho token refresh failed: ${JSON.stringify(json)}`);
-  }
-  return json.access_token as string;
-}
-
-async function zohoFetch(accessToken: string, path: string) {
-  const separator = path.includes("?") ? "&" : "?";
-  const url = `${ZOHO_BOOKS_BASE}${path}${separator}organization_id=${ZOHO_ORG_ID}`;
-  const resp = await fetch(url, {
-    headers: {
-      Authorization: `Zoho-oauthtoken ${accessToken}`,
-      "User-Agent": "bizjoy-dashboard-zoho-sync/1.0",
-    },
-  });
-  const json = await resp.json();
-  if (!resp.ok || json.code !== 0) {
-    throw new Error(`Zoho Books API error (${path}): ${JSON.stringify(json)}`);
-  }
-  return json;
-}
-
-async function listAllEstimateIds(accessToken: string): Promise<string[]> {
-  const ids: string[] = [];
-  let page = 1;
-  for (;;) {
-    const json = await zohoFetch(accessToken, `/estimates?page=${page}&per_page=200`);
-    for (const est of json.estimates ?? []) ids.push(est.estimate_id);
-    if (!json.page_context?.has_more_page) break;
-    page += 1;
-  }
-  return ids;
-}
 
 function mapStatus(zohoStatus: string | null | undefined): string | null {
   if (!zohoStatus) return null;
   return zohoStatus.toLowerCase();
 }
 
-async function syncOneEstimate(accessToken: string, estimateId: string) {
-  const detail = await zohoFetch(accessToken, `/estimates/${estimateId}`);
-  const est = detail.estimate;
+async function syncOneEstimate(est: any) {
+  if (!est?.estimate_id) throw new Error("Estimate object is missing estimate_id");
 
   // Every column this sync ever writes is listed explicitly here - notably
   // absent: probability, quote_type. Those are set by sales staff in this
@@ -121,7 +66,7 @@ async function syncOneEstimate(accessToken: string, estimateId: string) {
     .upsert(quotePayload, { onConflict: "zoho_quote_id" })
     .select("id")
     .single();
-  if (upsertError) throw new Error(`Upsert failed for ${estimateId}: ${upsertError.message}`);
+  if (upsertError) throw new Error(`Upsert failed for ${est.estimate_id}: ${upsertError.message}`);
 
   const quoteId = quoteRow.id as string;
 
@@ -129,7 +74,7 @@ async function syncOneEstimate(accessToken: string, estimateId: string) {
   // whole set on every sync - simplest way to stay correct when items are
   // added/removed/edited in Zoho between runs.
   const { error: deleteError } = await supabase.from("quote_items").delete().eq("quote_id", quoteId);
-  if (deleteError) throw new Error(`Line item cleanup failed for ${estimateId}: ${deleteError.message}`);
+  if (deleteError) throw new Error(`Line item cleanup failed for ${est.estimate_id}: ${deleteError.message}`);
 
   const lineItems = (est.line_items ?? []).map((item: any, index: number) => ({
     quote_id: quoteId,
@@ -142,7 +87,7 @@ async function syncOneEstimate(accessToken: string, estimateId: string) {
 
   if (lineItems.length > 0) {
     const { error: insertError } = await supabase.from("quote_items").insert(lineItems);
-    if (insertError) throw new Error(`Line item insert failed for ${estimateId}: ${insertError.message}`);
+    if (insertError) throw new Error(`Line item insert failed for ${est.estimate_id}: ${insertError.message}`);
   }
 
   return quoteId;
@@ -168,31 +113,29 @@ Deno.serve(async (req: Request) => {
   const failures: { estimate_id: string; error: string }[] = [];
 
   try {
-    const accessToken = await getAccessToken();
-    const ids = await listAllEstimateIds(accessToken);
+    const body = await req.json().catch(() => ({}));
+    const estimates: any[] = Array.isArray(body?.estimates) ? body.estimates : [];
 
-    for (const id of ids) {
+    for (const est of estimates) {
       try {
-        await syncOneEstimate(accessToken, id);
+        await syncOneEstimate(est);
         synced += 1;
       } catch (err) {
-        failures.push({ estimate_id: id, error: (err as Error).message });
+        failures.push({ estimate_id: est?.estimate_id ?? "unknown", error: (err as Error).message });
       }
-      // Small courtesy delay between per-estimate detail calls.
-      await new Promise((resolve) => setTimeout(resolve, 150));
     }
 
     await supabase.from("zoho_sync_log").insert({
       started_at: startedAt,
       finished_at: new Date().toISOString(),
-      quotes_found: ids.length,
+      quotes_found: estimates.length,
       quotes_synced: synced,
       quotes_failed: failures.length,
       error_summary: failures.length > 0 ? JSON.stringify(failures).slice(0, 4000) : null,
     });
 
     return new Response(
-      JSON.stringify({ found: ids.length, synced, failed: failures.length, failures }),
+      JSON.stringify({ found: estimates.length, synced, failed: failures.length, failures }),
       { headers: { ...cors, "Content-Type": "application/json" } },
     );
   } catch (err) {
