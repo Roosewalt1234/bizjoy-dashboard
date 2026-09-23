@@ -36,7 +36,15 @@ const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 async function getAccessToken(): Promise<string> {
   const resp = await fetch(`${ZOHO_ACCOUNTS_BASE}/oauth/v2/token`, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      // Zoho's OAuth endpoint appears to reject/mishandle requests with no
+      // User-Agent (which curl/PowerShell send automatically but Deno's
+      // fetch() does not) - confirmed by the same payload succeeding from
+      // curl/PowerShell but failing identically every time from here
+      // without one.
+      "User-Agent": "bizjoy-dashboard-zoho-sync/1.0",
+    },
     body: new URLSearchParams({
       grant_type: "refresh_token",
       client_id: ZOHO_CLIENT_ID,
