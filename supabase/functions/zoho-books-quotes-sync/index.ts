@@ -6,10 +6,13 @@
 // quote_type) - the upsert below lists every column it writes explicitly.
 //
 // Auth: not user-facing - checks a shared secret header, same pattern as
-// convert-ppm-visit. Deploy with verify_jwt=false and set these Edge
+// convert-ppm-visit. Uses its OWN secret name (ZOHO_SYNC_AUTOMATION_SECRET)
+// rather than convert-ppm-visit's AUTOMATION_SHARED_SECRET, since that one
+// is already in use by n8n for PPM-visit conversion and must not be
+// rotated/shared here. Deploy with verify_jwt=false and set these Edge
 // Function secrets via the Supabase Dashboard before calling it:
 //   ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET, ZOHO_REFRESH_TOKEN,
-//   ZOHO_ORGANIZATION_ID, AUTOMATION_SHARED_SECRET
+//   ZOHO_ORGANIZATION_ID, ZOHO_SYNC_AUTOMATION_SECRET
 //
 // POST body: {} (no parameters - always does a full sync of every estimate)
 
@@ -18,7 +21,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const AUTOMATION_SECRET = Deno.env.get("AUTOMATION_SHARED_SECRET");
+const AUTOMATION_SECRET = Deno.env.get("ZOHO_SYNC_AUTOMATION_SECRET");
 
 const ZOHO_CLIENT_ID = Deno.env.get("ZOHO_CLIENT_ID")!;
 const ZOHO_CLIENT_SECRET = Deno.env.get("ZOHO_CLIENT_SECRET")!;
