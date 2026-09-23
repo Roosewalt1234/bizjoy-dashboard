@@ -167,6 +167,13 @@ export function AppSidebar() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
 
+  const closePasswordDialog = () => {
+    setPwOpen(false);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
   const handleChangePassword = async () => {
     if (newPassword.length < 6) {
       toast.error("New password must be at least 6 characters");
@@ -193,10 +200,7 @@ export function AppSidebar() {
       const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
       if (updateError) throw updateError;
       toast.success("Password changed");
-      setPwOpen(false);
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+      closePasswordDialog();
     } catch (error: any) {
       toast.error(error.message ?? "Could not change password");
     } finally {
@@ -296,7 +300,13 @@ export function AppSidebar() {
         )}
         <SidebarMenu>
           <SidebarMenuItem>
-            <Dialog open={pwOpen} onOpenChange={setPwOpen}>
+            <Dialog
+              open={pwOpen}
+              onOpenChange={(nextOpen) => {
+                if (nextOpen) setPwOpen(true);
+                else closePasswordDialog();
+              }}
+            >
               <DialogTrigger asChild>
                 <SidebarMenuButton>
                   <KeyRound className="h-4 w-4" />
@@ -334,7 +344,7 @@ export function AppSidebar() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setPwOpen(false)}>
+                  <Button variant="outline" onClick={closePasswordDialog}>
                     Cancel
                   </Button>
                   <Button
