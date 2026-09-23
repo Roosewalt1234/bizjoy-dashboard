@@ -324,6 +324,9 @@ function ContractAttendancePage() {
         status: form.status,
         source: form.source,
         remarks: form.remarks || null,
+        // A human just set/confirmed this check-out time (or there isn't
+        // one yet) — clear any prior system auto-checkout flag either way.
+        auto_checked_out: false,
       };
       const query = editing
         ? fmDb.from("attendance_logs").update(payload).eq("id", editing.id)
@@ -573,7 +576,16 @@ function ContractAttendancePage() {
                   <TableCell>{row.employee_name ?? row.employees?.full_name ?? "-"}</TableCell>
                   <TableCell>{row.shift ?? row.shift_name ?? "-"}</TableCell>
                   <TableCell>{row.check_in ? formatDubaiTime(row.check_in) : "-"}</TableCell>
-                  <TableCell>{row.check_out ? formatDubaiTime(row.check_out) : "-"}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1.5">
+                      <span>{row.check_out ? formatDubaiTime(row.check_out) : "-"}</span>
+                      {row.auto_checked_out && (
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-amber-700 border-amber-300">
+                          Auto
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <Badge variant="outline">{row.status}</Badge>
                   </TableCell>
