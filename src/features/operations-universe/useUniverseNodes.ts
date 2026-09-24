@@ -106,11 +106,17 @@ async function fetchContractConnections(
       .select("id, value, status, payment_date")
       .eq("contract_id", contractId)
       .order("payment_date", { ascending: true }),
-    supabase
-      .from("invoice_packs")
-      .select("id, invoice_no, total_amount, status, period_start, period_end")
-      .eq("contract_id", contractId)
-      .order("period_start", { ascending: true }),
+    // invoice_packs.contract_id carries a foreign key to fm_contracts only (per
+    // src/integrations/supabase/types.ts) - there is no AMC-domain invoices table in this
+    // schema, so an AMC contracts.id can never match a row here. Gate on the real FK instead
+    // of querying a table this domain can never match.
+    domain === "FM"
+      ? supabase
+          .from("invoice_packs")
+          .select("id, invoice_no, total_amount, status, period_start, period_end")
+          .eq("contract_id", contractId)
+          .order("period_start", { ascending: true })
+      : Promise.resolve({ data: [], error: null }),
     supabase
       .from(serviceReportTable)
       .select("id, report_no, service_date, status")
@@ -146,7 +152,7 @@ async function fetchContractConnections(
   if (contractRes.error) throw contractRes.error;
   if (workOrdersRes.error) throw workOrdersRes.error;
   if (paymentsRes.error) throw paymentsRes.error;
-  if (invoicesRes.error) throw invoicesRes.error;
+  if ("error" in invoicesRes && invoicesRes.error) throw invoicesRes.error;
   if (serviceReportsRes.error) throw serviceReportsRes.error;
   if ("error" in ppmVisitsRes && ppmVisitsRes.error) throw ppmVisitsRes.error;
   if ("error" in manpowerRes && manpowerRes.error) throw manpowerRes.error;
@@ -219,7 +225,7 @@ async function fetchContractConnections(
     });
   }
 
-  for (const invoice of invoicesRes.data ?? []) {
+  for (const invoice of ("data" in invoicesRes ? invoicesRes.data : []) ?? []) {
     ringOne.push({
       id: `invoice:${invoice.id}`,
       data: {
@@ -267,7 +273,7 @@ async function fetchContractConnections(
         label: `${wo.wo_no ?? "Work Order"} completed`,
       });
   }
-  for (const invoice of invoicesRes.data ?? []) {
+  for (const invoice of ("data" in invoicesRes ? invoicesRes.data : []) ?? []) {
     if (invoice.period_start)
       timelineEvents.push({
         date: invoice.period_start,
