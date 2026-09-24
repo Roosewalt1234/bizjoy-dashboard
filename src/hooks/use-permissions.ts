@@ -9,6 +9,12 @@ export const MODULES = [
   { key: "contracts", label: "Contracts", url: "/amc-contracts" },
   { key: "projects", label: "Projects", url: "/projects" },
   { key: "service", label: "Work Orders & Completion Reports", url: "/amc-service-reports" },
+  { key: "mobile_attendance", label: "Mobile: Attendance", url: "" },
+  { key: "mobile_pending_jobs", label: "Mobile: Pending Jobs", url: "" },
+  { key: "mobile_schedule", label: "Mobile: Schedule", url: "" },
+  { key: "mobile_report_snag", label: "Mobile: Report Snag", url: "" },
+  { key: "mobile_variation_job", label: "Mobile: New Variation Job", url: "" },
+  { key: "mobile_completion_report", label: "Mobile: Completion Report", url: "" },
 ] as const;
 
 export type ModuleKey = (typeof MODULES)[number]["key"];
