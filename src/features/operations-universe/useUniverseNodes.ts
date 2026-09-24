@@ -314,31 +314,27 @@ async function fetchWorkOrderConnections(
   const table = domain === "AMC" ? "work_orders" : "fm_work_orders";
   const serviceReportTable = domain === "AMC" ? "service_reports" : "fm_service_reports";
 
-  const { data: wo, error } = await supabase
-    .from(table)
-    .select(
-      "id, wo_no, contract_id, customer_name, location, scheduled_date, status, priority, technician_id, technician_name, service_type, completion_due_at, completed_at",
-    )
-    .eq("id", workOrderId)
-    .maybeSingle();
+  const [woRes, serviceReportsRes] = await Promise.all([
+    supabase
+      .from(table)
+      .select(
+        "id, wo_no, contract_id, customer_name, location, scheduled_date, status, priority, technician_id, technician_name, service_type, completion_due_at, completed_at, employees:technician_id(position)",
+      )
+      .eq("id", workOrderId)
+      .maybeSingle(),
+    supabase
+      .from(serviceReportTable)
+      .select("id, report_no, service_date")
+      .eq("work_order_id", workOrderId),
+  ]);
+  const { data: wo, error } = woRes;
   if (error) throw error;
   if (!wo) throw new Error("Work order not found");
 
-  const { data: serviceReports, error: srError } = await supabase
-    .from(serviceReportTable)
-    .select("id, report_no, service_date")
-    .eq("work_order_id", workOrderId);
+  const { data: serviceReports, error: srError } = serviceReportsRes;
   if (srError) throw srError;
 
-  let technicianPosition: string | undefined;
-  if (wo.technician_id) {
-    const { data: emp } = await supabase
-      .from("employees")
-      .select("position")
-      .eq("id", wo.technician_id)
-      .maybeSingle();
-    technicianPosition = emp?.position ?? undefined;
-  }
+  const technicianPosition = wo.employees?.position ?? undefined;
 
   const ringOne: { id: string; data: UniverseNodeData }[] = [];
 
