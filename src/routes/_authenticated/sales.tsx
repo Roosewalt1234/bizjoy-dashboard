@@ -152,6 +152,19 @@ interface Lead {
   lead_type: string | null;
 }
 
+// Captures what a client actually wants at intake time - description and
+// quantity only, deliberately no unit price/amount, since pricing hasn't
+// happened yet at the New Lead / Contacted stage.
+interface LeadItem {
+  id?: string;
+  description: string;
+  quantity: number;
+}
+
+function emptyLeadItem(): LeadItem {
+  return { description: "", quantity: 1 };
+}
+
 interface Quote {
   id: string;
   quote_number: string | null;
@@ -1170,6 +1183,7 @@ function LeadDialog({
   >([]);
   const [showSuggest, setShowSuggest] = useState(false);
   const [customerMode, setCustomerMode] = useState<"existing" | "new">("existing");
+  const [items, setItems] = useState<LeadItem[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -1193,8 +1207,42 @@ function LeadDialog({
         .order("display_name", { ascending: true })
         .range(0, 9999)
         .then(({ data }: any) => setCustomers(data ?? []));
+
+      if (lead?.id) {
+        (supabase.from as any)("lead_items")
+          .select("id, description, quantity")
+          .eq("lead_id", lead.id)
+          .order("sort_order", { ascending: true })
+          .then(({ data }: any) =>
+            setItems(
+              (data ?? []).map((r: any) => ({
+                id: r.id,
+                description: r.description ?? "",
+                quantity: Number(r.quantity ?? 1),
+              })),
+            ),
+          );
+      } else {
+        setItems([emptyLeadItem()]);
+      }
     }
   }, [open, lead, defaultStage]);
+
+  function updateItem(idx: number, patch: Partial<LeadItem>) {
+    setItems((prev) => {
+      const next = [...prev];
+      next[idx] = { ...next[idx], ...patch };
+      return next;
+    });
+  }
+
+  function addItem() {
+    setItems((prev) => [...prev, emptyLeadItem()]);
+  }
+
+  function removeItem(idx: number) {
+    setItems((prev) => prev.filter((_, i) => i !== idx));
+  }
 
   const query = (form.lead_name ?? "").toLowerCase();
   const suggestions = query
@@ -1227,17 +1275,47 @@ function LeadDialog({
       notes: form.notes || null,
       lead_type: form.lead_type || null,
     };
-    const { error } = lead
-      ? await (supabase.from as any)("sales_leads")
-          .update(payload)
-          .eq("id", lead.id)
-      : await (supabase.from as any)("sales_leads").insert(payload);
-    setSaving(false);
-    if (error) toast.error(error.message);
-    else {
-      toast.success(lead ? "Updated" : "Created");
-      onSaved();
+    let leadId = lead?.id;
+    if (lead) {
+      const { error } = await (supabase.from as any)("sales_leads").update(payload).eq("id", lead.id);
+      if (error) {
+        setSaving(false);
+        toast.error(error.message);
+        return;
+      }
+    } else {
+      const { data, error } = await (supabase.from as any)("sales_leads").insert(payload).select("id").single();
+      if (error) {
+        setSaving(false);
+        toast.error(error.message);
+        return;
+      }
+      leadId = data?.id;
     }
+
+    if (leadId) {
+      await (supabase.from as any)("lead_items").delete().eq("lead_id", leadId);
+      const rows = items
+        .filter((it) => it.description.trim())
+        .map((it, i) => ({
+          lead_id: leadId,
+          sort_order: i,
+          description: it.description,
+          quantity: Number(it.quantity) || 0,
+        }));
+      if (rows.length) {
+        const { error: itemsError } = await (supabase.from as any)("lead_items").insert(rows);
+        if (itemsError) {
+          setSaving(false);
+          toast.error(itemsError.message);
+          return;
+        }
+      }
+    }
+
+    setSaving(false);
+    toast.success(lead ? "Updated" : "Created");
+    onSaved();
   }
 
   return (
@@ -1439,6 +1517,66 @@ function LeadDialog({
                 onChange={(e) => setForm({ ...form, source: e.target.value })}
                 placeholder="Referral, Website…"
               />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">Items / Requirements</Label>
+              <Button type="button" size="sm" variant="outline" onClick={addItem}>
+                + Add Item
+              </Button>
+            </div>
+            <div className="rounded-md border overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+                  <tr>
+                    <th className="text-left px-3 py-2 font-medium">Description</th>
+                    <th className="text-right px-3 py-2 font-medium w-24">Quantity</th>
+                    <th className="w-10"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="px-3 py-4 text-center text-muted-foreground">
+                        No items
+                      </td>
+                    </tr>
+                  )}
+                  {items.map((it, idx) => (
+                    <tr key={idx} className="border-t">
+                      <td className="px-2 py-1">
+                        <Input
+                          value={it.description}
+                          onChange={(e) => updateItem(idx, { description: e.target.value })}
+                          placeholder="What the client wants…"
+                          className="border-0 shadow-none focus-visible:ring-0"
+                        />
+                      </td>
+                      <td className="px-2 py-1">
+                        <Input
+                          type="number"
+                          value={it.quantity}
+                          onChange={(e) => updateItem(idx, { quantity: Number(e.target.value) })}
+                          className="border-0 shadow-none focus-visible:ring-0 text-right"
+                        />
+                      </td>
+                      <td className="px-1 py-1 text-right">
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8"
+                          onClick={() => removeItem(idx)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
 
