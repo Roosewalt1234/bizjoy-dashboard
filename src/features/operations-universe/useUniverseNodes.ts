@@ -44,13 +44,16 @@ async function fetchContractsInCategory(
   const table = domain === "AMC" ? "contracts" : "fm_contracts";
   const { data, error } = await supabase
     .from(table)
-    .select("id, title, customer_name, value, end_date")
+    .select("id, title, customer_name, end_date")
     .eq("status", status)
     .order("title");
   if (error) throw error;
 
-  const soon = new Date();
-  soon.setDate(soon.getDate() + 30);
+  const today = new Date();
+  const soonDate = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 30),
+  );
+  const soon = soonDate.toISOString().slice(0, 10); // "YYYY-MM-DD"
 
   return (data ?? []).map((row) => ({
     id: `contract:${domain}:${row.id}`,
@@ -58,7 +61,7 @@ async function fetchContractsInCategory(
       kind: "contract" as const,
       label: row.title ?? row.customer_name ?? "Untitled contract",
       sublabel: row.customer_name ?? undefined,
-      exception: row.end_date ? new Date(row.end_date) <= soon : false,
+      exception: row.end_date ? row.end_date <= soon : false,
       clickable: true,
       center: { kind: "contract", domain, id: row.id } as CenterEntity,
       groupKey: "contract",
