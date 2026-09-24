@@ -172,7 +172,9 @@ async function fetchContractConnections(
   }
 
   for (const wo of workOrdersRes.data ?? []) {
-    const isPending = wo.status !== "Completed";
+    const isCancelled = wo.status === "Cancelled";
+    const isCompleted = wo.status === "Completed";
+    const isPending = !isCancelled && !isCompleted;
     const isOverdue = isPending && wo.completion_due_at && new Date(wo.completion_due_at) < now;
     ringOne.push({
       id: `work-order:${domain}:${wo.id}`,
@@ -183,7 +185,11 @@ async function fetchContractConnections(
         exception: Boolean(isOverdue),
         clickable: true,
         center: { kind: "work-order", domain, id: wo.id },
-        groupKey: isPending ? "work-order-pending" : "work-order-completed",
+        groupKey: isCancelled
+          ? "work-order-cancelled"
+          : isPending
+            ? "work-order-pending"
+            : "work-order-completed",
       },
     });
   }
