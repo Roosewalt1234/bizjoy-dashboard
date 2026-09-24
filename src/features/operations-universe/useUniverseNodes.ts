@@ -37,6 +37,35 @@ async function fetchContractCategoryCounts(): Promise<{ id: string; data: Univer
   }));
 }
 
+async function fetchContractsInCategory(
+  domain: "AMC" | "FM",
+  status: string,
+): Promise<{ id: string; data: UniverseNodeData }[]> {
+  const table = domain === "AMC" ? "contracts" : "fm_contracts";
+  const { data, error } = await supabase
+    .from(table)
+    .select("id, title, customer_name, value, end_date")
+    .eq("status", status)
+    .order("title");
+  if (error) throw error;
+
+  const soon = new Date();
+  soon.setDate(soon.getDate() + 30);
+
+  return (data ?? []).map((row) => ({
+    id: `contract:${domain}:${row.id}`,
+    data: {
+      kind: "contract" as const,
+      label: row.title ?? row.customer_name ?? "Untitled contract",
+      sublabel: row.customer_name ?? undefined,
+      exception: row.end_date ? new Date(row.end_date) <= soon : false,
+      clickable: true,
+      center: { kind: "contract", domain, id: row.id } as CenterEntity,
+      groupKey: "contract",
+    },
+  }));
+}
+
 export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["universe-graph", centerEntityKey(centerEntity)],
@@ -50,6 +79,20 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
           clickable: false,
         };
         return layoutAround({ centerId: "contracts-hub", centerData, ringOne });
+      }
+
+      if (centerEntity.kind === "contract-category") {
+        const ringOne = await fetchContractsInCategory(centerEntity.domain, centerEntity.status);
+        const centerData: UniverseNodeData = {
+          kind: "category",
+          label: `${centerEntity.domain} · ${centerEntity.status}`,
+          clickable: false,
+        };
+        return layoutAround({
+          centerId: `category:${centerEntity.domain}:${centerEntity.status}`,
+          centerData,
+          ringOne,
+        });
       }
 
       // Later tasks add the remaining CenterEntity cases here.
