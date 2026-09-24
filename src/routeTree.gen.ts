@@ -55,6 +55,7 @@ import { Route as AuthenticatedPermissionsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedServiceRouteImport } from './routes/_authenticated/service'
+import { Route as AuthenticatedUniverseRouteImport } from './routes/_authenticated/universe'
 import { Route as AuthenticatedWorkOrdersRouteImport } from './routes/_authenticated/work-orders'
 import { Route as AuthenticatedAmcContractsIdRouteImport } from './routes/_authenticated/amc-contracts.$id'
 import { Route as AuthenticatedContractsIdRouteImport } from './routes/_authenticated/contracts.$id'
@@ -325,6 +326,11 @@ const AuthenticatedServiceRoute = AuthenticatedServiceRouteImport.update({
   path: '/service',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedUniverseRoute = AuthenticatedUniverseRouteImport.update({
+  id: '/universe',
+  path: '/universe',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedWorkOrdersRoute = AuthenticatedWorkOrdersRouteImport.update({
   id: '/work-orders',
   path: '/work-orders',
@@ -425,6 +431,7 @@ export interface FileRoutesByFullPath {
   '/projects': typeof AuthenticatedProjectsRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/service': typeof AuthenticatedServiceRoute
+  '/universe': typeof AuthenticatedUniverseRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/amc-contracts/$id': typeof AuthenticatedAmcContractsIdRoute
   '/contracts/$id': typeof AuthenticatedContractsIdRoute
@@ -479,6 +486,7 @@ export interface FileRoutesByTo {
   '/projects': typeof AuthenticatedProjectsRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/service': typeof AuthenticatedServiceRoute
+  '/universe': typeof AuthenticatedUniverseRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/': typeof AuthenticatedIndexRoute
   '/amc-contracts/$id': typeof AuthenticatedAmcContractsIdRoute
@@ -537,6 +545,7 @@ export interface FileRoutesById {
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/_authenticated/service': typeof AuthenticatedServiceRoute
+  '/_authenticated/universe': typeof AuthenticatedUniverseRoute
   '/_authenticated/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/amc-contracts/$id': typeof AuthenticatedAmcContractsIdRoute
@@ -596,6 +605,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/sales'
     | '/service'
+    | '/universe'
     | '/work-orders'
     | '/amc-contracts/$id'
     | '/contracts/$id'
@@ -650,6 +660,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/sales'
     | '/service'
+    | '/universe'
     | '/work-orders'
     | '/'
     | '/amc-contracts/$id'
@@ -707,6 +718,7 @@ export interface FileRouteTypes {
     | '/_authenticated/projects'
     | '/_authenticated/sales'
     | '/_authenticated/service'
+    | '/_authenticated/universe'
     | '/_authenticated/work-orders'
     | '/_authenticated/'
     | '/_authenticated/amc-contracts/$id'
@@ -1048,6 +1060,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedServiceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/universe': {
+      id: '/_authenticated/universe'
+      path: '/universe'
+      fullPath: '/universe'
+      preLoaderRoute: typeof AuthenticatedUniverseRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/work-orders': {
       id: '/_authenticated/work-orders'
       path: '/work-orders'
@@ -1216,6 +1235,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedServiceRoute: typeof AuthenticatedServiceRoute
+  AuthenticatedUniverseRoute: typeof AuthenticatedUniverseRoute
   AuthenticatedWorkOrdersRoute: typeof AuthenticatedWorkOrdersRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedCustomersIdRoute: typeof AuthenticatedCustomersIdRouteWithChildren
@@ -1271,6 +1291,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedServiceRoute: AuthenticatedServiceRoute,
+  AuthenticatedUniverseRoute: AuthenticatedUniverseRoute,
   AuthenticatedWorkOrdersRoute: AuthenticatedWorkOrdersRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedCustomersIdRoute: AuthenticatedCustomersIdRouteWithChildren,
