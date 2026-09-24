@@ -302,6 +302,118 @@ async function fetchContractConnections(
   };
 }
 
+async function fetchWorkOrderConnections(
+  domain: "AMC" | "FM",
+  workOrderId: string,
+): Promise<{
+  centerLabel: string;
+  centerSublabel: string;
+  exception: boolean;
+  ringOne: { id: string; data: UniverseNodeData }[];
+}> {
+  const table = domain === "AMC" ? "work_orders" : "fm_work_orders";
+  const serviceReportTable = domain === "AMC" ? "service_reports" : "fm_service_reports";
+
+  const { data: wo, error } = await supabase
+    .from(table)
+    .select(
+      "id, wo_no, contract_id, customer_name, location, scheduled_date, status, priority, technician_id, technician_name, service_type, completion_due_at, completed_at",
+    )
+    .eq("id", workOrderId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!wo) throw new Error("Work order not found");
+
+  const { data: serviceReports, error: srError } = await supabase
+    .from(serviceReportTable)
+    .select("id, report_no, service_date")
+    .eq("work_order_id", workOrderId);
+  if (srError) throw srError;
+
+  let technicianPosition: string | undefined;
+  if (wo.technician_id) {
+    const { data: emp } = await supabase
+      .from("employees")
+      .select("position")
+      .eq("id", wo.technician_id)
+      .maybeSingle();
+    technicianPosition = emp?.position ?? undefined;
+  }
+
+  const ringOne: { id: string; data: UniverseNodeData }[] = [];
+
+  // contract_id is nullable on work_orders/fm_work_orders - only offer a way back
+  // to the contract when this work order is actually attached to one.
+  if (wo.contract_id) {
+    ringOne.push({
+      id: `contract:${domain}:${wo.contract_id}`,
+      data: {
+        kind: "contract",
+        label: "Back to Contract",
+        clickable: true,
+        center: { kind: "contract", domain, id: wo.contract_id },
+        groupKey: "contract",
+      },
+    });
+  }
+
+  ringOne.push({
+    id: `customer-label:${workOrderId}`,
+    data: {
+      kind: "customer",
+      label: wo.customer_name ?? "Customer",
+      clickable: false,
+      groupKey: "customer",
+    },
+  });
+
+  if (wo.technician_name) {
+    ringOne.push({
+      id: `employee-info:${workOrderId}`,
+      data: {
+        kind: "employee-info",
+        label: wo.technician_name,
+        sublabel: technicianPosition,
+        clickable: false,
+        groupKey: "employee",
+      },
+    });
+  }
+
+  for (const report of serviceReports ?? []) {
+    ringOne.push({
+      id: `service-report:${report.id}`,
+      data: {
+        kind: "service-report",
+        label: report.report_no ?? "Service Report",
+        sublabel: report.service_date ?? undefined,
+        clickable: false,
+        groupKey: "service-report",
+      },
+    });
+  }
+
+  const isCancelled = wo.status === "Cancelled";
+  const isCompleted = wo.status === "Completed";
+  const isPending = !isCancelled && !isCompleted;
+  const isOverdue =
+    isPending && wo.completion_due_at ? new Date(wo.completion_due_at) < new Date() : false;
+
+  // status is non-nullable; priority and location are both `string | null` on
+  // work_orders/fm_work_orders, so only join in the parts that are actually present -
+  // otherwise an absent location renders as a literal "null" (or a dangling separator).
+  const sublabelParts = [wo.status];
+  if (wo.priority) sublabelParts.push(wo.priority);
+  if (wo.location) sublabelParts.push(wo.location);
+
+  return {
+    centerLabel: wo.wo_no ?? "Work Order",
+    centerSublabel: sublabelParts.join(" · "),
+    exception: Boolean(isOverdue),
+    ringOne,
+  };
+}
+
 export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["universe-graph", centerEntityKey(centerEntity)],
@@ -344,6 +456,25 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
         };
         return layoutAround({
           centerId: `contract:${centerEntity.domain}:${centerEntity.id}`,
+          centerData,
+          ringOne,
+        });
+      }
+
+      if (centerEntity.kind === "work-order") {
+        const { centerLabel, centerSublabel, exception, ringOne } = await fetchWorkOrderConnections(
+          centerEntity.domain,
+          centerEntity.id,
+        );
+        const centerData: UniverseNodeData = {
+          kind: "work-order",
+          label: centerLabel,
+          sublabel: centerSublabel,
+          exception,
+          clickable: false,
+        };
+        return layoutAround({
+          centerId: `work-order:${centerEntity.domain}:${centerEntity.id}`,
           centerData,
           ringOne,
         });

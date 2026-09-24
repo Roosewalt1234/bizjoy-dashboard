@@ -48,6 +48,9 @@ function todayGraph() {
 
 export function OperationsUniverse() {
   const [centerEntity, setCenterEntity] = useState<CenterEntity>({ kind: "today" });
+  const [employeeCard, setEmployeeCard] = useState<{ label: string; sublabel?: string } | null>(
+    null,
+  );
 
   const isToday = centerEntity.kind === "today";
   const {
@@ -58,14 +61,20 @@ export function OperationsUniverse() {
   const graph = isToday ? todayGraph() : (fetchedGraph ?? { nodes: [], edges: [] });
 
   return (
-    <div style={{ width: "100%", height: "calc(100vh - 4rem)" }}>
+    <div style={{ width: "100%", height: "calc(100vh - 4rem)", position: "relative" }}>
       <ReactFlow
         nodes={graph.nodes}
         edges={graph.edges}
         nodeTypes={nodeTypes}
         onNodeClick={(_, node) => {
-          if (node.data.clickable && node.data.center) {
-            setCenterEntity(node.data.center);
+          const data = node.data as UniverseNodeData;
+          if (data.kind === "employee-info") {
+            setEmployeeCard({ label: data.label, sublabel: data.sublabel });
+            return;
+          }
+          if (data.clickable && data.center) {
+            setEmployeeCard(null);
+            setCenterEntity(data.center);
           }
         }}
         fitView
@@ -73,6 +82,52 @@ export function OperationsUniverse() {
         <Background />
         <Controls />
       </ReactFlow>
+      {employeeCard && (
+        <div
+          style={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            zIndex: 10,
+            minWidth: 200,
+            maxWidth: 280,
+            background: "#1c2128",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 8,
+            padding: "12px 14px",
+            color: "#e6edf3",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setEmployeeCard(null)}
+            style={{
+              position: "absolute",
+              top: 6,
+              right: 8,
+              background: "none",
+              border: "none",
+              color: "#8a93a3",
+              cursor: "pointer",
+              fontSize: 14,
+              lineHeight: 1,
+              padding: 4,
+            }}
+            aria-label="Close"
+          >
+            ×
+          </button>
+          <div style={{ fontSize: 13, fontWeight: 700, paddingRight: 16 }}>
+            {employeeCard.label}
+          </div>
+          {employeeCard.sublabel && (
+            <div style={{ fontSize: 12, color: "#8a93a3", marginTop: 2 }}>
+              {employeeCard.sublabel}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
