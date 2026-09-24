@@ -83,11 +83,144 @@ export type Database = {
           },
         ]
       }
+      amc_ppm_schedules: {
+        Row: {
+          active: boolean
+          assigned_employee_id: string | null
+          contract_id: string
+          created_at: string
+          end_date: string | null
+          frequency: string | null
+          id: string
+          instructions: string | null
+          interval_months: number | null
+          schedule_name: string
+          start_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          assigned_employee_id?: string | null
+          contract_id: string
+          created_at?: string
+          end_date?: string | null
+          frequency?: string | null
+          id?: string
+          instructions?: string | null
+          interval_months?: number | null
+          schedule_name: string
+          start_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          assigned_employee_id?: string | null
+          contract_id?: string
+          created_at?: string
+          end_date?: string | null
+          frequency?: string | null
+          id?: string
+          instructions?: string | null
+          interval_months?: number | null
+          schedule_name?: string
+          start_date?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "amc_ppm_schedules_assigned_employee_id_fkey"
+            columns: ["assigned_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "amc_ppm_schedules_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      amc_ppm_visits: {
+        Row: {
+          assigned_team: string | null
+          completed_at: string | null
+          contract_id: string
+          created_at: string
+          due_date: string | null
+          id: string
+          notes: string | null
+          planned_date: string
+          ppm_schedule_id: string | null
+          status: string
+          updated_at: string
+          work_order_id: string | null
+        }
+        Insert: {
+          assigned_team?: string | null
+          completed_at?: string | null
+          contract_id: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          planned_date: string
+          ppm_schedule_id?: string | null
+          status?: string
+          updated_at?: string
+          work_order_id?: string | null
+        }
+        Update: {
+          assigned_team?: string | null
+          completed_at?: string | null
+          contract_id?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          planned_date?: string
+          ppm_schedule_id?: string | null
+          status?: string
+          updated_at?: string
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "amc_ppm_visits_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "amc_ppm_visits_ppm_schedule_id_fkey"
+            columns: ["ppm_schedule_id"]
+            isOneToOne: false
+            referencedRelation: "amc_ppm_schedules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "amc_ppm_visits_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendance_logs: {
         Row: {
+          amc_contract_id: string | null
           attendance_date: string
+          auto_checked_out: boolean
           check_in: string | null
+          check_in_lat: number | null
+          check_in_lng: number | null
           check_out: string | null
+          check_out_lat: number | null
+          check_out_lng: number | null
           contract_id: string | null
           created_at: string
           employee_id: string | null
@@ -96,14 +229,21 @@ export type Database = {
           remarks: string | null
           shift: string | null
           shift_name: string | null
+          site_type: string | null
           source: string | null
           status: string
           updated_at: string
         }
         Insert: {
+          amc_contract_id?: string | null
           attendance_date?: string
+          auto_checked_out?: boolean
           check_in?: string | null
+          check_in_lat?: number | null
+          check_in_lng?: number | null
           check_out?: string | null
+          check_out_lat?: number | null
+          check_out_lng?: number | null
           contract_id?: string | null
           created_at?: string
           employee_id?: string | null
@@ -112,14 +252,21 @@ export type Database = {
           remarks?: string | null
           shift?: string | null
           shift_name?: string | null
+          site_type?: string | null
           source?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
+          amc_contract_id?: string | null
           attendance_date?: string
+          auto_checked_out?: boolean
           check_in?: string | null
+          check_in_lat?: number | null
+          check_in_lng?: number | null
           check_out?: string | null
+          check_out_lat?: number | null
+          check_out_lng?: number | null
           contract_id?: string | null
           created_at?: string
           employee_id?: string | null
@@ -128,11 +275,19 @@ export type Database = {
           remarks?: string | null
           shift?: string | null
           shift_name?: string | null
+          site_type?: string | null
           source?: string | null
           status?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "attendance_logs_amc_contract_id_fkey"
+            columns: ["amc_contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "attendance_logs_contract_id_fkey"
             columns: ["contract_id"]
@@ -157,6 +312,7 @@ export type Database = {
           new_data: Json | null
           old_data: Json | null
           record_id: string | null
+          seq: number
           table_name: string
           user_email: string | null
           user_id: string | null
@@ -169,6 +325,7 @@ export type Database = {
           new_data?: Json | null
           old_data?: Json | null
           record_id?: string | null
+          seq?: never
           table_name: string
           user_email?: string | null
           user_id?: string | null
@@ -181,6 +338,7 @@ export type Database = {
           new_data?: Json | null
           old_data?: Json | null
           record_id?: string | null
+          seq?: never
           table_name?: string
           user_email?: string | null
           user_id?: string | null
@@ -681,6 +839,8 @@ export type Database = {
           remark: string | null
           retention_percent: number | null
           site_address: string | null
+          site_lat: number | null
+          site_lng: number | null
           site_name: string | null
           sla_profile_id: string | null
           spare_parts_amount: number | null
@@ -719,6 +879,8 @@ export type Database = {
           remark?: string | null
           retention_percent?: number | null
           site_address?: string | null
+          site_lat?: number | null
+          site_lng?: number | null
           site_name?: string | null
           sla_profile_id?: string | null
           spare_parts_amount?: number | null
@@ -757,6 +919,8 @@ export type Database = {
           remark?: string | null
           retention_percent?: number | null
           site_address?: string | null
+          site_lat?: number | null
+          site_lng?: number | null
           site_name?: string | null
           sla_profile_id?: string | null
           spare_parts_amount?: number | null
@@ -1134,6 +1298,122 @@ export type Database = {
           visa_issued_by?: string | null
         }
         Relationships: []
+      }
+      estimate_items: {
+        Row: {
+          apply_overhead: boolean
+          created_at: string
+          description: string
+          estimate_id: string
+          id: string
+          labor_hours: number
+          labor_rate: number
+          material_cost: number
+          material_markup_pct: number
+          overhead_pct: number
+          sell_amount: number
+          sort_order: number
+          subcontractor_cost: number
+          subcontractor_markup_pct: number
+          updated_at: string
+        }
+        Insert: {
+          apply_overhead?: boolean
+          created_at?: string
+          description?: string
+          estimate_id: string
+          id?: string
+          labor_hours?: number
+          labor_rate?: number
+          material_cost?: number
+          material_markup_pct?: number
+          overhead_pct?: number
+          sell_amount?: number
+          sort_order?: number
+          subcontractor_cost?: number
+          subcontractor_markup_pct?: number
+          updated_at?: string
+        }
+        Update: {
+          apply_overhead?: boolean
+          created_at?: string
+          description?: string
+          estimate_id?: string
+          id?: string
+          labor_hours?: number
+          labor_rate?: number
+          material_cost?: number
+          material_markup_pct?: number
+          overhead_pct?: number
+          sell_amount?: number
+          sort_order?: number
+          subcontractor_cost?: number
+          subcontractor_markup_pct?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estimate_items_estimate_id_fkey"
+            columns: ["estimate_id"]
+            isOneToOne: false
+            referencedRelation: "estimates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      estimates: {
+        Row: {
+          created_at: string
+          customer_name: string | null
+          estimate_date: string | null
+          estimate_number: string | null
+          id: string
+          lead_id: string | null
+          notes: string | null
+          quote_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_name?: string | null
+          estimate_date?: string | null
+          estimate_number?: string | null
+          id?: string
+          lead_id?: string | null
+          notes?: string | null
+          quote_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string | null
+          estimate_date?: string | null
+          estimate_number?: string | null
+          id?: string
+          lead_id?: string | null
+          notes?: string | null
+          quote_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estimates_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "sales_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "estimates_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       fm_cleaning_area_catalog: {
         Row: {
@@ -2380,6 +2660,44 @@ export type Database = {
             columns: ["reporting_period_id"]
             isOneToOne: false
             referencedRelation: "reporting_periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_items: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          lead_id: string
+          quantity: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          lead_id: string
+          quantity?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          lead_id?: string
+          quantity?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_items_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "sales_leads"
             referencedColumns: ["id"]
           },
         ]
@@ -3813,11 +4131,95 @@ export type Database = {
           },
         ]
       }
+      zoho_sync_log: {
+        Row: {
+          created_at: string
+          error_summary: string | null
+          finished_at: string | null
+          id: string
+          quotes_failed: number
+          quotes_found: number
+          quotes_synced: number
+          started_at: string
+        }
+        Insert: {
+          created_at?: string
+          error_summary?: string | null
+          finished_at?: string | null
+          id?: string
+          quotes_failed?: number
+          quotes_found?: number
+          quotes_synced?: number
+          started_at: string
+        }
+        Update: {
+          created_at?: string
+          error_summary?: string | null
+          finished_at?: string | null
+          id?: string
+          quotes_failed?: number
+          quotes_found?: number
+          quotes_synced?: number
+          started_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      check_amc_geofence_distance: {
+        Args: { p_contract_id: string; p_lat: number; p_lng: number }
+        Returns: Json
+      }
+      check_geofence_distance: {
+        Args: { p_contract_id: string; p_lat: number; p_lng: number }
+        Returns: Json
+      }
+      create_variation_job_lead: {
+        Args: {
+          p_customer_id: string
+          p_expected_close_date: string
+          p_items: Json
+          p_lead_type: string
+          p_remarks: string
+          p_salesperson: string
+        }
+        Returns: string
+      }
+      fn_auto_checkout_overdue_attendance: { Args: never; Returns: undefined }
+      fn_geofence_distance_m: {
+        Args: { lat1: number; lat2: number; lng1: number; lng2: number }
+        Returns: number
+      }
+      fn_within_amc_geofence: {
+        Args: { p_contract_id: string; p_lat: number; p_lng: number }
+        Returns: boolean
+      }
+      fn_within_geofence: {
+        Args: { p_contract_id: string; p_lat: number; p_lng: number }
+        Returns: boolean
+      }
+      get_my_mobile_permissions: { Args: never; Returns: string[] }
+      grace_find_crm_customers: {
+        Args: { max_results?: number; search_term: string }
+        Returns: {
+          customer_id: string
+          customer_name: string
+          display_name: string
+          exact_match: boolean
+          score: number
+        }[]
+      }
+      list_customers_for_variation_job: {
+        Args: never
+        Returns: {
+          company_name: string
+          display_name: string
+          id: string
+        }[]
+      }
       next_doc_no: { Args: { kind: string }; Returns: string }
     }
     Enums: {

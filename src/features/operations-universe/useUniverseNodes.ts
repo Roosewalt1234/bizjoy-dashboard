@@ -120,14 +120,21 @@ async function fetchContractConnections(
     // foreign key to fm_contracts (not contracts) per src/integrations/supabase/types.ts -
     // confirmed against real data, where all ppm_visits/manpower rows match FM contracts and
     // none match AMC ones. So these are FM-only relations, despite being commonly thought of
-    // as "AMC things" - gate on the real FK, not that assumption.
+    // as "AMC things" - gate on the real FK, not that assumption. AMC has its own separate
+    // PPM table, amc_ppm_visits, whose contract_id carries a foreign key to contracts (the
+    // AMC-domain table) - query that one for AMC instead. There is no AMC equivalent of
+    // manpower.
     domain === "FM"
       ? supabase
           .from("ppm_visits")
           .select("id, planned_date, status")
           .eq("contract_id", contractId)
           .order("planned_date", { ascending: true })
-      : Promise.resolve({ data: [], error: null }),
+      : supabase
+          .from("amc_ppm_visits")
+          .select("id, planned_date, status")
+          .eq("contract_id", contractId)
+          .order("planned_date", { ascending: true }),
     domain === "FM"
       ? supabase
           .from("contract_manpower_assignments")
