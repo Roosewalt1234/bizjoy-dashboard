@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { ReactFlow, Background, Controls } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { layoutAround } from "./layout";
 import { UniverseNodeComponent } from "./UniverseNodeComponent";
+import { useUniverseGraph } from "./useUniverseNodes";
 import type { CenterEntity, UniverseNodeData } from "./types";
 
 const nodeTypes = { universe: UniverseNodeComponent };
@@ -48,11 +49,13 @@ function todayGraph() {
 export function OperationsUniverse() {
   const [centerEntity, setCenterEntity] = useState<CenterEntity>({ kind: "today" });
 
-  const graph = useMemo(() => {
-    if (centerEntity.kind === "today") return todayGraph();
-    // A later task adds real handling for the other CenterEntity kinds here.
-    return todayGraph();
-  }, [centerEntity]);
+  const isToday = centerEntity.kind === "today";
+  const {
+    data: fetchedGraph,
+    isLoading,
+    error,
+  } = useUniverseGraph(centerEntity, { enabled: !isToday });
+  const graph = isToday ? todayGraph() : (fetchedGraph ?? { nodes: [], edges: [] });
 
   return (
     <div style={{ width: "100%", height: "calc(100vh - 4rem)" }}>
