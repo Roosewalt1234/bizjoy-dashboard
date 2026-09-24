@@ -57,6 +57,7 @@ export function OperationsUniverse() {
     data: fetchedGraph,
     isLoading,
     error,
+    refetch,
   } = useUniverseGraph(centerEntity, { enabled: !isToday });
   const graph = isToday ? todayGraph() : (fetchedGraph ?? { nodes: [], edges: [] });
 
@@ -82,6 +83,66 @@ export function OperationsUniverse() {
         <Background />
         <Controls />
       </ReactFlow>
+      {isLoading && !isToday && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 10,
+            background: "#1c2128",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 8,
+            padding: "12px 18px",
+            color: "#e6edf3",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+            fontSize: 13,
+            fontWeight: 700,
+          }}
+        >
+          Loading...
+        </div>
+      )}
+      {error && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 10,
+            minWidth: 220,
+            maxWidth: 320,
+            background: "#1c2128",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 8,
+            padding: "14px 16px",
+            color: "#e6edf3",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 700 }}>{error.message}</div>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            style={{
+              marginTop: 10,
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(255,255,255,0.12)",
+              borderRadius: 6,
+              color: "#e6edf3",
+              cursor: "pointer",
+              fontSize: 12,
+              fontWeight: 600,
+              padding: "6px 14px",
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      )}
       {employeeCard && (
         <div
           style={{
