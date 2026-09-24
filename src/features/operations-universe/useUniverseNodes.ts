@@ -258,6 +258,43 @@ async function fetchContractConnections(
     });
   }
 
+  const timelineEvents: { date: string; label: string }[] = [];
+  if (contract.end_date) timelineEvents.push({ date: contract.end_date, label: "Contract End" });
+  for (const wo of workOrdersRes.data ?? []) {
+    if (wo.completed_at)
+      timelineEvents.push({
+        date: wo.completed_at,
+        label: `${wo.wo_no ?? "Work Order"} completed`,
+      });
+  }
+  for (const invoice of invoicesRes.data ?? []) {
+    if (invoice.period_start)
+      timelineEvents.push({
+        date: invoice.period_start,
+        label: `Invoice ${invoice.invoice_no ?? ""}`.trim(),
+      });
+  }
+  for (const payment of paymentsRes.data ?? []) {
+    if (payment.payment_date) timelineEvents.push({ date: payment.payment_date, label: "Payment" });
+  }
+  for (const visit of ("data" in ppmVisitsRes ? ppmVisitsRes.data : []) ?? []) {
+    if (visit.planned_date) timelineEvents.push({ date: visit.planned_date, label: "PPM Visit" });
+  }
+  timelineEvents.sort((a, b) => a.date.localeCompare(b.date));
+
+  timelineEvents.forEach((event, index) => {
+    ringOne.push({
+      id: `timeline-event:${contractId}:${index}`,
+      data: {
+        kind: "timeline-event",
+        label: event.label,
+        sublabel: event.date,
+        clickable: false,
+        groupKey: "timeline",
+      },
+    });
+  });
+
   return {
     centerLabel: contract.title ?? contract.customer_name ?? "Contract",
     centerSublabel: contract.status ?? "",
