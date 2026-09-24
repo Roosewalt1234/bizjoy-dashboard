@@ -24,6 +24,7 @@ export type EntityKind =
   | 'employee-info';
 
 export interface UniverseNodeData {
+  [key: string]: unknown;
   kind: EntityKind;
   label: string;
   sublabel?: string;

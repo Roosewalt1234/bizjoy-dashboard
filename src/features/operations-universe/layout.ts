@@ -5,12 +5,6 @@ const RING_RADIUS_STEP = 220;
 const CENTER_NODE_SIZE = 110;
 const RING_NODE_SIZE = 70;
 
-// React Flow's `Node<NodeData>` generic requires NodeData to extend
-// Record<string, unknown>. UniverseNodeData (defined in ./types, owned by a
-// different task) is a plain interface without an index signature, so we
-// intersect it locally rather than editing that shared type.
-type FlowNodeData = UniverseNodeData & Record<string, unknown>;
-
 export interface UniverseGraphInput {
   centerId: string;
   centerData: UniverseNodeData;
@@ -24,15 +18,15 @@ export interface UniverseGraphInput {
  * sectors (so e.g. all "pending work order" nodes land next to each other
  * rather than scattered) rather than one flat evenly-spaced circle.
  */
-export function layoutAround(input: UniverseGraphInput): { nodes: Node<FlowNodeData>[]; edges: Edge[] } {
+export function layoutAround(input: UniverseGraphInput): { nodes: Node<UniverseNodeData>[]; edges: Edge[] } {
   const { centerId, centerData, ringOne } = input;
 
-  const nodes: Node<FlowNodeData>[] = [
+  const nodes: Node<UniverseNodeData>[] = [
     {
       id: centerId,
       type: 'universe',
       position: { x: 0, y: 0 },
-      data: centerData as FlowNodeData,
+      data: centerData,
       style: { width: CENTER_NODE_SIZE, height: CENTER_NODE_SIZE },
     },
   ];
@@ -63,7 +57,7 @@ export function layoutAround(input: UniverseGraphInput): { nodes: Node<FlowNodeD
         id: item.id,
         type: 'universe',
         position: { x, y },
-        data: item.data as FlowNodeData,
+        data: item.data,
         style: { width: RING_NODE_SIZE, height: RING_NODE_SIZE },
       });
 
