@@ -76,7 +76,7 @@ export function UniverseSearch({ onSelect, avoidTopLeftRow = false }: UniverseSe
         <Input
           value={query}
           onChange={(e) => handleChange(e.target.value)}
-          placeholder="Search contracts, work orders, staff..."
+          placeholder="Search contracts, work orders, staff, customers..."
           style={{
             paddingLeft: 30,
             background: "#1c2128",
