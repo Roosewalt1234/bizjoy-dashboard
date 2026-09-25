@@ -138,12 +138,12 @@ async function fetchContractConnections(
     domain === "FM"
       ? supabase
           .from("ppm_visits")
-          .select("id, planned_date, status")
+          .select("id, planned_date, due_date, status, work_order_id")
           .eq("contract_id", contractId)
           .order("planned_date", { ascending: true })
       : supabase
           .from("amc_ppm_visits")
-          .select("id, planned_date, status")
+          .select("id, planned_date, due_date, status, work_order_id")
           .eq("contract_id", contractId)
           .order("planned_date", { ascending: true }),
     domain === "FM"
@@ -168,6 +168,7 @@ async function fetchContractConnections(
   }
 
   const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
   const ringOne: { id: string; data: UniverseNodeData }[] = [];
 
   if (contract.customer_id) {
@@ -222,13 +223,19 @@ async function fetchContractConnections(
   }
 
   for (const visit of ("data" in ppmVisitsRes ? ppmVisitsRes.data : []) ?? []) {
+    const visitDate = visit.due_date ?? visit.planned_date;
+    const isOverdue = Boolean(visitDate && visitDate < todayStr && !visit.work_order_id);
     ringOne.push({
       id: `ppm-visit:${visit.id}`,
       data: {
         kind: "ppm-visit",
-        label: "PPM Visit",
-        sublabel: visit.planned_date ?? undefined,
-        clickable: false,
+        label: visitDate ? `PPM · ${visitDate}` : "PPM Visit",
+        sublabel: visit.status ?? undefined,
+        exception: isOverdue,
+        clickable: true,
+        center: visit.work_order_id
+          ? { kind: "work-order", domain, id: visit.work_order_id }
+          : { kind: "ppm-visit", domain, id: visit.id },
         groupKey: "ppm",
         edgeStyle: "planned",
         relationshipReason: `This PPM visit is scheduled under this contract.`,
