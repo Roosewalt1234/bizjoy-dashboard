@@ -1033,6 +1033,16 @@ function categorizeByDate(todayStr: string, dateStr: string): "today" | "upcomin
   return dateStr < todayStr ? "overdue" : "upcoming";
 }
 
+function categorizeByDeadline(
+  todayStr: string,
+  deadlineIso: string,
+): "today" | "upcoming" | "overdue" {
+  const deadline = new Date(deadlineIso);
+  if (deadline.getTime() < Date.now()) return "overdue";
+  const deadlineDateStr = deadline.toISOString().slice(0, 10);
+  return deadlineDateStr === todayStr ? "today" : "upcoming";
+}
+
 async function fetchScheduleCounts(): Promise<Record<"today" | "upcoming" | "overdue", number>> {
   const todayStr = new Date().toISOString().slice(0, 10);
 
@@ -1049,13 +1059,13 @@ async function fetchScheduleCounts(): Promise<Record<"today" | "upcoming" | "ove
       .not("status", "in", "(Completed,Skipped,Cancelled)"),
     supabase
       .from("work_orders")
-      .select("scheduled_date")
-      .not("scheduled_date", "is", null)
+      .select("completion_due_at")
+      .not("completion_due_at", "is", null)
       .not("status", "in", "(Completed,Cancelled)"),
     supabase
       .from("fm_work_orders")
-      .select("scheduled_date")
-      .not("scheduled_date", "is", null)
+      .select("completion_due_at")
+      .not("completion_due_at", "is", null)
       .not("status", "in", "(Completed,Cancelled)"),
   ]);
 
@@ -1072,8 +1082,8 @@ async function fetchScheduleCounts(): Promise<Record<"today" | "upcoming" | "ove
     counts[categorizeByDate(todayStr, date)]++;
   }
   for (const wo of [...(amcWosRes.data ?? []), ...(fmWosRes.data ?? [])]) {
-    if (!wo.scheduled_date) continue;
-    counts[categorizeByDate(todayStr, wo.scheduled_date)]++;
+    if (!wo.completion_due_at) continue;
+    counts[categorizeByDeadline(todayStr, wo.completion_due_at)]++;
   }
 
   return counts;
@@ -1095,13 +1105,13 @@ async function fetchScheduleItems(): Promise<ScheduleItem[]> {
       .not("status", "in", "(Completed,Skipped,Cancelled)"),
     supabase
       .from("work_orders")
-      .select("id, wo_no, scheduled_date, status")
-      .not("scheduled_date", "is", null)
+      .select("id, wo_no, completion_due_at, status")
+      .not("completion_due_at", "is", null)
       .not("status", "in", "(Completed,Cancelled)"),
     supabase
       .from("fm_work_orders")
-      .select("id, wo_no, scheduled_date, status")
-      .not("scheduled_date", "is", null)
+      .select("id, wo_no, completion_due_at, status")
+      .not("completion_due_at", "is", null)
       .not("status", "in", "(Completed,Cancelled)"),
   ]);
 
@@ -1159,11 +1169,12 @@ async function fetchScheduleItems(): Promise<ScheduleItem[]> {
   }
 
   for (const wo of amcWosRes.data ?? []) {
-    if (!wo.scheduled_date) continue;
-    const category = categorizeByDate(todayStr, wo.scheduled_date);
+    if (!wo.completion_due_at) continue;
+    const category = categorizeByDeadline(todayStr, wo.completion_due_at);
+    const dueDateStr = wo.completion_due_at.slice(0, 10);
     items.push({
       category,
-      date: wo.scheduled_date,
+      date: wo.completion_due_at,
       node: {
         id: `work-order:AMC:${wo.id}`,
         data: {
@@ -1174,18 +1185,19 @@ async function fetchScheduleItems(): Promise<ScheduleItem[]> {
           clickable: true,
           center: { kind: "work-order", domain: "AMC", id: wo.id },
           groupKey: category,
-          relationshipReason: `${wo.wo_no ?? "This work order"} is scheduled for ${wo.scheduled_date}.`,
+          relationshipReason: `${wo.wo_no ?? "This work order"} is due by ${dueDateStr}.`,
         },
       },
     });
   }
 
   for (const wo of fmWosRes.data ?? []) {
-    if (!wo.scheduled_date) continue;
-    const category = categorizeByDate(todayStr, wo.scheduled_date);
+    if (!wo.completion_due_at) continue;
+    const category = categorizeByDeadline(todayStr, wo.completion_due_at);
+    const dueDateStr = wo.completion_due_at.slice(0, 10);
     items.push({
       category,
-      date: wo.scheduled_date,
+      date: wo.completion_due_at,
       node: {
         id: `work-order:FM:${wo.id}`,
         data: {
@@ -1196,7 +1208,7 @@ async function fetchScheduleItems(): Promise<ScheduleItem[]> {
           clickable: true,
           center: { kind: "work-order", domain: "FM", id: wo.id },
           groupKey: category,
-          relationshipReason: `${wo.wo_no ?? "This work order"} is scheduled for ${wo.scheduled_date}.`,
+          relationshipReason: `${wo.wo_no ?? "This work order"} is due by ${dueDateStr}.`,
         },
       },
     });
