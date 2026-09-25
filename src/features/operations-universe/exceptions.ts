@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { CenterEntity, ContractDomain } from "./types";
+import { computePaymentStatus } from "./useUniverseNodes";
 
 export type ExceptionSeverity = "attention" | "important" | "critical";
 export type ExceptionCategory = "operations" | "people" | "finance" | "contracts" | "data-quality";
@@ -94,6 +95,96 @@ export async function detectOverduePpm(): Promise<OperationalException[]> {
       target: { kind: "ppm-visit", domain: visit.domain, id: visit.id },
       contractId: visit.contract_id,
       contractDomain: visit.domain,
+    });
+  }
+  return exceptions;
+}
+
+export async function detectStaffAttendanceIssues(): Promise<OperationalException[]> {
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  const [employeesRes, amcWosRes, fmWosRes, attendanceRes] = await Promise.all([
+    supabase
+      .from("employees")
+      .select("id, full_name, first_name, last_name, position")
+      .eq("status", "Active"),
+    supabase
+      .from("work_orders")
+      .select("technician_id")
+      .not("technician_id", "is", null)
+      .not("status", "in", "(Completed,Cancelled)"),
+    supabase
+      .from("fm_work_orders")
+      .select("technician_id")
+      .not("technician_id", "is", null)
+      .not("status", "in", "(Completed,Cancelled)"),
+    supabase.from("attendance_logs").select("employee_id").eq("attendance_date", todayStr),
+  ]);
+  if (employeesRes.error) throw employeesRes.error;
+  if (amcWosRes.error) throw amcWosRes.error;
+  if (fmWosRes.error) throw fmWosRes.error;
+  if (attendanceRes.error) throw attendanceRes.error;
+
+  const assignedCounts = new Map<string, number>();
+  for (const wo of [...(amcWosRes.data ?? []), ...(fmWosRes.data ?? [])]) {
+    if (!wo.technician_id) continue;
+    assignedCounts.set(wo.technician_id, (assignedCounts.get(wo.technician_id) ?? 0) + 1);
+  }
+
+  const attendedToday = new Set((attendanceRes.data ?? []).map((row) => row.employee_id));
+
+  const exceptions: OperationalException[] = [];
+  for (const employee of employeesRes.data ?? []) {
+    const assignedCount = assignedCounts.get(employee.id) ?? 0;
+    if (assignedCount === 0) continue;
+    if (attendedToday.has(employee.id)) continue;
+    const name = employee.full_name ?? `${employee.first_name} ${employee.last_name ?? ""}`.trim();
+    exceptions.push({
+      id: `people:no-attendance:${employee.id}`,
+      category: "people",
+      severity: "important",
+      title: "No Attendance Recorded",
+      reason: `${name} has ${assignedCount} open work order${assignedCount === 1 ? "" : "s"} assigned but no attendance record for today.`,
+      target: { kind: "employee", id: employee.id, name, position: employee.position ?? undefined },
+    });
+  }
+  return exceptions;
+}
+
+export async function detectOverduePayments(): Promise<OperationalException[]> {
+  const [contractsRes, paymentsRes] = await Promise.all([
+    supabase.from("contracts").select("id, title"),
+    supabase
+      .from("contract_payments")
+      .select("id, contract_id, value, payment_date, received_date"),
+  ]);
+  if (contractsRes.error) throw contractsRes.error;
+  if (paymentsRes.error) throw paymentsRes.error;
+
+  const contractTitles = new Map((contractsRes.data ?? []).map((c) => [c.id, c.title]));
+  const overdueByContract = new Map<string, { count: number; total: number }>();
+
+  for (const payment of paymentsRes.data ?? []) {
+    const status = computePaymentStatus(payment.payment_date, payment.received_date);
+    if (status !== "Overdue") continue;
+    const current = overdueByContract.get(payment.contract_id) ?? { count: 0, total: 0 };
+    current.count += 1;
+    current.total += payment.value ?? 0;
+    overdueByContract.set(payment.contract_id, current);
+  }
+
+  const exceptions: OperationalException[] = [];
+  for (const [contractId, { count, total }] of overdueByContract) {
+    const title = contractTitles.get(contractId) ?? "This contract";
+    exceptions.push({
+      id: `finance:overdue-payment:AMC:${contractId}`,
+      category: "finance",
+      severity: "critical",
+      title: "Overdue Payment",
+      reason: `${title} has ${count} payment${count === 1 ? "" : "s"} totaling AED ${total} that remain unpaid more than 15 days after the due date.`,
+      target: { kind: "contract-finance", domain: "AMC", id: contractId },
+      contractId,
+      contractDomain: "AMC",
     });
   }
   return exceptions;

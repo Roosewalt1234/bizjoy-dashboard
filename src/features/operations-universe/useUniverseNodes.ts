@@ -8,7 +8,7 @@ function formatAttendanceTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 }
 
-function computePaymentStatus(
+export function computePaymentStatus(
   paymentDate: string | null,
   receivedDate: string | null,
 ): "Received" | "Not Yet Due" | "Due" | "Overdue" {
