@@ -288,3 +288,44 @@ export async function detectReconciliationIssues(): Promise<OperationalException
   }
   return exceptions;
 }
+
+export async function detectAllExceptions(): Promise<OperationalException[]> {
+  const results = await Promise.all([
+    detectOverdueWorkOrders(),
+    detectOverduePpm(),
+    detectStaffAttendanceIssues(),
+    detectOverduePayments(),
+    detectExpiringContracts(),
+    detectReconciliationIssues(),
+  ]);
+  return results.flat();
+}
+
+export async function detectExceptionCounts(): Promise<Record<ExceptionCategory, number>> {
+  const exceptions = await detectAllExceptions();
+  const counts: Record<ExceptionCategory, number> = {
+    operations: 0,
+    people: 0,
+    finance: 0,
+    contracts: 0,
+    "data-quality": 0,
+  };
+  for (const exception of exceptions) {
+    counts[exception.category] += 1;
+  }
+  return counts;
+}
+
+export function groupExceptionsByContract(
+  exceptions: OperationalException[],
+): Map<string, OperationalException[]> {
+  const grouped = new Map<string, OperationalException[]>();
+  for (const exception of exceptions) {
+    if (!exception.contractId || !exception.contractDomain) continue;
+    const key = `${exception.contractDomain}:${exception.contractId}`;
+    const current = grouped.get(key) ?? [];
+    current.push(exception);
+    grouped.set(key, current);
+  }
+  return grouped;
+}
