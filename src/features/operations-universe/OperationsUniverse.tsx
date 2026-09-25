@@ -109,6 +109,7 @@ export function OperationsUniverse() {
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onNodeClick={(_, node) => {
+          setRelationshipReason(null);
           const data = node.data as UniverseNodeData;
           if (data.kind === "employee-info") {
             setEmployeeCard({ label: data.label, sublabel: data.sublabel });
@@ -122,7 +123,7 @@ export function OperationsUniverse() {
         }}
         onEdgeClick={(_, edge) => {
           const reason = (edge.data as { reason?: string } | undefined)?.reason;
-          if (reason) setRelationshipReason(reason);
+          setRelationshipReason(reason ?? null);
         }}
         fitView
       >
