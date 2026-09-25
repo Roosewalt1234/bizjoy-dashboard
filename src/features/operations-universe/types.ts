@@ -1,6 +1,6 @@
 export type ContractDomain = "AMC" | "FM";
 export type StaffCategory = "available" | "booked" | "absent";
-export type ScheduleCategory = "today" | "unassigned" | "tomorrow" | "attention";
+export type ScheduleCategory = "today" | "upcoming" | "overdue";
 
 // '__root__' means "show the category list itself", not a specific category
 export type CenterEntity =
@@ -9,9 +9,9 @@ export type CenterEntity =
   | { kind: "contract"; domain: ContractDomain; id: string }
   | { kind: "customer"; id: string }
   | { kind: "work-order"; domain: ContractDomain; id: string }
+  | { kind: "ppm-visit"; domain: ContractDomain; id: string }
   | { kind: "staff-category" }
   | { kind: "schedule-category"; category: ScheduleCategory | "__root__" }
-  | { kind: "schedule-job"; id: string }
   | { kind: "employee"; id: string; name: string; position?: string };
 
 export type EntityKind =
@@ -33,8 +33,7 @@ export type EntityKind =
   | "staff-category"
   | "staff-member"
   | "staff-detail"
-  | "schedule-category"
-  | "schedule-job";
+  | "schedule-category";
 
 export type EdgeStyle = "active" | "planned" | "attention";
 
@@ -73,12 +72,12 @@ export function centerEntityKey(center: CenterEntity): string {
       return `customer:${center.id}`;
     case "work-order":
       return `work-order:${center.domain}:${center.id}`;
+    case "ppm-visit":
+      return `ppm-visit:${center.domain}:${center.id}`;
     case "staff-category":
       return "staff-category";
     case "schedule-category":
       return `schedule-category:${center.category}`;
-    case "schedule-job":
-      return `schedule-job:${center.id}`;
     case "employee":
       return `employee:${center.id}`;
   }
