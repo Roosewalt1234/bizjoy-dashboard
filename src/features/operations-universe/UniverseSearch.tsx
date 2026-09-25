@@ -3,12 +3,14 @@ import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { searchUniverse, type SearchResult } from "./useUniverseNodes";
 import type { CenterEntity } from "./types";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface UniverseSearchProps {
   onSelect: (entity: CenterEntity) => void;
 }
 
 export function UniverseSearch({ onSelect }: UniverseSearchProps) {
+  const isMobile = useIsMobile();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [open, setOpen] = useState(false);
@@ -36,7 +38,15 @@ export function UniverseSearch({ onSelect }: UniverseSearchProps) {
   }
 
   return (
-    <div style={{ position: "absolute", top: 16, right: 16, zIndex: 20, width: 260 }}>
+    <div
+      style={{
+        position: "absolute",
+        top: 16,
+        right: 16,
+        zIndex: 20,
+        width: isMobile ? "calc(100vw - 32px)" : 260,
+      }}
+    >
       <div style={{ position: "relative" }}>
         <Search
           style={{

@@ -8,6 +8,7 @@ import { useUniverseGraph } from "./useUniverseNodes";
 import { EntityDetailPanel } from "./EntityDetailPanel";
 import { UniverseSearch } from "./UniverseSearch";
 import type { CenterEntity, UniverseNodeData } from "./types";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const nodeTypes = { universe: UniverseNodeComponent };
 
@@ -75,6 +76,7 @@ function todayGraph() {
 }
 
 export function OperationsUniverse() {
+  const isMobile = useIsMobile();
   const [centerEntity, setCenterEntity] = useState<CenterEntity>({ kind: "today" });
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [relationshipReason, setRelationshipReason] = useState<string | null>(null);
@@ -180,83 +182,89 @@ export function OperationsUniverse() {
       </ReactFlow>
       <UniverseSearch onSelect={(entity) => navigateTo(entity)} />
       {centerEntity.kind !== "today" && (
-        <button
-          type="button"
-          onClick={handleBack}
+        <div
           style={{
             position: "absolute",
             top: 16,
             left: 16,
             zIndex: 10,
-            background: "#1c2128",
-            border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: 8,
-            color: "#e6edf3",
-            cursor: "pointer",
-            fontSize: 13,
-            fontWeight: 700,
-            padding: "8px 14px",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
-          }}
-        >
-          ← Back
-        </button>
-      )}
-      {centerEntity.kind !== "today" && (
-        <div
-          style={{
-            position: "absolute",
-            top: 16,
-            left: 90,
-            zIndex: 10,
             display: "flex",
             alignItems: "center",
-            gap: 6,
-            maxWidth: "calc(100% - 200px)",
-            overflowX: "auto",
-            background: "#1c2128",
-            border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: 8,
-            padding: "8px 12px",
-            color: "#8a93a3",
-            fontSize: 12,
-            whiteSpace: "nowrap",
+            gap: 8,
+            maxWidth: "calc(100% - 32px)",
           }}
         >
           <button
             type="button"
-            onClick={handleReturnToToday}
+            onClick={handleBack}
             style={{
-              background: "none",
-              border: "none",
+              flexShrink: 0,
+              background: "#1c2128",
+              border: "1px solid rgba(255,255,255,0.12)",
+              borderRadius: 8,
               color: "#e6edf3",
               cursor: "pointer",
+              fontSize: 13,
               fontWeight: 700,
-              padding: 0,
+              padding: "8px 14px",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
             }}
           >
-            Today
+            ← Back
           </button>
-          {history.slice(1).map((entry, index) => (
-            <span key={index} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span>/</span>
-              <button
-                type="button"
-                onClick={() => jumpToHistoryIndex(index + 1)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#8a93a3",
-                  cursor: "pointer",
-                  padding: 0,
-                }}
-              >
-                {entry.label}
-              </button>
-            </span>
-          ))}
-          <span>/</span>
-          <span style={{ color: "#e6edf3", fontWeight: 700 }}>{currentLabel}</span>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              flex: "1 1 auto",
+              minWidth: 0,
+              maxWidth: isMobile ? 140 : 320,
+              overflowX: "auto",
+              background: "#1c2128",
+              border: "1px solid rgba(255,255,255,0.12)",
+              borderRadius: 8,
+              padding: "8px 12px",
+              color: "#8a93a3",
+              fontSize: 12,
+              whiteSpace: "nowrap",
+            }}
+          >
+            <button
+              type="button"
+              onClick={handleReturnToToday}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#e6edf3",
+                cursor: "pointer",
+                fontWeight: 700,
+                padding: 0,
+              }}
+            >
+              Today
+            </button>
+            {history.slice(1).map((entry, index) => (
+              <span key={index} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span>/</span>
+                <button
+                  type="button"
+                  onClick={() => jumpToHistoryIndex(index + 1)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#8a93a3",
+                    cursor: "pointer",
+                    padding: 0,
+                  }}
+                >
+                  {entry.label}
+                </button>
+              </span>
+            ))}
+            <span>/</span>
+            <span style={{ color: "#e6edf3", fontWeight: 700 }}>{currentLabel}</span>
+          </div>
         </div>
       )}
       {isLoading && !isToday && (

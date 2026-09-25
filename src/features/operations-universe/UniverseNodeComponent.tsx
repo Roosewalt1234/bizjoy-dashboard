@@ -20,6 +20,7 @@ import {
   Briefcase,
 } from "lucide-react";
 import type { UniverseNodeData, EntityKind } from "./types";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const ICONS: Record<EntityKind, React.ComponentType<{ className?: string }>> = {
   today: Sparkles,
@@ -68,10 +69,13 @@ const COLORS: Partial<Record<EntityKind, string>> = {
 };
 
 export function UniverseNodeComponent({ data }: NodeProps<Node<UniverseNodeData>>) {
+  const isMobile = useIsMobile();
   const Icon = ICONS[data.kind];
   const baseColor = COLORS[data.kind] ?? "#5b9bd5";
   const isDimmed = !data.clickable;
   const isException = Boolean(data.exception);
+  const maxLabelLength = isMobile ? 14 : 18;
+  const labelFontSize = isMobile ? 11 : 10;
 
   return (
     <div
@@ -96,8 +100,10 @@ export function UniverseNodeComponent({ data }: NodeProps<Node<UniverseNodeData>
     >
       <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
       <Icon className="h-4 w-4" />
-      <span style={{ fontSize: 10, fontWeight: 700, marginTop: 2, lineHeight: 1.1 }}>
-        {data.label.length > 18 ? `${data.label.slice(0, 17)}…` : data.label}
+      <span style={{ fontSize: labelFontSize, fontWeight: 700, marginTop: 2, lineHeight: 1.1 }}>
+        {data.label.length > maxLabelLength
+          ? `${data.label.slice(0, maxLabelLength - 1)}…`
+          : data.label}
       </span>
       <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />
     </div>
