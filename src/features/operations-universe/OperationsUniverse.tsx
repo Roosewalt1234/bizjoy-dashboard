@@ -59,14 +59,16 @@ export function OperationsUniverse() {
   );
 
   const handleBack = useCallback(() => {
+    let previousEntity: CenterEntity | undefined;
     setHistory((prev) => {
       if (prev.length === 0) return prev;
-      const next = prev.slice(0, -1);
-      const previousEntity = prev[prev.length - 1];
+      previousEntity = prev[prev.length - 1];
+      return prev.slice(0, -1);
+    });
+    if (previousEntity) {
       setEmployeeCard(null);
       setCenterEntity(previousEntity);
-      return next;
-    });
+    }
   }, []);
 
   const isToday = centerEntity.kind === "today";
