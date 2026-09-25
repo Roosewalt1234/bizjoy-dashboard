@@ -40,8 +40,13 @@ export function UniverseSearch({ onSelect }: UniverseSearchProps) {
   return (
     <div
       style={{
+        // On mobile the search box widens to near-full viewport width (below) so it
+        // stays legible/tappable - but the back button + breadcrumb strip also lives
+        // in the top-left corner at top:16. A full-width box sharing that same top
+        // offset would sit on top of that strip instead of beside it, so push the
+        // search box down onto its own row on mobile to keep the two from overlapping.
         position: "absolute",
-        top: 16,
+        top: isMobile ? 64 : 16,
         right: 16,
         zIndex: 20,
         width: isMobile ? "calc(100vw - 32px)" : 260,
