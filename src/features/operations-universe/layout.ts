@@ -1,9 +1,17 @@
 import type { Node, Edge } from '@xyflow/react';
-import type { UniverseNodeData } from './types';
+import type { EntityKind, UniverseNodeData } from './types';
 
 const RING_RADIUS_STEP = 220;
-const CENTER_NODE_SIZE = 110;
-const RING_NODE_SIZE = 70;
+const CENTER_NODE_SIZE = 130;
+
+const HUB_KINDS: EntityKind[] = ['today', 'contracts-hub', 'staff-hub', 'schedules-hub'];
+const CATEGORY_KINDS: EntityKind[] = ['category', 'staff-category', 'schedule-category'];
+
+function ringNodeSize(kind: EntityKind): number {
+  if (HUB_KINDS.includes(kind)) return 100;
+  if (CATEGORY_KINDS.includes(kind)) return 80;
+  return 60;
+}
 
 export interface UniverseGraphInput {
   centerId: string;
@@ -16,7 +24,9 @@ export interface UniverseGraphInput {
  * Places centerData at the canvas origin and arranges ringOne nodes on a
  * single ring around it, clustered by groupKey into contiguous angular
  * sectors (so e.g. all "pending work order" nodes land next to each other
- * rather than scattered) rather than one flat evenly-spaced circle.
+ * rather than scattered) rather than one flat evenly-spaced circle. Ring
+ * node size is tiered by kind (hub > category > individual record) rather
+ * than uniform, per the node-importance hierarchy in the Phase 2 design.
  */
 export function layoutAround(input: UniverseGraphInput): { nodes: Node<UniverseNodeData>[]; edges: Edge[] } {
   const { centerId, centerData, ringOne } = input;
@@ -52,24 +62,37 @@ export function layoutAround(input: UniverseGraphInput): { nodes: Node<UniverseN
       const angle = sectorStart + itemStep * itemIndex + itemStep / 2;
       const x = Math.cos(angle) * RING_RADIUS_STEP;
       const y = Math.sin(angle) * RING_RADIUS_STEP;
+      const size = ringNodeSize(item.data.kind);
 
       nodes.push({
         id: item.id,
         type: 'universe',
         position: { x, y },
         data: item.data,
-        style: { width: RING_NODE_SIZE, height: RING_NODE_SIZE },
+        style: { width: size, height: size },
       });
+
+      // Edge style: explicit `edgeStyle` wins; otherwise an exception forces
+      // the warning treatment; otherwise a normal solid "active" relationship.
+      const style: EdgeStyleResolved = item.data.exception
+        ? 'attention'
+        : (item.data.edgeStyle ?? 'active');
+      const stroke = style === 'attention' ? '#dc4c4c' : '#3d4451';
+      const strokeDasharray = style === 'planned' ? '6,5' : undefined;
 
       edges.push({
         id: `${centerId}->${item.id}`,
         source: centerId,
         target: item.id,
         animated: false,
-        style: { stroke: item.data.exception ? '#dc4c4c' : '#3d4451' },
+        selectable: true,
+        style: { stroke, strokeDasharray, strokeWidth: style === 'attention' ? 2.5 : 1.5 },
+        data: { reason: item.data.relationshipReason },
       });
     });
   });
 
   return { nodes, edges };
 }
+
+type EdgeStyleResolved = 'active' | 'planned' | 'attention';
