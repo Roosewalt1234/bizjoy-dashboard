@@ -551,6 +551,62 @@ async function fetchContractFinanceConnections(
   };
 }
 
+async function fetchPaymentsInCategory(
+  domain: "AMC" | "FM",
+  contractId: string,
+  category: "received" | "outstanding" | "overdue",
+): Promise<{ id: string; data: UniverseNodeData }[]> {
+  const paymentTable = domain === "AMC" ? "contract_payments" : "fm_contract_payments";
+  const { data, error } = await supabase
+    .from(paymentTable)
+    .select("id, value, payment_date, received_date")
+    .eq("contract_id", contractId)
+    .order("payment_date", { ascending: true });
+  if (error) throw error;
+
+  const filtered = (data ?? []).filter((p) => {
+    const status = computePaymentStatus(p.payment_date, p.received_date);
+    if (category === "received") return status === "Received";
+    if (category === "overdue") return status === "Overdue";
+    // "outstanding" matches summarizePayments' definition (Due + Overdue only, not
+    // "Not Yet Due" future installments) - see the corrected computePaymentStatus.
+    return status === "Due" || status === "Overdue";
+  });
+
+  const ringOne: { id: string; data: UniverseNodeData }[] = filtered.map((p) => ({
+    id: `payment:${domain}:${p.id}`,
+    data: {
+      kind: "payment",
+      label: p.value != null ? `AED ${p.value}` : "Payment",
+      sublabel: p.received_date ?? p.payment_date ?? undefined,
+      exception: category === "overdue",
+      clickable: true,
+      center: { kind: "payment", domain, id: p.id },
+      groupKey: category,
+      relationshipReason: `This payment is ${category} on this contract.`,
+    },
+  }));
+
+  if (ringOne.length === 0) {
+    const labels: Record<string, string> = {
+      received: "No received payments",
+      outstanding: "No outstanding payments",
+      overdue: "No overdue payments",
+    };
+    ringOne.push({
+      id: `payment-category-empty:${domain}:${contractId}:${category}`,
+      data: {
+        kind: "staff-detail",
+        label: labels[category],
+        clickable: false,
+        groupKey: category,
+      },
+    });
+  }
+
+  return ringOne;
+}
+
 async function fetchWorkOrderConnections(
   domain: "AMC" | "FM",
   workOrderId: string,
@@ -1458,6 +1514,32 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
             ringOne,
           }),
           centerDetail,
+        };
+      }
+
+      if (centerEntity.kind === "payment-category") {
+        const ringOne = await fetchPaymentsInCategory(
+          centerEntity.domain,
+          centerEntity.contractId,
+          centerEntity.category,
+        );
+        const labels: Record<string, string> = {
+          received: "Received",
+          outstanding: "Outstanding",
+          overdue: "Overdue",
+        };
+        const centerData: UniverseNodeData = {
+          kind: "category",
+          label: labels[centerEntity.category] ?? centerEntity.category,
+          clickable: false,
+        };
+        return {
+          ...layoutAround({
+            centerId: `payment-category:${centerEntity.domain}:${centerEntity.contractId}:${centerEntity.category}`,
+            centerData,
+            ringOne,
+          }),
+          centerDetail: undefined,
         };
       }
 
