@@ -653,7 +653,7 @@ export async function searchUniverse(query: string): Promise<SearchResult[]> {
 
   const results: SearchResult[] = [];
 
-  const [amcContracts, fmContracts, amcWorkOrders, fmWorkOrders] = await Promise.all([
+  const settled = await Promise.allSettled([
     supabase
       .from("contracts")
       .select("id, title, customer_name, status")
@@ -675,6 +675,33 @@ export async function searchUniverse(query: string): Promise<SearchResult[]> {
       .ilike("wo_no", `%${trimmed}%`)
       .limit(5),
   ]);
+
+  // A rejected settled result (a genuine network/promise rejection) has no `.data`/`.error`
+  // shape of its own, so normalize it to the same "no results, but here's why" shape a
+  // resolved-with-error PostgREST response already has. This keeps the `.data ?? []` loops
+  // below unchanged for both failure modes, and lets one query's failure degrade gracefully
+  // instead of taking the others down with it.
+  function unwrap<T extends { data: unknown; error: unknown }>(
+    settledResult: PromiseSettledResult<T>,
+  ): T | { data: null; error: unknown } {
+    return settledResult.status === "fulfilled"
+      ? settledResult.value
+      : { data: null, error: settledResult.reason };
+  }
+
+  const amcContracts = unwrap(settled[0]);
+  const fmContracts = unwrap(settled[1]);
+  const amcWorkOrders = unwrap(settled[2]);
+  const fmWorkOrders = unwrap(settled[3]);
+
+  if (amcContracts.error)
+    console.warn("searchUniverse: AMC contract search failed", amcContracts.error);
+  if (fmContracts.error)
+    console.warn("searchUniverse: FM contract search failed", fmContracts.error);
+  if (amcWorkOrders.error)
+    console.warn("searchUniverse: AMC work order search failed", amcWorkOrders.error);
+  if (fmWorkOrders.error)
+    console.warn("searchUniverse: FM work order search failed", fmWorkOrders.error);
 
   for (const row of amcContracts.data ?? []) {
     results.push({

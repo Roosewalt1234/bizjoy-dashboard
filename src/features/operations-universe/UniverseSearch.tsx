@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { searchUniverse, type SearchResult } from "./useUniverseNodes";
@@ -12,15 +12,18 @@ export function UniverseSearch({ onSelect }: UniverseSearchProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [open, setOpen] = useState(false);
+  const requestIdRef = useRef(0);
 
   async function handleChange(value: string) {
     setQuery(value);
+    const thisRequestId = ++requestIdRef.current;
     if (value.trim().length < 2) {
       setResults([]);
       setOpen(false);
       return;
     }
     const found = await searchUniverse(value);
+    if (thisRequestId !== requestIdRef.current) return; // a newer request has since started; discard this stale response
     setResults(found);
     setOpen(true);
   }
