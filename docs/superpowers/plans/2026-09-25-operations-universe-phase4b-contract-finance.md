@@ -289,7 +289,11 @@ function computePaymentStatus(
 ): "Received" | "Not Yet Due" | "Due" | "Overdue" {
   if (receivedDate) return "Received";
   if (!paymentDate) return "Not Yet Due";
-  const diffDays = Math.round((Date.now() - new Date(paymentDate).getTime()) / 86400000);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(paymentDate);
+  target.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((today.getTime() - target.getTime()) / 86400000);
   if (diffDays <= 0) return "Not Yet Due";
   if (diffDays <= 15) return "Due";
   return "Overdue";
@@ -331,7 +335,10 @@ function summarizePayments(payments: PaymentRow[]): PaymentSummary {
     const status = computePaymentStatus(payment.paymentDate, payment.receivedDate);
     if (status === "Received") {
       received += value;
-    } else {
+    } else if (status === "Due" || status === "Overdue") {
+      // "Outstanding" matches this app's own established meaning
+      // (accounts-outstanding.tsx:139): Due + Overdue only. A "Not Yet Due" future
+      // installment isn't outstanding yet - it just isn't due, and belongs in neither bucket.
       outstanding += value;
       if (status === "Overdue") overdue += value;
     }
@@ -642,10 +649,13 @@ they just have no routing handler yet, which is fine since nothing navigates the
 
 - [ ] **Step 4: Cross-check against real data**
 
-Reuse the same contract from Task 2's Step 5 (`59e6cd61-...`). Confirm the ring this function
-would build: a "Received" node (AED 2047.50), an "Outstanding" node (AED 2047.50), no "Overdue"
-node (0 overdue payments for this contract), and a "Next Payment" node for whichever of the 2
-`Not Yet Due` payments has the earlier `payment_date`.
+Reuse the same contract from Task 2's Step 5 (`59e6cd61-...`, 2 Received + 2 Not Yet Due, 0
+Due, 0 Overdue). Confirm the ring this function would build: a "Received" node (AED 2047.50),
+an "Outstanding" node showing **AED 0** (its 2 unpaid payments are both `Not Yet Due`, which
+doesn't count as outstanding under the corrected definition — see Task 2), no "Overdue" node
+(0 overdue payments), and a "Next Payment" node for whichever of the 2 `Not Yet Due` payments
+has the earlier `payment_date` (Next Payment is independent of the Outstanding definition — it
+surfaces the soonest unpaid installment regardless of whether it's technically "due" yet).
 
 - [ ] **Step 5: Commit**
 
@@ -689,7 +699,9 @@ async function fetchPaymentsInCategory(
     const status = computePaymentStatus(p.payment_date, p.received_date);
     if (category === "received") return status === "Received";
     if (category === "overdue") return status === "Overdue";
-    return status !== "Received";
+    // "outstanding" matches summarizePayments' definition (Due + Overdue only, not
+    // "Not Yet Due" future installments) - see Task 2's corrected computePaymentStatus.
+    return status === "Due" || status === "Overdue";
   });
 
   const ringOne: { id: string; data: UniverseNodeData }[] = filtered.map((p) => ({
@@ -771,14 +783,24 @@ Expected: zero errors anywhere in the repo.
 
 - [ ] **Step 4: Cross-check against real data**
 
-Using the same contract as before, confirm `fetchPaymentsInCategory(..., "outstanding")` would
-return exactly the 2 `Not Yet Due` payment rows as clickable nodes, and
-`fetchPaymentsInCategory(..., "overdue")` would return the single empty-state leaf ("No overdue
-payments") since this contract has none. Separately, find a real contract with at least one
-genuinely `Overdue` payment (cross-check via `select contract_id, payment_date, value from
-contract_payments where received_date is null and payment_date < current_date - interval '15
-days' limit 3`) and confirm that contract's "Overdue" category would show a real, non-empty
-result.
+Using the same contract as before (2 `Received`, 2 `Not Yet Due`, 0 `Due`, 0 `Overdue`), confirm
+`fetchPaymentsInCategory(..., "outstanding")` would return the single empty-state leaf ("No
+outstanding payments") — its 2 unpaid rows are both `Not Yet Due`, which the corrected
+definition excludes from "outstanding" — and `fetchPaymentsInCategory(..., "overdue")` would
+likewise return its own empty-state leaf ("No overdue payments"). Separately, find a real
+contract with at least one payment in `Due` or `Overdue` status:
+
+```sql
+select contract_id, payment_date, value
+from contract_payments
+where received_date is null and payment_date < current_date
+limit 5;
+```
+
+For each row, apply `computePaymentStatus`'s corrected (midnight-normalized) formula by hand to
+confirm which are genuinely `Due` (1-15 days past `payment_date`) vs `Overdue` (16+ days), and
+confirm that contract's "Outstanding" and "Overdue" categories would show real, non-empty
+results.
 
 - [ ] **Step 5: Commit**
 
@@ -995,8 +1017,9 @@ right now and must actually be run, not skipped.
 Using the Supabase MCP tool against project `evcaehadjzoxtdlnmehk`, for contract
 `59e6cd61-76b2-4505-9b03-d93744b11a57` ("Jairajesh, La Rosa 2, V-316"): confirm `contracts.value
 = 4095`, confirm the 4 real payment rows, and confirm your Task 2/3 cross-checks already
-computed Received = AED 2047.50, Outstanding = AED 2047.50, Overdue = AED 0. Report whether the
-app's numbers matched the source data.
+computed Received = AED 2047.50, Outstanding = AED 0 (its other 2 payments are `Not Yet Due`,
+which the corrected definition excludes), Overdue = AED 0. Report whether the app's numbers
+matched the source data.
 
 - [ ] **Step 2: Contract with no payment records — empty state**
 
