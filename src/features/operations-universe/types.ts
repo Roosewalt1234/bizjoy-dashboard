@@ -1,42 +1,42 @@
-export type ContractDomain = 'AMC' | 'FM';
-export type StaffCategory = 'available' | 'booked' | 'absent';
-export type ScheduleCategory = 'today' | 'unassigned' | 'tomorrow' | 'attention';
+export type ContractDomain = "AMC" | "FM";
+export type StaffCategory = "available" | "booked" | "absent";
+export type ScheduleCategory = "today" | "unassigned" | "tomorrow" | "attention";
 
 // '__root__' means "show the category list itself", not a specific category
 export type CenterEntity =
-  | { kind: 'today' }
-  | { kind: 'contract-category'; domain: ContractDomain; status: string }
-  | { kind: 'contract'; domain: ContractDomain; id: string }
-  | { kind: 'work-order'; domain: ContractDomain; id: string }
-  | { kind: 'staff-category'; category: StaffCategory | '__root__' }
-  | { kind: 'staff-member'; id: string }
-  | { kind: 'schedule-category'; category: ScheduleCategory | '__root__' }
-  | { kind: 'schedule-job'; id: string }
-  | { kind: 'employee'; id: string; name: string; position?: string };
+  | { kind: "today" }
+  | { kind: "contract-category"; domain: ContractDomain; status: string }
+  | { kind: "contract"; domain: ContractDomain; id: string }
+  | { kind: "work-order"; domain: ContractDomain; id: string }
+  | { kind: "staff-category"; category: StaffCategory | "__root__" }
+  | { kind: "staff-member"; id: string }
+  | { kind: "schedule-category"; category: ScheduleCategory | "__root__" }
+  | { kind: "schedule-job"; id: string }
+  | { kind: "employee"; id: string; name: string; position?: string };
 
 export type EntityKind =
-  | 'today'
-  | 'contracts-hub'
-  | 'staff-hub'
-  | 'schedules-hub'
-  | 'category'
-  | 'contract'
-  | 'customer'
-  | 'work-order'
-  | 'ppm-visit'
-  | 'invoice'
-  | 'payment'
-  | 'service-report'
-  | 'manpower'
-  | 'timeline-event'
-  | 'employee-info'
-  | 'staff-category'
-  | 'staff-member'
-  | 'staff-detail'
-  | 'schedule-category'
-  | 'schedule-job';
+  | "today"
+  | "contracts-hub"
+  | "staff-hub"
+  | "schedules-hub"
+  | "category"
+  | "contract"
+  | "customer"
+  | "work-order"
+  | "ppm-visit"
+  | "invoice"
+  | "payment"
+  | "service-report"
+  | "manpower"
+  | "timeline-event"
+  | "employee-info"
+  | "staff-category"
+  | "staff-member"
+  | "staff-detail"
+  | "schedule-category"
+  | "schedule-job";
 
-export type EdgeStyle = 'active' | 'planned' | 'attention';
+export type EdgeStyle = "active" | "planned" | "attention";
 
 export interface UniverseNodeData {
   [key: string]: unknown;
@@ -44,9 +44,9 @@ export interface UniverseNodeData {
   label: string;
   sublabel?: string;
   exception?: boolean;
-  /** false for "coming soon" hubs and employee-info cards - clicking does nothing (or opens a popover, for employee-info) instead of recentering */
+  /** false for "coming soon" hubs, or an employee-info card whose work order has no linked technician id - clicking does nothing instead of recentering */
   clickable: boolean;
-  /** what clicking this node centers on - only present when clickable is true and it's not an employee-info card */
+  /** what clicking this node centers on - only present when clickable is true */
   center?: CenterEntity;
   /** groups nodes into the same angular sector of their ring, e.g. all pending work orders together */
   groupKey?: string;
@@ -63,23 +63,23 @@ export interface CenterDetailField {
 
 export function centerEntityKey(center: CenterEntity): string {
   switch (center.kind) {
-    case 'today':
-      return 'today';
-    case 'contract-category':
+    case "today":
+      return "today";
+    case "contract-category":
       return `contract-category:${center.domain}:${center.status}`;
-    case 'contract':
+    case "contract":
       return `contract:${center.domain}:${center.id}`;
-    case 'work-order':
+    case "work-order":
       return `work-order:${center.domain}:${center.id}`;
-    case 'staff-category':
+    case "staff-category":
       return `staff-category:${center.category}`;
-    case 'staff-member':
+    case "staff-member":
       return `staff-member:${center.id}`;
-    case 'schedule-category':
+    case "schedule-category":
       return `schedule-category:${center.category}`;
-    case 'schedule-job':
+    case "schedule-job":
       return `schedule-job:${center.id}`;
-    case 'employee':
+    case "employee":
       return `employee:${center.id}`;
   }
 }

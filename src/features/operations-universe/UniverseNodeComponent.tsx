@@ -87,7 +87,7 @@ export function UniverseNodeComponent({ data }: NodeProps<Node<UniverseNodeData>
         border: isException ? "3px solid #dc4c4c" : "2px solid rgba(0,0,0,0.15)",
         color: isDimmed ? "#8a93a3" : "#0d1117",
         opacity: isDimmed ? 0.55 : 1,
-        cursor: data.clickable || data.kind === "employee-info" ? "pointer" : "default",
+        cursor: data.clickable ? "pointer" : "default",
         textAlign: "center",
         padding: 6,
         boxShadow: isException ? "0 0 12px rgba(220,76,76,0.6)" : "none",
