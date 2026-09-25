@@ -252,6 +252,8 @@ export async function detectExpiringContracts(): Promise<OperationalException[]>
 }
 
 export async function detectReconciliationIssues(): Promise<OperationalException[]> {
+  // Same AMC-only scoping as detectOverduePayments above: contract_payments/contracts are
+  // structurally AMC-only, fm_contract_payments has zero real rows as of Phase 4b.
   const domain: ContractDomain = "AMC";
 
   const [contractsRes, paymentsRes] = await Promise.all([
@@ -272,7 +274,7 @@ export async function detectReconciliationIssues(): Promise<OperationalException
     const scheduledTotal = scheduledTotals.get(contract.id) ?? 0;
     const contractValue = contract.value ?? 0;
     const delta = Math.abs(contractValue - scheduledTotal);
-    if (delta <= 1) continue;
+    if (delta <= 1) continue; // AED 1 is a rounding buffer, not a business-significant threshold
     exceptions.push({
       id: `data-quality:reconciliation:${domain}:${contract.id}`,
       category: "data-quality",
