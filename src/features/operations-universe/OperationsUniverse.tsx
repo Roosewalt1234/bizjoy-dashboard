@@ -14,6 +14,20 @@ const nodeTypes = { universe: UniverseNodeComponent };
 // object on every render while a query is loading - see the `graph` useEffect.
 const EMPTY_GRAPH: { nodes: Node<UniverseNodeData>[]; edges: Edge[] } = { nodes: [], edges: [] };
 
+// Entity kinds that always have real detail once loaded - a fixed classification of
+// the entity's STATIC KIND, not something that varies per-fetch. Used to decide
+// whether the detail panel should auto-open on a genuine navigation (see the
+// `panelOpen` effect below), so a background refetch of the SAME entity - which only
+// changes `fetchedGraph`'s reference, never `centerEntity` itself - can't reopen a
+// panel the user already dismissed.
+const DETAIL_ENTITY_KINDS: CenterEntity["kind"][] = [
+  "contract",
+  "work-order",
+  "staff-member",
+  "schedule-job",
+  "employee",
+];
+
 function todayGraph() {
   const centerData: UniverseNodeData = { kind: "today", label: "TODAY", clickable: false };
   const ringOne: { id: string; data: UniverseNodeData }[] = [
@@ -96,10 +110,8 @@ export function OperationsUniverse() {
   }, [graph]);
 
   useEffect(() => {
-    setPanelOpen(
-      Boolean(!isToday && fetchedGraph?.centerDetail && fetchedGraph.centerDetail.length > 0),
-    );
-  }, [centerEntity, fetchedGraph, isToday]);
+    setPanelOpen(DETAIL_ENTITY_KINDS.includes(centerEntity.kind));
+  }, [centerEntity]);
 
   const onNodesChange = useCallback(
     (changes: NodeChange<Node<UniverseNodeData>>[]) =>

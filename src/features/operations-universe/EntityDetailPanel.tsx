@@ -1,4 +1,10 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { CenterDetailField } from "./types";
 
@@ -19,6 +25,7 @@ export function EntityDetailPanel({ title, fields, open, onOpenChange }: EntityD
       <SheetContent side={isMobile ? "bottom" : "right"} className={isMobile ? "max-h-[70vh]" : ""}>
         <SheetHeader>
           <SheetTitle>{title}</SheetTitle>
+          <SheetDescription>Details for the selected item.</SheetDescription>
         </SheetHeader>
         <div className="mt-4 space-y-3">
           {fields.map((field) => (
