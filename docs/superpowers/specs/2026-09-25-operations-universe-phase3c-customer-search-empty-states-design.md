@@ -1,4 +1,7 @@
-# Operations Universe Phase 3b: Real Customer Node, Search Extension, Empty States — Design
+# Operations Universe Phase 3c: Real Customer Node, Search Extension, Empty States — Design
+
+(Named 3c, not 3b, to avoid colliding with the Schedules/PPM work already reserved as "Phase
+3b" by a comment shipped in Phase 3a — see `OperationsUniverse.tsx`'s `DEMO_DATA_KINDS` comment.)
 
 ## Context
 
