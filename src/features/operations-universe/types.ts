@@ -1,10 +1,17 @@
 export type ContractDomain = 'AMC' | 'FM';
+export type StaffCategory = 'available' | 'booked' | 'absent';
+export type ScheduleCategory = 'today' | 'unassigned' | 'tomorrow' | 'attention';
 
 export type CenterEntity =
   | { kind: 'today' }
   | { kind: 'contract-category'; domain: ContractDomain; status: string }
   | { kind: 'contract'; domain: ContractDomain; id: string }
-  | { kind: 'work-order'; domain: ContractDomain; id: string };
+  | { kind: 'work-order'; domain: ContractDomain; id: string }
+  | { kind: 'staff-category'; category: StaffCategory | '__root__' }
+  | { kind: 'staff-member'; id: string }
+  | { kind: 'schedule-category'; category: ScheduleCategory | '__root__' }
+  | { kind: 'schedule-job'; id: string }
+  | { kind: 'employee'; name: string; position?: string };
 
 export type EntityKind =
   | 'today'
@@ -21,7 +28,14 @@ export type EntityKind =
   | 'service-report'
   | 'manpower'
   | 'timeline-event'
-  | 'employee-info';
+  | 'employee-info'
+  | 'staff-category'
+  | 'staff-member'
+  | 'staff-detail'
+  | 'schedule-category'
+  | 'schedule-job';
+
+export type EdgeStyle = 'active' | 'planned' | 'attention';
 
 export interface UniverseNodeData {
   [key: string]: unknown;
@@ -35,6 +49,15 @@ export interface UniverseNodeData {
   center?: CenterEntity;
   /** groups nodes into the same angular sector of their ring, e.g. all pending work orders together */
   groupKey?: string;
+  /** how this node's connecting edge to the center should render - defaults to 'active' (solid) if omitted, or 'attention' automatically when `exception` is true */
+  edgeStyle?: EdgeStyle;
+  /** human-readable answer to "why is this connected?" for the edge linking this node to its center */
+  relationshipReason?: string;
+}
+
+export interface CenterDetailField {
+  label: string;
+  value: string;
 }
 
 export function centerEntityKey(center: CenterEntity): string {
@@ -47,5 +70,15 @@ export function centerEntityKey(center: CenterEntity): string {
       return `contract:${center.domain}:${center.id}`;
     case 'work-order':
       return `work-order:${center.domain}:${center.id}`;
+    case 'staff-category':
+      return `staff-category:${center.category}`;
+    case 'staff-member':
+      return `staff-member:${center.id}`;
+    case 'schedule-category':
+      return `schedule-category:${center.category}`;
+    case 'schedule-job':
+      return `schedule-job:${center.id}`;
+    case 'employee':
+      return `employee:${center.name}:${center.position ?? ''}`;
   }
 }
