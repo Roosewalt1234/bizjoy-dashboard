@@ -5,6 +5,10 @@ import type { CenterEntity, CenterDetailField, UniverseNodeData } from "./types"
 import { centerEntityKey } from "./types";
 import { DEMO_STAFF, DEMO_JOBS, SUITABLE_STAFF_FOR_JOB } from "./prototypeData";
 
+function formatAttendanceTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+}
+
 async function fetchContractCategoryCounts(): Promise<{ id: string; data: UniverseNodeData }[]> {
   const [amc, fm] = await Promise.all([
     supabase.from("contracts").select("status"),
@@ -482,39 +486,111 @@ async function fetchStaffHubRing(): Promise<{ id: string; data: UniverseNodeData
   });
 }
 
-function buildStaffMemberDetail(id: string): {
+async function fetchEmployeeConnections(employeeId: string): Promise<{
   centerLabel: string;
   centerSublabel: string;
   centerDetail: CenterDetailField[];
   ringOne: { id: string; data: UniverseNodeData }[];
-} {
-  const member = DEMO_STAFF.find((s) => s.id === id);
-  if (!member) throw new Error("Staff member not found");
+}> {
+  const todayStr = new Date().toISOString().slice(0, 10);
 
-  const facts: { key: string; label: string; value: string }[] = [
-    { key: "available-now", label: "Available Now", value: member.availableNow },
-    { key: "next-job", label: "Next Job", value: member.nextJob },
-    { key: "todays-jobs", label: "Today's Jobs", value: member.todaysJobs },
-    { key: "skills", label: "Skills", value: member.skills },
-    { key: "location", label: "Location", value: member.location },
+  const [employeeRes, attendanceRes, amcWosRes, fmWosRes] = await Promise.all([
+    supabase
+      .from("employees")
+      .select(
+        "full_name, first_name, last_name, position, phone, email, employment_type, staffing_model",
+      )
+      .eq("id", employeeId)
+      .maybeSingle(),
+    supabase
+      .from("attendance_logs")
+      .select("check_in, check_out, status")
+      .eq("employee_id", employeeId)
+      .eq("attendance_date", todayStr)
+      .order("check_in", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("work_orders")
+      .select("id, wo_no, status, scheduled_date")
+      .eq("technician_id", employeeId)
+      .not("status", "in", "(Completed,Cancelled)")
+      .order("scheduled_date", { ascending: true }),
+    supabase
+      .from("fm_work_orders")
+      .select("id, wo_no, status, scheduled_date")
+      .eq("technician_id", employeeId)
+      .not("status", "in", "(Completed,Cancelled)")
+      .order("scheduled_date", { ascending: true }),
+  ]);
+
+  if (employeeRes.error) throw employeeRes.error;
+  if (attendanceRes.error) throw attendanceRes.error;
+  if (amcWosRes.error) throw amcWosRes.error;
+  if (fmWosRes.error) throw fmWosRes.error;
+
+  const employee = employeeRes.data;
+  if (!employee) throw new Error("Employee not found");
+
+  const name = employee.full_name ?? `${employee.first_name} ${employee.last_name ?? ""}`.trim();
+
+  const attendance = attendanceRes.data;
+  let attendanceLabel = "No attendance recorded today";
+  let attendanceSublabel: string | undefined;
+  if (attendance?.status === "Present" && attendance.check_in) {
+    attendanceLabel = "Checked in";
+    attendanceSublabel = formatAttendanceTime(attendance.check_in);
+  } else if (attendance?.status === "Checked Out" && attendance.check_out) {
+    attendanceLabel = "Checked out";
+    attendanceSublabel = formatAttendanceTime(attendance.check_out);
+  }
+
+  const ringOne: { id: string; data: UniverseNodeData }[] = [
+    {
+      id: `staff-detail:${employeeId}:attendance`,
+      data: {
+        kind: "staff-detail",
+        label: attendanceLabel,
+        sublabel: attendanceSublabel,
+        clickable: false,
+        groupKey: "attendance",
+        relationshipReason: `${name}'s attendance status for today.`,
+      },
+    },
   ];
 
-  const ringOne = facts.map((fact) => ({
-    id: `staff-detail:${member.id}:${fact.key}`,
-    data: {
-      kind: "staff-detail" as const,
-      label: fact.label,
-      sublabel: fact.value,
-      clickable: false,
-      groupKey: "detail",
-      relationshipReason: `${fact.label} is a current attribute of ${member.name}.`,
-    },
-  }));
+  const workOrders = [
+    ...(amcWosRes.data ?? []).map((wo) => ({ ...wo, domain: "AMC" as const })),
+    ...(fmWosRes.data ?? []).map((wo) => ({ ...wo, domain: "FM" as const })),
+  ];
+
+  for (const wo of workOrders) {
+    ringOne.push({
+      id: `work-order:${wo.domain}:${wo.id}`,
+      data: {
+        kind: "work-order",
+        label: wo.wo_no ?? "Work Order",
+        sublabel: wo.status,
+        clickable: true,
+        center: { kind: "work-order", domain: wo.domain, id: wo.id },
+        groupKey: "work-order",
+        relationshipReason: `${name} is assigned to perform this work order.`,
+      },
+    });
+  }
+
+  const centerDetail: CenterDetailField[] = [
+    { label: "Position", value: employee.position ?? "-" },
+    { label: "Employment Type", value: employee.employment_type ?? "-" },
+    { label: "Staffing Model", value: employee.staffing_model ?? "-" },
+    { label: "Phone", value: employee.phone ?? "-" },
+    { label: "Email", value: employee.email ?? "-" },
+  ];
 
   return {
-    centerLabel: member.name,
-    centerSublabel: member.category,
-    centerDetail: facts.map(({ label, value }) => ({ label, value })),
+    centerLabel: name,
+    centerSublabel: employee.position ?? "",
+    centerDetail,
     ringOne,
   };
 }
@@ -820,22 +896,6 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
         };
       }
 
-      if (centerEntity.kind === "staff-member") {
-        const { centerLabel, centerSublabel, centerDetail, ringOne } = buildStaffMemberDetail(
-          centerEntity.id,
-        );
-        const centerData: UniverseNodeData = {
-          kind: "staff-member",
-          label: centerLabel,
-          sublabel: centerSublabel,
-          clickable: false,
-        };
-        return {
-          ...layoutAround({ centerId: `staff-member:${centerEntity.id}`, centerData, ringOne }),
-          centerDetail,
-        };
-      }
-
       if (centerEntity.kind === "schedule-category" && centerEntity.category === "__root__") {
         const { centerLabel, ringOne } = buildScheduleCategoryRoot();
         const centerData: UniverseNodeData = {
@@ -885,30 +945,17 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
       }
 
       if (centerEntity.kind === "employee") {
+        const { centerLabel, centerSublabel, centerDetail, ringOne } =
+          await fetchEmployeeConnections(centerEntity.id);
         const centerData: UniverseNodeData = {
           kind: "employee-info",
-          label: centerEntity.name,
-          sublabel: centerEntity.position,
+          label: centerLabel,
+          sublabel: centerSublabel,
           clickable: false,
         };
-        const ringOne: { id: string; data: UniverseNodeData }[] = [
-          {
-            id: `employee-placeholder:${centerEntity.id}`,
-            data: {
-              kind: "staff-detail",
-              label: "Full profile",
-              sublabel: "Attendance, skills, and live assignments arrive in Phase 3",
-              clickable: false,
-              groupKey: "detail",
-            },
-          },
-        ];
         return {
           ...layoutAround({ centerId: `employee:${centerEntity.id}`, centerData, ringOne }),
-          centerDetail: [
-            { label: "Name", value: centerEntity.name },
-            { label: "Position", value: centerEntity.position ?? "-" },
-          ],
+          centerDetail,
         };
       }
 
