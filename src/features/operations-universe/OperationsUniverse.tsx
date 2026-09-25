@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { ReactFlow, Background, Controls } from "@xyflow/react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ReactFlow, Background, Controls, applyNodeChanges } from "@xyflow/react";
+import type { Node, Edge, NodeChange } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { layoutAround } from "./layout";
 import { UniverseNodeComponent } from "./UniverseNodeComponent";
@@ -7,6 +8,10 @@ import { useUniverseGraph } from "./useUniverseNodes";
 import type { CenterEntity, UniverseNodeData } from "./types";
 
 const nodeTypes = { universe: UniverseNodeComponent };
+
+// Stable reference so the "no data yet" fallback below doesn't create a brand new
+// object on every render while a query is loading - see the `graph` useEffect.
+const EMPTY_GRAPH: { nodes: Node<UniverseNodeData>[]; edges: Edge[] } = { nodes: [], edges: [] };
 
 function todayGraph() {
   const centerData: UniverseNodeData = { kind: "today", label: "TODAY", clickable: false };
@@ -59,14 +64,35 @@ export function OperationsUniverse() {
     error,
     refetch,
   } = useUniverseGraph(centerEntity, { enabled: !isToday });
-  const graph = isToday ? todayGraph() : (fetchedGraph ?? { nodes: [], edges: [] });
+  // Empty deps: todayGraph() is pure with no inputs, so this is computed once and
+  // stays referentially stable for the life of the component.
+  const todayGraphMemo = useMemo(() => todayGraph(), []);
+  const graph = isToday ? todayGraphMemo : (fetchedGraph ?? EMPTY_GRAPH);
+
+  // Local, draggable copy of the node positions. Re-synced to the freshly computed
+  // layout whenever `graph` changes identity - which, thanks to the stable references
+  // above, only happens on an actual recenter (or when a query's data actually
+  // resolves/changes), not on unrelated re-renders like the employeeCard popover
+  // opening/closing.
+  const [nodes, setNodes] = useState<Node<UniverseNodeData>[]>(graph.nodes);
+
+  useEffect(() => {
+    setNodes(graph.nodes);
+  }, [graph]);
+
+  const onNodesChange = useCallback(
+    (changes: NodeChange<Node<UniverseNodeData>>[]) =>
+      setNodes((nds) => applyNodeChanges(changes, nds)),
+    [],
+  );
 
   return (
     <div style={{ width: "100%", height: "calc(100vh - 4rem)", position: "relative" }}>
       <ReactFlow
-        nodes={graph.nodes}
+        nodes={nodes}
         edges={graph.edges}
         nodeTypes={nodeTypes}
+        onNodesChange={onNodesChange}
         onNodeClick={(_, node) => {
           const data = node.data as UniverseNodeData;
           if (data.kind === "employee-info") {
