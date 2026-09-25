@@ -8,8 +8,7 @@ export type CenterEntity =
   | { kind: "contract-category"; domain: ContractDomain; status: string }
   | { kind: "contract"; domain: ContractDomain; id: string }
   | { kind: "work-order"; domain: ContractDomain; id: string }
-  | { kind: "staff-category"; category: StaffCategory | "__root__" }
-  | { kind: "staff-member"; id: string }
+  | { kind: "staff-category" }
   | { kind: "schedule-category"; category: ScheduleCategory | "__root__" }
   | { kind: "schedule-job"; id: string }
   | { kind: "employee"; id: string; name: string; position?: string };
@@ -72,9 +71,7 @@ export function centerEntityKey(center: CenterEntity): string {
     case "work-order":
       return `work-order:${center.domain}:${center.id}`;
     case "staff-category":
-      return `staff-category:${center.category}`;
-    case "staff-member":
-      return `staff-member:${center.id}`;
+      return "staff-category";
     case "schedule-category":
       return `schedule-category:${center.category}`;
     case "schedule-job":
