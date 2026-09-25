@@ -801,18 +801,6 @@ export async function searchUniverse(query: string): Promise<SearchResult[]> {
     });
   }
 
-  const lowerQuery = trimmed.toLowerCase();
-  for (const member of DEMO_STAFF) {
-    if (member.name.toLowerCase().includes(lowerQuery)) {
-      results.push({
-        id: `staff-member:${member.id}`,
-        label: member.name,
-        sublabel: `Staff - ${member.skills}`,
-        center: { kind: "staff-member", id: member.id },
-      });
-    }
-  }
-
   return results;
 }
 
