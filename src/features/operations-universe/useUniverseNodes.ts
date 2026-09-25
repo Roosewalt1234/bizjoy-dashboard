@@ -14,7 +14,11 @@ function computePaymentStatus(
 ): "Received" | "Not Yet Due" | "Due" | "Overdue" {
   if (receivedDate) return "Received";
   if (!paymentDate) return "Not Yet Due";
-  const diffDays = Math.round((Date.now() - new Date(paymentDate).getTime()) / 86400000);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(paymentDate);
+  target.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((today.getTime() - target.getTime()) / 86400000);
   if (diffDays <= 0) return "Not Yet Due";
   if (diffDays <= 15) return "Due";
   return "Overdue";
@@ -56,7 +60,10 @@ function summarizePayments(payments: PaymentRow[]): PaymentSummary {
     const status = computePaymentStatus(payment.paymentDate, payment.receivedDate);
     if (status === "Received") {
       received += value;
-    } else {
+    } else if (status === "Due" || status === "Overdue") {
+      // "Outstanding" matches this app's own established meaning (accounts-outstanding.tsx):
+      // Due + Overdue only. A "Not Yet Due" future installment isn't outstanding yet - it's
+      // just not due, and doesn't belong in either the received or outstanding bucket.
       outstanding += value;
       if (status === "Overdue") overdue += value;
     }
