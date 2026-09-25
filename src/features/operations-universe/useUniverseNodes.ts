@@ -704,63 +704,186 @@ async function fetchEmployeeConnections(employeeId: string): Promise<{
   };
 }
 
-function buildScheduleCategoryRoot(): {
-  centerLabel: string;
-  ringOne: { id: string; data: UniverseNodeData }[];
-} {
-  const categories: {
-    category: "today" | "unassigned" | "tomorrow" | "attention";
-    label: string;
-  }[] = [
-    { category: "today", label: "Today's Jobs" },
-    { category: "unassigned", label: "Unassigned" },
-    { category: "tomorrow", label: "Tomorrow" },
-    { category: "attention", label: "Attention Required" },
+interface ScheduleItem {
+  category: "today" | "upcoming" | "overdue";
+  date: string;
+  node: { id: string; data: UniverseNodeData };
+}
+
+async function fetchScheduleItems(): Promise<ScheduleItem[]> {
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  function categorize(dateStr: string): "today" | "upcoming" | "overdue" {
+    if (dateStr === todayStr) return "today";
+    return dateStr < todayStr ? "overdue" : "upcoming";
+  }
+
+  const [fmPpmRes, amcPpmRes, amcWosRes, fmWosRes] = await Promise.all([
+    supabase
+      .from("ppm_visits")
+      .select("id, planned_date, due_date, status, work_order_id")
+      .is("work_order_id", null)
+      .not("status", "in", "(Completed,Closed,Verified)"),
+    supabase
+      .from("amc_ppm_visits")
+      .select("id, planned_date, due_date, status, work_order_id")
+      .is("work_order_id", null)
+      .not("status", "in", "(Completed,Closed,Verified)"),
+    supabase
+      .from("work_orders")
+      .select("id, wo_no, scheduled_date, status")
+      .not("scheduled_date", "is", null)
+      .not("status", "in", "(Completed,Cancelled)"),
+    supabase
+      .from("fm_work_orders")
+      .select("id, wo_no, scheduled_date, status")
+      .not("scheduled_date", "is", null)
+      .not("status", "in", "(Completed,Cancelled)"),
+  ]);
+
+  if (fmPpmRes.error) throw fmPpmRes.error;
+  if (amcPpmRes.error) throw amcPpmRes.error;
+  if (amcWosRes.error) throw amcWosRes.error;
+  if (fmWosRes.error) throw fmWosRes.error;
+
+  const items: ScheduleItem[] = [];
+
+  for (const visit of fmPpmRes.data ?? []) {
+    const date = visit.due_date ?? visit.planned_date;
+    if (!date) continue;
+    const category = categorize(date);
+    items.push({
+      category,
+      date,
+      node: {
+        id: `ppm-visit:FM:${visit.id}`,
+        data: {
+          kind: "ppm-visit",
+          label: `PPM · ${date}`,
+          sublabel: visit.status ?? undefined,
+          exception: category === "overdue",
+          clickable: true,
+          center: { kind: "ppm-visit", domain: "FM", id: visit.id },
+          groupKey: category,
+          relationshipReason: `This PPM visit is scheduled for ${date}.`,
+        },
+      },
+    });
+  }
+
+  for (const visit of amcPpmRes.data ?? []) {
+    const date = visit.due_date ?? visit.planned_date;
+    if (!date) continue;
+    const category = categorize(date);
+    items.push({
+      category,
+      date,
+      node: {
+        id: `ppm-visit:AMC:${visit.id}`,
+        data: {
+          kind: "ppm-visit",
+          label: `PPM · ${date}`,
+          sublabel: visit.status ?? undefined,
+          exception: category === "overdue",
+          clickable: true,
+          center: { kind: "ppm-visit", domain: "AMC", id: visit.id },
+          groupKey: category,
+          relationshipReason: `This PPM visit is scheduled for ${date}.`,
+        },
+      },
+    });
+  }
+
+  for (const wo of amcWosRes.data ?? []) {
+    if (!wo.scheduled_date) continue;
+    const category = categorize(wo.scheduled_date);
+    items.push({
+      category,
+      date: wo.scheduled_date,
+      node: {
+        id: `work-order:AMC:${wo.id}`,
+        data: {
+          kind: "work-order",
+          label: wo.wo_no ?? "Work Order",
+          sublabel: wo.status,
+          exception: category === "overdue",
+          clickable: true,
+          center: { kind: "work-order", domain: "AMC", id: wo.id },
+          groupKey: category,
+          relationshipReason: `${wo.wo_no ?? "This work order"} is scheduled for ${wo.scheduled_date}.`,
+        },
+      },
+    });
+  }
+
+  for (const wo of fmWosRes.data ?? []) {
+    if (!wo.scheduled_date) continue;
+    const category = categorize(wo.scheduled_date);
+    items.push({
+      category,
+      date: wo.scheduled_date,
+      node: {
+        id: `work-order:FM:${wo.id}`,
+        data: {
+          kind: "work-order",
+          label: wo.wo_no ?? "Work Order",
+          sublabel: wo.status,
+          exception: category === "overdue",
+          clickable: true,
+          center: { kind: "work-order", domain: "FM", id: wo.id },
+          groupKey: category,
+          relationshipReason: `${wo.wo_no ?? "This work order"} is scheduled for ${wo.scheduled_date}.`,
+        },
+      },
+    });
+  }
+
+  items.sort((a, b) => a.date.localeCompare(b.date));
+  return items;
+}
+
+async function fetchScheduleCategoryRoot(): Promise<{ id: string; data: UniverseNodeData }[]> {
+  const items = await fetchScheduleItems();
+  const categories: { category: "today" | "upcoming" | "overdue"; label: string }[] = [
+    { category: "today", label: "Today" },
+    { category: "upcoming", label: "Upcoming" },
+    { category: "overdue", label: "Overdue" },
   ];
-  const ringOne = categories.map(({ category, label }) => {
-    const count = DEMO_JOBS.filter((j) => j.category === category).length;
+  return categories.map(({ category, label }) => {
+    const count = items.filter((item) => item.category === category).length;
     return {
       id: `schedule-category:${category}`,
       data: {
         kind: "schedule-category" as const,
         label,
-        sublabel: `${count} job${count === 1 ? "" : "s"}`,
-        exception: category === "attention" && count > 0,
+        sublabel: `${count} item${count === 1 ? "" : "s"}`,
+        exception: category === "overdue" && count > 0,
         clickable: true,
         center: { kind: "schedule-category", category } as CenterEntity,
         groupKey: category,
-        relationshipReason: `${label} groups jobs by their current scheduling state.`,
+        relationshipReason: `${label} groups scheduled work by timing.`,
       },
     };
   });
-  return { centerLabel: "SCHEDULES", ringOne };
 }
 
-function buildScheduleCategoryJobs(category: "today" | "unassigned" | "tomorrow" | "attention"): {
-  centerLabel: string;
-  ringOne: { id: string; data: UniverseNodeData }[];
-} {
-  const jobs = DEMO_JOBS.filter((j) => j.category === category);
-  const ringOne = jobs.map((job) => ({
-    id: `schedule-job:${job.id}`,
-    data: {
-      kind: "schedule-job" as const,
-      label: job.title,
-      sublabel: job.customer,
-      exception: category === "attention",
-      clickable: true,
-      center: { kind: "schedule-job", id: job.id } as CenterEntity,
-      groupKey: "job",
-      relationshipReason: `${job.title} is currently in the "${category}" schedule state.`,
-    },
-  }));
-  const labels: Record<string, string> = {
-    today: "Today's Jobs",
-    unassigned: "Unassigned",
-    tomorrow: "Tomorrow",
-    attention: "Attention Required",
-  };
-  return { centerLabel: labels[category] ?? category, ringOne };
+async function fetchScheduleCategoryItems(
+  category: "today" | "upcoming" | "overdue",
+): Promise<{ id: string; data: UniverseNodeData }[]> {
+  const items = await fetchScheduleItems();
+  const filtered = items.filter((item) => item.category === category).map((item) => item.node);
+  if (filtered.length === 0) {
+    filtered.push({
+      id: `schedule-empty:${category}`,
+      data: {
+        kind: "staff-detail",
+        label: `No ${category} work`,
+        clickable: false,
+        groupKey: category,
+      },
+    });
+  }
+  return filtered;
 }
 
 function buildScheduleJobDetail(id: string): {
@@ -1063,10 +1186,10 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
       }
 
       if (centerEntity.kind === "schedule-category" && centerEntity.category === "__root__") {
-        const { centerLabel, ringOne } = buildScheduleCategoryRoot();
+        const ringOne = await fetchScheduleCategoryRoot();
         const centerData: UniverseNodeData = {
           kind: "schedules-hub",
-          label: centerLabel,
+          label: "SCHEDULES",
           clickable: false,
         };
         return {
@@ -1076,12 +1199,14 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
       }
 
       if (centerEntity.kind === "schedule-category") {
-        const { centerLabel, ringOne } = buildScheduleCategoryJobs(
-          centerEntity.category as "today" | "unassigned" | "tomorrow" | "attention",
-        );
+        if (centerEntity.category === "__root__") {
+          throw new Error("unreachable: __root__ is handled by the branch above");
+        }
+        const ringOne = await fetchScheduleCategoryItems(centerEntity.category);
+        const labels: Record<string, string> = { today: "Today", upcoming: "Upcoming", overdue: "Overdue" };
         const centerData: UniverseNodeData = {
           kind: "schedule-category",
-          label: centerLabel,
+          label: labels[centerEntity.category] ?? centerEntity.category,
           clickable: false,
         };
         return {
