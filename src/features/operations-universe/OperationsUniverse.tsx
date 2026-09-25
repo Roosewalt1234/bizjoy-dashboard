@@ -57,6 +57,7 @@ export function OperationsUniverse() {
   const [employeeCard, setEmployeeCard] = useState<{ label: string; sublabel?: string } | null>(
     null,
   );
+  const [relationshipReason, setRelationshipReason] = useState<string | null>(null);
 
   const handleBack = useCallback(() => {
     let previousEntity: CenterEntity | undefined;
@@ -118,6 +119,10 @@ export function OperationsUniverse() {
             setHistory((prev) => [...prev, centerEntity]);
             setCenterEntity(data.center);
           }
+        }}
+        onEdgeClick={(_, edge) => {
+          const reason = (edge.data as { reason?: string } | undefined)?.reason;
+          if (reason) setRelationshipReason(reason);
         }}
         fitView
       >
@@ -251,6 +256,49 @@ export function OperationsUniverse() {
               {employeeCard.sublabel}
             </div>
           )}
+        </div>
+      )}
+      {relationshipReason && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: 16,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 10,
+            minWidth: 200,
+            maxWidth: 280,
+            background: "#1c2128",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 8,
+            padding: "12px 14px",
+            color: "#e6edf3",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setRelationshipReason(null)}
+            style={{
+              position: "absolute",
+              top: 6,
+              right: 8,
+              background: "none",
+              border: "none",
+              color: "#8a93a3",
+              cursor: "pointer",
+              fontSize: 14,
+              lineHeight: 1,
+              padding: 4,
+            }}
+            aria-label="Close"
+          >
+            ×
+          </button>
+          <div style={{ fontSize: 13, fontWeight: 700, paddingRight: 16 }}>
+            Why is this connected?
+          </div>
+          <div style={{ fontSize: 12, color: "#8a93a3", marginTop: 2 }}>{relationshipReason}</div>
         </div>
       )}
     </div>
