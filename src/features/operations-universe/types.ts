@@ -10,6 +10,9 @@ export type CenterEntity =
   | { kind: "customer"; id: string }
   | { kind: "work-order"; domain: ContractDomain; id: string }
   | { kind: "ppm-visit"; domain: ContractDomain; id: string }
+  | { kind: "contract-finance"; domain: ContractDomain; id: string }
+  | { kind: "payment-category"; domain: ContractDomain; contractId: string; category: "received" | "outstanding" | "overdue" }
+  | { kind: "payment"; domain: ContractDomain; id: string }
   | { kind: "staff-category" }
   | { kind: "schedule-category"; category: ScheduleCategory | "__root__" }
   | { kind: "employee"; id: string; name: string; position?: string };
@@ -24,6 +27,7 @@ export type EntityKind =
   | "customer"
   | "work-order"
   | "ppm-visit"
+  | "contract-finance"
   | "invoice"
   | "payment"
   | "service-report"
@@ -74,6 +78,12 @@ export function centerEntityKey(center: CenterEntity): string {
       return `work-order:${center.domain}:${center.id}`;
     case "ppm-visit":
       return `ppm-visit:${center.domain}:${center.id}`;
+    case "contract-finance":
+      return `contract-finance:${center.domain}:${center.id}`;
+    case "payment-category":
+      return `payment-category:${center.domain}:${center.contractId}:${center.category}`;
+    case "payment":
+      return `payment:${center.domain}:${center.id}`;
     case "staff-category":
       return "staff-category";
     case "schedule-category":

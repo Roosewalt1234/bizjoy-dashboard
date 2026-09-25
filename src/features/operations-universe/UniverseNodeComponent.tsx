@@ -17,6 +17,7 @@ import {
   UserCircle2,
   Info,
   ListChecks,
+  Wallet,
 } from "lucide-react";
 import type { UniverseNodeData, EntityKind } from "./types";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -31,6 +32,7 @@ const ICONS: Record<EntityKind, React.ComponentType<{ className?: string }>> = {
   customer: Building2,
   "work-order": Wrench,
   "ppm-visit": CalendarCheck,
+  "contract-finance": Wallet,
   invoice: Receipt,
   payment: Banknote,
   "service-report": ClipboardCheck,
@@ -53,6 +55,7 @@ const COLORS: Partial<Record<EntityKind, string>> = {
   customer: "#b48ee8",
   "work-order": "#e89a4a",
   "ppm-visit": "#4ac6c6",
+  "contract-finance": "#d4af37",
   invoice: "#e8c14a",
   payment: "#5fc27e",
   "service-report": "#8a93e8",
