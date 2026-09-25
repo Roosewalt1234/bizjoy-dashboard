@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { layoutAround } from "./layout";
-import type { CenterEntity, UniverseNodeData } from "./types";
+import type { CenterEntity, CenterDetailField, UniverseNodeData } from "./types";
 import { centerEntityKey } from "./types";
+import { DEMO_STAFF } from "./prototypeData";
 
 async function fetchContractCategoryCounts(): Promise<{ id: string; data: UniverseNodeData }[]> {
   const [amc, fm] = await Promise.all([
@@ -416,6 +417,90 @@ async function fetchWorkOrderConnections(
   };
 }
 
+function buildStaffCategoryRoot(): {
+  centerLabel: string;
+  ringOne: { id: string; data: UniverseNodeData }[];
+} {
+  const categories: { category: "available" | "booked" | "absent"; label: string }[] = [
+    { category: "available", label: "Available" },
+    { category: "booked", label: "Booked" },
+    { category: "absent", label: "Absent" },
+  ];
+  const ringOne = categories.map(({ category, label }) => {
+    const count = DEMO_STAFF.filter((s) => s.category === category).length;
+    return {
+      id: `staff-category:${category}`,
+      data: {
+        kind: "staff-category" as const,
+        label,
+        sublabel: `${count} staff`,
+        clickable: true,
+        center: { kind: "staff-category", category } as CenterEntity,
+        groupKey: category,
+        relationshipReason: `${label} reflects each technician's current attendance/assignment status.`,
+      },
+    };
+  });
+  return { centerLabel: "STAFF", ringOne };
+}
+
+function buildStaffCategoryMembers(category: "available" | "booked" | "absent"): {
+  centerLabel: string;
+  ringOne: { id: string; data: UniverseNodeData }[];
+} {
+  const members = DEMO_STAFF.filter((s) => s.category === category);
+  const ringOne = members.map((member) => ({
+    id: `staff-member:${member.id}`,
+    data: {
+      kind: "staff-member" as const,
+      label: member.name,
+      sublabel: member.skills,
+      clickable: true,
+      center: { kind: "staff-member", id: member.id } as CenterEntity,
+      groupKey: "member",
+      relationshipReason: `${member.name} is currently ${category}.`,
+    },
+  }));
+  return { centerLabel: category.charAt(0).toUpperCase() + category.slice(1), ringOne };
+}
+
+function buildStaffMemberDetail(id: string): {
+  centerLabel: string;
+  centerSublabel: string;
+  centerDetail: CenterDetailField[];
+  ringOne: { id: string; data: UniverseNodeData }[];
+} {
+  const member = DEMO_STAFF.find((s) => s.id === id);
+  if (!member) throw new Error("Staff member not found");
+
+  const facts: { key: string; label: string; value: string }[] = [
+    { key: "available-now", label: "Available Now", value: member.availableNow },
+    { key: "next-job", label: "Next Job", value: member.nextJob },
+    { key: "todays-jobs", label: "Today's Jobs", value: member.todaysJobs },
+    { key: "skills", label: "Skills", value: member.skills },
+    { key: "location", label: "Location", value: member.location },
+  ];
+
+  const ringOne = facts.map((fact) => ({
+    id: `staff-detail:${member.id}:${fact.key}`,
+    data: {
+      kind: "staff-detail" as const,
+      label: fact.label,
+      sublabel: fact.value,
+      clickable: false,
+      groupKey: "detail",
+      relationshipReason: `${fact.label} is a current attribute of ${member.name}.`,
+    },
+  }));
+
+  return {
+    centerLabel: member.name,
+    centerSublabel: member.category,
+    centerDetail: facts.map(({ label, value }) => ({ label, value })),
+    ringOne,
+  };
+}
+
 export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["universe-graph", centerEntityKey(centerEntity)],
@@ -428,7 +513,10 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
           label: "CONTRACTS",
           clickable: false,
         };
-        return layoutAround({ centerId: "contracts-hub", centerData, ringOne });
+        return {
+          ...layoutAround({ centerId: "contracts-hub", centerData, ringOne }),
+          centerDetail: undefined,
+        };
       }
 
       if (centerEntity.kind === "contract-category") {
@@ -438,11 +526,14 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
           label: `${centerEntity.domain} · ${centerEntity.status}`,
           clickable: false,
         };
-        return layoutAround({
-          centerId: `category:${centerEntity.domain}:${centerEntity.status}`,
-          centerData,
-          ringOne,
-        });
+        return {
+          ...layoutAround({
+            centerId: `category:${centerEntity.domain}:${centerEntity.status}`,
+            centerData,
+            ringOne,
+          }),
+          centerDetail: undefined,
+        };
       }
 
       if (centerEntity.kind === "contract") {
@@ -456,11 +547,14 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
           sublabel: centerSublabel,
           clickable: false,
         };
-        return layoutAround({
-          centerId: `contract:${centerEntity.domain}:${centerEntity.id}`,
-          centerData,
-          ringOne,
-        });
+        return {
+          ...layoutAround({
+            centerId: `contract:${centerEntity.domain}:${centerEntity.id}`,
+            centerData,
+            ringOne,
+          }),
+          centerDetail: undefined,
+        };
       }
 
       if (centerEntity.kind === "work-order") {
@@ -475,11 +569,62 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
           exception,
           clickable: false,
         };
-        return layoutAround({
-          centerId: `work-order:${centerEntity.domain}:${centerEntity.id}`,
-          centerData,
-          ringOne,
-        });
+        return {
+          ...layoutAround({
+            centerId: `work-order:${centerEntity.domain}:${centerEntity.id}`,
+            centerData,
+            ringOne,
+          }),
+          centerDetail: undefined,
+        };
+      }
+
+      if (centerEntity.kind === "staff-category" && centerEntity.category === "__root__") {
+        const { centerLabel, ringOne } = buildStaffCategoryRoot();
+        const centerData: UniverseNodeData = {
+          kind: "staff-hub",
+          label: centerLabel,
+          clickable: false,
+        };
+        return {
+          ...layoutAround({ centerId: "staff-hub", centerData, ringOne }),
+          centerDetail: undefined,
+        };
+      }
+
+      if (centerEntity.kind === "staff-category") {
+        const { centerLabel, ringOne } = buildStaffCategoryMembers(
+          centerEntity.category as "available" | "booked" | "absent",
+        );
+        const centerData: UniverseNodeData = {
+          kind: "staff-category",
+          label: centerLabel,
+          clickable: false,
+        };
+        return {
+          ...layoutAround({
+            centerId: `staff-category:${centerEntity.category}`,
+            centerData,
+            ringOne,
+          }),
+          centerDetail: undefined,
+        };
+      }
+
+      if (centerEntity.kind === "staff-member") {
+        const { centerLabel, centerSublabel, centerDetail, ringOne } = buildStaffMemberDetail(
+          centerEntity.id,
+        );
+        const centerData: UniverseNodeData = {
+          kind: "staff-member",
+          label: centerLabel,
+          sublabel: centerSublabel,
+          clickable: false,
+        };
+        return {
+          ...layoutAround({ centerId: `staff-member:${centerEntity.id}`, centerData, ringOne }),
+          centerDetail,
+        };
       }
 
       // Later tasks add the remaining CenterEntity cases here.

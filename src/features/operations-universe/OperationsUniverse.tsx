@@ -32,8 +32,9 @@ function todayGraph() {
       data: {
         kind: "staff-hub",
         label: "STAFF",
-        sublabel: "Coming soon",
-        clickable: false,
+        sublabel: "Who do I have?",
+        clickable: true,
+        center: { kind: "staff-category", category: "__root__" },
         groupKey: "staff",
       },
     },

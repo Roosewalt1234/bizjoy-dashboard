@@ -14,6 +14,8 @@ import {
   HardHat,
   Clock,
   User,
+  UserCircle2,
+  Info,
 } from "lucide-react";
 import type { UniverseNodeData, EntityKind } from "./types";
 
@@ -33,6 +35,9 @@ const ICONS: Record<EntityKind, React.ComponentType<{ className?: string }>> = {
   manpower: HardHat,
   "timeline-event": Clock,
   "employee-info": User,
+  "staff-category": Users,
+  "staff-member": UserCircle2,
+  "staff-detail": Info,
 };
 
 const COLORS: Partial<Record<EntityKind, string>> = {
@@ -51,6 +56,9 @@ const COLORS: Partial<Record<EntityKind, string>> = {
   manpower: "#4ac6a0",
   "timeline-event": "#8a93a3",
   "employee-info": "#8a93a3",
+  "staff-category": "#5b9bd5",
+  "staff-member": "#e8a5c4",
+  "staff-detail": "#8a93a3",
 };
 
 export function UniverseNodeComponent({ data }: NodeProps<Node<UniverseNodeData>>) {
