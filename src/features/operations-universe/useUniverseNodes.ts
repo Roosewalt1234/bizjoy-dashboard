@@ -177,7 +177,8 @@ async function fetchContractConnections(
       data: {
         kind: "customer",
         label: contract.customer_name ?? "Customer",
-        clickable: false,
+        clickable: true,
+        center: { kind: "customer", id: contract.customer_id },
         groupKey: "customer",
         relationshipReason: `${contract.customer_name ?? "This customer"} is the party this contract is with.`,
       },
@@ -346,7 +347,7 @@ async function fetchWorkOrderConnections(
     supabase
       .from(table)
       .select(
-        "id, wo_no, contract_id, customer_name, location, scheduled_date, status, priority, technician_id, technician_name, service_type, completion_due_at, completed_at, employees:technician_id(position)",
+        "id, wo_no, contract_id, customer_id, customer_name, location, scheduled_date, status, priority, technician_id, technician_name, service_type, completion_due_at, completed_at, employees:technician_id(position)",
       )
       .eq("id", workOrderId)
       .maybeSingle(),
@@ -382,15 +383,19 @@ async function fetchWorkOrderConnections(
     });
   }
 
-  ringOne.push({
-    id: `customer-label:${workOrderId}`,
-    data: {
-      kind: "customer",
-      label: wo.customer_name ?? "Customer",
-      clickable: false,
-      groupKey: "customer",
-    },
-  });
+  if (wo.customer_id) {
+    ringOne.push({
+      id: `customer:${wo.customer_id}`,
+      data: {
+        kind: "customer",
+        label: wo.customer_name ?? "Customer",
+        clickable: true,
+        center: { kind: "customer", id: wo.customer_id },
+        groupKey: "customer",
+        relationshipReason: `${wo.customer_name ?? "This customer"} is the party this work order is for.`,
+      },
+    });
+  }
 
   if (wo.technician_name) {
     ringOne.push({
@@ -452,6 +457,84 @@ async function fetchWorkOrderConnections(
     centerLabel: wo.wo_no ?? "Work Order",
     centerSublabel: sublabelParts.join(" · "),
     exception: Boolean(isOverdue),
+    centerDetail,
+    ringOne,
+  };
+}
+
+async function fetchCustomerConnections(customerId: string): Promise<{
+  centerLabel: string;
+  centerSublabel: string;
+  centerDetail: CenterDetailField[];
+  ringOne: { id: string; data: UniverseNodeData }[];
+}> {
+  const [customerRes, amcContractsRes, fmContractsRes] = await Promise.all([
+    supabase
+      .from("customers")
+      .select("display_name, company_name, email, phone, address_city")
+      .eq("id", customerId)
+      .maybeSingle(),
+    supabase.from("contracts").select("id, title, status").eq("customer_id", customerId).order("title"),
+    supabase
+      .from("fm_contracts")
+      .select("id, title, status")
+      .eq("customer_id", customerId)
+      .order("title"),
+  ]);
+
+  if (customerRes.error) throw customerRes.error;
+  if (amcContractsRes.error) throw amcContractsRes.error;
+  if (fmContractsRes.error) throw fmContractsRes.error;
+
+  const customer = customerRes.data;
+  if (!customer) throw new Error("Customer not found");
+
+  const name = customer.display_name ?? customer.company_name ?? "Customer";
+
+  const contracts = [
+    ...(amcContractsRes.data ?? []).map((c) => ({ ...c, domain: "AMC" as const })),
+    ...(fmContractsRes.data ?? []).map((c) => ({ ...c, domain: "FM" as const })),
+  ];
+
+  const ringOne: { id: string; data: UniverseNodeData }[] = [];
+
+  for (const c of contracts) {
+    ringOne.push({
+      id: `contract:${c.domain}:${c.id}`,
+      data: {
+        kind: "contract",
+        label: c.title ?? "Contract",
+        sublabel: c.status ?? undefined,
+        clickable: true,
+        center: { kind: "contract", domain: c.domain, id: c.id },
+        groupKey: "contract",
+        relationshipReason: `${c.title ?? "This contract"} belongs to ${name}.`,
+      },
+    });
+  }
+
+  if (contracts.length === 0) {
+    ringOne.push({
+      id: `customer-empty:${customerId}:contracts`,
+      data: {
+        kind: "staff-detail",
+        label: "No contracts on file",
+        clickable: false,
+        groupKey: "contract",
+      },
+    });
+  }
+
+  const centerDetail: CenterDetailField[] = [
+    { label: "Company", value: customer.company_name ?? "-" },
+    { label: "Email", value: customer.email ?? "-" },
+    { label: "Phone", value: customer.phone ?? "-" },
+    { label: "City", value: customer.address_city ?? "-" },
+  ];
+
+  return {
+    centerLabel: name,
+    centerSublabel: customer.company_name ?? "",
     centerDetail,
     ringOne,
   };
@@ -874,6 +957,21 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
             centerData,
             ringOne,
           }),
+          centerDetail,
+        };
+      }
+
+      if (centerEntity.kind === "customer") {
+        const { centerLabel, centerSublabel, centerDetail, ringOne } =
+          await fetchCustomerConnections(centerEntity.id);
+        const centerData: UniverseNodeData = {
+          kind: "customer",
+          label: centerLabel,
+          sublabel: centerSublabel,
+          clickable: false,
+        };
+        return {
+          ...layoutAround({ centerId: `customer:${centerEntity.id}`, centerData, ringOne }),
           centerDetail,
         };
       }
