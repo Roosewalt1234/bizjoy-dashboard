@@ -937,6 +937,7 @@ async function fetchPpmVisitConnections(
 ): Promise<{
   centerLabel: string;
   centerSublabel: string;
+  exception: boolean;
   centerDetail: CenterDetailField[];
   ringOne: { id: string; data: UniverseNodeData }[];
 }> {
@@ -972,9 +973,14 @@ async function fetchPpmVisitConnections(
     { label: "Notes", value: visit.notes ?? "-" },
   ];
 
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const visitDate = visit.due_date ?? visit.planned_date;
+  const isOverdue = Boolean(visitDate && visitDate < todayStr);
+
   return {
     centerLabel: "PPM Visit",
     centerSublabel: visit.due_date ?? visit.planned_date ?? "",
+    exception: isOverdue,
     centerDetail,
     ringOne,
   };
@@ -1208,12 +1214,13 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
       }
 
       if (centerEntity.kind === "ppm-visit") {
-        const { centerLabel, centerSublabel, centerDetail, ringOne } =
+        const { centerLabel, centerSublabel, exception, centerDetail, ringOne } =
           await fetchPpmVisitConnections(centerEntity.domain, centerEntity.id);
         const centerData: UniverseNodeData = {
           kind: "ppm-visit",
           label: centerLabel,
           sublabel: centerSublabel,
+          exception,
           clickable: false,
         };
         return {
