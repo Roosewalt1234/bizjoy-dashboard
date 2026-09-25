@@ -206,3 +206,83 @@ export async function detectOverduePayments(): Promise<OperationalException[]> {
   }
   return exceptions;
 }
+
+export async function detectExpiringContracts(): Promise<OperationalException[]> {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const windowEnd = new Date();
+  windowEnd.setDate(windowEnd.getDate() + 60);
+  const windowEndStr = windowEnd.toISOString().slice(0, 10);
+
+  const [amcRes, fmRes] = await Promise.all([
+    supabase
+      .from("contracts")
+      .select("id, title, end_date")
+      .eq("status", "Active")
+      .not("end_date", "is", null)
+      .gte("end_date", todayStr)
+      .lte("end_date", windowEndStr),
+    supabase
+      .from("fm_contracts")
+      .select("id, title, end_date")
+      .eq("status", "Active")
+      .not("end_date", "is", null)
+      .gte("end_date", todayStr)
+      .lte("end_date", windowEndStr),
+  ]);
+  if (amcRes.error) throw amcRes.error;
+  if (fmRes.error) throw fmRes.error;
+
+  const exceptions: OperationalException[] = [];
+  for (const contract of [
+    ...(amcRes.data ?? []).map((c) => ({ ...c, domain: "AMC" as const })),
+    ...(fmRes.data ?? []).map((c) => ({ ...c, domain: "FM" as const })),
+  ]) {
+    exceptions.push({
+      id: `contracts:expiring:${contract.domain}:${contract.id}`,
+      category: "contracts",
+      severity: "attention",
+      title: "Expiring Contract",
+      reason: `${contract.title ?? "This contract"} is active and ends on ${contract.end_date}, within the next 60 days.`,
+      target: { kind: "contract", domain: contract.domain, id: contract.id },
+      contractId: contract.id,
+      contractDomain: contract.domain,
+    });
+  }
+  return exceptions;
+}
+
+export async function detectReconciliationIssues(): Promise<OperationalException[]> {
+  const domain: ContractDomain = "AMC";
+
+  const [contractsRes, paymentsRes] = await Promise.all([
+    supabase.from("contracts").select("id, title, value").not("value", "is", null),
+    supabase.from("contract_payments").select("contract_id, value"),
+  ]);
+  if (contractsRes.error) throw contractsRes.error;
+  if (paymentsRes.error) throw paymentsRes.error;
+
+  const scheduledTotals = new Map<string, number>();
+  for (const payment of paymentsRes.data ?? []) {
+    const current = scheduledTotals.get(payment.contract_id) ?? 0;
+    scheduledTotals.set(payment.contract_id, current + (payment.value ?? 0));
+  }
+
+  const exceptions: OperationalException[] = [];
+  for (const contract of contractsRes.data ?? []) {
+    const scheduledTotal = scheduledTotals.get(contract.id) ?? 0;
+    const contractValue = contract.value ?? 0;
+    const delta = Math.abs(contractValue - scheduledTotal);
+    if (delta <= 1) continue;
+    exceptions.push({
+      id: `data-quality:reconciliation:${domain}:${contract.id}`,
+      category: "data-quality",
+      severity: "attention",
+      title: "Payment Schedule Mismatch",
+      reason: `${contract.title ?? "This contract"}'s payment schedule totals AED ${scheduledTotal}, but the contract value is AED ${contractValue}.`,
+      target: { kind: "contract", domain, id: contract.id },
+      contractId: contract.id,
+      contractDomain: domain,
+    });
+  }
+  return exceptions;
+}
