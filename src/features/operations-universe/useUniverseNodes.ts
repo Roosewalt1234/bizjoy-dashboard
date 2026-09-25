@@ -573,7 +573,11 @@ function buildScheduleJobDetail(id: string): {
   const suitableIds = SUITABLE_STAFF_FOR_JOB[job.id] ?? [];
   for (const staffId of suitableIds) {
     const staff = DEMO_STAFF.find((s) => s.id === staffId);
-    if (!staff) continue;
+    if (!staff) {
+      throw new Error(
+        `Suitable-staff data error: "${staffId}" listed for job "${job.id}" but not found in DEMO_STAFF`,
+      );
+    }
     ringOne.push({
       id: `staff-suggestion:${job.id}:${staff.id}`,
       data: {
