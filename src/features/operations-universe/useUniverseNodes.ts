@@ -607,6 +607,58 @@ async function fetchPaymentsInCategory(
   return ringOne;
 }
 
+async function fetchPaymentConnections(
+  domain: "AMC" | "FM",
+  paymentId: string,
+): Promise<{
+  centerLabel: string;
+  centerSublabel: string;
+  centerDetail: CenterDetailField[];
+  ringOne: { id: string; data: UniverseNodeData }[];
+}> {
+  const paymentTable = domain === "AMC" ? "contract_payments" : "fm_contract_payments";
+  const { data: payment, error } = await supabase
+    .from(paymentTable)
+    .select("id, contract_id, value, payment_date, received_date")
+    .eq("id", paymentId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!payment) throw new Error("Payment not found");
+
+  const status = computePaymentStatus(payment.payment_date, payment.received_date);
+
+  // contract_id is NOT NULL on both contract_payments and fm_contract_payments (confirmed
+  // against the live schema) - unlike work_orders/fm_work_orders' nullable contract_id, no
+  // gate is needed here; a real payment row always has a real contract to link back to.
+  const ringOne: { id: string; data: UniverseNodeData }[] = [
+    {
+      id: `contract:${domain}:${payment.contract_id}`,
+      data: {
+        kind: "contract",
+        label: "Back to Contract",
+        clickable: true,
+        center: { kind: "contract", domain, id: payment.contract_id },
+        groupKey: "contract",
+        relationshipReason: "This payment was made against this contract.",
+      },
+    },
+  ];
+
+  const centerDetail: CenterDetailField[] = [
+    { label: "Amount", value: payment.value != null ? `AED ${payment.value}` : "-" },
+    { label: "Payment Date", value: payment.payment_date ?? "-" },
+    { label: "Received Date", value: payment.received_date ?? "Not yet received" },
+    { label: "Status", value: status },
+  ];
+
+  return {
+    centerLabel: payment.value != null ? `AED ${payment.value}` : "Payment",
+    centerSublabel: status,
+    centerDetail,
+    ringOne,
+  };
+}
+
 async function fetchWorkOrderConnections(
   domain: "AMC" | "FM",
   workOrderId: string,
@@ -1540,6 +1592,25 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
             ringOne,
           }),
           centerDetail: undefined,
+        };
+      }
+
+      if (centerEntity.kind === "payment") {
+        const { centerLabel, centerSublabel, centerDetail, ringOne } =
+          await fetchPaymentConnections(centerEntity.domain, centerEntity.id);
+        const centerData: UniverseNodeData = {
+          kind: "payment",
+          label: centerLabel,
+          sublabel: centerSublabel,
+          clickable: false,
+        };
+        return {
+          ...layoutAround({
+            centerId: `payment:${centerEntity.domain}:${centerEntity.id}`,
+            centerData,
+            ringOne,
+          }),
+          centerDetail,
         };
       }
 
