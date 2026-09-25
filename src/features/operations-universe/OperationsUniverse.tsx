@@ -56,9 +56,6 @@ function todayGraph() {
 export function OperationsUniverse() {
   const [centerEntity, setCenterEntity] = useState<CenterEntity>({ kind: "today" });
   const [history, setHistory] = useState<CenterEntity[]>([]);
-  const [employeeCard, setEmployeeCard] = useState<{ label: string; sublabel?: string } | null>(
-    null,
-  );
   const [relationshipReason, setRelationshipReason] = useState<string | null>(null);
 
   const handleBack = useCallback(() => {
@@ -69,7 +66,6 @@ export function OperationsUniverse() {
       return prev.slice(0, -1);
     });
     if (previousEntity) {
-      setEmployeeCard(null);
       setCenterEntity(previousEntity);
     }
   }, []);
@@ -89,7 +85,7 @@ export function OperationsUniverse() {
   // Local, draggable copy of the node positions. Re-synced to the freshly computed
   // layout whenever `graph` changes identity - which, thanks to the stable references
   // above, only happens on an actual recenter (or when a query's data actually
-  // resolves/changes), not on unrelated re-renders like the employeeCard popover
+  // resolves/changes), not on unrelated re-renders like the relationshipReason popover
   // opening/closing.
   const [nodes, setNodes] = useState<Node<UniverseNodeData>[]>(graph.nodes);
 
@@ -113,12 +109,7 @@ export function OperationsUniverse() {
         onNodeClick={(_, node) => {
           setRelationshipReason(null);
           const data = node.data as UniverseNodeData;
-          if (data.kind === "employee-info") {
-            setEmployeeCard({ label: data.label, sublabel: data.sublabel });
-            return;
-          }
           if (data.clickable && data.center) {
-            setEmployeeCard(null);
             setHistory((prev) => [...prev, centerEntity]);
             setCenterEntity(data.center);
           }
@@ -213,52 +204,6 @@ export function OperationsUniverse() {
           >
             Retry
           </button>
-        </div>
-      )}
-      {employeeCard && (
-        <div
-          style={{
-            position: "absolute",
-            top: 16,
-            right: 16,
-            zIndex: 10,
-            minWidth: 200,
-            maxWidth: 280,
-            background: "#1c2128",
-            border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: 8,
-            padding: "12px 14px",
-            color: "#e6edf3",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setEmployeeCard(null)}
-            style={{
-              position: "absolute",
-              top: 6,
-              right: 8,
-              background: "none",
-              border: "none",
-              color: "#8a93a3",
-              cursor: "pointer",
-              fontSize: 14,
-              lineHeight: 1,
-              padding: 4,
-            }}
-            aria-label="Close"
-          >
-            ×
-          </button>
-          <div style={{ fontSize: 13, fontWeight: 700, paddingRight: 16 }}>
-            {employeeCard.label}
-          </div>
-          {employeeCard.sublabel && (
-            <div style={{ fontSize: 12, color: "#8a93a3", marginTop: 2 }}>
-              {employeeCard.sublabel}
-            </div>
-          )}
         </div>
       )}
       {relationshipReason && (

@@ -76,6 +76,7 @@ async function fetchContractConnections(
 ): Promise<{
   centerLabel: string;
   centerSublabel: string;
+  centerDetail: CenterDetailField[];
   ringOne: { id: string; data: UniverseNodeData }[];
 }> {
   const contractTable = domain === "AMC" ? "contracts" : "fm_contracts";
@@ -174,6 +175,7 @@ async function fetchContractConnections(
         label: contract.customer_name ?? "Customer",
         clickable: false,
         groupKey: "customer",
+        relationshipReason: `${contract.customer_name ?? "This customer"} is the party this contract is with.`,
       },
     });
   }
@@ -197,6 +199,7 @@ async function fetchContractConnections(
           : isPending
             ? "work-order-pending"
             : "work-order-completed",
+        relationshipReason: `${wo.wo_no ?? "This work order"} is scoped under this contract.`,
       },
     });
   }
@@ -210,6 +213,8 @@ async function fetchContractConnections(
         sublabel: visit.planned_date ?? undefined,
         clickable: false,
         groupKey: "ppm",
+        edgeStyle: "planned",
+        relationshipReason: `This PPM visit is scheduled under this contract.`,
       },
     });
   }
@@ -235,6 +240,7 @@ async function fetchContractConnections(
         sublabel: invoice.total_amount != null ? `AED ${invoice.total_amount}` : undefined,
         clickable: false,
         groupKey: "invoice",
+        relationshipReason: `${invoice.invoice_no ?? "This invoice"} bills work performed under this contract.`,
       },
     });
   }
@@ -248,6 +254,7 @@ async function fetchContractConnections(
         sublabel: payment.value != null ? `AED ${payment.value}` : undefined,
         clickable: false,
         groupKey: "payment",
+        relationshipReason: `This payment was received against this contract.`,
       },
     });
   }
@@ -302,9 +309,18 @@ async function fetchContractConnections(
     });
   });
 
+  const centerDetail: CenterDetailField[] = [
+    { label: "Reference", value: contract.title ?? "-" },
+    { label: "Status", value: contract.status ?? "-" },
+    { label: "Customer", value: contract.customer_name ?? "-" },
+    { label: "Value", value: contract.value != null ? `AED ${contract.value}` : "-" },
+    { label: "End Date", value: contract.end_date ?? "-" },
+  ];
+
   return {
     centerLabel: contract.title ?? contract.customer_name ?? "Contract",
     centerSublabel: contract.status ?? "",
+    centerDetail,
     ringOne,
   };
 }
@@ -316,6 +332,7 @@ async function fetchWorkOrderConnections(
   centerLabel: string;
   centerSublabel: string;
   exception: boolean;
+  centerDetail: CenterDetailField[];
   ringOne: { id: string; data: UniverseNodeData }[];
 }> {
   const table = domain === "AMC" ? "work_orders" : "fm_work_orders";
@@ -356,6 +373,7 @@ async function fetchWorkOrderConnections(
         clickable: true,
         center: { kind: "contract", domain, id: wo.contract_id },
         groupKey: "contract",
+        relationshipReason: "This work order was raised under this contract.",
       },
     });
   }
@@ -377,8 +395,17 @@ async function fetchWorkOrderConnections(
         kind: "employee-info",
         label: wo.technician_name,
         sublabel: technicianPosition,
-        clickable: false,
+        clickable: Boolean(wo.technician_id),
+        center: wo.technician_id
+          ? {
+              kind: "employee",
+              id: wo.technician_id,
+              name: wo.technician_name,
+              position: technicianPosition,
+            }
+          : undefined,
         groupKey: "employee",
+        relationshipReason: `${wo.technician_name} is assigned to perform this work order.`,
       },
     });
   }
@@ -409,10 +436,19 @@ async function fetchWorkOrderConnections(
   if (wo.priority) sublabelParts.push(wo.priority);
   if (wo.location) sublabelParts.push(wo.location);
 
+  const centerDetail: CenterDetailField[] = [
+    { label: "Status", value: wo.status ?? "-" },
+    { label: "Priority", value: wo.priority ?? "-" },
+    { label: "Location", value: wo.location ?? "-" },
+    { label: "Scheduled", value: wo.scheduled_date ?? "-" },
+    { label: "Customer", value: wo.customer_name ?? "-" },
+  ];
+
   return {
     centerLabel: wo.wo_no ?? "Work Order",
     centerSublabel: sublabelParts.join(" · "),
     exception: Boolean(isOverdue),
+    centerDetail,
     ringOne,
   };
 }
@@ -640,10 +676,8 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
       }
 
       if (centerEntity.kind === "contract") {
-        const { centerLabel, centerSublabel, ringOne } = await fetchContractConnections(
-          centerEntity.domain,
-          centerEntity.id,
-        );
+        const { centerLabel, centerSublabel, centerDetail, ringOne } =
+          await fetchContractConnections(centerEntity.domain, centerEntity.id);
         const centerData: UniverseNodeData = {
           kind: "contract",
           label: centerLabel,
@@ -656,15 +690,13 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
             centerData,
             ringOne,
           }),
-          centerDetail: undefined,
+          centerDetail,
         };
       }
 
       if (centerEntity.kind === "work-order") {
-        const { centerLabel, centerSublabel, exception, ringOne } = await fetchWorkOrderConnections(
-          centerEntity.domain,
-          centerEntity.id,
-        );
+        const { centerLabel, centerSublabel, exception, centerDetail, ringOne } =
+          await fetchWorkOrderConnections(centerEntity.domain, centerEntity.id);
         const centerData: UniverseNodeData = {
           kind: "work-order",
           label: centerLabel,
@@ -678,7 +710,7 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
             centerData,
             ringOne,
           }),
-          centerDetail: undefined,
+          centerDetail,
         };
       }
 
@@ -775,6 +807,34 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
         return {
           ...layoutAround({ centerId: `schedule-job:${centerEntity.id}`, centerData, ringOne }),
           centerDetail,
+        };
+      }
+
+      if (centerEntity.kind === "employee") {
+        const centerData: UniverseNodeData = {
+          kind: "employee-info",
+          label: centerEntity.name,
+          sublabel: centerEntity.position,
+          clickable: false,
+        };
+        const ringOne: { id: string; data: UniverseNodeData }[] = [
+          {
+            id: `employee-placeholder:${centerEntity.id}`,
+            data: {
+              kind: "staff-detail",
+              label: "Full profile",
+              sublabel: "Attendance, skills, and live assignments arrive in Phase 3",
+              clickable: false,
+              groupKey: "detail",
+            },
+          },
+        ];
+        return {
+          ...layoutAround({ centerId: `employee:${centerEntity.id}`, centerData, ringOne }),
+          centerDetail: [
+            { label: "Name", value: centerEntity.name },
+            { label: "Position", value: centerEntity.position ?? "-" },
+          ],
         };
       }
 
