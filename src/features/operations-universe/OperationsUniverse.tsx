@@ -30,19 +30,10 @@ const EMPTY_GRAPH: { nodes: Node<UniverseNodeData>[]; edges: Edge[] } = { nodes:
 const DETAIL_ENTITY_KINDS: CenterEntity["kind"][] = [
   "contract",
   "work-order",
-  "schedule-job",
+  "ppm-visit",
   "employee",
   "customer",
 ];
-
-// Schedules is still backed by fictional prototype data (see prototypeData.ts's
-// DEMO_JOBS) - real integration is Phase 3b. These are the CenterEntity kinds
-// reachable anywhere inside that branch, including its hub-root screen (which uses
-// the same kind with category: '__root__'). Used to show a persistent "Example Data"
-// notice so a viewer never mistakes fictional schedule info for real operational data.
-// Staff was fictional demo data through Phase 2 but now shows real employees (Phase
-// 3a) - it no longer belongs in this list.
-const DEMO_DATA_KINDS: CenterEntity["kind"][] = ["schedule-category", "schedule-job"];
 
 function todayGraph() {
   const centerData: UniverseNodeData = { kind: "today", label: "TODAY", clickable: false };
@@ -123,7 +114,6 @@ export function OperationsUniverse() {
   }, []);
 
   const isToday = centerEntity.kind === "today";
-  const isDemoData = DEMO_DATA_KINDS.includes(centerEntity.kind);
   const {
     data: fetchedGraph,
     isLoading,
@@ -194,27 +184,6 @@ export function OperationsUniverse() {
         onSelect={(entity) => navigateTo(entity)}
         avoidTopLeftRow={centerEntity.kind !== "today"}
       />
-      {isDemoData && (
-        <div
-          style={{
-            position: "absolute",
-            top: isMobile ? 108 : 16,
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 15,
-            background: "#3d2e0f",
-            border: "1px solid #e8b44a",
-            borderRadius: 8,
-            padding: "6px 14px",
-            color: "#e8b44a",
-            fontSize: 12,
-            fontWeight: 700,
-            whiteSpace: "nowrap",
-          }}
-        >
-          {isMobile ? "Example Data" : "Example Data — not connected to live records yet"}
-        </div>
-      )}
       {centerEntity.kind !== "today" && (
         <div
           style={{
@@ -405,7 +374,7 @@ export function OperationsUniverse() {
         </div>
       )}
       <EntityDetailPanel
-        title={isDemoData ? `${currentLabel} (Example)` : currentLabel}
+        title={currentLabel}
         fields={!isToday ? fetchedGraph?.centerDetail : undefined}
         open={panelOpen}
         onOpenChange={setPanelOpen}
