@@ -224,6 +224,9 @@ async function fetchContractConnections(
 
   for (const visit of ("data" in ppmVisitsRes ? ppmVisitsRes.data : []) ?? []) {
     const visitDate = visit.due_date ?? visit.planned_date;
+    // Unlike fetchScheduleItems/fetchPpmVisitConnections, this query isn't pre-filtered to
+    // unconverted visits - it shows every visit under the contract - so the work_order_id
+    // check has to happen here explicitly, not just be implied by the query shape.
     const isOverdue = Boolean(visitDate && visitDate < todayStr && !visit.work_order_id);
     ringOne.push({
       id: `ppm-visit:${visit.id}`,
