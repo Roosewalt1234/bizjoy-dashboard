@@ -5,6 +5,7 @@ import "@xyflow/react/dist/style.css";
 import { layoutAround } from "./layout";
 import { UniverseNodeComponent } from "./UniverseNodeComponent";
 import { useUniverseGraph } from "./useUniverseNodes";
+import { EntityDetailPanel } from "./EntityDetailPanel";
 import type { CenterEntity, UniverseNodeData } from "./types";
 
 const nodeTypes = { universe: UniverseNodeComponent };
@@ -57,6 +58,7 @@ export function OperationsUniverse() {
   const [centerEntity, setCenterEntity] = useState<CenterEntity>({ kind: "today" });
   const [history, setHistory] = useState<CenterEntity[]>([]);
   const [relationshipReason, setRelationshipReason] = useState<string | null>(null);
+  const [panelOpen, setPanelOpen] = useState(true);
 
   const handleBack = useCallback(() => {
     let previousEntity: CenterEntity | undefined;
@@ -92,6 +94,12 @@ export function OperationsUniverse() {
   useEffect(() => {
     setNodes(graph.nodes);
   }, [graph]);
+
+  useEffect(() => {
+    setPanelOpen(
+      Boolean(!isToday && fetchedGraph?.centerDetail && fetchedGraph.centerDetail.length > 0),
+    );
+  }, [centerEntity, fetchedGraph, isToday]);
 
   const onNodesChange = useCallback(
     (changes: NodeChange<Node<UniverseNodeData>>[]) =>
@@ -249,6 +257,12 @@ export function OperationsUniverse() {
           <div style={{ fontSize: 12, color: "#8a93a3", marginTop: 2 }}>{relationshipReason}</div>
         </div>
       )}
+      <EntityDetailPanel
+        title={graph.nodes[0]?.data.label ?? ""}
+        fields={!isToday ? fetchedGraph?.centerDetail : undefined}
+        open={panelOpen}
+        onOpenChange={setPanelOpen}
+      />
     </div>
   );
 }
