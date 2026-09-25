@@ -10,6 +10,11 @@ import type { CenterEntity, UniverseNodeData } from "./types";
 
 const nodeTypes = { universe: UniverseNodeComponent };
 
+interface HistoryEntry {
+  entity: CenterEntity;
+  label: string;
+}
+
 // Stable reference so the "no data yet" fallback below doesn't create a brand new
 // object on every render while a query is loading - see the `graph` useEffect.
 const EMPTY_GRAPH: { nodes: Node<UniverseNodeData>[]; edges: Edge[] } = { nodes: [], edges: [] };
@@ -70,19 +75,38 @@ function todayGraph() {
 
 export function OperationsUniverse() {
   const [centerEntity, setCenterEntity] = useState<CenterEntity>({ kind: "today" });
-  const [history, setHistory] = useState<CenterEntity[]>([]);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [relationshipReason, setRelationshipReason] = useState<string | null>(null);
   const [panelOpen, setPanelOpen] = useState(true);
 
   const handleBack = useCallback(() => {
-    let previousEntity: CenterEntity | undefined;
+    let previousEntry: HistoryEntry | undefined;
     setHistory((prev) => {
       if (prev.length === 0) return prev;
-      previousEntity = prev[prev.length - 1];
+      previousEntry = prev[prev.length - 1];
       return prev.slice(0, -1);
     });
-    if (previousEntity) {
-      setCenterEntity(previousEntity);
+    if (previousEntry) {
+      setRelationshipReason(null);
+      setCenterEntity(previousEntry.entity);
+    }
+  }, []);
+
+  const handleReturnToToday = useCallback(() => {
+    setRelationshipReason(null);
+    setHistory([]);
+    setCenterEntity({ kind: "today" });
+  }, []);
+
+  const jumpToHistoryIndex = useCallback((index: number) => {
+    let target: HistoryEntry | undefined;
+    setHistory((prev) => {
+      target = prev[index];
+      return prev.slice(0, index);
+    });
+    if (target) {
+      setRelationshipReason(null);
+      setCenterEntity(target.entity);
     }
   }, []);
 
@@ -97,6 +121,17 @@ export function OperationsUniverse() {
   // stays referentially stable for the life of the component.
   const todayGraphMemo = useMemo(() => todayGraph(), []);
   const graph = isToday ? todayGraphMemo : (fetchedGraph ?? EMPTY_GRAPH);
+
+  const currentLabel = graph.nodes[0]?.data.label ?? "Today";
+
+  const navigateTo = useCallback(
+    (entity: CenterEntity) => {
+      setRelationshipReason(null);
+      setHistory((prev) => [...prev, { entity: centerEntity, label: currentLabel }]);
+      setCenterEntity(entity);
+    },
+    [centerEntity, currentLabel],
+  );
 
   // Local, draggable copy of the node positions. Re-synced to the freshly computed
   // layout whenever `graph` changes identity - which, thanks to the stable references
@@ -130,8 +165,7 @@ export function OperationsUniverse() {
           setRelationshipReason(null);
           const data = node.data as UniverseNodeData;
           if (data.clickable && data.center) {
-            setHistory((prev) => [...prev, centerEntity]);
-            setCenterEntity(data.center);
+            navigateTo(data.center);
           }
         }}
         onEdgeClick={(_, edge) => {
@@ -165,6 +199,63 @@ export function OperationsUniverse() {
         >
           ← Back
         </button>
+      )}
+      {centerEntity.kind !== "today" && (
+        <div
+          style={{
+            position: "absolute",
+            top: 16,
+            left: 90,
+            zIndex: 10,
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            maxWidth: "calc(100% - 200px)",
+            overflowX: "auto",
+            background: "#1c2128",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 8,
+            padding: "8px 12px",
+            color: "#8a93a3",
+            fontSize: 12,
+            whiteSpace: "nowrap",
+          }}
+        >
+          <button
+            type="button"
+            onClick={handleReturnToToday}
+            style={{
+              background: "none",
+              border: "none",
+              color: "#e6edf3",
+              cursor: "pointer",
+              fontWeight: 700,
+              padding: 0,
+            }}
+          >
+            Today
+          </button>
+          {history.slice(1).map((entry, index) => (
+            <span key={index} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span>/</span>
+              <button
+                type="button"
+                onClick={() => jumpToHistoryIndex(index + 1)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#8a93a3",
+                  cursor: "pointer",
+                  padding: 0,
+                }}
+              >
+                {entry.label}
+              </button>
+            </span>
+          ))}
+          <span>/</span>
+          <span style={{ color: "#e6edf3", fontWeight: 700 }}>{currentLabel}</span>
+        </div>
       )}
       {isLoading && !isToday && (
         <div
