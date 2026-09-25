@@ -841,6 +841,22 @@ export async function searchUniverse(query: string): Promise<SearchResult[]> {
       .select("id, wo_no, customer_name, status")
       .ilike("wo_no", `%${trimmed}%`)
       .limit(5),
+    supabase
+      .from("employees")
+      .select("id, full_name, first_name, last_name, position")
+      .eq("status", "Active")
+      .ilike("full_name", `%${trimmed}%`)
+      .limit(5),
+    supabase
+      .from("customers")
+      .select("id, display_name, company_name")
+      .ilike("display_name", `%${trimmed}%`)
+      .limit(5),
+    supabase
+      .from("customers")
+      .select("id, display_name, company_name")
+      .ilike("company_name", `%${trimmed}%`)
+      .limit(5),
   ]);
 
   // A rejected settled result (a genuine network/promise rejection) has no `.data`/`.error`
@@ -860,6 +876,9 @@ export async function searchUniverse(query: string): Promise<SearchResult[]> {
   const fmContracts = unwrap(settled[1]);
   const amcWorkOrders = unwrap(settled[2]);
   const fmWorkOrders = unwrap(settled[3]);
+  const employees = unwrap(settled[4]);
+  const customersByDisplayName = unwrap(settled[5]);
+  const customersByCompanyName = unwrap(settled[6]);
 
   if (amcContracts.error)
     console.warn("searchUniverse: AMC contract search failed", amcContracts.error);
@@ -869,6 +888,17 @@ export async function searchUniverse(query: string): Promise<SearchResult[]> {
     console.warn("searchUniverse: AMC work order search failed", amcWorkOrders.error);
   if (fmWorkOrders.error)
     console.warn("searchUniverse: FM work order search failed", fmWorkOrders.error);
+  if (employees.error) console.warn("searchUniverse: employee search failed", employees.error);
+  if (customersByDisplayName.error)
+    console.warn(
+      "searchUniverse: customer search (display name) failed",
+      customersByDisplayName.error,
+    );
+  if (customersByCompanyName.error)
+    console.warn(
+      "searchUniverse: customer search (company name) failed",
+      customersByCompanyName.error,
+    );
 
   for (const row of amcContracts.data ?? []) {
     results.push({
@@ -900,6 +930,30 @@ export async function searchUniverse(query: string): Promise<SearchResult[]> {
       label: row.wo_no ?? "Work order",
       sublabel: `FM Work Order - ${row.customer_name ?? ""}`,
       center: { kind: "work-order", domain: "FM", id: row.id },
+    });
+  }
+  for (const row of employees.data ?? []) {
+    const name = row.full_name ?? `${row.first_name} ${row.last_name ?? ""}`.trim();
+    results.push({
+      id: `employee:${row.id}`,
+      label: name,
+      sublabel: row.position ? `Staff - ${row.position}` : "Staff",
+      center: { kind: "employee", id: row.id, name, position: row.position ?? undefined },
+    });
+  }
+
+  const seenCustomerIds = new Set<string>();
+  for (const row of [
+    ...(customersByDisplayName.data ?? []),
+    ...(customersByCompanyName.data ?? []),
+  ]) {
+    if (seenCustomerIds.has(row.id)) continue;
+    seenCustomerIds.add(row.id);
+    results.push({
+      id: `customer:${row.id}`,
+      label: row.display_name ?? row.company_name ?? "Customer",
+      sublabel: row.company_name ?? "Customer",
+      center: { kind: "customer", id: row.id },
     });
   }
 
