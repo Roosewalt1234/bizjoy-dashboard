@@ -30,23 +30,18 @@ const EMPTY_GRAPH: { nodes: Node<UniverseNodeData>[]; edges: Edge[] } = { nodes:
 const DETAIL_ENTITY_KINDS: CenterEntity["kind"][] = [
   "contract",
   "work-order",
-  "staff-member",
   "schedule-job",
   "employee",
 ];
 
-// Staff and Schedules are backed by fictional prototype data (see prototypeData.ts's
-// DEMO_STAFF/DEMO_JOBS) - real integration is a future phase. These are the CenterEntity
-// kinds reachable anywhere inside those two branches, including their hub-root screens
-// (which use the same kinds with category: '__root__'). Used to show a persistent
-// "Example Data" notice so a viewer never mistakes fictional staff/schedule info for
-// real operational data.
-const DEMO_DATA_KINDS: CenterEntity["kind"][] = [
-  "staff-category",
-  "staff-member",
-  "schedule-category",
-  "schedule-job",
-];
+// Schedules is still backed by fictional prototype data (see prototypeData.ts's
+// DEMO_JOBS) - real integration is Phase 3b. These are the CenterEntity kinds
+// reachable anywhere inside that branch, including its hub-root screen (which uses
+// the same kind with category: '__root__'). Used to show a persistent "Example Data"
+// notice so a viewer never mistakes fictional schedule info for real operational data.
+// Staff was fictional demo data through Phase 2 but now shows real employees (Phase
+// 3a) - it no longer belongs in this list.
+const DEMO_DATA_KINDS: CenterEntity["kind"][] = ["schedule-category", "schedule-job"];
 
 function todayGraph() {
   const centerData: UniverseNodeData = { kind: "today", label: "TODAY", clickable: false };
@@ -69,7 +64,7 @@ function todayGraph() {
         label: "STAFF",
         sublabel: "Who do I have?",
         clickable: true,
-        center: { kind: "staff-category", category: "__root__" },
+        center: { kind: "staff-category" },
         groupKey: "staff",
       },
     },
