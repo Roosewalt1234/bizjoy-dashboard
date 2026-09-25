@@ -427,6 +427,130 @@ async function fetchContractConnections(
   };
 }
 
+async function fetchContractFinanceConnections(
+  domain: "AMC" | "FM",
+  contractId: string,
+): Promise<{
+  centerLabel: string;
+  centerSublabel: string;
+  centerDetail: CenterDetailField[];
+  ringOne: { id: string; data: UniverseNodeData }[];
+}> {
+  const contractTable = domain === "AMC" ? "contracts" : "fm_contracts";
+  const paymentTable = domain === "AMC" ? "contract_payments" : "fm_contract_payments";
+
+  const [contractRes, paymentsRes] = await Promise.all([
+    supabase.from(contractTable).select("id, title, value").eq("id", contractId).maybeSingle(),
+    supabase
+      .from(paymentTable)
+      .select("id, value, payment_date, received_date")
+      .eq("contract_id", contractId)
+      .order("payment_date", { ascending: true }),
+  ]);
+
+  if (contractRes.error) throw contractRes.error;
+  if (paymentsRes.error) throw paymentsRes.error;
+
+  const contract = contractRes.data;
+  if (!contract) throw new Error("Contract not found");
+
+  const payments = (paymentsRes.data ?? []).map((p) => ({
+    id: p.id,
+    value: p.value,
+    paymentDate: p.payment_date,
+    receivedDate: p.received_date,
+  }));
+  const summary = summarizePayments(payments);
+
+  const ringOne: { id: string; data: UniverseNodeData }[] = [];
+
+  if (payments.length === 0) {
+    ringOne.push({
+      id: `contract-finance-empty:${contractId}`,
+      data: {
+        kind: "staff-detail",
+        label: "No payment records available",
+        clickable: false,
+        groupKey: "finance-empty",
+      },
+    });
+  } else {
+    ringOne.push({
+      id: `payment-category:${domain}:${contractId}:received`,
+      data: {
+        kind: "category",
+        label: "Received",
+        sublabel: `AED ${summary.received}`,
+        clickable: true,
+        center: { kind: "payment-category", domain, contractId, category: "received" },
+        groupKey: "received",
+        relationshipReason: "Payments already received under this contract.",
+      },
+    });
+    ringOne.push({
+      id: `payment-category:${domain}:${contractId}:outstanding`,
+      data: {
+        kind: "category",
+        label: "Outstanding",
+        sublabel: `AED ${summary.outstanding}`,
+        clickable: true,
+        center: { kind: "payment-category", domain, contractId, category: "outstanding" },
+        groupKey: "outstanding",
+        relationshipReason: "Payments not yet received under this contract.",
+      },
+    });
+    if (summary.overdue > 0) {
+      ringOne.push({
+        id: `payment-category:${domain}:${contractId}:overdue`,
+        data: {
+          kind: "category",
+          label: "Overdue",
+          sublabel: `AED ${summary.overdue}`,
+          exception: true,
+          clickable: true,
+          center: { kind: "payment-category", domain, contractId, category: "overdue" },
+          groupKey: "overdue",
+          relationshipReason: "Overdue payments under this contract.",
+        },
+      });
+    }
+    if (summary.nextPayment) {
+      ringOne.push({
+        id: `payment:${domain}:${summary.nextPayment.id}`,
+        data: {
+          kind: "payment",
+          label: "Next Payment",
+          sublabel: `AED ${summary.nextPayment.value} · ${summary.nextPayment.date}`,
+          clickable: true,
+          center: { kind: "payment", domain, id: summary.nextPayment.id },
+          groupKey: "next-payment",
+          relationshipReason: "The next payment due on this contract.",
+        },
+      });
+    }
+  }
+
+  const centerDetail: CenterDetailField[] = [
+    { label: "Contract Value", value: contract.value != null ? `AED ${contract.value}` : "-" },
+    { label: "Received", value: `AED ${summary.received}` },
+    { label: "Outstanding", value: `AED ${summary.outstanding}` },
+    { label: "Overdue", value: `AED ${summary.overdue}` },
+    {
+      label: "Next Payment",
+      value: summary.nextPayment
+        ? `AED ${summary.nextPayment.value} — ${summary.nextPayment.date}`
+        : "-",
+    },
+  ];
+
+  return {
+    centerLabel: "FINANCE",
+    centerSublabel: contract.title ?? "",
+    centerDetail,
+    ringOne,
+  };
+}
+
 async function fetchWorkOrderConnections(
   domain: "AMC" | "FM",
   workOrderId: string,
@@ -1311,6 +1435,25 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
         return {
           ...layoutAround({
             centerId: `ppm-visit:${centerEntity.domain}:${centerEntity.id}`,
+            centerData,
+            ringOne,
+          }),
+          centerDetail,
+        };
+      }
+
+      if (centerEntity.kind === "contract-finance") {
+        const { centerLabel, centerSublabel, centerDetail, ringOne } =
+          await fetchContractFinanceConnections(centerEntity.domain, centerEntity.id);
+        const centerData: UniverseNodeData = {
+          kind: "contract-finance",
+          label: centerLabel,
+          sublabel: centerSublabel,
+          clickable: false,
+        };
+        return {
+          ...layoutAround({
+            centerId: `contract-finance:${centerEntity.domain}:${centerEntity.id}`,
             centerData,
             ringOne,
           }),
