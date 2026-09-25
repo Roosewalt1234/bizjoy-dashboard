@@ -613,6 +613,7 @@ async function fetchPaymentConnections(
 ): Promise<{
   centerLabel: string;
   centerSublabel: string;
+  exception: boolean;
   centerDetail: CenterDetailField[];
   ringOne: { id: string; data: UniverseNodeData }[];
 }> {
@@ -654,6 +655,7 @@ async function fetchPaymentConnections(
   return {
     centerLabel: payment.value != null ? `AED ${payment.value}` : "Payment",
     centerSublabel: status,
+    exception: status === "Overdue",
     centerDetail,
     ringOne,
   };
@@ -1596,12 +1598,13 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
       }
 
       if (centerEntity.kind === "payment") {
-        const { centerLabel, centerSublabel, centerDetail, ringOne } =
+        const { centerLabel, centerSublabel, exception, centerDetail, ringOne } =
           await fetchPaymentConnections(centerEntity.domain, centerEntity.id);
         const centerData: UniverseNodeData = {
           kind: "payment",
           label: centerLabel,
           sublabel: centerSublabel,
+          exception,
           clickable: false,
         };
         return {
