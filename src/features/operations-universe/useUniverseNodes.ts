@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { layoutAround } from "./layout";
 import type { CenterEntity, CenterDetailField, UniverseNodeData } from "./types";
 import { centerEntityKey } from "./types";
-import { DEMO_STAFF, DEMO_JOBS, SUITABLE_STAFF_FOR_JOB } from "./prototypeData";
 
 function formatAttendanceTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
@@ -932,46 +931,51 @@ async function fetchScheduleCategoryItems(
   return filtered;
 }
 
-function buildScheduleJobDetail(id: string): {
+async function fetchPpmVisitConnections(
+  domain: "AMC" | "FM",
+  visitId: string,
+): Promise<{
   centerLabel: string;
   centerSublabel: string;
   centerDetail: CenterDetailField[];
   ringOne: { id: string; data: UniverseNodeData }[];
-} {
-  const job = DEMO_JOBS.find((j) => j.id === id);
-  if (!job) throw new Error("Job not found");
+}> {
+  const table = domain === "AMC" ? "amc_ppm_visits" : "ppm_visits";
+  const { data: visit, error } = await supabase
+    .from(table)
+    .select("id, contract_id, planned_date, due_date, status, notes")
+    .eq("id", visitId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!visit) throw new Error("PPM visit not found");
 
   const ringOne: { id: string; data: UniverseNodeData }[] = [];
-  const suitableIds = SUITABLE_STAFF_FOR_JOB[job.id] ?? [];
-  for (const staffId of suitableIds) {
-    const staff = DEMO_STAFF.find((s) => s.id === staffId);
-    if (!staff) {
-      throw new Error(
-        `Suitable-staff data error: "${staffId}" listed for job "${job.id}" but not found in DEMO_STAFF`,
-      );
-    }
+
+  if (visit.contract_id) {
     ringOne.push({
-      id: `staff-suggestion:${job.id}:${staff.id}`,
+      id: `contract:${domain}:${visit.contract_id}`,
       data: {
-        kind: "staff-member",
-        label: staff.name,
-        sublabel: `Suitable - ${staff.skills}`,
-        clickable: false,
-        groupKey: "suitable-staff",
-        relationshipReason: `${staff.name} matches the required skill (${job.requiredSkill}) and is currently available.`,
+        kind: "contract",
+        label: "Back to Contract",
+        clickable: true,
+        center: { kind: "contract", domain, id: visit.contract_id },
+        groupKey: "contract",
+        relationshipReason: "This PPM visit is scheduled under this contract.",
       },
     });
   }
 
+  const centerDetail: CenterDetailField[] = [
+    { label: "Planned Date", value: visit.planned_date ?? "-" },
+    { label: "Due Date", value: visit.due_date ?? "-" },
+    { label: "Status", value: visit.status ?? "-" },
+    { label: "Notes", value: visit.notes ?? "-" },
+  ];
+
   return {
-    centerLabel: job.title,
-    centerSublabel: `${job.priority} priority`,
-    centerDetail: [
-      { label: "Customer", value: job.customer },
-      { label: "Location", value: job.location },
-      { label: "Required Skill", value: job.requiredSkill },
-      { label: "Priority", value: job.priority },
-    ],
+    centerLabel: "PPM Visit",
+    centerSublabel: visit.due_date ?? visit.planned_date ?? "",
+    centerDetail,
     ringOne,
   };
 }
@@ -1203,6 +1207,25 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
         };
       }
 
+      if (centerEntity.kind === "ppm-visit") {
+        const { centerLabel, centerSublabel, centerDetail, ringOne } =
+          await fetchPpmVisitConnections(centerEntity.domain, centerEntity.id);
+        const centerData: UniverseNodeData = {
+          kind: "ppm-visit",
+          label: centerLabel,
+          sublabel: centerSublabel,
+          clickable: false,
+        };
+        return {
+          ...layoutAround({
+            centerId: `ppm-visit:${centerEntity.domain}:${centerEntity.id}`,
+            centerData,
+            ringOne,
+          }),
+          centerDetail,
+        };
+      }
+
       if (centerEntity.kind === "customer") {
         const { centerLabel, centerSublabel, centerDetail, ringOne } =
           await fetchCustomerConnections(centerEntity.id);
@@ -1262,22 +1285,6 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
             ringOne,
           }),
           centerDetail: undefined,
-        };
-      }
-
-      if (centerEntity.kind === "schedule-job") {
-        const { centerLabel, centerSublabel, centerDetail, ringOne } = buildScheduleJobDetail(
-          centerEntity.id,
-        );
-        const centerData: UniverseNodeData = {
-          kind: "schedule-job",
-          label: centerLabel,
-          sublabel: centerSublabel,
-          clickable: false,
-        };
-        return {
-          ...layoutAround({ centerId: `schedule-job:${centerEntity.id}`, centerData, ringOne }),
-          centerDetail,
         };
       }
 
