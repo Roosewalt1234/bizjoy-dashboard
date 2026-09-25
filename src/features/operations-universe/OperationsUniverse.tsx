@@ -53,9 +53,21 @@ function todayGraph() {
 
 export function OperationsUniverse() {
   const [centerEntity, setCenterEntity] = useState<CenterEntity>({ kind: "today" });
+  const [history, setHistory] = useState<CenterEntity[]>([]);
   const [employeeCard, setEmployeeCard] = useState<{ label: string; sublabel?: string } | null>(
     null,
   );
+
+  const handleBack = useCallback(() => {
+    setHistory((prev) => {
+      if (prev.length === 0) return prev;
+      const next = prev.slice(0, -1);
+      const previousEntity = prev[prev.length - 1];
+      setEmployeeCard(null);
+      setCenterEntity(previousEntity);
+      return next;
+    });
+  }, []);
 
   const isToday = centerEntity.kind === "today";
   const {
@@ -101,6 +113,7 @@ export function OperationsUniverse() {
           }
           if (data.clickable && data.center) {
             setEmployeeCard(null);
+            setHistory((prev) => [...prev, centerEntity]);
             setCenterEntity(data.center);
           }
         }}
@@ -109,6 +122,29 @@ export function OperationsUniverse() {
         <Background />
         <Controls />
       </ReactFlow>
+      {centerEntity.kind !== "today" && (
+        <button
+          type="button"
+          onClick={handleBack}
+          style={{
+            position: "absolute",
+            top: 16,
+            left: 16,
+            zIndex: 10,
+            background: "#1c2128",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 8,
+            color: "#e6edf3",
+            cursor: "pointer",
+            fontSize: 13,
+            fontWeight: 700,
+            padding: "8px 14px",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+          }}
+        >
+          ← Back
+        </button>
+      )}
       {isLoading && !isToday && (
         <div
           style={{
