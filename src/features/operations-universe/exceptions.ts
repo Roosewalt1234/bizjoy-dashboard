@@ -43,7 +43,7 @@ export async function detectOverdueWorkOrders(): Promise<OperationalException[]>
   for (const wo of workOrders) {
     if (!wo.completion_due_at) continue;
     const dueAt = new Date(wo.completion_due_at).getTime();
-    if (dueAt >= now) continue;
+    if (Number.isNaN(dueAt) || dueAt >= now) continue;
     const daysOverdue = Math.floor((now - dueAt) / 86400000);
     exceptions.push({
       id: `operations:overdue-work-order:${wo.domain}:${wo.id}`,
