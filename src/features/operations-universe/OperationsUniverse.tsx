@@ -122,7 +122,7 @@ export function OperationsUniverse() {
   const todayGraphMemo = useMemo(() => todayGraph(), []);
   const graph = isToday ? todayGraphMemo : (fetchedGraph ?? EMPTY_GRAPH);
 
-  const currentLabel = graph.nodes[0]?.data.label ?? "Today";
+  const currentLabel = isToday ? "Today" : (graph.nodes[0]?.data.label ?? "Loading...");
 
   const navigateTo = useCallback(
     (entity: CenterEntity) => {
@@ -361,7 +361,7 @@ export function OperationsUniverse() {
         </div>
       )}
       <EntityDetailPanel
-        title={graph.nodes[0]?.data.label ?? ""}
+        title={currentLabel}
         fields={!isToday ? fetchedGraph?.centerDetail : undefined}
         open={panelOpen}
         onOpenChange={setPanelOpen}
