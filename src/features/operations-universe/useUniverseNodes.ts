@@ -532,6 +532,9 @@ async function fetchEmployeeConnections(employeeId: string): Promise<{
   const name = employee.full_name ?? `${employee.first_name} ${employee.last_name ?? ""}`.trim();
 
   const attendanceRows = attendanceRes.data ?? [];
+  // An active check-in outranks a same-day checkout: "are they clocked in right now"
+  // is the answer this ring node should give, even if an earlier shift that day was
+  // already checked out.
   const presentRow = attendanceRows
     .filter((row) => row.status === "Present" && row.check_in)
     .sort((a, b) => (b.check_in ?? "").localeCompare(a.check_in ?? ""))[0];
