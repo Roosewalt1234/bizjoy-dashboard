@@ -453,51 +453,33 @@ async function fetchWorkOrderConnections(
   };
 }
 
-function buildStaffCategoryRoot(): {
-  centerLabel: string;
-  ringOne: { id: string; data: UniverseNodeData }[];
-} {
-  const categories: { category: "available" | "booked" | "absent"; label: string }[] = [
-    { category: "available", label: "Available" },
-    { category: "booked", label: "Booked" },
-    { category: "absent", label: "Absent" },
-  ];
-  const ringOne = categories.map(({ category, label }) => {
-    const count = DEMO_STAFF.filter((s) => s.category === category).length;
+async function fetchStaffHubRing(): Promise<{ id: string; data: UniverseNodeData }[]> {
+  const { data, error } = await supabase
+    .from("employees")
+    .select("id, full_name, first_name, last_name, position")
+    .eq("status", "Active")
+    .order("full_name", { ascending: true });
+  if (error) throw error;
+
+  return (data ?? []).map((row) => {
+    const name = row.full_name ?? `${row.first_name} ${row.last_name ?? ""}`.trim();
     return {
-      id: `staff-category:${category}`,
+      id: `staff-member:${row.id}`,
       data: {
-        kind: "staff-category" as const,
-        label,
-        sublabel: `${count} staff`,
+        kind: "staff-member" as const,
+        label: name,
+        sublabel: row.position ?? undefined,
         clickable: true,
-        center: { kind: "staff-category", category } as CenterEntity,
-        groupKey: category,
-        relationshipReason: `${label} reflects each technician's current attendance/assignment status.`,
+        center: {
+          kind: "employee",
+          id: row.id,
+          name,
+          position: row.position ?? undefined,
+        } as CenterEntity,
+        groupKey: "member",
       },
     };
   });
-  return { centerLabel: "STAFF", ringOne };
-}
-
-function buildStaffCategoryMembers(category: "available" | "booked" | "absent"): {
-  centerLabel: string;
-  ringOne: { id: string; data: UniverseNodeData }[];
-} {
-  const members = DEMO_STAFF.filter((s) => s.category === category);
-  const ringOne = members.map((member) => ({
-    id: `staff-member:${member.id}`,
-    data: {
-      kind: "staff-member" as const,
-      label: member.name,
-      sublabel: member.skills,
-      clickable: true,
-      center: { kind: "staff-member", id: member.id } as CenterEntity,
-      groupKey: "member",
-      relationshipReason: `${member.name} is currently ${category}.`,
-    },
-  }));
-  return { centerLabel: category.charAt(0).toUpperCase() + category.slice(1), ringOne };
 }
 
 function buildStaffMemberDetail(id: string): {
@@ -825,34 +807,15 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
         };
       }
 
-      if (centerEntity.kind === "staff-category" && centerEntity.category === "__root__") {
-        const { centerLabel, ringOne } = buildStaffCategoryRoot();
+      if (centerEntity.kind === "staff-category") {
+        const ringOne = await fetchStaffHubRing();
         const centerData: UniverseNodeData = {
           kind: "staff-hub",
-          label: centerLabel,
+          label: "STAFF",
           clickable: false,
         };
         return {
           ...layoutAround({ centerId: "staff-hub", centerData, ringOne }),
-          centerDetail: undefined,
-        };
-      }
-
-      if (centerEntity.kind === "staff-category") {
-        const { centerLabel, ringOne } = buildStaffCategoryMembers(
-          centerEntity.category as "available" | "booked" | "absent",
-        );
-        const centerData: UniverseNodeData = {
-          kind: "staff-category",
-          label: centerLabel,
-          clickable: false,
-        };
-        return {
-          ...layoutAround({
-            centerId: `staff-category:${centerEntity.category}`,
-            centerData,
-            ringOne,
-          }),
           centerDetail: undefined,
         };
       }
