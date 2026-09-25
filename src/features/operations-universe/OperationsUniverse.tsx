@@ -202,7 +202,7 @@ export function OperationsUniverse() {
         <div
           style={{
             position: "absolute",
-            top: 16,
+            top: isMobile ? 108 : 16,
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 15,
@@ -216,7 +216,7 @@ export function OperationsUniverse() {
             whiteSpace: "nowrap",
           }}
         >
-          Example Data — not connected to live records yet
+          {isMobile ? "Example Data" : "Example Data — not connected to live records yet"}
         </div>
       )}
       {centerEntity.kind !== "today" && (
