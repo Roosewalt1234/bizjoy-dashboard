@@ -32,6 +32,7 @@ const DETAIL_ENTITY_KINDS: CenterEntity["kind"][] = [
   "work-order",
   "schedule-job",
   "employee",
+  "customer",
 ];
 
 // Schedules is still backed by fictional prototype data (see prototypeData.ts's
