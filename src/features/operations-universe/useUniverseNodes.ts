@@ -710,25 +710,71 @@ interface ScheduleItem {
   node: { id: string; data: UniverseNodeData };
 }
 
-async function fetchScheduleItems(): Promise<ScheduleItem[]> {
+function categorizeByDate(todayStr: string, dateStr: string): "today" | "upcoming" | "overdue" {
+  if (dateStr === todayStr) return "today";
+  return dateStr < todayStr ? "overdue" : "upcoming";
+}
+
+async function fetchScheduleCounts(): Promise<Record<"today" | "upcoming" | "overdue", number>> {
   const todayStr = new Date().toISOString().slice(0, 10);
 
-  function categorize(dateStr: string): "today" | "upcoming" | "overdue" {
-    if (dateStr === todayStr) return "today";
-    return dateStr < todayStr ? "overdue" : "upcoming";
+  const [fmPpmRes, amcPpmRes, amcWosRes, fmWosRes] = await Promise.all([
+    supabase
+      .from("ppm_visits")
+      .select("planned_date, due_date")
+      .is("work_order_id", null)
+      .not("status", "in", "(Completed,Skipped,Cancelled)"),
+    supabase
+      .from("amc_ppm_visits")
+      .select("planned_date, due_date")
+      .is("work_order_id", null)
+      .not("status", "in", "(Completed,Skipped,Cancelled)"),
+    supabase
+      .from("work_orders")
+      .select("scheduled_date")
+      .not("scheduled_date", "is", null)
+      .not("status", "in", "(Completed,Cancelled)"),
+    supabase
+      .from("fm_work_orders")
+      .select("scheduled_date")
+      .not("scheduled_date", "is", null)
+      .not("status", "in", "(Completed,Cancelled)"),
+  ]);
+
+  if (fmPpmRes.error) throw fmPpmRes.error;
+  if (amcPpmRes.error) throw amcPpmRes.error;
+  if (amcWosRes.error) throw amcWosRes.error;
+  if (fmWosRes.error) throw fmWosRes.error;
+
+  const counts = { today: 0, upcoming: 0, overdue: 0 };
+
+  for (const visit of [...(fmPpmRes.data ?? []), ...(amcPpmRes.data ?? [])]) {
+    const date = visit.due_date ?? visit.planned_date;
+    if (!date) continue;
+    counts[categorizeByDate(todayStr, date)]++;
   }
+  for (const wo of [...(amcWosRes.data ?? []), ...(fmWosRes.data ?? [])]) {
+    if (!wo.scheduled_date) continue;
+    counts[categorizeByDate(todayStr, wo.scheduled_date)]++;
+  }
+
+  return counts;
+}
+
+async function fetchScheduleItems(): Promise<ScheduleItem[]> {
+  const todayStr = new Date().toISOString().slice(0, 10);
 
   const [fmPpmRes, amcPpmRes, amcWosRes, fmWosRes] = await Promise.all([
     supabase
       .from("ppm_visits")
       .select("id, planned_date, due_date, status, work_order_id")
       .is("work_order_id", null)
-      .not("status", "in", "(Completed,Closed,Verified)"),
+      .not("status", "in", "(Completed,Skipped,Cancelled)"),
     supabase
       .from("amc_ppm_visits")
       .select("id, planned_date, due_date, status, work_order_id")
       .is("work_order_id", null)
-      .not("status", "in", "(Completed,Closed,Verified)"),
+      .not("status", "in", "(Completed,Skipped,Cancelled)"),
     supabase
       .from("work_orders")
       .select("id, wo_no, scheduled_date, status")
@@ -751,7 +797,7 @@ async function fetchScheduleItems(): Promise<ScheduleItem[]> {
   for (const visit of fmPpmRes.data ?? []) {
     const date = visit.due_date ?? visit.planned_date;
     if (!date) continue;
-    const category = categorize(date);
+    const category = categorizeByDate(todayStr, date);
     items.push({
       category,
       date,
@@ -774,7 +820,7 @@ async function fetchScheduleItems(): Promise<ScheduleItem[]> {
   for (const visit of amcPpmRes.data ?? []) {
     const date = visit.due_date ?? visit.planned_date;
     if (!date) continue;
-    const category = categorize(date);
+    const category = categorizeByDate(todayStr, date);
     items.push({
       category,
       date,
@@ -796,7 +842,7 @@ async function fetchScheduleItems(): Promise<ScheduleItem[]> {
 
   for (const wo of amcWosRes.data ?? []) {
     if (!wo.scheduled_date) continue;
-    const category = categorize(wo.scheduled_date);
+    const category = categorizeByDate(todayStr, wo.scheduled_date);
     items.push({
       category,
       date: wo.scheduled_date,
@@ -818,7 +864,7 @@ async function fetchScheduleItems(): Promise<ScheduleItem[]> {
 
   for (const wo of fmWosRes.data ?? []) {
     if (!wo.scheduled_date) continue;
-    const category = categorize(wo.scheduled_date);
+    const category = categorizeByDate(todayStr, wo.scheduled_date);
     items.push({
       category,
       date: wo.scheduled_date,
@@ -843,14 +889,14 @@ async function fetchScheduleItems(): Promise<ScheduleItem[]> {
 }
 
 async function fetchScheduleCategoryRoot(): Promise<{ id: string; data: UniverseNodeData }[]> {
-  const items = await fetchScheduleItems();
+  const counts = await fetchScheduleCounts();
   const categories: { category: "today" | "upcoming" | "overdue"; label: string }[] = [
     { category: "today", label: "Today" },
     { category: "upcoming", label: "Upcoming" },
     { category: "overdue", label: "Overdue" },
   ];
   return categories.map(({ category, label }) => {
-    const count = items.filter((item) => item.category === category).length;
+    const count = counts[category];
     return {
       id: `schedule-category:${category}`,
       data: {
