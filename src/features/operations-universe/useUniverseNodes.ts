@@ -1038,6 +1038,7 @@ function categorizeByDeadline(
   deadlineIso: string,
 ): "today" | "upcoming" | "overdue" {
   const deadline = new Date(deadlineIso);
+  if (Number.isNaN(deadline.getTime())) return "upcoming";
   if (deadline.getTime() < Date.now()) return "overdue";
   const deadlineDateStr = deadline.toISOString().slice(0, 10);
   return deadlineDateStr === todayStr ? "today" : "upcoming";
