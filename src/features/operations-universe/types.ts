@@ -2,6 +2,7 @@ export type ContractDomain = 'AMC' | 'FM';
 export type StaffCategory = 'available' | 'booked' | 'absent';
 export type ScheduleCategory = 'today' | 'unassigned' | 'tomorrow' | 'attention';
 
+// '__root__' means "show the category list itself", not a specific category
 export type CenterEntity =
   | { kind: 'today' }
   | { kind: 'contract-category'; domain: ContractDomain; status: string }
@@ -11,7 +12,7 @@ export type CenterEntity =
   | { kind: 'staff-member'; id: string }
   | { kind: 'schedule-category'; category: ScheduleCategory | '__root__' }
   | { kind: 'schedule-job'; id: string }
-  | { kind: 'employee'; name: string; position?: string };
+  | { kind: 'employee'; id: string; name: string; position?: string };
 
 export type EntityKind =
   | 'today'
@@ -79,6 +80,6 @@ export function centerEntityKey(center: CenterEntity): string {
     case 'schedule-job':
       return `schedule-job:${center.id}`;
     case 'employee':
-      return `employee:${center.name}:${center.position ?? ''}`;
+      return `employee:${center.id}`;
   }
 }
