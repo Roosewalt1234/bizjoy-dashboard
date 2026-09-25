@@ -16,19 +16,26 @@ export function UniverseSearch({ onSelect, avoidTopLeftRow = false }: UniverseSe
   const [results, setResults] = useState<SearchResult[]>([]);
   const [open, setOpen] = useState(false);
   const requestIdRef = useRef(0);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  async function handleChange(value: string) {
+  function handleChange(value: string) {
     setQuery(value);
     const thisRequestId = ++requestIdRef.current;
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
     if (value.trim().length < 2) {
       setResults([]);
       setOpen(false);
       return;
     }
-    const found = await searchUniverse(value);
-    if (thisRequestId !== requestIdRef.current) return; // a newer request has since started; discard this stale response
-    setResults(found);
-    setOpen(true);
+
+    debounceRef.current = setTimeout(async () => {
+      const found = await searchUniverse(value);
+      if (thisRequestId !== requestIdRef.current) return; // a newer request has since started; discard this stale response
+      setResults(found);
+      setOpen(true);
+    }, 300);
   }
 
   function handleSelect(result: SearchResult) {
