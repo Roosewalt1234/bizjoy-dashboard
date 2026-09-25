@@ -209,6 +209,19 @@ async function fetchContractConnections(
     });
   }
 
+  const hasPendingWorkOrder = ringOne.some((node) => node.data.groupKey === "work-order-pending");
+  if (!hasPendingWorkOrder) {
+    ringOne.push({
+      id: `contract-empty:${contractId}:pending-work-orders`,
+      data: {
+        kind: "staff-detail",
+        label: "No open work orders",
+        clickable: false,
+        groupKey: "work-order-pending",
+      },
+    });
+  }
+
   for (const visit of ("data" in ppmVisitsRes ? ppmVisitsRes.data : []) ?? []) {
     ringOne.push({
       id: `ppm-visit:${visit.id}`,
