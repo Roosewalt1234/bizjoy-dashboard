@@ -383,6 +383,8 @@ async function fetchWorkOrderConnections(
     });
   }
 
+  // customer_id is nullable on work_orders/fm_work_orders - only offer a way back
+  // to the customer when this work order is actually attached to one.
   if (wo.customer_id) {
     ringOne.push({
       id: `customer:${wo.customer_id}`,
@@ -474,7 +476,11 @@ async function fetchCustomerConnections(customerId: string): Promise<{
       .select("display_name, company_name, email, phone, address_city")
       .eq("id", customerId)
       .maybeSingle(),
-    supabase.from("contracts").select("id, title, status").eq("customer_id", customerId).order("title"),
+    supabase
+      .from("contracts")
+      .select("id, title, status")
+      .eq("customer_id", customerId)
+      .order("title"),
     supabase
       .from("fm_contracts")
       .select("id, title, status")
