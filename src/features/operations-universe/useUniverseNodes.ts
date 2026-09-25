@@ -506,10 +506,7 @@ async function fetchEmployeeConnections(employeeId: string): Promise<{
       .from("attendance_logs")
       .select("check_in, check_out, status")
       .eq("employee_id", employeeId)
-      .eq("attendance_date", todayStr)
-      .order("check_in", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
+      .eq("attendance_date", todayStr),
     supabase
       .from("work_orders")
       .select("id, wo_no, status, scheduled_date")
@@ -534,15 +531,22 @@ async function fetchEmployeeConnections(employeeId: string): Promise<{
 
   const name = employee.full_name ?? `${employee.first_name} ${employee.last_name ?? ""}`.trim();
 
-  const attendance = attendanceRes.data;
+  const attendanceRows = attendanceRes.data ?? [];
+  const presentRow = attendanceRows
+    .filter((row) => row.status === "Present" && row.check_in)
+    .sort((a, b) => (b.check_in ?? "").localeCompare(a.check_in ?? ""))[0];
+  const checkedOutRow = attendanceRows
+    .filter((row) => row.status === "Checked Out" && row.check_out)
+    .sort((a, b) => (b.check_out ?? "").localeCompare(a.check_out ?? ""))[0];
+
   let attendanceLabel = "No attendance recorded today";
   let attendanceSublabel: string | undefined;
-  if (attendance?.status === "Present" && attendance.check_in) {
+  if (presentRow?.check_in) {
     attendanceLabel = "Checked in";
-    attendanceSublabel = formatAttendanceTime(attendance.check_in);
-  } else if (attendance?.status === "Checked Out" && attendance.check_out) {
+    attendanceSublabel = formatAttendanceTime(presentRow.check_in);
+  } else if (checkedOutRow?.check_out) {
     attendanceLabel = "Checked out";
-    attendanceSublabel = formatAttendanceTime(attendance.check_out);
+    attendanceSublabel = formatAttendanceTime(checkedOutRow.check_out);
   }
 
   const ringOne: { id: string; data: UniverseNodeData }[] = [
