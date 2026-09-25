@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { layoutAround } from "./layout";
 import type { CenterEntity, CenterDetailField, UniverseNodeData } from "./types";
 import { centerEntityKey } from "./types";
-import { DEMO_STAFF } from "./prototypeData";
+import { DEMO_STAFF, DEMO_JOBS, SUITABLE_STAFF_FOR_JOB } from "./prototypeData";
 
 async function fetchContractCategoryCounts(): Promise<{ id: string; data: UniverseNodeData }[]> {
   const [amc, fm] = await Promise.all([
@@ -501,6 +501,105 @@ function buildStaffMemberDetail(id: string): {
   };
 }
 
+function buildScheduleCategoryRoot(): {
+  centerLabel: string;
+  ringOne: { id: string; data: UniverseNodeData }[];
+} {
+  const categories: {
+    category: "today" | "unassigned" | "tomorrow" | "attention";
+    label: string;
+  }[] = [
+    { category: "today", label: "Today's Jobs" },
+    { category: "unassigned", label: "Unassigned" },
+    { category: "tomorrow", label: "Tomorrow" },
+    { category: "attention", label: "Attention Required" },
+  ];
+  const ringOne = categories.map(({ category, label }) => {
+    const count = DEMO_JOBS.filter((j) => j.category === category).length;
+    return {
+      id: `schedule-category:${category}`,
+      data: {
+        kind: "schedule-category" as const,
+        label,
+        sublabel: `${count} job${count === 1 ? "" : "s"}`,
+        exception: category === "attention" && count > 0,
+        clickable: true,
+        center: { kind: "schedule-category", category } as CenterEntity,
+        groupKey: category,
+        relationshipReason: `${label} groups jobs by their current scheduling state.`,
+      },
+    };
+  });
+  return { centerLabel: "SCHEDULES", ringOne };
+}
+
+function buildScheduleCategoryJobs(category: "today" | "unassigned" | "tomorrow" | "attention"): {
+  centerLabel: string;
+  ringOne: { id: string; data: UniverseNodeData }[];
+} {
+  const jobs = DEMO_JOBS.filter((j) => j.category === category);
+  const ringOne = jobs.map((job) => ({
+    id: `schedule-job:${job.id}`,
+    data: {
+      kind: "schedule-job" as const,
+      label: job.title,
+      sublabel: job.customer,
+      exception: category === "attention",
+      clickable: true,
+      center: { kind: "schedule-job", id: job.id } as CenterEntity,
+      groupKey: "job",
+      relationshipReason: `${job.title} is currently in the "${category}" schedule state.`,
+    },
+  }));
+  const labels: Record<string, string> = {
+    today: "Today's Jobs",
+    unassigned: "Unassigned",
+    tomorrow: "Tomorrow",
+    attention: "Attention Required",
+  };
+  return { centerLabel: labels[category] ?? category, ringOne };
+}
+
+function buildScheduleJobDetail(id: string): {
+  centerLabel: string;
+  centerSublabel: string;
+  centerDetail: CenterDetailField[];
+  ringOne: { id: string; data: UniverseNodeData }[];
+} {
+  const job = DEMO_JOBS.find((j) => j.id === id);
+  if (!job) throw new Error("Job not found");
+
+  const ringOne: { id: string; data: UniverseNodeData }[] = [];
+  const suitableIds = SUITABLE_STAFF_FOR_JOB[job.id] ?? [];
+  for (const staffId of suitableIds) {
+    const staff = DEMO_STAFF.find((s) => s.id === staffId);
+    if (!staff) continue;
+    ringOne.push({
+      id: `staff-suggestion:${job.id}:${staff.id}`,
+      data: {
+        kind: "staff-member",
+        label: staff.name,
+        sublabel: `Suitable - ${staff.skills}`,
+        clickable: false,
+        groupKey: "suitable-staff",
+        relationshipReason: `${staff.name} matches the required skill (${job.requiredSkill}) and is currently available.`,
+      },
+    });
+  }
+
+  return {
+    centerLabel: job.title,
+    centerSublabel: `${job.priority} priority`,
+    centerDetail: [
+      { label: "Customer", value: job.customer },
+      { label: "Location", value: job.location },
+      { label: "Required Skill", value: job.requiredSkill },
+      { label: "Priority", value: job.priority },
+    ],
+    ringOne,
+  };
+}
+
 export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["universe-graph", centerEntityKey(centerEntity)],
@@ -623,6 +722,54 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
         };
         return {
           ...layoutAround({ centerId: `staff-member:${centerEntity.id}`, centerData, ringOne }),
+          centerDetail,
+        };
+      }
+
+      if (centerEntity.kind === "schedule-category" && centerEntity.category === "__root__") {
+        const { centerLabel, ringOne } = buildScheduleCategoryRoot();
+        const centerData: UniverseNodeData = {
+          kind: "schedules-hub",
+          label: centerLabel,
+          clickable: false,
+        };
+        return {
+          ...layoutAround({ centerId: "schedules-hub", centerData, ringOne }),
+          centerDetail: undefined,
+        };
+      }
+
+      if (centerEntity.kind === "schedule-category") {
+        const { centerLabel, ringOne } = buildScheduleCategoryJobs(
+          centerEntity.category as "today" | "unassigned" | "tomorrow" | "attention",
+        );
+        const centerData: UniverseNodeData = {
+          kind: "schedule-category",
+          label: centerLabel,
+          clickable: false,
+        };
+        return {
+          ...layoutAround({
+            centerId: `schedule-category:${centerEntity.category}`,
+            centerData,
+            ringOne,
+          }),
+          centerDetail: undefined,
+        };
+      }
+
+      if (centerEntity.kind === "schedule-job") {
+        const { centerLabel, centerSublabel, centerDetail, ringOne } = buildScheduleJobDetail(
+          centerEntity.id,
+        );
+        const centerData: UniverseNodeData = {
+          kind: "schedule-job",
+          label: centerLabel,
+          sublabel: centerSublabel,
+          clickable: false,
+        };
+        return {
+          ...layoutAround({ centerId: `schedule-job:${centerEntity.id}`, centerData, ringOne }),
           centerDetail,
         };
       }

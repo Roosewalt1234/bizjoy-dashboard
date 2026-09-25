@@ -43,8 +43,9 @@ function todayGraph() {
       data: {
         kind: "schedules-hub",
         label: "SCHEDULES",
-        sublabel: "Coming soon",
-        clickable: false,
+        sublabel: "What is happening?",
+        clickable: true,
+        center: { kind: "schedule-category", category: "__root__" },
         groupKey: "schedules",
       },
     },

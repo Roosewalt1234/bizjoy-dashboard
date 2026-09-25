@@ -16,6 +16,8 @@ import {
   User,
   UserCircle2,
   Info,
+  ListChecks,
+  Briefcase,
 } from "lucide-react";
 import type { UniverseNodeData, EntityKind } from "./types";
 
@@ -38,6 +40,8 @@ const ICONS: Record<EntityKind, React.ComponentType<{ className?: string }>> = {
   "staff-category": Users,
   "staff-member": UserCircle2,
   "staff-detail": Info,
+  "schedule-category": ListChecks,
+  "schedule-job": Briefcase,
 };
 
 const COLORS: Partial<Record<EntityKind, string>> = {
@@ -59,6 +63,8 @@ const COLORS: Partial<Record<EntityKind, string>> = {
   "staff-category": "#5b9bd5",
   "staff-member": "#e8a5c4",
   "staff-detail": "#8a93a3",
+  "schedule-category": "#5b9bd5",
+  "schedule-job": "#e89a4a",
 };
 
 export function UniverseNodeComponent({ data }: NodeProps<Node<UniverseNodeData>>) {
