@@ -180,7 +180,10 @@ export function OperationsUniverse() {
         <Background />
         <Controls />
       </ReactFlow>
-      <UniverseSearch onSelect={(entity) => navigateTo(entity)} />
+      <UniverseSearch
+        onSelect={(entity) => navigateTo(entity)}
+        avoidTopLeftRow={centerEntity.kind !== "today"}
+      />
       {centerEntity.kind !== "today" && (
         <div
           style={{
