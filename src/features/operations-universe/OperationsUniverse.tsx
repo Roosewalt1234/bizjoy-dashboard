@@ -6,6 +6,7 @@ import { layoutAround } from "./layout";
 import { UniverseNodeComponent } from "./UniverseNodeComponent";
 import { useUniverseGraph } from "./useUniverseNodes";
 import { EntityDetailPanel } from "./EntityDetailPanel";
+import { UniverseSearch } from "./UniverseSearch";
 import type { CenterEntity, UniverseNodeData } from "./types";
 
 const nodeTypes = { universe: UniverseNodeComponent };
@@ -177,6 +178,7 @@ export function OperationsUniverse() {
         <Background />
         <Controls />
       </ReactFlow>
+      <UniverseSearch onSelect={(entity) => navigateTo(entity)} />
       {centerEntity.kind !== "today" && (
         <button
           type="button"

@@ -640,6 +640,90 @@ function buildScheduleJobDetail(id: string): {
   };
 }
 
+export interface SearchResult {
+  id: string;
+  label: string;
+  sublabel: string;
+  center: CenterEntity;
+}
+
+export async function searchUniverse(query: string): Promise<SearchResult[]> {
+  const trimmed = query.trim();
+  if (trimmed.length < 2) return [];
+
+  const results: SearchResult[] = [];
+
+  const [amcContracts, fmContracts, amcWorkOrders, fmWorkOrders] = await Promise.all([
+    supabase
+      .from("contracts")
+      .select("id, title, customer_name, status")
+      .ilike("title", `%${trimmed}%`)
+      .limit(5),
+    supabase
+      .from("fm_contracts")
+      .select("id, title, customer_name, status")
+      .ilike("title", `%${trimmed}%`)
+      .limit(5),
+    supabase
+      .from("work_orders")
+      .select("id, wo_no, customer_name, status")
+      .ilike("wo_no", `%${trimmed}%`)
+      .limit(5),
+    supabase
+      .from("fm_work_orders")
+      .select("id, wo_no, customer_name, status")
+      .ilike("wo_no", `%${trimmed}%`)
+      .limit(5),
+  ]);
+
+  for (const row of amcContracts.data ?? []) {
+    results.push({
+      id: `contract:AMC:${row.id}`,
+      label: row.title ?? "Untitled contract",
+      sublabel: `AMC Contract - ${row.customer_name ?? ""}`,
+      center: { kind: "contract", domain: "AMC", id: row.id },
+    });
+  }
+  for (const row of fmContracts.data ?? []) {
+    results.push({
+      id: `contract:FM:${row.id}`,
+      label: row.title ?? "Untitled contract",
+      sublabel: `FM Contract - ${row.customer_name ?? ""}`,
+      center: { kind: "contract", domain: "FM", id: row.id },
+    });
+  }
+  for (const row of amcWorkOrders.data ?? []) {
+    results.push({
+      id: `work-order:AMC:${row.id}`,
+      label: row.wo_no ?? "Work order",
+      sublabel: `AMC Work Order - ${row.customer_name ?? ""}`,
+      center: { kind: "work-order", domain: "AMC", id: row.id },
+    });
+  }
+  for (const row of fmWorkOrders.data ?? []) {
+    results.push({
+      id: `work-order:FM:${row.id}`,
+      label: row.wo_no ?? "Work order",
+      sublabel: `FM Work Order - ${row.customer_name ?? ""}`,
+      center: { kind: "work-order", domain: "FM", id: row.id },
+    });
+  }
+
+  const lowerQuery = trimmed.toLowerCase();
+  for (const member of DEMO_STAFF) {
+    if (member.name.toLowerCase().includes(lowerQuery)) {
+      results.push({
+        id: `staff-member:${member.id}`,
+        label: member.name,
+        sublabel: `Staff - ${member.skills}`,
+        center: { kind: "staff-member", id: member.id },
+      });
+    }
+  }
+
+  return results;
+}
+
 export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["universe-graph", centerEntityKey(centerEntity)],
