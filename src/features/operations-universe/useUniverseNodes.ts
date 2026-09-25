@@ -8,6 +8,63 @@ function formatAttendanceTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 }
 
+function computePaymentStatus(
+  paymentDate: string | null,
+  receivedDate: string | null,
+): "Received" | "Not Yet Due" | "Due" | "Overdue" {
+  if (receivedDate) return "Received";
+  if (!paymentDate) return "Not Yet Due";
+  const diffDays = Math.round((Date.now() - new Date(paymentDate).getTime()) / 86400000);
+  if (diffDays <= 0) return "Not Yet Due";
+  if (diffDays <= 15) return "Due";
+  return "Overdue";
+}
+
+interface PaymentRow {
+  id: string;
+  value: number | null;
+  paymentDate: string | null;
+  receivedDate: string | null;
+}
+
+interface PaymentSummary {
+  received: number;
+  outstanding: number;
+  overdue: number;
+  nextPayment: { id: string; value: number; date: string } | null;
+}
+
+function summarizePayments(payments: PaymentRow[]): PaymentSummary {
+  let received = 0;
+  let outstanding = 0;
+  let overdue = 0;
+
+  const unpaidWithDate = payments
+    .filter((p) => !p.receivedDate && p.paymentDate)
+    .sort((a, b) => (a.paymentDate ?? "").localeCompare(b.paymentDate ?? ""));
+  const nextPayment =
+    unpaidWithDate.length > 0
+      ? {
+          id: unpaidWithDate[0].id,
+          value: unpaidWithDate[0].value ?? 0,
+          date: unpaidWithDate[0].paymentDate as string,
+        }
+      : null;
+
+  for (const payment of payments) {
+    const value = payment.value ?? 0;
+    const status = computePaymentStatus(payment.paymentDate, payment.receivedDate);
+    if (status === "Received") {
+      received += value;
+    } else {
+      outstanding += value;
+      if (status === "Overdue") overdue += value;
+    }
+  }
+
+  return { received, outstanding, overdue, nextPayment };
+}
+
 async function fetchContractCategoryCounts(): Promise<{ id: string; data: UniverseNodeData }[]> {
   const [amc, fm] = await Promise.all([
     supabase.from("contracts").select("status"),
@@ -108,7 +165,7 @@ async function fetchContractConnections(
       .order("scheduled_date", { ascending: true }),
     supabase
       .from(paymentTable)
-      .select("id, value, status, payment_date")
+      .select("id, value, status, payment_date, received_date")
       .eq("contract_id", contractId)
       .order("payment_date", { ascending: true }),
     // invoice_packs.contract_id carries a foreign key to fm_contracts only (per
@@ -272,16 +329,27 @@ async function fetchContractConnections(
     });
   }
 
-  for (const payment of paymentsRes.data ?? []) {
+  const contractPayments = (paymentsRes.data ?? []).map((p) => ({
+    id: p.id,
+    value: p.value,
+    paymentDate: p.payment_date,
+    receivedDate: p.received_date,
+  }));
+  const paymentSummary = summarizePayments(contractPayments);
+  if (contractPayments.length > 0 || contract.value != null) {
+    const financeSublabel =
+      paymentSummary.outstanding > 0 ? `AED ${paymentSummary.outstanding} outstanding` : "Fully paid";
     ringOne.push({
-      id: `payment:${payment.id}`,
+      id: `contract-finance:${domain}:${contractId}`,
       data: {
-        kind: "payment",
-        label: payment.status ?? "Payment",
-        sublabel: payment.value != null ? `AED ${payment.value}` : undefined,
-        clickable: false,
-        groupKey: "payment",
-        relationshipReason: `This payment was received against this contract.`,
+        kind: "contract-finance",
+        label: "FINANCE",
+        sublabel: financeSublabel,
+        exception: paymentSummary.overdue > 0,
+        clickable: true,
+        center: { kind: "contract-finance", domain, id: contractId },
+        groupKey: "finance",
+        relationshipReason: `${contract.title ?? "This contract"}'s financial position.`,
       },
     });
   }
