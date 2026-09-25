@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { CenterEntity, ContractDomain } from "./types";
-import { computePaymentStatus } from "./useUniverseNodes";
+import { computePaymentStatus } from "./payment-status";
 
 export type ExceptionSeverity = "attention" | "important" | "critical";
 export type ExceptionCategory = "operations" | "people" | "finance" | "contracts" | "data-quality";
@@ -125,26 +125,38 @@ export async function detectStaffAttendanceIssues(): Promise<OperationalExceptio
   if (fmWosRes.error) throw fmWosRes.error;
   if (attendanceRes.error) throw attendanceRes.error;
 
-  const assignedCounts = new Map<string, number>();
-  for (const wo of [...(amcWosRes.data ?? []), ...(fmWosRes.data ?? [])]) {
+  const assignedCounts = new Map<string, { amc: number; fm: number }>();
+  for (const wo of amcWosRes.data ?? []) {
     if (!wo.technician_id) continue;
-    assignedCounts.set(wo.technician_id, (assignedCounts.get(wo.technician_id) ?? 0) + 1);
+    const current = assignedCounts.get(wo.technician_id) ?? { amc: 0, fm: 0 };
+    current.amc += 1;
+    assignedCounts.set(wo.technician_id, current);
+  }
+  for (const wo of fmWosRes.data ?? []) {
+    if (!wo.technician_id) continue;
+    const current = assignedCounts.get(wo.technician_id) ?? { amc: 0, fm: 0 };
+    current.fm += 1;
+    assignedCounts.set(wo.technician_id, current);
   }
 
   const attendedToday = new Set((attendanceRes.data ?? []).map((row) => row.employee_id));
 
   const exceptions: OperationalException[] = [];
   for (const employee of employeesRes.data ?? []) {
-    const assignedCount = assignedCounts.get(employee.id) ?? 0;
-    if (assignedCount === 0) continue;
+    const counts = assignedCounts.get(employee.id);
+    const totalCount = (counts?.amc ?? 0) + (counts?.fm ?? 0);
+    if (totalCount === 0) continue;
     if (attendedToday.has(employee.id)) continue;
     const name = employee.full_name ?? `${employee.first_name} ${employee.last_name ?? ""}`.trim();
+    const breakdown: string[] = [];
+    if (counts && counts.amc > 0) breakdown.push(`${counts.amc} AMC`);
+    if (counts && counts.fm > 0) breakdown.push(`${counts.fm} FM`);
     exceptions.push({
       id: `people:no-attendance:${employee.id}`,
       category: "people",
       severity: "important",
       title: "No Attendance Recorded",
-      reason: `${name} has ${assignedCount} open work order${assignedCount === 1 ? "" : "s"} assigned but no attendance record for today.`,
+      reason: `${name} has ${totalCount} open work order${totalCount === 1 ? "" : "s"} assigned (${breakdown.join(", ")}) but no attendance record for today.`,
       target: { kind: "employee", id: employee.id, name, position: employee.position ?? undefined },
     });
   }
@@ -152,6 +164,11 @@ export async function detectStaffAttendanceIssues(): Promise<OperationalExceptio
 }
 
 export async function detectOverduePayments(): Promise<OperationalException[]> {
+  // contract_payments/contracts are structurally AMC-only (fm_contract_payments has zero
+  // real rows as of Phase 4b) - this constant makes that scoping decision explicit and
+  // avoids repeating the literal in three places below.
+  const domain: ContractDomain = "AMC";
+
   const [contractsRes, paymentsRes] = await Promise.all([
     supabase.from("contracts").select("id, title"),
     supabase
@@ -177,14 +194,14 @@ export async function detectOverduePayments(): Promise<OperationalException[]> {
   for (const [contractId, { count, total }] of overdueByContract) {
     const title = contractTitles.get(contractId) ?? "This contract";
     exceptions.push({
-      id: `finance:overdue-payment:AMC:${contractId}`,
+      id: `finance:overdue-payment:${domain}:${contractId}`,
       category: "finance",
       severity: "critical",
       title: "Overdue Payment",
       reason: `${title} has ${count} payment${count === 1 ? "" : "s"} totaling AED ${total} that remain unpaid more than 15 days after the due date.`,
-      target: { kind: "contract-finance", domain: "AMC", id: contractId },
+      target: { kind: "contract-finance", domain, id: contractId },
       contractId,
-      contractDomain: "AMC",
+      contractDomain: domain,
     });
   }
   return exceptions;
