@@ -4,6 +4,19 @@ export type ScheduleCategory = "today" | "upcoming" | "overdue";
 export type ExceptionCategory = "operations" | "people" | "finance" | "contracts" | "data-quality";
 export type ExceptionSeverity = "attention" | "important" | "critical";
 
+/**
+ * The entity kinds a reverse-navigation "ATTENTION" relationship can attach to. Deliberately
+ * narrower than CenterEntity - excludes attention/attention-type/exception/entity-attention
+ * itself, so an entity-attention node can never wrap another one (which would make
+ * centerEntityKey's recursive case for this kind recurse without a base case).
+ */
+export type AttentionTarget =
+  | { kind: "contract"; domain: ContractDomain; id: string }
+  | { kind: "contract-finance"; domain: ContractDomain; id: string }
+  | { kind: "work-order"; domain: ContractDomain; id: string }
+  | { kind: "ppm-visit"; domain: ContractDomain; id: string }
+  | { kind: "employee"; id: string; name: string; position?: string };
+
 // '__root__' means "show the category list itself", not a specific category
 export type CenterEntity =
   | { kind: "today" }
@@ -21,7 +34,7 @@ export type CenterEntity =
   | { kind: "attention"; category: ExceptionCategory | "__root__" }
   | { kind: "attention-type"; category: ExceptionCategory; title: string }
   | { kind: "exception"; id: string }
-  | { kind: "entity-attention"; target: CenterEntity };
+  | { kind: "entity-attention"; target: AttentionTarget };
 
 export type EntityKind =
   | "today"
@@ -56,7 +69,7 @@ export interface UniverseNodeData {
   label: string;
   sublabel?: string;
   exception?: boolean;
-  /** only set by attention/exception-related nodes; drives severity-tiered styling in UniverseNodeComponent */
+  /** only set by attention/exception-related nodes - drives severity-tiered node styling */
   severity?: ExceptionSeverity;
   /** false for "coming soon" hubs, or an employee-info card whose work order has no linked technician id - clicking does nothing instead of recentering */
   clickable: boolean;
