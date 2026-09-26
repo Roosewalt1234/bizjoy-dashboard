@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Toaster } from "@/components/ui/sonner";
+import { GmAssistant } from "@/features/gm-assistant/GmAssistant";
 
 function NotFoundComponent() {
   return (
@@ -177,6 +178,7 @@ function RootComponent() {
             </div>
           </div>
           <Toaster />
+          <GmAssistant />
         </SidebarProvider>
       )}
     </QueryClientProvider>

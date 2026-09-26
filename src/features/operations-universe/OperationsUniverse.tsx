@@ -12,6 +12,7 @@ import type { CenterEntity, ExceptionCategory, UniverseNodeData } from "./types"
 import { useIsMobile } from "@/hooks/use-mobile";
 import { detectAllExceptions, worstSeverity, type OperationalException } from "./exceptions";
 import { buildMorningSummary } from "./attention-summary";
+import { setUniverseContext, onNavigationCommand } from "@/lib/gm-assistant/universe-bridge";
 
 const nodeTypes = { universe: UniverseNodeComponent };
 
@@ -207,6 +208,40 @@ export function OperationsUniverse() {
     },
     [centerEntity, currentLabel],
   );
+
+  useEffect(() => {
+    setUniverseContext({ centerEntity, displayLabel: currentLabel });
+  }, [centerEntity, currentLabel]);
+
+  // Clears the bridge's context only when this screen actually unmounts (navigating away from
+  // Operations Universe entirely) - not on every centerEntity change, which the effect above
+  // already keeps current.
+  useEffect(() => {
+    return () => setUniverseContext(undefined);
+  }, []);
+
+  useEffect(() => {
+    return onNavigationCommand((command) => {
+      switch (command.type) {
+        case "focus_entity":
+          navigateTo(command.entity);
+          break;
+        case "open_attention":
+          navigateTo({ kind: "attention", category: "__root__" });
+          break;
+        case "go_today":
+          handleReturnToToday();
+          break;
+        case "go_back":
+          handleBack();
+          break;
+        case "search_entity":
+          // Not wired in 6A-1 - the assistant's own intents resolve entities by name directly
+          // rather than going through the UniverseSearch input's own component state.
+          break;
+      }
+    });
+  }, [navigateTo, handleReturnToToday, handleBack]);
 
   // Local, draggable copy of the node positions. Re-synced to the freshly computed
   // layout whenever `graph` changes identity - which, thanks to the stable references
