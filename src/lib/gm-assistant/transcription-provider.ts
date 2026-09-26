@@ -36,7 +36,11 @@ export const openAiTranscriptionProvider: TranscriptionProvider = {
     const model = process.env.GM_ASSISTANT_TRANSCRIBE_MODEL ?? "gpt-transcribe";
 
     const form = new FormData();
-    form.append("file", new Blob([new Uint8Array(audio)], { type: mimeType }), filenameFor(mimeType));
+    form.append(
+      "file",
+      new Blob([new Uint8Array(audio)], { type: mimeType }),
+      filenameFor(mimeType),
+    );
     form.append("model", model);
 
     // Shape confirmed against
