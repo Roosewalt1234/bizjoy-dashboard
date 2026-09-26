@@ -13,10 +13,6 @@ export interface AssistantProvider {
   ): Promise<string>;
 }
 
-// Cheapest/fastest current model tier, suitable for a simple classification task.
-// Confirmed against https://developers.openai.com/api/docs/models (2026-09-26).
-const MODEL = "gpt-6-luna";
-
 interface OpenAiMessage {
   role: "system" | "user";
   content: string;
@@ -38,10 +34,23 @@ async function callOpenAiForText(input: OpenAiMessage[]): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
 
+  // Read lazily (inside the function, alongside OPENAI_API_KEY above) rather than at module
+  // scope - this file has no .server.ts suffix and is imported at the top of
+  // gm-assistant.functions.ts, which ships to the client bundle, so a top-level process.env
+  // read here would run wherever the module happens to be evaluated instead of only when this
+  // server-side-only function actually runs. Same lazy-read convention this codebase already
+  // uses elsewhere for process.env (see src/integrations/supabase/client.server.ts's Proxy).
+  //
+  // Cheapest/fastest current model tier, suitable for a simple classification task. Confirmed
+  // against https://developers.openai.com/api/docs/models (2026-09-26) - gpt-5.6-luna (an older,
+  // more expensive model from Feb 2026) is NOT a replacement for this; gpt-6-luna (May 2026) is
+  // still the right tier on both cost and recency.
+  const model = process.env.GM_ASSISTANT_TEXT_MODEL ?? "gpt-6-luna";
+
   const res = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model: MODEL, input }),
+    body: JSON.stringify({ model, input }),
     // A provider incident with no bound would otherwise hang the whole askAssistant request.
     signal: AbortSignal.timeout(15_000),
   });
