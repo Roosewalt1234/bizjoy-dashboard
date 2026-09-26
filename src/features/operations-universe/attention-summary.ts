@@ -23,6 +23,9 @@ const EXCEPTION_TITLE_PHRASES: Record<string, { singular: string; plural: string
 // (see exceptions.ts's detectReconciliationIssues).
 const DATA_QUALITY_TITLE = "Payment Schedule Mismatch";
 
+// A Map preserves first-insertion order, so the phrase order in buildMorningSummary's output
+// follows the order titles first appear in `exceptions` - today that's detectAllExceptions'
+// fixed detector-call order. Reordering that Promise.all silently reorders this sentence too.
 function countByTitle(exceptions: OperationalException[]): Map<string, number> {
   const counts = new Map<string, number>();
   for (const exception of exceptions) {
