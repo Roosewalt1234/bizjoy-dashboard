@@ -1,5 +1,10 @@
 import type { AssistantContext, NavigationCommand } from "./types";
 
+// Client-only module-level state (React module-singleton pattern). Never import this from a
+// createServerFn handler or any other server-side code - this app's server deployment target is
+// Cloudflare Workers, where a Worker instance can serve concurrent requests from different
+// users, and module-level state imported there would leak one user's Universe context/handler
+// into another user's request.
 let currentContext: AssistantContext | undefined;
 let navigationHandler: ((command: NavigationCommand) => void) | undefined;
 const listeners = new Set<() => void>();
@@ -24,6 +29,8 @@ export function dispatchNavigationCommand(command: NavigationCommand): boolean {
   return true;
 }
 
+// Only one handler is ever registered at a time - the Universe screen is a singleton route.
+// A newer registration silently replaces an older one.
 export function onNavigationCommand(handler: (command: NavigationCommand) => void): () => void {
   navigationHandler = handler;
   return () => {
