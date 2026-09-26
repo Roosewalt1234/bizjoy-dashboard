@@ -1,6 +1,8 @@
 export type ContractDomain = "AMC" | "FM";
 export type StaffCategory = "available" | "booked" | "absent";
 export type ScheduleCategory = "today" | "upcoming" | "overdue";
+export type ExceptionCategory = "operations" | "people" | "finance" | "contracts" | "data-quality";
+export type ExceptionSeverity = "attention" | "important" | "critical";
 
 // '__root__' means "show the category list itself", not a specific category
 export type CenterEntity =
@@ -15,7 +17,11 @@ export type CenterEntity =
   | { kind: "payment"; domain: ContractDomain; id: string }
   | { kind: "staff-category" }
   | { kind: "schedule-category"; category: ScheduleCategory | "__root__" }
-  | { kind: "employee"; id: string; name: string; position?: string };
+  | { kind: "employee"; id: string; name: string; position?: string }
+  | { kind: "attention"; category: ExceptionCategory | "__root__" }
+  | { kind: "attention-type"; category: ExceptionCategory; title: string }
+  | { kind: "exception"; id: string }
+  | { kind: "entity-attention"; target: CenterEntity };
 
 export type EntityKind =
   | "today"
@@ -37,7 +43,10 @@ export type EntityKind =
   | "staff-category"
   | "staff-member"
   | "staff-detail"
-  | "schedule-category";
+  | "schedule-category"
+  | "attention-hub"
+  | "attention-category"
+  | "exception";
 
 export type EdgeStyle = "active" | "planned" | "attention";
 
@@ -47,6 +56,8 @@ export interface UniverseNodeData {
   label: string;
   sublabel?: string;
   exception?: boolean;
+  /** only set by attention/exception-related nodes; drives severity-tiered styling in UniverseNodeComponent */
+  severity?: ExceptionSeverity;
   /** false for "coming soon" hubs, or an employee-info card whose work order has no linked technician id - clicking does nothing instead of recentering */
   clickable: boolean;
   /** what clicking this node centers on - only present when clickable is true */
@@ -90,5 +101,13 @@ export function centerEntityKey(center: CenterEntity): string {
       return `schedule-category:${center.category}`;
     case "employee":
       return `employee:${center.id}`;
+    case "attention":
+      return `attention:${center.category}`;
+    case "attention-type":
+      return `attention-type:${center.category}:${center.title}`;
+    case "exception":
+      return `exception:${center.id}`;
+    case "entity-attention":
+      return `entity-attention:${centerEntityKey(center.target)}`;
   }
 }
