@@ -37,6 +37,7 @@ const DETAIL_ENTITY_KINDS: CenterEntity["kind"][] = [
   "contract-finance",
   "payment",
   "employee",
+  "exception",
   "customer",
 ];
 

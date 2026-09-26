@@ -5,7 +5,7 @@ const RING_RADIUS_STEP = 220;
 const CENTER_NODE_SIZE = 130;
 
 const HUB_KINDS: EntityKind[] = ['today', 'contracts-hub', 'staff-hub', 'schedules-hub', 'attention-hub'];
-const CATEGORY_KINDS: EntityKind[] = ['category', 'staff-category', 'schedule-category'];
+const CATEGORY_KINDS: EntityKind[] = ['category', 'staff-category', 'schedule-category', 'attention-category'];
 
 function ringNodeSize(kind: EntityKind): number {
   if (HUB_KINDS.includes(kind)) return 100;
