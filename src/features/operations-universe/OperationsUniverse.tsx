@@ -237,7 +237,14 @@ export function OperationsUniverse() {
           break;
         case "search_entity":
           // Not wired in 6A-1 - the assistant's own intents resolve entities by name directly
-          // rather than going through the UniverseSearch input's own component state.
+          // rather than going through the UniverseSearch input's own component state. No real
+          // intent emits this today (confirmed against intents.ts), so this is unreachable in
+          // practice - the debug log exists only so a future emitter of this command doesn't
+          // silently do nothing with zero trace.
+          console.debug(
+            "[gm-assistant] search_entity navigation command received but not wired in 6A-1",
+            command,
+          );
           break;
       }
     });

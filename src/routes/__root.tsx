@@ -177,7 +177,10 @@ function RootComponent() {
               </main>
             </div>
           </div>
-          <Toaster />
+          {/* top-right, not sonner's own bottom-right default - GmAssistant's orb defaults to
+              that same corner (see useDraggable.ts's loadPosition), and sonner's toast
+              z-index is far above the orb's, so a toast there could cover and block it */}
+          <Toaster position="top-right" />
           <GmAssistant />
         </SidebarProvider>
       )}
