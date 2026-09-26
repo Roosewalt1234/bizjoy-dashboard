@@ -291,7 +291,9 @@ export function OperationsUniverse() {
         onClick={() => setAttentionOnly((value) => !value)}
         style={{
           position: "absolute",
-          bottom: 16,
+          // On mobile, TODAY's morning-summary banner spans nearly the full width at
+          // bottom:16 - push this button up above it there so the two never overlap.
+          bottom: isMobile && isToday ? 90 : 16,
           right: 16,
           zIndex: 11,
           background: attentionOnly ? "#dc4c4c" : "#1c2128",
