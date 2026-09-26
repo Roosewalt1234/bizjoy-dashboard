@@ -1,7 +1,13 @@
 import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { layoutAround } from "./layout";
-import type { CenterEntity, CenterDetailField, EntityKind, UniverseNodeData } from "./types";
+import type {
+  AttentionTarget,
+  CenterEntity,
+  CenterDetailField,
+  EntityKind,
+  UniverseNodeData,
+} from "./types";
 import { centerEntityKey } from "./types";
 import { computePaymentStatus } from "./payment-status";
 import {
@@ -286,6 +292,56 @@ async function fetchExceptionDetail(
     centerDetail,
     ringOne,
   };
+}
+
+function findExceptionsForEntity(
+  exceptions: OperationalException[],
+  target: CenterEntity,
+): OperationalException[] {
+  // Contract and Contract Finance are two screens over the same real contract - both route
+  // through groupExceptionsByContract so a contract's rollup includes every exception that
+  // carries its contractId, not only exceptions whose own target IS a contract (e.g. an
+  // overdue work order that happens to belong to this contract also counts).
+  if (target.kind === "contract" || target.kind === "contract-finance") {
+    const grouped = groupExceptionsByContract(exceptions);
+    return grouped.get(`${target.domain}:${target.id}`) ?? [];
+  }
+  return exceptions.filter(
+    (exception) => centerEntityKey(exception.target) === centerEntityKey(target),
+  );
+}
+
+async function appendAttentionNode(
+  ringOne: { id: string; data: UniverseNodeData }[],
+  queryClient: QueryClient,
+  centerEntity: AttentionTarget,
+  entityLabel: string,
+): Promise<void> {
+  const exceptions = await fetchCachedExceptions(queryClient);
+  const matching = findExceptionsForEntity(exceptions, centerEntity);
+  if (matching.length === 0) return;
+  ringOne.push({
+    id: `attention-hub:${centerEntityKey(centerEntity)}`,
+    data: {
+      kind: "attention-hub",
+      label: "ATTENTION",
+      sublabel: `${matching.length}`,
+      severity: worstSeverity(matching),
+      exception: true,
+      clickable: true,
+      center: { kind: "entity-attention", target: centerEntity },
+      groupKey: "attention",
+      relationshipReason: buildAttentionRelationshipReason(entityLabel, matching),
+    },
+  });
+}
+
+async function fetchEntityAttentionRecords(
+  queryClient: QueryClient,
+  target: CenterEntity,
+): Promise<{ id: string; data: UniverseNodeData }[]> {
+  const exceptions = await fetchCachedExceptions(queryClient);
+  return findExceptionsForEntity(exceptions, target).map(exceptionToRingNode);
 }
 
 async function fetchContractCategoryCounts(): Promise<{ id: string; data: UniverseNodeData }[]> {
@@ -1726,6 +1782,7 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
       if (centerEntity.kind === "contract") {
         const { centerLabel, centerSublabel, centerDetail, ringOne } =
           await fetchContractConnections(centerEntity.domain, centerEntity.id);
+        await appendAttentionNode(ringOne, queryClient, centerEntity, centerLabel);
         const centerData: UniverseNodeData = {
           kind: "contract",
           label: centerLabel,
@@ -1745,6 +1802,7 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
       if (centerEntity.kind === "work-order") {
         const { centerLabel, centerSublabel, exception, centerDetail, ringOne } =
           await fetchWorkOrderConnections(centerEntity.domain, centerEntity.id);
+        await appendAttentionNode(ringOne, queryClient, centerEntity, centerLabel);
         const centerData: UniverseNodeData = {
           kind: "work-order",
           label: centerLabel,
@@ -1765,6 +1823,7 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
       if (centerEntity.kind === "ppm-visit") {
         const { centerLabel, centerSublabel, exception, centerDetail, ringOne } =
           await fetchPpmVisitConnections(centerEntity.domain, centerEntity.id);
+        await appendAttentionNode(ringOne, queryClient, centerEntity, centerLabel);
         const centerData: UniverseNodeData = {
           kind: "ppm-visit",
           label: centerLabel,
@@ -1785,6 +1844,7 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
       if (centerEntity.kind === "contract-finance") {
         const { centerLabel, centerSublabel, centerDetail, ringOne } =
           await fetchContractFinanceConnections(centerEntity.domain, centerEntity.id);
+        await appendAttentionNode(ringOne, queryClient, centerEntity, centerLabel);
         const centerData: UniverseNodeData = {
           kind: "contract-finance",
           label: centerLabel,
@@ -1912,6 +1972,7 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
       if (centerEntity.kind === "employee") {
         const { centerLabel, centerSublabel, centerDetail, ringOne } =
           await fetchEmployeeConnections(centerEntity.id);
+        await appendAttentionNode(ringOne, queryClient, centerEntity, centerLabel);
         const centerData: UniverseNodeData = {
           kind: "employee-info",
           label: centerLabel,
@@ -1992,6 +2053,23 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
         return {
           ...layoutAround({ centerId: `exception:${centerEntity.id}`, centerData, ringOne }),
           centerDetail,
+        };
+      }
+
+      if (centerEntity.kind === "entity-attention") {
+        const ringOne = await fetchEntityAttentionRecords(queryClient, centerEntity.target);
+        const centerData: UniverseNodeData = {
+          kind: "attention-category",
+          label: "ATTENTION",
+          clickable: false,
+        };
+        return {
+          ...layoutAround({
+            centerId: `entity-attention:${centerEntityKey(centerEntity.target)}`,
+            centerData,
+            ringOne,
+          }),
+          centerDetail: undefined,
         };
       }
 
