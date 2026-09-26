@@ -355,11 +355,18 @@ export function groupExceptionsByContract(
   return grouped;
 }
 
-export function worstSeverity(
-  exceptions: OperationalException[],
-): ExceptionSeverity | undefined {
-  if (exceptions.some((exception) => exception.severity === "critical")) return "critical";
-  if (exceptions.some((exception) => exception.severity === "important")) return "important";
-  if (exceptions.some((exception) => exception.severity === "attention")) return "attention";
-  return undefined;
+const SEVERITY_RANK: Record<ExceptionSeverity, number> = {
+  attention: 0,
+  important: 1,
+  critical: 2,
+};
+
+export function worstSeverity(exceptions: OperationalException[]): ExceptionSeverity | undefined {
+  let worst: ExceptionSeverity | undefined;
+  for (const exception of exceptions) {
+    if (worst === undefined || SEVERITY_RANK[exception.severity] > SEVERITY_RANK[worst]) {
+      worst = exception.severity;
+    }
+  }
+  return worst;
 }
