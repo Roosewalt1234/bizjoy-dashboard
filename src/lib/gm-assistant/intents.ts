@@ -77,7 +77,12 @@ export const INTENTS: IntentDefinition[] = [
   {
     name: "staff_no_attendance",
     matches: (q) =>
-      includesAny(q, ["no attendance", "hasn't checked in", "attendance exceptions", "who has no attendance"]),
+      includesAny(q, [
+        "no attendance",
+        "hasn't checked in",
+        "attendance exceptions",
+        "who has no attendance",
+      ]),
     async run() {
       const issues = await detectStaffAttendanceIssues();
       const names = issues.map((issue) => issue.recordLabel);
@@ -111,12 +116,16 @@ export const INTENTS: IntentDefinition[] = [
       const entity = context?.centerEntity;
       if (!entity || (entity.kind !== "contract" && entity.kind !== "contract-finance")) {
         return {
-          answer: "Which contract? Open a contract in the Universe first, or ask me to show it by name.",
+          answer:
+            "Which contract? Open a contract in the Universe first, or ask me to show it by name.",
           suggestions: [],
         };
       }
       if (entity.domain !== "AMC") {
-        return { answer: "This FM contract has no real payment records on file yet.", suggestions: [] };
+        return {
+          answer: "This FM contract has no real payment records on file yet.",
+          suggestions: [],
+        };
       }
       const { data: payments, error } = await supabase
         .from("contract_payments")
@@ -149,7 +158,10 @@ export const INTENTS: IntentDefinition[] = [
     async run(_question, context) {
       const entity = context?.centerEntity;
       if (!entity || (entity.kind !== "contract" && entity.kind !== "contract-finance")) {
-        return { answer: "Open a contract first, then ask me to show its payments.", suggestions: [] };
+        return {
+          answer: "Open a contract first, then ask me to show its payments.",
+          suggestions: [],
+        };
       }
       return {
         answer: `Opening ${context.displayLabel}'s payments.`,
@@ -163,11 +175,15 @@ export const INTENTS: IntentDefinition[] = [
   },
   {
     name: "work_order_assignee",
-    matches: (q) => includesAny(q, ["who is assigned", "who's working on this", "who is working on this"]),
+    matches: (q) =>
+      includesAny(q, ["who is assigned", "who's working on this", "who is working on this"]),
     async run(_question, context, supabase) {
       const entity = context?.centerEntity;
       if (!entity || entity.kind !== "work-order") {
-        return { answer: "Open a work order first, then ask who's assigned to it.", suggestions: [] };
+        return {
+          answer: "Open a work order first, then ask who's assigned to it.",
+          suggestions: [],
+        };
       }
       const table = entity.domain === "AMC" ? "work_orders" : "fm_work_orders";
       const { data: workOrder, error: workOrderError } = await supabase
@@ -177,7 +193,10 @@ export const INTENTS: IntentDefinition[] = [
         .maybeSingle();
       if (workOrderError) throw workOrderError;
       if (!workOrder?.technician_id) {
-        return { answer: "No technician is currently assigned to this work order.", suggestions: [] };
+        return {
+          answer: "No technician is currently assigned to this work order.",
+          suggestions: [],
+        };
       }
       const { data: employee, error: employeeError } = await supabase
         .from("employees")
@@ -199,7 +218,10 @@ export const INTENTS: IntentDefinition[] = [
     async run(_question, context, supabase) {
       const entity = context?.centerEntity;
       if (!entity || entity.kind !== "customer") {
-        return { answer: "Open a customer first, then ask to see their contracts.", suggestions: [] };
+        return {
+          answer: "Open a customer first, then ask to see their contracts.",
+          suggestions: [],
+        };
       }
       const [amc, fm] = await Promise.all([
         supabase.from("contracts").select("id, title").eq("customer_id", entity.id),
@@ -253,7 +275,16 @@ export const INTENTS: IntentDefinition[] = [
     name: "focus_entity_by_name",
     matches: (q) => includesAny(q, ["show ", "open ", "go to ", "find ", "search for "]),
     async run(question, _context, supabase) {
-      const term = question.replace(/^(show|open|go to|find|search for)\s+/i, "").trim();
+      // Not anchored to the start: `matches` above only requires the trigger phrase to appear
+      // ANYWHERE in the question (so "Can you show me X?" is selected), so stripping must find
+      // the trigger wherever it actually occurs too, not just at position 0 - an anchored strip
+      // here would leave the whole "Can you show me..." lead-in in the search term and never
+      // match a real title. The optional "please "/"me " handles the two most common fillers
+      // around the trigger word without trying to parse full natural language.
+      const term = question
+        .replace(/^.*?\b(?:please\s+)?(show|open|go to|find|search for)(?:\s+me)?\s+/i, "")
+        .replace(/[?.!]+$/, "")
+        .trim();
       if (!term) return { answer: "What would you like me to show?", suggestions: [] };
 
       const [amcContracts, fmContracts] = await Promise.all([
@@ -261,8 +292,16 @@ export const INTENTS: IntentDefinition[] = [
         supabase.from("fm_contracts").select("id, title").ilike("title", `%${term}%`).limit(3),
       ]);
       const matches = [
-        ...(amcContracts.data ?? []).map((c) => ({ domain: "AMC" as const, id: c.id, title: c.title })),
-        ...(fmContracts.data ?? []).map((c) => ({ domain: "FM" as const, id: c.id, title: c.title })),
+        ...(amcContracts.data ?? []).map((c) => ({
+          domain: "AMC" as const,
+          id: c.id,
+          title: c.title,
+        })),
+        ...(fmContracts.data ?? []).map((c) => ({
+          domain: "FM" as const,
+          id: c.id,
+          title: c.title,
+        })),
       ];
 
       if (matches.length === 0) {
@@ -271,7 +310,10 @@ export const INTENTS: IntentDefinition[] = [
       if (matches.length > 1) {
         return {
           answer: `I found ${matches.length} matching contracts. Which one do you mean?`,
-          suggestions: matches.map((match) => ({ label: match.title, question: `Show ${match.title}` })),
+          suggestions: matches.map((match) => ({
+            label: match.title,
+            question: `Show ${match.title}`,
+          })),
         };
       }
       const match = matches[0];
