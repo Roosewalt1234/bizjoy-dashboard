@@ -1,12 +1,13 @@
 // src/features/gm-assistant/GmAssistant.tsx
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { MessageCircle, X, Send } from "lucide-react";
+import { MessageCircle, X, Send, Mic, Square, Loader2 } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { usePermissions } from "@/hooks/use-permissions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useDraggable } from "./useDraggable";
-import { askAssistant } from "@/lib/gm-assistant.functions";
+import { useVoiceRecorder } from "./useVoiceRecorder";
+import { askAssistant, transcribeAudio } from "@/lib/gm-assistant.functions";
 import {
   subscribe,
   getUniverseContext,
@@ -15,6 +16,15 @@ import {
 import type { AssistantResponse, Suggestion } from "@/lib/gm-assistant/types";
 
 const ORB_SIZE = 56;
+
+const smallVoiceButtonStyle: CSSProperties = {
+  fontSize: 11,
+  padding: "4px 8px",
+  borderRadius: 6,
+  border: "1px solid rgba(0,0,0,0.12)",
+  background: "white",
+  cursor: "pointer",
+};
 
 interface Message {
   role: "user" | "assistant";
@@ -51,7 +61,16 @@ export function GmAssistant() {
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const askFn = useServerFn(askAssistant);
+  const transcribeFn = useServerFn(transcribeAudio);
   const drag = useDraggable(ORB_SIZE);
+  // Set at the moment the mic is tapped (Step 6), read when the full voice round trip finishes,
+  // so the "total" latency log spans tap -> answer, not just transcript-ready -> answer.
+  const voiceTapStartRef = useRef(0);
+  // Typed and voice questions both call send() - without this, a voice transcript resolving
+  // while a typed question is still in flight (or vice versa) would hit the `sending` guard
+  // below and be silently dropped with no feedback. Chaining every call onto this ref instead
+  // serializes them: whichever arrives second just waits its turn rather than being discarded.
+  const sendQueueRef = useRef<Promise<void>>(Promise.resolve());
 
   const universeContext = useSyncExternalStore(subscribe, getUniverseContext, () => undefined);
 
@@ -59,11 +78,19 @@ export function GmAssistant() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [messages]);
 
-  async function send(question: string) {
+  function send(question: string): Promise<void> {
     const trimmed = question.trim();
-    if (!trimmed || sending) return;
+    if (!trimmed) return Promise.resolve();
+    sendQueueRef.current = sendQueueRef.current.then(() => sendNow(trimmed));
+    return sendQueueRef.current;
+  }
+
+  async function sendNow(trimmed: string) {
+    // Deliberately does NOT touch `input` - send() is called from both the typed-input form and
+    // the voice transcript path, and clearing the draft here would wipe out whatever the GM is
+    // mid-typing if a voice answer lands while they're composing a follow-up. Only the form's
+    // own submit handler clears its own input.
     setMessages((prev) => [...prev, { role: "user", text: trimmed }]);
-    setInput("");
     setSending(true);
     try {
       const response: AssistantResponse = await askFn({
@@ -99,6 +126,22 @@ export function GmAssistant() {
       setSending(false);
     }
   }
+
+  const voice = useVoiceRecorder({
+    transcribeAudio: async (audioBase64, mimeType) => {
+      const result = await transcribeFn({ data: { audioBase64, mimeType } });
+      return result.text;
+    },
+    onTranscript: async (text) => {
+      // Voice contributes ONLY a piece of text here - everything downstream (display, intent
+      // resolution, navigation, the write-action refusal) is the exact same path a typed
+      // question already goes through.
+      await send(text);
+      console.debug("[gm-assistant:voice] total", {
+        ms: Math.round(performance.now() - voiceTapStartRef.current),
+      });
+    },
+  });
 
   if (isLoading || !isAdmin) return null;
 
@@ -222,11 +265,80 @@ export function GmAssistant() {
             )}
           </div>
         ))}
+        {sending && (
+          <div style={{ alignSelf: "flex-start", maxWidth: "85%" }}>
+            <div
+              style={{
+                background: "#f0f0f0",
+                color: "#0d1117",
+                borderRadius: 10,
+                padding: "8px 12px",
+                fontSize: 13,
+                fontStyle: "italic",
+              }}
+            >
+              Thinking…
+            </div>
+          </div>
+        )}
       </div>
+      {voice.state.status !== "idle" && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 8,
+            padding: "6px 14px",
+            borderTop: "1px solid rgba(0,0,0,0.08)",
+            fontSize: 12,
+            background: voice.state.status === "error" ? "#fff4f4" : "#f7f7f8",
+          }}
+        >
+          {voice.state.status === "requesting-permission" && (
+            <span>Requesting microphone access…</span>
+          )}
+          {voice.state.status === "unsupported" && <span>{voice.state.errorMessage}</span>}
+          {voice.state.status === "listening" && (
+            <>
+              <span>🔴 Listening…</span>
+              <div style={{ display: "flex", gap: 6 }}>
+                <button type="button" onClick={voice.stop} style={smallVoiceButtonStyle}>
+                  Stop
+                </button>
+                <button type="button" onClick={voice.cancel} style={smallVoiceButtonStyle}>
+                  Cancel
+                </button>
+              </div>
+            </>
+          )}
+          {voice.state.status === "transcribing" && <span>Transcribing…</span>}
+          {voice.state.status === "error" && (
+            <>
+              <span>{voice.state.errorMessage}</span>
+              {voice.state.errorReason === "transcription-failed" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    voiceTapStartRef.current = performance.now();
+                    voice.start();
+                  }}
+                  style={smallVoiceButtonStyle}
+                >
+                  Try Again
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      )}
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          send(input);
+          const trimmed = input.trim();
+          if (!trimmed) return;
+          setInput("");
+          send(trimmed);
         }}
         style={{ display: "flex", gap: 6, padding: 10, borderTop: "1px solid rgba(0,0,0,0.08)" }}
       >
@@ -242,6 +354,43 @@ export function GmAssistant() {
             fontSize: 13,
           }}
         />
+        {voice.state.status !== "unsupported" && (
+          <button
+            type="button"
+            onClick={() => {
+              if (voice.state.status === "listening") voice.stop();
+              else if (voice.state.status === "idle" || voice.state.status === "error") {
+                voiceTapStartRef.current = performance.now();
+                voice.start();
+              }
+            }}
+            disabled={
+              voice.state.status === "transcribing" ||
+              voice.state.status === "requesting-permission"
+            }
+            aria-label={voice.state.status === "listening" ? "Stop recording" : "Ask by voice"}
+            style={{
+              border: "none",
+              background: voice.state.status === "listening" ? "#b91c1c" : "#f0f0f0",
+              color: voice.state.status === "listening" ? "white" : "#1c2128",
+              borderRadius: 8,
+              padding: "8px 10px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {voice.state.status === "transcribing" ||
+            voice.state.status === "requesting-permission" ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : voice.state.status === "listening" ? (
+              <Square size={14} />
+            ) : (
+              <Mic size={14} />
+            )}
+          </button>
+        )}
         <button
           type="submit"
           disabled={sending}
