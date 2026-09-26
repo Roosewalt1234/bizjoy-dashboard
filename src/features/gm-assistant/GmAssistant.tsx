@@ -108,16 +108,38 @@ export function GmAssistant() {
         style={{
           padding: "10px 14px",
           borderBottom: "1px solid rgba(0,0,0,0.08)",
-          fontWeight: 700,
-          fontSize: 13,
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: 8,
         }}
       >
-        FizzFix Assistant
-        {universeContext && (
-          <div style={{ fontSize: 11, fontWeight: 400, color: "#8a93a3", marginTop: 2 }}>
-            Talking about: {universeContext.displayLabel}
-          </div>
-        )}
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 13 }}>FizzFix Assistant</div>
+          {universeContext && (
+            <div style={{ fontSize: 11, fontWeight: 400, color: "#8a93a3", marginTop: 2 }}>
+              Talking about: {universeContext.displayLabel}
+            </div>
+          )}
+        </div>
+        {/* Explicit close control - the desktop panel can render on top of the orb depending on
+            where it's been dragged, so closing must never depend on the orb still being visible
+            or clickable underneath it. */}
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          aria-label="Close FizzFix Assistant"
+          style={{
+            flexShrink: 0,
+            background: "none",
+            border: "none",
+            color: "#8a93a3",
+            cursor: "pointer",
+            padding: 2,
+          }}
+        >
+          <X size={16} />
+        </button>
       </div>
       <div
         ref={scrollRef}
@@ -136,6 +158,7 @@ export function GmAssistant() {
               <button
                 key={question}
                 type="button"
+                disabled={sending}
                 onClick={() => send(question)}
                 style={{
                   fontSize: 11,
@@ -143,7 +166,8 @@ export function GmAssistant() {
                   borderRadius: 6,
                   border: "1px solid rgba(0,0,0,0.12)",
                   background: "white",
-                  cursor: "pointer",
+                  cursor: sending ? "default" : "pointer",
+                  opacity: sending ? 0.5 : 1,
                 }}
               >
                 {question}
@@ -179,6 +203,7 @@ export function GmAssistant() {
                   <button
                     key={suggestion.label}
                     type="button"
+                    disabled={sending}
                     onClick={() => send(suggestion.question)}
                     style={{
                       fontSize: 11,
@@ -186,7 +211,8 @@ export function GmAssistant() {
                       borderRadius: 6,
                       border: "1px solid rgba(0,0,0,0.12)",
                       background: "white",
-                      cursor: "pointer",
+                      cursor: sending ? "default" : "pointer",
+                      opacity: sending ? 0.5 : 1,
                     }}
                   >
                     {suggestion.label}
@@ -274,11 +300,23 @@ export function GmAssistant() {
             </SheetContent>
           </Sheet>
         ) : (
+          // `open` is false on both the server render and the first client render (only a
+          // post-hydration pointer event can ever set it true), so this branch - and its
+          // `window` reference below - never executes during SSR. See useDraggable.ts's
+          // SSR_SAFE_DEFAULT comment for the same reasoning applied to that file.
           <div
             style={{
               position: "fixed",
+              // Render above the orb when there's room; otherwise below it. A fixed "always
+              // above" position previously let the panel fully cover the orb (and its close
+              // icon) whenever the orb sat in roughly the upper half of the viewport, with no
+              // other way to dismiss it - this keeps the panel and the orb from ever
+              // overlapping regardless of where the GM has dragged it.
               left: Math.min(drag.position.x, window.innerWidth - 336),
-              top: Math.max(drag.position.y - 420, 16),
+              top:
+                drag.position.y - 420 >= 16
+                  ? drag.position.y - 420
+                  : Math.min(drag.position.y + ORB_SIZE + 8, window.innerHeight - 416),
               width: 320,
               height: 400,
               background: "white",
