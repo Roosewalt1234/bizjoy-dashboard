@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-async function assertAdmin(context: any) {
+export async function assertAdmin(context: any) {
   const { data, error } = await context.supabase
     .from("user_roles")
     .select("role")
