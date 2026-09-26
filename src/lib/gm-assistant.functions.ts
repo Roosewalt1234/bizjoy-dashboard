@@ -12,7 +12,11 @@ import {
 } from "@/lib/gm-assistant/intents";
 import { openAiProvider } from "@/lib/gm-assistant/ai-provider";
 import { openAiTranscriptionProvider } from "@/lib/gm-assistant/transcription-provider";
-import { findMatchingAction, getEmployeeDisplayName, workOrderTable } from "@/lib/gm-assistant/actions";
+import {
+  findMatchingAction,
+  getEmployeeDisplayName,
+  workOrderTable,
+} from "@/lib/gm-assistant/actions";
 import { verifyActionToken } from "@/lib/gm-assistant/action-tokens";
 
 export const askAssistant = createServerFn({ method: "POST" })
@@ -35,7 +39,12 @@ export const askAssistant = createServerFn({ method: "POST" })
     const action = findMatchingAction(question);
     if (action) {
       try {
-        const result = await action.buildPreview(question, data.context, context.supabase, context.userId);
+        const result = await action.buildPreview(
+          question,
+          data.context,
+          context.supabase,
+          context.userId,
+        );
         return {
           answer: result.answer,
           suggestions: result.suggestions,
@@ -189,7 +198,10 @@ export const confirmAssistantAction = createServerFn({ method: "POST" })
       const woLabel = current.wo_no ?? payload.workOrderId;
 
       if (payload.action === "assign_technician") {
-        const technicianName = await getEmployeeDisplayName(context.supabase, payload.proposedNewValue);
+        const technicianName = await getEmployeeDisplayName(
+          context.supabase,
+          payload.proposedNewValue,
+        );
         const { error: updateError } = await context.supabase
           .from(table)
           .update({ technician_id: payload.proposedNewValue, technician_name: technicianName })
