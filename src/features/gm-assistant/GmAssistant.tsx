@@ -1,19 +1,24 @@
 // src/features/gm-assistant/GmAssistant.tsx
 import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
 import { MessageCircle, X, Send, Mic, Square, Loader2 } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { usePermissions } from "@/hooks/use-permissions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useDraggable } from "./useDraggable";
 import { useVoiceRecorder } from "./useVoiceRecorder";
-import { askAssistant, transcribeAudio } from "@/lib/gm-assistant.functions";
+import {
+  askAssistant,
+  transcribeAudio,
+  confirmAssistantAction,
+} from "@/lib/gm-assistant.functions";
 import {
   subscribe,
   getUniverseContext,
   dispatchNavigationCommand,
 } from "@/lib/gm-assistant/universe-bridge";
-import type { AssistantResponse, Suggestion } from "@/lib/gm-assistant/types";
+import type { AssistantResponse, PendingAction, Suggestion } from "@/lib/gm-assistant/types";
 
 const ORB_SIZE = 56;
 
@@ -31,6 +36,7 @@ interface Message {
   text: string;
   suggestions?: Suggestion[];
   fetchedAt?: string;
+  pendingAction?: PendingAction;
 }
 
 function defaultSuggestions(centerEntityKind: string | undefined): string[] {
@@ -62,7 +68,13 @@ export function GmAssistant() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const askFn = useServerFn(askAssistant);
   const transcribeFn = useServerFn(transcribeAudio);
+  const confirmFn = useServerFn(confirmAssistantAction);
+  const queryClient = useQueryClient();
   const drag = useDraggable(ORB_SIZE);
+  // Keyed by token, not a single shared boolean - two independent pending actions can be visible
+  // at once (e.g. the GM asks a second action-request before confirming the first), and
+  // confirming one must not grey out an unrelated card's Confirm/Cancel buttons.
+  const [confirmingTokens, setConfirmingTokens] = useState<ReadonlySet<string>>(new Set());
   // Set at the moment the mic is tapped (Step 6), read when the full voice round trip finishes,
   // so the "total" latency log spans tap -> answer, not just transcript-ready -> answer.
   const voiceTapStartRef = useRef(0);
@@ -103,6 +115,7 @@ export function GmAssistant() {
           text: response.answer,
           suggestions: response.suggestions,
           fetchedAt: response.fetchedAt,
+          pendingAction: response.pendingAction,
         },
       ]);
       if (response.navigation) {
@@ -124,6 +137,54 @@ export function GmAssistant() {
       ]);
     } finally {
       setSending(false);
+    }
+  }
+
+  function clearPendingAction(token: string) {
+    setMessages((prev) =>
+      prev.map((m) => (m.pendingAction?.token === token ? { ...m, pendingAction: undefined } : m)),
+    );
+  }
+
+  function cancelPendingAction(token: string) {
+    // 100% client-side - discarding the token here means confirmAssistantAction is never called
+    // for it, so this produces zero network requests and zero writes.
+    clearPendingAction(token);
+  }
+
+  function setTokenConfirming(token: string, isConfirming: boolean) {
+    setConfirmingTokens((prev) => {
+      const next = new Set(prev);
+      if (isConfirming) next.add(token);
+      else next.delete(token);
+      return next;
+    });
+  }
+
+  async function confirmPendingAction(token: string) {
+    setTokenConfirming(token, true);
+    try {
+      const result = await confirmFn({ data: { actionToken: token } });
+      clearPendingAction(token);
+      setMessages((prev) => [...prev, { role: "assistant", text: result.answer }]);
+      if (result.success) {
+        // Reuses the exact invalidation OperationsUniverse.tsx's own manual refresh already
+        // performs - not a new mechanism.
+        queryClient.invalidateQueries({ queryKey: ["operational-exceptions"] });
+        queryClient.invalidateQueries({ queryKey: ["universe-graph"] });
+      }
+    } catch (error) {
+      clearPendingAction(token);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text:
+            error instanceof Error ? error.message : "Something went wrong confirming that action.",
+        },
+      ]);
+    } finally {
+      setTokenConfirming(token, false);
     }
   }
 
@@ -239,6 +300,66 @@ export function GmAssistant() {
             </div>
             {message.role === "assistant" && message.fetchedAt && (
               <div style={{ fontSize: 10, color: "#8a93a3", marginTop: 3 }}>Live FizzFix data</div>
+            )}
+            {message.pendingAction && (
+              <div
+                style={{
+                  marginTop: 6,
+                  border: "1px solid rgba(0,0,0,0.15)",
+                  borderRadius: 8,
+                  background: "#fffbea",
+                  padding: 10,
+                }}
+              >
+                <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 4 }}>
+                  {message.pendingAction.actionLabel}
+                </div>
+                <div style={{ fontSize: 12, whiteSpace: "pre-line", marginBottom: 8 }}>
+                  {message.pendingAction.preview}
+                </div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {(() => {
+                    const isConfirming = confirmingTokens.has(message.pendingAction!.token);
+                    return (
+                      <>
+                        <button
+                          type="button"
+                          disabled={isConfirming}
+                          onClick={() => confirmPendingAction(message.pendingAction!.token)}
+                          style={{
+                            fontSize: 12,
+                            padding: "6px 10px",
+                            borderRadius: 6,
+                            border: "none",
+                            background: "#1c2128",
+                            color: "white",
+                            cursor: isConfirming ? "default" : "pointer",
+                            opacity: isConfirming ? 0.6 : 1,
+                          }}
+                        >
+                          Confirm
+                        </button>
+                        <button
+                          type="button"
+                          disabled={isConfirming}
+                          onClick={() => cancelPendingAction(message.pendingAction!.token)}
+                          style={{
+                            fontSize: 12,
+                            padding: "6px 10px",
+                            borderRadius: 6,
+                            border: "1px solid rgba(0,0,0,0.2)",
+                            background: "white",
+                            cursor: isConfirming ? "default" : "pointer",
+                            opacity: isConfirming ? 0.6 : 1,
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
             )}
             {message.suggestions && message.suggestions.length > 0 && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
