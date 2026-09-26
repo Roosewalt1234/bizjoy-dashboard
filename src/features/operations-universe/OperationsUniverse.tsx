@@ -234,11 +234,36 @@ export function OperationsUniverse() {
     [],
   );
 
+  const [attentionOnly, setAttentionOnly] = useState(false);
+
+  // Purely a render-time transform over the already-computed nodes/edges - no new fetching.
+  // The center node and any node/edge flagged `exception` stay full-strength; everything else
+  // dims. Works on any screen, not just TODAY/ATTENTION, so it "travels" with navigation.
+  const displayNodes = useMemo(() => {
+    if (!attentionOnly) return nodes;
+    const centerId = graph.nodes[0]?.id;
+    return nodes.map((node) =>
+      node.id === centerId || node.data.exception
+        ? node
+        : { ...node, style: { ...node.style, opacity: 0.25 } },
+    );
+  }, [nodes, attentionOnly, graph.nodes]);
+
+  const displayEdges = useMemo(() => {
+    if (!attentionOnly) return graph.edges;
+    return graph.edges.map((edge) => {
+      const targetNode = nodes.find((node) => node.id === edge.target);
+      return targetNode?.data.exception
+        ? edge
+        : { ...edge, style: { ...edge.style, opacity: 0.25 } };
+    });
+  }, [graph.edges, attentionOnly, nodes]);
+
   return (
     <div style={{ width: "100%", height: "calc(100vh - 4rem)", position: "relative" }}>
       <ReactFlow
-        nodes={nodes}
-        edges={graph.edges}
+        nodes={displayNodes}
+        edges={displayEdges}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onNodeClick={(_, node) => {
@@ -261,6 +286,27 @@ export function OperationsUniverse() {
         onSelect={(entity) => navigateTo(entity)}
         avoidTopLeftRow={centerEntity.kind !== "today"}
       />
+      <button
+        type="button"
+        onClick={() => setAttentionOnly((value) => !value)}
+        style={{
+          position: "absolute",
+          bottom: 16,
+          right: 16,
+          zIndex: 11,
+          background: attentionOnly ? "#dc4c4c" : "#1c2128",
+          border: "1px solid rgba(255,255,255,0.12)",
+          borderRadius: 8,
+          color: "#e6edf3",
+          cursor: "pointer",
+          fontSize: 12,
+          fontWeight: 700,
+          padding: "8px 12px",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+        }}
+      >
+        {attentionOnly ? "NORMAL VIEW" : "ATTENTION ONLY"}
+      </button>
       {centerEntity.kind !== "today" && (
         <div
           style={{
