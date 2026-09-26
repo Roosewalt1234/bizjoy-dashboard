@@ -21,7 +21,7 @@ import {
   AlertTriangle,
   AlertCircle,
 } from "lucide-react";
-import type { UniverseNodeData, EntityKind } from "./types";
+import type { UniverseNodeData, EntityKind, ExceptionSeverity } from "./types";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const ICONS: Record<EntityKind, React.ComponentType<{ className?: string }>> = {
@@ -76,19 +76,17 @@ const COLORS: Partial<Record<EntityKind, string>> = {
   exception: "#e89a4a",
 };
 
-type Severity = "attention" | "important" | "critical";
-
-const SEVERITY_BORDER: Record<Severity, string> = {
+const SEVERITY_BORDER: Record<ExceptionSeverity, string> = {
   attention: "2px solid #e8b44a",
   important: "3px solid #e89a4a",
   critical: "3px solid #dc4c4c",
 };
-const SEVERITY_GLOW: Record<Severity, string> = {
+const SEVERITY_GLOW: Record<ExceptionSeverity, string> = {
   attention: "none",
   important: "0 0 8px rgba(232,154,74,0.5)",
   critical: "0 0 12px rgba(220,76,76,0.6)",
 };
-const SEVERITY_HUB_FILL: Record<Severity, string> = {
+const SEVERITY_HUB_FILL: Record<ExceptionSeverity, string> = {
   attention: "#e8b44a",
   important: "#e89a4a",
   critical: "#dc4c4c",
@@ -99,25 +97,27 @@ export function UniverseNodeComponent({ data }: NodeProps<Node<UniverseNodeData>
   const Icon = ICONS[data.kind];
   const isDimmed = !data.clickable;
   const isException = Boolean(data.exception);
-  const severity = data.severity as Severity | undefined;
+  const severity = data.severity;
   const isAttentionHub = data.kind === "attention-hub";
   // The ATTENTION node's own fill reflects the worst live severity (calm gray when clear) -
   // every other kind keeps its static COLORS fill and only gets a severity-tiered border/glow.
+  // Hub nodes must never also set `exception: true` - their fill already carries the signal,
+  // so `!isAttentionHub` below keeps them off the exception-driven border/glow path too.
   const baseColor = isAttentionHub
     ? severity
       ? SEVERITY_HUB_FILL[severity]
-      : "#5b6270"
+      : (COLORS["attention-hub"] ?? "#5b6270")
     : (COLORS[data.kind] ?? "#5b9bd5");
   const border =
     severity && !isAttentionHub
       ? SEVERITY_BORDER[severity]
-      : isException
+      : !isAttentionHub && isException
         ? "3px solid #dc4c4c"
         : "2px solid rgba(0,0,0,0.15)";
   const glow =
     severity && !isAttentionHub
       ? SEVERITY_GLOW[severity]
-      : isException
+      : !isAttentionHub && isException
         ? "0 0 12px rgba(220,76,76,0.6)"
         : "none";
   const maxLabelLength = isMobile ? 14 : 18;
