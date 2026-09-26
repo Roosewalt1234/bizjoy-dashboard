@@ -11,6 +11,7 @@ import {
   OUT_OF_SCOPE_ANSWER,
 } from "@/lib/gm-assistant/intents";
 import { openAiProvider } from "@/lib/gm-assistant/ai-provider";
+import { openAiTranscriptionProvider } from "@/lib/gm-assistant/transcription-provider";
 
 export const askAssistant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -75,4 +76,36 @@ export const askAssistant = createServerFn({ method: "POST" })
       suggestions: result.suggestions,
       fetchedAt: new Date().toISOString(),
     };
+  });
+
+// ~2MB is a generous ceiling for a <=45s opus-encoded clip - the client-side recording timer
+// (useVoiceRecorder.ts, a later task) is the primary, UX-visible limit; this only guards against
+// a malformed or replayed request that bypassed that timer, never normal use.
+const MAX_AUDIO_BYTES = 2 * 1024 * 1024;
+
+export const transcribeAudio = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { audioBase64: string; mimeType: string }) => input)
+  .handler(async ({ data, context }): Promise<{ text: string }> => {
+    await assertAdmin(context);
+
+    const audioBuffer = Buffer.from(data.audioBase64, "base64");
+    if (audioBuffer.byteLength > MAX_AUDIO_BYTES) {
+      throw new Error("Recording too long - please keep questions under 45 seconds.");
+    }
+
+    const start = Date.now();
+    let text: string;
+    try {
+      text = await openAiTranscriptionProvider.transcribeAudio(audioBuffer, data.mimeType);
+    } catch (error) {
+      // Logged server-side for diagnosis - the client's voice hook already masks any rejection
+      // from this function behind a generic "transcription failed" UI state, so a raw provider
+      // error would otherwise go unobserved rather than merely unseen by the GM.
+      console.error("[gm-assistant:voice] transcription provider failed", error);
+      throw new Error("Transcription failed. Please try again.");
+    }
+    console.debug("[gm-assistant:voice] server transcribe", { ms: Date.now() - start });
+
+    return { text: text.trim() };
   });
