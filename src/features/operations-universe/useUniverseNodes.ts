@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { layoutAround } from "./layout";
-import type { CenterEntity, CenterDetailField, UniverseNodeData } from "./types";
+import type { CenterEntity, CenterDetailField, EntityKind, UniverseNodeData } from "./types";
 import { centerEntityKey } from "./types";
 import { computePaymentStatus } from "./payment-status";
 import {
@@ -153,6 +153,139 @@ async function fetchAttentionCategoryTypes(
       relationshipReason: `${title} groups the individual affected records.`,
     },
   }));
+}
+
+function exceptionToRingNode(exception: OperationalException): {
+  id: string;
+  data: UniverseNodeData;
+} {
+  return {
+    id: `exception:${exception.id}`,
+    data: {
+      kind: "exception",
+      label: exception.recordLabel,
+      sublabel: exception.recordSublabel,
+      severity: exception.severity,
+      exception: true,
+      clickable: true,
+      center: { kind: "exception", id: exception.id },
+      groupKey: exception.title,
+      relationshipReason: exception.reason,
+    },
+  };
+}
+
+async function fetchAttentionTypeRecords(
+  queryClient: QueryClient,
+  category: ExceptionCategory,
+  title: string,
+): Promise<{ id: string; data: UniverseNodeData }[]> {
+  const exceptions = await fetchCachedExceptions(queryClient);
+  return exceptions
+    .filter((exception) => exception.category === category && exception.title === title)
+    .map(exceptionToRingNode);
+}
+
+// Maps a CenterEntity's kind to the EntityKind its OWN screen actually renders as its center -
+// mirrors what every existing branch in useUniverseGraph's if-chain already does per-kind (e.g.
+// centering on "employee" renders centerData.kind "employee-info"), generalized for this one
+// site where exception.target can in principle be any CenterEntity.
+const TARGET_RENDER_KIND: Record<CenterEntity["kind"], EntityKind> = {
+  today: "today",
+  "contract-category": "category",
+  contract: "contract",
+  customer: "customer",
+  "work-order": "work-order",
+  "ppm-visit": "ppm-visit",
+  "contract-finance": "contract-finance",
+  "payment-category": "category",
+  payment: "payment",
+  "staff-category": "staff-hub",
+  "schedule-category": "schedule-category",
+  employee: "employee-info",
+  attention: "attention-hub",
+  "attention-type": "attention-category",
+  exception: "exception",
+  "entity-attention": "attention-category",
+};
+
+const AFFECTED_ENTITY_LABELS: Record<CenterEntity["kind"], string> = {
+  today: "Today",
+  "contract-category": "Contract Category",
+  contract: "Contract",
+  customer: "Customer",
+  "work-order": "Work Order",
+  "ppm-visit": "PPM Visit",
+  "contract-finance": "Contract Finance",
+  "payment-category": "Payment Category",
+  payment: "Payment",
+  "staff-category": "Staff",
+  "schedule-category": "Schedule",
+  employee: "Employee",
+  attention: "Attention",
+  "attention-type": "Attention",
+  exception: "Exception",
+  "entity-attention": "Attention",
+};
+
+async function fetchExceptionDetail(
+  queryClient: QueryClient,
+  exceptionId: string,
+): Promise<{
+  centerLabel: string;
+  centerSublabel: string;
+  severity: OperationalException["severity"];
+  centerDetail: CenterDetailField[];
+  ringOne: { id: string; data: UniverseNodeData }[];
+}> {
+  const exceptions = await fetchCachedExceptions(queryClient);
+  const exception = exceptions.find((item) => item.id === exceptionId);
+  if (!exception) throw new Error("Exception not found");
+
+  const affectedLabel = AFFECTED_ENTITY_LABELS[exception.target.kind];
+
+  const centerDetail: CenterDetailField[] = [
+    { label: "Issue", value: exception.title },
+    { label: "Why", value: exception.reason },
+    {
+      label: "Severity",
+      value: exception.severity.charAt(0).toUpperCase() + exception.severity.slice(1),
+    },
+    { label: "Affected Entity", value: `${affectedLabel} · ${exception.recordLabel}` },
+  ];
+  if (exception.relevantDate) {
+    centerDetail.push({ label: "Relevant Date", value: exception.relevantDate });
+  }
+  if (exception.relevantAmount != null) {
+    centerDetail.push({ label: "Relevant Amount", value: `AED ${exception.relevantAmount}` });
+  }
+  centerDetail.push({
+    label: "Suggested Navigation",
+    value: `${affectedLabel} · ${exception.recordLabel}`,
+  });
+
+  const ringOne: { id: string; data: UniverseNodeData }[] = [
+    {
+      id: `go-to:${centerEntityKey(exception.target)}`,
+      data: {
+        kind: TARGET_RENDER_KIND[exception.target.kind],
+        label: `Go to ${affectedLabel}`,
+        sublabel: exception.recordLabel,
+        clickable: true,
+        center: exception.target,
+        groupKey: "navigate",
+        relationshipReason: `This exception affects ${exception.recordLabel}.`,
+      },
+    },
+  ];
+
+  return {
+    centerLabel: exception.recordLabel,
+    centerSublabel: exception.title,
+    severity: exception.severity,
+    centerDetail,
+    ringOne,
+  };
 }
 
 async function fetchContractCategoryCounts(): Promise<{ id: string; data: UniverseNodeData }[]> {
@@ -1821,6 +1954,44 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
             ringOne,
           }),
           centerDetail: undefined,
+        };
+      }
+
+      if (centerEntity.kind === "attention-type") {
+        const ringOne = await fetchAttentionTypeRecords(
+          queryClient,
+          centerEntity.category,
+          centerEntity.title,
+        );
+        const centerData: UniverseNodeData = {
+          kind: "attention-category",
+          label: centerEntity.title,
+          clickable: false,
+        };
+        return {
+          ...layoutAround({
+            centerId: `attention-type:${centerEntity.category}:${centerEntity.title}`,
+            centerData,
+            ringOne,
+          }),
+          centerDetail: undefined,
+        };
+      }
+
+      if (centerEntity.kind === "exception") {
+        const { centerLabel, centerSublabel, severity, centerDetail, ringOne } =
+          await fetchExceptionDetail(queryClient, centerEntity.id);
+        const centerData: UniverseNodeData = {
+          kind: "exception",
+          label: centerLabel,
+          sublabel: centerSublabel,
+          severity,
+          exception: true,
+          clickable: false,
+        };
+        return {
+          ...layoutAround({ centerId: `exception:${centerEntity.id}`, centerData, ringOne }),
+          centerDetail,
         };
       }
 
