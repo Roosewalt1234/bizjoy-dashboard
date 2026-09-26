@@ -18,6 +18,8 @@ import {
   Info,
   ListChecks,
   Wallet,
+  AlertTriangle,
+  AlertCircle,
 } from "lucide-react";
 import type { UniverseNodeData, EntityKind } from "./types";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -43,6 +45,9 @@ const ICONS: Record<EntityKind, React.ComponentType<{ className?: string }>> = {
   "staff-member": UserCircle2,
   "staff-detail": Info,
   "schedule-category": ListChecks,
+  "attention-hub": AlertTriangle,
+  "attention-category": Layers,
+  exception: AlertCircle,
 };
 
 const COLORS: Partial<Record<EntityKind, string>> = {
@@ -66,14 +71,55 @@ const COLORS: Partial<Record<EntityKind, string>> = {
   "staff-member": "#e8a5c4",
   "staff-detail": "#8a93a3",
   "schedule-category": "#5b9bd5",
+  "attention-hub": "#5b6270",
+  "attention-category": "#5b9bd5",
+  exception: "#e89a4a",
+};
+
+type Severity = "attention" | "important" | "critical";
+
+const SEVERITY_BORDER: Record<Severity, string> = {
+  attention: "2px solid #e8b44a",
+  important: "3px solid #e89a4a",
+  critical: "3px solid #dc4c4c",
+};
+const SEVERITY_GLOW: Record<Severity, string> = {
+  attention: "none",
+  important: "0 0 8px rgba(232,154,74,0.5)",
+  critical: "0 0 12px rgba(220,76,76,0.6)",
+};
+const SEVERITY_HUB_FILL: Record<Severity, string> = {
+  attention: "#e8b44a",
+  important: "#e89a4a",
+  critical: "#dc4c4c",
 };
 
 export function UniverseNodeComponent({ data }: NodeProps<Node<UniverseNodeData>>) {
   const isMobile = useIsMobile();
   const Icon = ICONS[data.kind];
-  const baseColor = COLORS[data.kind] ?? "#5b9bd5";
   const isDimmed = !data.clickable;
   const isException = Boolean(data.exception);
+  const severity = data.severity as Severity | undefined;
+  const isAttentionHub = data.kind === "attention-hub";
+  // The ATTENTION node's own fill reflects the worst live severity (calm gray when clear) -
+  // every other kind keeps its static COLORS fill and only gets a severity-tiered border/glow.
+  const baseColor = isAttentionHub
+    ? severity
+      ? SEVERITY_HUB_FILL[severity]
+      : "#5b6270"
+    : (COLORS[data.kind] ?? "#5b9bd5");
+  const border =
+    severity && !isAttentionHub
+      ? SEVERITY_BORDER[severity]
+      : isException
+        ? "3px solid #dc4c4c"
+        : "2px solid rgba(0,0,0,0.15)";
+  const glow =
+    severity && !isAttentionHub
+      ? SEVERITY_GLOW[severity]
+      : isException
+        ? "0 0 12px rgba(220,76,76,0.6)"
+        : "none";
   const maxLabelLength = isMobile ? 14 : 18;
   const labelFontSize = isMobile ? 11 : 10;
 
@@ -88,13 +134,13 @@ export function UniverseNodeComponent({ data }: NodeProps<Node<UniverseNodeData>
         alignItems: "center",
         justifyContent: "center",
         background: isDimmed ? "#2a2f38" : baseColor,
-        border: isException ? "3px solid #dc4c4c" : "2px solid rgba(0,0,0,0.15)",
+        border,
         color: isDimmed ? "#8a93a3" : "#0d1117",
         opacity: isDimmed ? 0.55 : 1,
         cursor: data.clickable ? "pointer" : "default",
         textAlign: "center",
         padding: 6,
-        boxShadow: isException ? "0 0 12px rgba(220,76,76,0.6)" : "none",
+        boxShadow: glow,
       }}
       title={data.sublabel ? `${data.label} - ${data.sublabel}` : data.label}
     >
