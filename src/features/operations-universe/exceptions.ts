@@ -1,9 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { CenterEntity, ContractDomain } from "./types";
+import type { CenterEntity, ContractDomain, ExceptionSeverity, ExceptionCategory } from "./types";
 import { computePaymentStatus } from "./payment-status";
 
-export type ExceptionSeverity = "attention" | "important" | "critical";
-export type ExceptionCategory = "operations" | "people" | "finance" | "contracts" | "data-quality";
+export type { ExceptionSeverity, ExceptionCategory };
 
 export interface OperationalException {
   id: string;
@@ -14,6 +13,14 @@ export interface OperationalException {
   target: CenterEntity;
   contractId?: string;
   contractDomain?: ContractDomain;
+  /** concise graph-node label, e.g. "WO-123", "Villa 77", "Shankar" - never the full reason string */
+  recordLabel: string;
+  /** short supporting label under recordLabel, e.g. "32 days overdue" */
+  recordSublabel?: string;
+  /** structured date for the exception context panel - not parsed out of `reason` */
+  relevantDate?: string;
+  /** structured AED amount for the exception context panel, where applicable */
+  relevantAmount?: number;
 }
 
 export async function detectOverdueWorkOrders(): Promise<OperationalException[]> {
@@ -54,6 +61,9 @@ export async function detectOverdueWorkOrders(): Promise<OperationalException[]>
       target: { kind: "work-order", domain: wo.domain, id: wo.id },
       contractId: wo.contract_id ?? undefined,
       contractDomain: wo.contract_id ? wo.domain : undefined,
+      recordLabel: wo.wo_no ?? "Work Order",
+      recordSublabel: `${daysOverdue} day${daysOverdue === 1 ? "" : "s"} overdue`,
+      relevantDate: wo.completion_due_at.slice(0, 10),
     });
   }
   return exceptions;
@@ -95,6 +105,9 @@ export async function detectOverduePpm(): Promise<OperationalException[]> {
       target: { kind: "ppm-visit", domain: visit.domain, id: visit.id },
       contractId: visit.contract_id,
       contractDomain: visit.domain,
+      recordLabel: "PPM Visit",
+      recordSublabel: `Due ${date}`,
+      relevantDate: date,
     });
   }
   return exceptions;
@@ -158,6 +171,9 @@ export async function detectStaffAttendanceIssues(): Promise<OperationalExceptio
       title: "No Attendance Recorded",
       reason: `${name} has ${totalCount} open work order${totalCount === 1 ? "" : "s"} assigned (${breakdown.join(", ")}) but no attendance record for today.`,
       target: { kind: "employee", id: employee.id, name, position: employee.position ?? undefined },
+      recordLabel: name,
+      recordSublabel: "No attendance today",
+      relevantDate: todayStr,
     });
   }
   return exceptions;
@@ -202,6 +218,9 @@ export async function detectOverduePayments(): Promise<OperationalException[]> {
       target: { kind: "contract-finance", domain, id: contractId },
       contractId,
       contractDomain: domain,
+      recordLabel: title,
+      recordSublabel: "Payment overdue",
+      relevantAmount: total,
     });
   }
   return exceptions;
@@ -246,6 +265,9 @@ export async function detectExpiringContracts(): Promise<OperationalException[]>
       target: { kind: "contract", domain: contract.domain, id: contract.id },
       contractId: contract.id,
       contractDomain: contract.domain,
+      recordLabel: contract.title ?? "This contract",
+      recordSublabel: `Ends ${contract.end_date}`,
+      relevantDate: contract.end_date ?? undefined,
     });
   }
   return exceptions;
@@ -284,6 +306,9 @@ export async function detectReconciliationIssues(): Promise<OperationalException
       target: { kind: "contract", domain, id: contract.id },
       contractId: contract.id,
       contractDomain: domain,
+      recordLabel: contract.title ?? "This contract",
+      recordSublabel: `AED ${delta} mismatch`,
+      relevantAmount: delta,
     });
   }
   return exceptions;
@@ -328,4 +353,13 @@ export function groupExceptionsByContract(
     grouped.set(key, current);
   }
   return grouped;
+}
+
+export function worstSeverity(
+  exceptions: OperationalException[],
+): ExceptionSeverity | undefined {
+  if (exceptions.some((exception) => exception.severity === "critical")) return "critical";
+  if (exceptions.some((exception) => exception.severity === "important")) return "important";
+  if (exceptions.some((exception) => exception.severity === "attention")) return "attention";
+  return undefined;
 }
