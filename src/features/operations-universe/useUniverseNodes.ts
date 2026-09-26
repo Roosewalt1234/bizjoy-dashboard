@@ -1,9 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { layoutAround } from "./layout";
 import type { CenterEntity, CenterDetailField, UniverseNodeData } from "./types";
 import { centerEntityKey } from "./types";
 import { computePaymentStatus } from "./payment-status";
+import {
+  detectAllExceptions,
+  groupExceptionsByContract,
+  worstSeverity,
+  type ExceptionCategory,
+  type OperationalException,
+} from "./exceptions";
+import { buildAttentionRelationshipReason } from "./attention-summary";
 
 function formatAttendanceTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
@@ -55,6 +63,96 @@ function summarizePayments(payments: PaymentRow[]): PaymentSummary {
   }
 
   return { received, outstanding, overdue, nextPayment };
+}
+
+const EXCEPTION_CATEGORY_LABELS: Record<ExceptionCategory, string> = {
+  operations: "Operations",
+  people: "People",
+  finance: "Finance",
+  contracts: "Contracts",
+  "data-quality": "Data Quality",
+};
+const EXCEPTION_CATEGORY_ORDER: ExceptionCategory[] = [
+  "operations",
+  "people",
+  "finance",
+  "contracts",
+  "data-quality",
+];
+
+// One shared react-query cache entry for the whole operational-exceptions dataset. Every
+// screen that needs it (the ATTENTION drill-down, and reverse-navigation on existing entity
+// screens) goes through this, so navigating between them never re-runs all 6 detectors -
+// only the first call in any given staleTime window actually hits Supabase.
+function fetchCachedExceptions(queryClient: QueryClient): Promise<OperationalException[]> {
+  return queryClient.fetchQuery({
+    queryKey: ["operational-exceptions"],
+    queryFn: detectAllExceptions,
+    staleTime: 60_000,
+  });
+}
+
+async function fetchAttentionCategoryRoot(
+  queryClient: QueryClient,
+): Promise<{ id: string; data: UniverseNodeData }[]> {
+  const exceptions = await fetchCachedExceptions(queryClient);
+  const byCategory = new Map<ExceptionCategory, OperationalException[]>();
+  for (const exception of exceptions) {
+    const current = byCategory.get(exception.category) ?? [];
+    current.push(exception);
+    byCategory.set(exception.category, current);
+  }
+
+  const nodes: { id: string; data: UniverseNodeData }[] = [];
+  for (const category of EXCEPTION_CATEGORY_ORDER) {
+    const inCategory = byCategory.get(category) ?? [];
+    if (inCategory.length === 0) continue;
+    nodes.push({
+      id: `attention-category:${category}`,
+      data: {
+        kind: "attention-category",
+        label: EXCEPTION_CATEGORY_LABELS[category].toUpperCase(),
+        sublabel: `${inCategory.length} issue${inCategory.length === 1 ? "" : "s"}`,
+        severity: worstSeverity(inCategory),
+        exception: true,
+        clickable: true,
+        center: { kind: "attention", category },
+        groupKey: category,
+        relationshipReason: `${EXCEPTION_CATEGORY_LABELS[category]} groups exceptions of this kind together.`,
+      },
+    });
+  }
+  return nodes;
+}
+
+async function fetchAttentionCategoryTypes(
+  queryClient: QueryClient,
+  category: ExceptionCategory,
+): Promise<{ id: string; data: UniverseNodeData }[]> {
+  const exceptions = await fetchCachedExceptions(queryClient);
+  const inCategory = exceptions.filter((exception) => exception.category === category);
+
+  const byTitle = new Map<string, OperationalException[]>();
+  for (const exception of inCategory) {
+    const current = byTitle.get(exception.title) ?? [];
+    current.push(exception);
+    byTitle.set(exception.title, current);
+  }
+
+  return [...byTitle.entries()].map(([title, items]) => ({
+    id: `attention-type:${category}:${title}`,
+    data: {
+      kind: "attention-category",
+      label: title,
+      sublabel: `${items.length} record${items.length === 1 ? "" : "s"}`,
+      severity: worstSeverity(items),
+      exception: true,
+      clickable: true,
+      center: { kind: "attention-type", category, title },
+      groupKey: title,
+      relationshipReason: `${title} groups the individual affected records.`,
+    },
+  }));
 }
 
 async function fetchContractCategoryCounts(): Promise<{ id: string; data: UniverseNodeData }[]> {
@@ -1457,6 +1555,7 @@ export async function searchUniverse(query: string): Promise<SearchResult[]> {
 }
 
 export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled?: boolean }) {
+  const queryClient = useQueryClient();
   return useQuery({
     queryKey: ["universe-graph", centerEntityKey(centerEntity)],
     enabled: options?.enabled ?? true,
@@ -1689,6 +1788,39 @@ export function useUniverseGraph(centerEntity: CenterEntity, options?: { enabled
         return {
           ...layoutAround({ centerId: `employee:${centerEntity.id}`, centerData, ringOne }),
           centerDetail,
+        };
+      }
+
+      if (centerEntity.kind === "attention" && centerEntity.category === "__root__") {
+        const ringOne = await fetchAttentionCategoryRoot(queryClient);
+        const centerData: UniverseNodeData = {
+          kind: "attention-hub",
+          label: "ATTENTION",
+          clickable: false,
+        };
+        return {
+          ...layoutAround({ centerId: "attention-hub", centerData, ringOne }),
+          centerDetail: undefined,
+        };
+      }
+
+      if (centerEntity.kind === "attention") {
+        if (centerEntity.category === "__root__") {
+          throw new Error("unreachable: __root__ is handled by the branch above");
+        }
+        const ringOne = await fetchAttentionCategoryTypes(queryClient, centerEntity.category);
+        const centerData: UniverseNodeData = {
+          kind: "attention-category",
+          label: EXCEPTION_CATEGORY_LABELS[centerEntity.category].toUpperCase(),
+          clickable: false,
+        };
+        return {
+          ...layoutAround({
+            centerId: `attention-category:${centerEntity.category}`,
+            centerData,
+            ringOne,
+          }),
+          centerDetail: undefined,
         };
       }
 
