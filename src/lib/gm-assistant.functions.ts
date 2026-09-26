@@ -29,9 +29,28 @@ export const askAssistant = createServerFn({ method: "POST" })
     if (!intent) {
       const intentNames = INTENTS.map((definition) => definition.name);
       const cachedName = getCachedIntentName(question);
-      const rawName =
-        cachedName ??
-        (await openAiProvider.classifyIntent(question, intentNames, data.context?.displayLabel));
+      let rawName: string;
+      if (cachedName) {
+        rawName = cachedName;
+      } else {
+        try {
+          rawName = await openAiProvider.classifyIntent(
+            question,
+            intentNames,
+            data.context?.displayLabel,
+          );
+        } catch {
+          // A provider failure (bad model id, outage, quota, timeout) must degrade gracefully,
+          // not surface a raw OpenAI error to the GM as if it were an application bug - this is
+          // a distinct, honest message from OUT_OF_SCOPE_ANSWER, since the question itself may
+          // well have been in scope; we just couldn't classify it right now.
+          return {
+            answer:
+              'I\'m having trouble understanding that right now. Try rephrasing, or ask something like "What needs my attention?"',
+            suggestions: [],
+          };
+        }
+      }
       // Never trust the model's raw output as automatically safe - validate against the real,
       // known intent-name list before using it for anything.
       const resolvedName = intentNames.includes(rawName) ? rawName : "unsupported";
