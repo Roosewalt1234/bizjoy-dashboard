@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ReactFlow, Background, Controls, applyNodeChanges } from "@xyflow/react";
 import type { Node, Edge, NodeChange } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
@@ -7,8 +8,10 @@ import { UniverseNodeComponent } from "./UniverseNodeComponent";
 import { useUniverseGraph } from "./useUniverseNodes";
 import { EntityDetailPanel } from "./EntityDetailPanel";
 import { UniverseSearch } from "./UniverseSearch";
-import type { CenterEntity, UniverseNodeData } from "./types";
+import type { CenterEntity, ExceptionCategory, UniverseNodeData } from "./types";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { detectAllExceptions, worstSeverity, type OperationalException } from "./exceptions";
+import { buildMorningSummary } from "./attention-summary";
 
 const nodeTypes = { universe: UniverseNodeComponent };
 
@@ -37,15 +40,45 @@ const DETAIL_ENTITY_KINDS: CenterEntity["kind"][] = [
   "customer",
 ];
 
-function todayGraph() {
+interface TodayAttention {
+  totalCount: number;
+  worstSeverity: OperationalException["severity"] | undefined;
+  categoryCounts: Record<ExceptionCategory, number>;
+  morningSummary: { operational: string; dataQuality?: string };
+}
+
+function todayGraph(attention: TodayAttention | undefined) {
+  const operationsCount = attention?.categoryCounts.operations ?? 0;
+  const peopleCount = attention?.categoryCounts.people ?? 0;
+  const contractsBucketCount = attention
+    ? attention.categoryCounts.finance +
+      attention.categoryCounts.contracts +
+      attention.categoryCounts["data-quality"]
+    : 0;
+
   const centerData: UniverseNodeData = { kind: "today", label: "TODAY", clickable: false };
   const ringOne: { id: string; data: UniverseNodeData }[] = [
+    {
+      id: "hub:attention",
+      data: {
+        kind: "attention-hub",
+        label: "ATTENTION",
+        sublabel: attention ? `${attention.totalCount}` : "…",
+        severity: attention?.worstSeverity,
+        exception: Boolean(attention && attention.totalCount > 0),
+        clickable: true,
+        center: { kind: "attention", category: "__root__" },
+        groupKey: "attention",
+      },
+    },
     {
       id: "hub:contracts",
       data: {
         kind: "contracts-hub",
         label: "CONTRACTS",
-        sublabel: "What must we deliver?",
+        sublabel:
+          contractsBucketCount > 0 ? `${contractsBucketCount} attention` : "What must we deliver?",
+        exception: contractsBucketCount > 0,
         clickable: true,
         center: { kind: "contract-category", domain: "AMC", status: "__root__" },
         groupKey: "contracts",
@@ -56,7 +89,8 @@ function todayGraph() {
       data: {
         kind: "staff-hub",
         label: "STAFF",
-        sublabel: "Who do I have?",
+        sublabel: peopleCount > 0 ? `${peopleCount} attention` : "Who do I have?",
+        exception: peopleCount > 0,
         clickable: true,
         center: { kind: "staff-category" },
         groupKey: "staff",
@@ -67,7 +101,8 @@ function todayGraph() {
       data: {
         kind: "schedules-hub",
         label: "SCHEDULES",
-        sublabel: "What is happening?",
+        sublabel: operationsCount > 0 ? `${operationsCount} attention` : "What is happening?",
+        exception: operationsCount > 0,
         clickable: true,
         center: { kind: "schedule-category", category: "__root__" },
         groupKey: "schedules",
@@ -79,6 +114,7 @@ function todayGraph() {
 
 export function OperationsUniverse() {
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
   const [centerEntity, setCenterEntity] = useState<CenterEntity>({ kind: "today" });
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [relationshipReason, setRelationshipReason] = useState<string | null>(null);
@@ -122,9 +158,38 @@ export function OperationsUniverse() {
     error,
     refetch,
   } = useUniverseGraph(centerEntity, { enabled: !isToday });
-  // Empty deps: todayGraph() is pure with no inputs, so this is computed once and
-  // stays referentially stable for the life of the component.
-  const todayGraphMemo = useMemo(() => todayGraph(), []);
+
+  // Always enabled (not gated by isToday) - reverse-navigation on other entity screens shares
+  // this exact cache entry via useUniverseGraph's own queryClient.fetchQuery calls, so a click
+  // into a Contract right after viewing TODAY reuses this result instead of re-running all 6
+  // detectors.
+  const { data: exceptionsData } = useQuery({
+    queryKey: ["operational-exceptions"],
+    queryFn: detectAllExceptions,
+    staleTime: 60_000,
+  });
+
+  const todayAttention: TodayAttention | undefined = useMemo(() => {
+    if (!exceptionsData) return undefined;
+    const categoryCounts: Record<ExceptionCategory, number> = {
+      operations: 0,
+      people: 0,
+      finance: 0,
+      contracts: 0,
+      "data-quality": 0,
+    };
+    for (const exception of exceptionsData) {
+      categoryCounts[exception.category] += 1;
+    }
+    return {
+      totalCount: exceptionsData.length,
+      worstSeverity: worstSeverity(exceptionsData),
+      categoryCounts,
+      morningSummary: buildMorningSummary(exceptionsData),
+    };
+  }, [exceptionsData]);
+
+  const todayGraphMemo = useMemo(() => todayGraph(todayAttention), [todayAttention]);
   const graph = isToday ? todayGraphMemo : (fetchedGraph ?? EMPTY_GRAPH);
 
   const currentLabel = isToday ? "Today" : (graph.nodes[0]?.data.label ?? "Loading...");
@@ -330,6 +395,62 @@ export function OperationsUniverse() {
           >
             Retry
           </button>
+        </div>
+      )}
+      {isToday && todayAttention && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: 16,
+            left: 16,
+            zIndex: 10,
+            maxWidth: 320,
+            background: "#1c2128",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 8,
+            padding: "10px 14px",
+            color: "#e6edf3",
+            fontSize: 12,
+            boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              gap: 10,
+            }}
+          >
+            <div>
+              <div>{todayAttention.morningSummary.operational}</div>
+              {todayAttention.morningSummary.dataQuality && (
+                <div style={{ marginTop: 6, color: "#8a93a3" }}>
+                  {todayAttention.morningSummary.dataQuality}
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                queryClient.invalidateQueries({ queryKey: ["operational-exceptions"] })
+              }
+              title="Refresh attention data"
+              style={{
+                flexShrink: 0,
+                background: "none",
+                border: "1px solid rgba(255,255,255,0.12)",
+                borderRadius: 6,
+                color: "#e6edf3",
+                cursor: "pointer",
+                fontSize: 11,
+                fontWeight: 600,
+                padding: "4px 8px",
+              }}
+            >
+              Refresh
+            </button>
+          </div>
         </div>
       )}
       {relationshipReason && (
