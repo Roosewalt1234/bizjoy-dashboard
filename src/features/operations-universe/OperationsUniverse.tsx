@@ -163,7 +163,11 @@ export function OperationsUniverse() {
   // this exact cache entry via useUniverseGraph's own queryClient.fetchQuery calls, so a click
   // into a Contract right after viewing TODAY reuses this result instead of re-running all 6
   // detectors.
-  const { data: exceptionsData } = useQuery({
+  const {
+    data: exceptionsData,
+    error: exceptionsError,
+    refetch: refetchExceptions,
+  } = useQuery({
     queryKey: ["operational-exceptions"],
     queryFn: detectAllExceptions,
     staleTime: 60_000,
@@ -210,9 +214,15 @@ export function OperationsUniverse() {
   // opening/closing.
   const [nodes, setNodes] = useState<Node<UniverseNodeData>[]>(graph.nodes);
 
+  // Keyed on node ids, not `graph`'s object identity - a background refetch that updates the
+  // same nodes' labels/counts (e.g. TODAY's attention counts refreshing) must not reset the
+  // user's dragged positions; a genuine navigation to a different screen, which always has a
+  // different node id set, still does.
+  const nodeIdsKey = graph.nodes.map((node) => node.id).join(",");
   useEffect(() => {
     setNodes(graph.nodes);
-  }, [graph]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodeIdsKey]);
 
   useEffect(() => {
     setPanelOpen(DETAIL_ENTITY_KINDS.includes(centerEntity.kind));
@@ -397,7 +407,7 @@ export function OperationsUniverse() {
           </button>
         </div>
       )}
-      {isToday && todayAttention && (
+      {isToday && (todayAttention || exceptionsError) && (
         <div
           style={{
             position: "absolute",
@@ -414,43 +424,73 @@ export function OperationsUniverse() {
             boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              gap: 10,
-            }}
-          >
-            <div>
-              <div>{todayAttention.morningSummary.operational}</div>
-              {todayAttention.morningSummary.dataQuality && (
-                <div style={{ marginTop: 6, color: "#8a93a3" }}>
-                  {todayAttention.morningSummary.dataQuality}
-                </div>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={() =>
-                queryClient.invalidateQueries({ queryKey: ["operational-exceptions"] })
-              }
-              title="Refresh attention data"
+          {todayAttention ? (
+            <div
               style={{
-                flexShrink: 0,
-                background: "none",
-                border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: 6,
-                color: "#e6edf3",
-                cursor: "pointer",
-                fontSize: 11,
-                fontWeight: 600,
-                padding: "4px 8px",
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: 10,
               }}
             >
-              Refresh
-            </button>
-          </div>
+              <div>
+                <div>{todayAttention.morningSummary.operational}</div>
+                {todayAttention.morningSummary.dataQuality && (
+                  <div style={{ marginTop: 6, color: "#8a93a3" }}>
+                    {todayAttention.morningSummary.dataQuality}
+                  </div>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  queryClient.invalidateQueries({ queryKey: ["operational-exceptions"] })
+                }
+                title="Refresh attention data"
+                style={{
+                  flexShrink: 0,
+                  background: "none",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  borderRadius: 6,
+                  color: "#e6edf3",
+                  cursor: "pointer",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  padding: "4px 8px",
+                }}
+              >
+                Refresh
+              </button>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: 10,
+              }}
+            >
+              <div style={{ fontWeight: 700 }}>{exceptionsError?.message}</div>
+              <button
+                type="button"
+                onClick={() => refetchExceptions()}
+                style={{
+                  flexShrink: 0,
+                  background: "none",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  borderRadius: 6,
+                  color: "#e6edf3",
+                  cursor: "pointer",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  padding: "4px 8px",
+                }}
+              >
+                Retry
+              </button>
+            </div>
+          )}
         </div>
       )}
       {relationshipReason && (
