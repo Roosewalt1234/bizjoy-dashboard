@@ -15,6 +15,7 @@ export const MODULES = [
   { key: "mobile_report_snag", label: "Mobile: Report Snag", url: "" },
   { key: "mobile_variation_job", label: "Mobile: New Variation Job", url: "" },
   { key: "mobile_completion_report", label: "Mobile: Completion Report", url: "" },
+  { key: "mobile_floor_scan", label: "Mobile: Floor Scan (NFC)", url: "" },
 ] as const;
 
 export type ModuleKey = (typeof MODULES)[number]["key"];
