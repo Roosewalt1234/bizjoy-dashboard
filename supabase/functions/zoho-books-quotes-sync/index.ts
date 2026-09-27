@@ -38,6 +38,14 @@ function mapStatus(zohoStatus: string | null | undefined): string | null {
   return zohoStatus.toLowerCase();
 }
 
+// Zoho sends an empty string (not null/undefined) for an unset date field on at least some
+// estimates (e.g. a draft quote with no expiry set) - `?? null` alone doesn't catch that, and
+// Postgres's `date` columns reject "" outright ("invalid input syntax for type date"), which
+// was silently failing this exact estimate's upsert on every sync run since it first appeared.
+function emptyToNull(value: unknown): unknown {
+  return value === "" ? null : value;
+}
+
 async function syncOneEstimate(est: any) {
   if (!est?.estimate_id) throw new Error("Estimate object is missing estimate_id");
 
@@ -48,8 +56,8 @@ async function syncOneEstimate(est: any) {
     zoho_quote_id: est.estimate_id,
     zoho_customer_id: est.customer_id ?? null,
     quote_number: est.estimate_number ?? null,
-    quote_date: est.date ?? null,
-    expiry_date: est.expiry_date ?? null,
+    quote_date: emptyToNull(est.date) ?? null,
+    expiry_date: emptyToNull(est.expiry_date) ?? null,
     customer_name: est.customer_name ?? null,
     status: mapStatus(est.status),
     subtotal: est.sub_total ?? null,
