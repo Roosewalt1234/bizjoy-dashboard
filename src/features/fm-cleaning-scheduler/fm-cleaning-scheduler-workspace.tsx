@@ -57,11 +57,13 @@ import {
   deleteCleaningSchedule,
   fetchEmployeeOptions,
   fetchSchedulesForTowers,
+  fetchTaskCatalogForAreaCatalog,
   fetchTodaysCompletionByArea,
   fetchVisitsForTowers,
   saveCleaningSchedule,
   type CleaningSchedule,
   type FrequencyType,
+  type TaskCatalogOption,
   type TodaysCompletion,
 } from "./fm-cleaning-scheduler-api";
 
@@ -126,7 +128,11 @@ export function FmCleaningSchedulerWorkspacePage() {
     refetchInterval: 60_000,
   });
 
-  const employeesQuery = useQuery({ queryKey: ["fm-cleaning-employees"], queryFn: fetchEmployeeOptions });
+  const employeesQuery = useQuery({
+    queryKey: ["fm-cleaning-employees", contractId],
+    queryFn: () => fetchEmployeeOptions(contractId),
+    enabled: !!contractId,
+  });
 
   const refreshSchedules = () => qc.invalidateQueries({ queryKey: ["fm-cleaning-schedules", towerIds] });
   const refreshVisits = () => qc.invalidateQueries({ queryKey: ["fm-cleaning-visits", towerIds] });
@@ -307,6 +313,7 @@ const emptyScheduleForm = {
   time_window_start: "",
   time_window_end: "",
   assigned_employee_id: "none",
+  task_catalog_id: "",
   active: true,
 };
 
@@ -400,6 +407,14 @@ function SectionScheduleCard({
   });
   const [regenerating, setRegenerating] = useState(false);
 
+  const selectedRoom = utilityRooms.find((r) => r.id === dialog.form.area_id) ?? null;
+  const taskCatalogQuery = useQuery({
+    queryKey: ["fm-cleaning-task-catalog", selectedRoom?.catalog_id],
+    queryFn: () => fetchTaskCatalogForAreaCatalog(selectedRoom!.catalog_id!),
+    enabled: !!selectedRoom?.catalog_id,
+  });
+  const taskOptions: TaskCatalogOption[] = taskCatalogQuery.data ?? [];
+
   const checkinPath = `/clean-checkin/${section.nfc_token}`;
 
   const copyToken = async () => {
@@ -425,7 +440,11 @@ function SectionScheduleCard({
   };
 
   const openAdd = () =>
-    setDialog({ open: true, editing: null, form: { ...emptyScheduleForm, area_id: utilityRooms[0]?.id ?? "" } });
+    setDialog({
+      open: true,
+      editing: null,
+      form: { ...emptyScheduleForm, area_id: utilityRooms[0]?.id ?? "" },
+    });
   const openEdit = (s: CleaningSchedule) =>
     setDialog({
       open: true,
@@ -437,6 +456,7 @@ function SectionScheduleCard({
         time_window_start: s.time_window_start?.slice(0, 5) ?? "",
         time_window_end: s.time_window_end?.slice(0, 5) ?? "",
         assigned_employee_id: s.assigned_employee_id ?? "none",
+        task_catalog_id: s.task_catalog_id,
         active: s.active,
       },
     });
@@ -450,6 +470,10 @@ function SectionScheduleCard({
       toast.error("Select at least one day");
       return;
     }
+    if (!dialog.form.task_catalog_id) {
+      toast.error("Select a task");
+      return;
+    }
     try {
       await saveCleaningSchedule(
         {
@@ -460,6 +484,7 @@ function SectionScheduleCard({
           time_window_start: dialog.form.time_window_start,
           time_window_end: dialog.form.time_window_end,
           assigned_employee_id: dialog.form.assigned_employee_id === "none" ? null : dialog.form.assigned_employee_id,
+          task_catalog_id: dialog.form.task_catalog_id,
           active: dialog.form.active,
         },
         dialog.editing?.id,
@@ -535,6 +560,7 @@ function SectionScheduleCard({
               <div key={s.id} className="flex items-center justify-between gap-2 rounded border px-2 py-1.5 text-sm">
                 <div className="flex items-center gap-2 flex-wrap">
                   <Badge variant="secondary">{s.area_name}</Badge>
+                  {s.task_name && <Badge variant="outline">{s.task_name}</Badge>}
                   <span>{scheduleSummary(s)}</span>
                   {s.assigned_employee_name && <span className="text-muted-foreground">- {s.assigned_employee_name}</span>}
                   {!s.active && <Badge variant="outline">inactive</Badge>}
@@ -592,7 +618,10 @@ function SectionScheduleCard({
           <div className="space-y-3">
             <div className="space-y-1">
               <Label>Utility room</Label>
-              <Select value={dialog.form.area_id} onValueChange={(v) => setDialog((s) => ({ ...s, form: { ...s.form, area_id: v } }))}>
+              <Select
+                value={dialog.form.area_id}
+                onValueChange={(v) => setDialog((s) => ({ ...s, form: { ...s.form, area_id: v, task_catalog_id: "" } }))}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a utility room" />
                 </SelectTrigger>
@@ -604,6 +633,31 @@ function SectionScheduleCard({
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>Task</Label>
+              {selectedRoom && !selectedRoom.catalog_id ? (
+                <p className="text-sm text-muted-foreground">No checklist configured for this room type.</p>
+              ) : selectedRoom && taskCatalogQuery.data && taskOptions.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No checklist configured for this room type.</p>
+              ) : (
+                <Select
+                  value={dialog.form.task_catalog_id}
+                  onValueChange={(v) => setDialog((s) => ({ ...s, form: { ...s.form, task_catalog_id: v } }))}
+                  disabled={!selectedRoom || taskOptions.length === 0}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={selectedRoom ? "Select a task" : "Select a utility room first"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {taskOptions.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>
+                        {t.task_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <div className="space-y-1">
               <Label>Frequency</Label>
@@ -659,22 +713,28 @@ function SectionScheduleCard({
             </div>
             <div className="space-y-1">
               <Label>Assigned cleaner</Label>
-              <Select
-                value={dialog.form.assigned_employee_id}
-                onValueChange={(v) => setDialog((s) => ({ ...s, form: { ...s.form, assigned_employee_id: v } }))}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Unassigned</SelectItem>
-                  {employees.map((e) => (
-                    <SelectItem key={e.id} value={e.id}>
-                      {e.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {employees.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No staff assigned to this contract yet - assign staff on the FM Manpower page first.
+                </p>
+              ) : (
+                <Select
+                  value={dialog.form.assigned_employee_id}
+                  onValueChange={(v) => setDialog((s) => ({ ...s, form: { ...s.form, assigned_employee_id: v } }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Unassigned</SelectItem>
+                    {employees.map((e) => (
+                      <SelectItem key={e.id} value={e.id}>
+                        {e.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <div className="flex items-center justify-between">
               <Label>Active</Label>
@@ -688,7 +748,9 @@ function SectionScheduleCard({
             <Button variant="outline" onClick={() => setDialog((s) => ({ ...s, open: false }))}>
               Cancel
             </Button>
-            <Button onClick={saveSchedule}>Save</Button>
+            <Button onClick={saveSchedule} disabled={employees.length === 0 || !selectedRoom || taskOptions.length === 0}>
+              Save
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
