@@ -254,6 +254,11 @@ function AmcSchedulingPage() {
   const [cleaningForm, setCleaningForm] = useState(emptyCleaningForm);
   const [savingCleaning, setSavingCleaning] = useState(false);
 
+  const [ppmEditOpen, setPpmEditOpen] = useState(false);
+  const [ppmEditTarget, setPpmEditTarget] = useState<{ contractId: string; category: string; index: number } | null>(null);
+  const [ppmPendingStatus, setPpmPendingStatus] = useState<string | null>(null);
+  const [savingPpmStatus, setSavingPpmStatus] = useState(false);
+
   const [dayPickerDate, setDayPickerDate] = useState<string | null>(null);
 
   const [workOrderOpen, setWorkOrderOpen] = useState(false);
@@ -419,6 +424,12 @@ function AmcSchedulingPage() {
         setWorkOrderEditing(wo);
         setWorkOrderOpen(true);
       }
+      return;
+    }
+    if (event.id.startsWith("ppm|")) {
+      const [, contractId, category, indexStr] = event.id.split("|");
+      setPpmEditTarget({ contractId, category, index: Number(indexStr) });
+      setPpmEditOpen(true);
       return;
     }
   }
@@ -647,6 +658,45 @@ function AmcSchedulingPage() {
     }
   }
 
+  // ---- PPM status quick-update dialog (reads/writes contracts.ppm_schedule directly) ----
+
+  const ppmTargetContract = ppmEditTarget ? contracts.find((c) => c.id === ppmEditTarget.contractId) : undefined;
+  const ppmTargetDate =
+    ppmEditTarget && ppmTargetContract
+      ? ppmTargetContract.ppm_schedule?.dates?.[ppmEditTarget.category]?.[ppmEditTarget.index] ?? ""
+      : "";
+  const ppmTargetOverride =
+    ppmEditTarget && ppmTargetContract
+      ? ppmTargetContract.ppm_schedule?.status?.[ppmEditTarget.category]?.[ppmEditTarget.index] ?? ""
+      : "";
+
+  async function savePpmStatus(newStatus: string) {
+    if (!ppmEditTarget || !ppmTargetContract) return;
+    setSavingPpmStatus(true);
+    try {
+      const current = ppmTargetContract.ppm_schedule ?? {};
+      const statusByCategory = { ...(current.status ?? {}) };
+      const categoryStatuses = [...(statusByCategory[ppmEditTarget.category] ?? [])];
+      while (categoryStatuses.length <= ppmEditTarget.index) categoryStatuses.push("");
+      categoryStatuses[ppmEditTarget.index] = newStatus === "Auto" ? "" : newStatus;
+      statusByCategory[ppmEditTarget.category] = categoryStatuses;
+      const updated = { ...current, status: statusByCategory };
+      const { error } = await supabase
+        .from("contracts")
+        .update({ ppm_schedule: updated })
+        .eq("id", ppmTargetContract.id);
+      if (error) throw error;
+      toast.success("PPM status updated");
+      setPpmEditOpen(false);
+      setPpmPendingStatus(null);
+      qc.invalidateQueries({ queryKey: ["contracts-lookup-amc-scheduling"] });
+    } catch (error: any) {
+      toast.error(error.message ?? "Save failed");
+    } finally {
+      setSavingPpmStatus(false);
+    }
+  }
+
   // ---- Day-click picker ----
 
   function closeDayPicker() {
@@ -684,6 +734,7 @@ function AmcSchedulingPage() {
               <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-cyan-200" /> Water Tank</span>
               <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-violet-200" /> AC Duct</span>
               <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-amber-200" /> Work Order</span>
+              <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-slate-200" /> PPM Schedule (colored by status)</span>
             </div>
           </div>
           <SchedulingCalendar
@@ -1095,6 +1146,62 @@ function AmcSchedulingPage() {
             <Button variant="outline" onClick={() => setCleaningOpen(false)}>Cancel</Button>
             <Button onClick={saveCleaningDates} disabled={savingCleaning}>{savingCleaning ? "Saving..." : "Save Dates"}</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={ppmEditOpen}
+        onOpenChange={(v) => {
+          setPpmEditOpen(v);
+          if (!v) {
+            setPpmEditTarget(null);
+            setPpmPendingStatus(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>PPM Visit</DialogTitle>
+          </DialogHeader>
+          {ppmEditTarget && ppmTargetContract && (
+            <div className="space-y-4">
+              <div className="space-y-1 text-sm">
+                <div className="font-medium">{contractLabel(ppmTargetContract)}</div>
+                <div className="text-muted-foreground">
+                  {PPM_CATEGORY_LABELS[ppmEditTarget.category]} — {ppmTargetDate}
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label>Status</Label>
+                <Select
+                  value={ppmPendingStatus ?? (ppmTargetOverride || "Auto")}
+                  onValueChange={setPpmPendingStatus}
+                  disabled={savingPpmStatus}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Auto">Auto</SelectItem>
+                    <SelectItem value="Scheduled">Scheduled</SelectItem>
+                    <SelectItem value="Completed">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                className="w-full"
+                onClick={() => savePpmStatus(ppmPendingStatus ?? (ppmTargetOverride || "Auto"))}
+                disabled={savingPpmStatus}
+              >
+                {savingPpmStatus ? "Saving..." : "Save Status"}
+              </Button>
+              <Button variant="outline" className="w-full" asChild>
+                <Link to="/amc-contracts" search={{ edit: ppmTargetContract.id }}>
+                  View full contract
+                </Link>
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
