@@ -1569,6 +1569,7 @@ export type Database = {
           floor_number: number | null
           id: string
           label: string
+          nfc_token: string
           sort_order: number
           tower_id: string
           updated_at: string
@@ -1578,6 +1579,7 @@ export type Database = {
           floor_number?: number | null
           id?: string
           label: string
+          nfc_token?: string
           sort_order?: number
           tower_id: string
           updated_at?: string
@@ -1587,6 +1589,7 @@ export type Database = {
           floor_number?: number | null
           id?: string
           label?: string
+          nfc_token?: string
           sort_order?: number
           tower_id?: string
           updated_at?: string
@@ -1611,6 +1614,7 @@ export type Database = {
           floor_id: string
           frequency_type: string
           id: string
+          task_catalog_id: string
           time_window_end: string | null
           time_window_start: string | null
           updated_at: string
@@ -1624,6 +1628,7 @@ export type Database = {
           floor_id: string
           frequency_type: string
           id?: string
+          task_catalog_id: string
           time_window_end?: string | null
           time_window_start?: string | null
           updated_at?: string
@@ -1637,6 +1642,7 @@ export type Database = {
           floor_id?: string
           frequency_type?: string
           id?: string
+          task_catalog_id?: string
           time_window_end?: string | null
           time_window_start?: string | null
           updated_at?: string
@@ -1661,6 +1667,97 @@ export type Database = {
             columns: ["floor_id"]
             isOneToOne: false
             referencedRelation: "fm_cleaning_floors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_cleaning_schedules_task_catalog_id_fkey"
+            columns: ["task_catalog_id"]
+            isOneToOne: false
+            referencedRelation: "fm_cleaning_task_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_cleaning_task_catalog: {
+        Row: {
+          active: boolean
+          area_catalog_id: string
+          created_at: string
+          id: string
+          sort_order: number
+          task_name: string
+        }
+        Insert: {
+          active?: boolean
+          area_catalog_id: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          task_name: string
+        }
+        Update: {
+          active?: boolean
+          area_catalog_id?: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          task_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_cleaning_task_catalog_area_catalog_id_fkey"
+            columns: ["area_catalog_id"]
+            isOneToOne: false
+            referencedRelation: "fm_cleaning_area_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fm_cleaning_task_completions: {
+        Row: {
+          area_id: string
+          completed_at: string
+          created_at: string
+          employee_id: string
+          id: string
+          task_catalog_id: string
+        }
+        Insert: {
+          area_id: string
+          completed_at?: string
+          created_at?: string
+          employee_id: string
+          id?: string
+          task_catalog_id: string
+        }
+        Update: {
+          area_id?: string
+          completed_at?: string
+          created_at?: string
+          employee_id?: string
+          id?: string
+          task_catalog_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fm_cleaning_task_completions_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "fm_cleaning_areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_cleaning_task_completions_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_cleaning_task_completions_task_catalog_id_fkey"
+            columns: ["task_catalog_id"]
+            isOneToOne: false
+            referencedRelation: "fm_cleaning_task_catalog"
             referencedColumns: ["id"]
           },
         ]
@@ -2193,6 +2290,7 @@ export type Database = {
       fm_work_orders: {
         Row: {
           after_photo_path: string | null
+          area_id: string | null
           arrived_at: string | null
           asset_id: string | null
           before_photo_path: string | null
@@ -2204,6 +2302,7 @@ export type Database = {
           customer_id: string | null
           customer_name: string | null
           delay_reason: string | null
+          floor_id: string | null
           id: string
           location: string | null
           notes: string | null
@@ -2229,6 +2328,7 @@ export type Database = {
         }
         Insert: {
           after_photo_path?: string | null
+          area_id?: string | null
           arrived_at?: string | null
           asset_id?: string | null
           before_photo_path?: string | null
@@ -2240,6 +2340,7 @@ export type Database = {
           customer_id?: string | null
           customer_name?: string | null
           delay_reason?: string | null
+          floor_id?: string | null
           id?: string
           location?: string | null
           notes?: string | null
@@ -2265,6 +2366,7 @@ export type Database = {
         }
         Update: {
           after_photo_path?: string | null
+          area_id?: string | null
           arrived_at?: string | null
           asset_id?: string | null
           before_photo_path?: string | null
@@ -2276,6 +2378,7 @@ export type Database = {
           customer_id?: string | null
           customer_name?: string | null
           delay_reason?: string | null
+          floor_id?: string | null
           id?: string
           location?: string | null
           notes?: string | null
@@ -2301,6 +2404,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fm_work_orders_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "fm_cleaning_areas"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "fm_work_orders_asset_id_fkey"
             columns: ["asset_id"]
             isOneToOne: false
@@ -2319,6 +2429,13 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fm_work_orders_floor_id_fkey"
+            columns: ["floor_id"]
+            isOneToOne: false
+            referencedRelation: "fm_cleaning_floors"
             referencedColumns: ["id"]
           },
           {

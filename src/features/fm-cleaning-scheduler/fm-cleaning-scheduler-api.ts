@@ -25,6 +25,8 @@ export type CleaningSchedule = {
   time_window_end: string | null;
   assigned_employee_id: string | null;
   assigned_employee_name: string | null;
+  task_catalog_id: string;
+  task_name: string | null;
   active: boolean;
 };
 
@@ -45,17 +47,47 @@ export type CleaningVisit = {
 
 export type EmployeeOption = { id: string; name: string };
 
-export async function fetchEmployeeOptions(): Promise<EmployeeOption[]> {
+/**
+ * Employees actively assigned to this contract's manpower (contract_manpower_assignments,
+ * status = 'Active' - the column's own documented default and the only status value present in
+ * live data), not a flat system-wide employee list. Returns [] for a contract with no recorded
+ * assignments yet - callers show a blocked empty state rather than falling back to everyone.
+ */
+export async function fetchEmployeeOptions(contractId: string): Promise<EmployeeOption[]> {
+  if (!contractId) return [];
   const { data, error } = await supabase
-    .from("employees")
-    .select("id, full_name, first_name, last_name")
-    .order("full_name", { ascending: true })
-    .limit(2000);
+    .from("contract_manpower_assignments")
+    .select("employee_id, employees:employee_id(id, full_name, first_name, last_name)")
+    .eq("contract_id", contractId)
+    .eq("status", "Active");
   if (error) throw error;
-  return (data ?? []).map((e: any) => ({
-    id: e.id,
-    name: e.full_name || [e.first_name, e.last_name].filter(Boolean).join(" ") || "Unnamed",
-  }));
+  const seen = new Set<string>();
+  const options: EmployeeOption[] = [];
+  for (const row of (data ?? []) as any[]) {
+    const emp = row.employees;
+    if (!emp || seen.has(emp.id)) continue;
+    seen.add(emp.id);
+    options.push({
+      id: emp.id,
+      name: emp.full_name || [emp.first_name, emp.last_name].filter(Boolean).join(" ") || "Unnamed",
+    });
+  }
+  return options.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export type TaskCatalogOption = { id: string; task_name: string };
+
+/** Active tasks defined for a room-type (fm_cleaning_task_catalog, keyed by area_catalog_id) -
+ * the same catalog the mobile app's per-room checklist already reads from. */
+export async function fetchTaskCatalogForAreaCatalog(areaCatalogId: string): Promise<TaskCatalogOption[]> {
+  const { data, error } = await supabase
+    .from("fm_cleaning_task_catalog")
+    .select("id, task_name")
+    .eq("area_catalog_id", areaCatalogId)
+    .eq("active", true)
+    .order("sort_order", { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as TaskCatalogOption[];
 }
 
 export async function fetchSchedulesForTowers(towerIds: string[]): Promise<Record<string, CleaningSchedule[]>> {
@@ -63,7 +95,7 @@ export async function fetchSchedulesForTowers(towerIds: string[]): Promise<Recor
   const { data, error } = await (supabase as any)
     .from("fm_cleaning_schedules")
     .select(
-      "*, fm_cleaning_floors!inner(tower_id), fm_cleaning_areas!inner(name, area_type), employees:assigned_employee_id(id, full_name, first_name, last_name)",
+      "*, fm_cleaning_floors!inner(tower_id), fm_cleaning_areas!inner(name, area_type), employees:assigned_employee_id(id, full_name, first_name, last_name), fm_cleaning_task_catalog:task_catalog_id(task_name)",
     )
     .in("fm_cleaning_floors.tower_id", towerIds)
     .order("created_at", { ascending: true });
@@ -72,6 +104,7 @@ export async function fetchSchedulesForTowers(towerIds: string[]): Promise<Recor
   for (const row of data ?? []) {
     const emp = row.employees;
     const area = row.fm_cleaning_areas;
+    const task = row.fm_cleaning_task_catalog;
     const schedule: CleaningSchedule = {
       id: row.id,
       floor_id: row.floor_id,
@@ -84,6 +117,8 @@ export async function fetchSchedulesForTowers(towerIds: string[]): Promise<Recor
       time_window_end: row.time_window_end,
       assigned_employee_id: row.assigned_employee_id,
       assigned_employee_name: emp ? emp.full_name || [emp.first_name, emp.last_name].filter(Boolean).join(" ") : null,
+      task_catalog_id: row.task_catalog_id,
+      task_name: task?.task_name ?? null,
       active: row.active,
     };
     (byFloor[row.floor_id] ??= []).push(schedule);
@@ -99,6 +134,7 @@ export type SaveScheduleInput = {
   time_window_start: string;
   time_window_end: string;
   assigned_employee_id: string | null;
+  task_catalog_id: string;
   active: boolean;
 };
 
@@ -112,6 +148,7 @@ export async function saveCleaningSchedule(input: SaveScheduleInput, editingId?:
     time_window_start: input.time_window_start || null,
     time_window_end: input.time_window_end || null,
     assigned_employee_id: input.assigned_employee_id,
+    task_catalog_id: input.task_catalog_id,
     active: input.active,
   };
   if (editingId) {
