@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarDays, Droplets, Pencil, Plus, Trash2, Wind } from "lucide-react";
 import { toast } from "sonner";
@@ -53,6 +53,12 @@ export const Route = createFileRoute("/_authenticated/amc-scheduling")({
   component: AmcSchedulingPage,
 });
 
+type PpmScheduleJson = {
+  dates?: Record<string, string[]>;
+  status?: Record<string, string[]>;
+  freq?: Record<string, number>;
+};
+
 type ContractLookup = {
   id: string;
   title: string;
@@ -60,6 +66,7 @@ type ContractLookup = {
   customer_name: string | null;
   water_tank_cleaning_date: string | null;
   ac_duct_cleaning_date: string | null;
+  ppm_schedule: PpmScheduleJson | null;
 };
 
 type PpmScheduleRow = {
@@ -165,6 +172,40 @@ function contractLabel(contract: Pick<ContractLookup, "contract_no" | "customer_
   return (contract.contract_no ? `${contract.contract_no} - ` : "") + (contract.customer_name ?? contract.title);
 }
 
+// PPM category keys/labels and status logic below are intentionally duplicated from
+// contracts-page.tsx (PPM_SERVICES, computePpmStatus) — that file doesn't export them,
+// and this route already keeps its own local ContractLookup shape rather than importing one.
+const PPM_CATEGORY_LABELS: Record<string, string> = {
+  ac_units: "AC Units",
+  water_pumps: "Water Pumps & Motors",
+  electrical: "Fixed Electrical Fittings",
+  plumbing: "Plumbing Units",
+  solar: "Solar Water Heater",
+  water_tank: "Water Tank Cleaning",
+};
+
+function computePpmStatus(date: string, override: string): "Not Yet Due" | "Due" | "Overdue" | "Scheduled" | "Completed" {
+  if (override === "Completed") return "Completed";
+  if (override === "Scheduled") return "Scheduled";
+  if (!date) return "Not Yet Due";
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const target = new Date(date); target.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((today.getTime() - target.getTime()) / 86400000);
+  if (diffDays <= 0) return "Not Yet Due";
+  if (diffDays <= 15) return "Due";
+  return "Overdue";
+}
+
+function ppmEventColorClass(status: string): string {
+  switch (status) {
+    case "Completed": return "bg-emerald-100 text-emerald-900";
+    case "Scheduled":  return "bg-sky-100 text-sky-900";
+    case "Due":        return "bg-amber-100 text-amber-900";
+    case "Overdue":    return "bg-red-100 text-red-900";
+    default:           return "bg-slate-100 text-slate-700"; // Not Yet Due
+  }
+}
+
 const emptyScheduleForm = {
   contract_id: "",
   schedule_name: "",
@@ -223,7 +264,7 @@ function AmcSchedulingPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("contracts")
-        .select("id, title, contract_no, customer_name, water_tank_cleaning_date, ac_duct_cleaning_date")
+        .select("id, title, contract_no, customer_name, water_tank_cleaning_date, ac_duct_cleaning_date, ppm_schedule")
         .order("created_at", { ascending: false })
         .limit(2000);
       if (error) throw error;
