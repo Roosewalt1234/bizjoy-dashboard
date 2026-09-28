@@ -610,7 +610,12 @@ function SectionScheduleCard({
         )}
       </AccordionContent>
 
-      <Dialog open={dialog.open} onOpenChange={(open) => setDialog((s) => ({ ...s, open }))}>
+      <Dialog
+        open={dialog.open}
+        onOpenChange={(open) =>
+          setDialog((s) => (open ? { ...s, open } : { open: false, editing: null, form: emptyScheduleForm }))
+        }
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{dialog.editing ? "Edit Schedule" : `Add Schedule - ${section.name}`}</DialogTitle>
@@ -745,7 +750,7 @@ function SectionScheduleCard({
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialog((s) => ({ ...s, open: false }))}>
+            <Button variant="outline" onClick={() => setDialog({ open: false, editing: null, form: emptyScheduleForm })}>
               Cancel
             </Button>
             <Button onClick={saveSchedule} disabled={employees.length === 0 || !selectedRoom || taskOptions.length === 0}>
