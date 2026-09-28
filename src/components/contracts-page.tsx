@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -252,11 +252,12 @@ function PaymentDueBadge({ date, status }: { date: string; status: string }) {
 }
 
 
-export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType }) {
+export function ContractsPage({ moduleType = "AMC", focusContractId }: { moduleType?: ModuleType; focusContractId?: string }) {
   const isFM = moduleType === "FM";
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
+  const focusHandled = useRef<string | null>(null);
   const [page, setPage] = useState(1);
   const [filterTitle, setFilterTitle] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -275,6 +276,16 @@ export function ContractsPage({ moduleType = "AMC" }: { moduleType?: ModuleType 
       return data ?? [];
     },
   });
+
+  // Deep link: open the exact contract requested via ?edit= (see amc-contracts.tsx)
+  useEffect(() => {
+    if (!focusContractId || focusHandled.current === focusContractId) return;
+    const match = (rows as any[]).find((r) => r.id === focusContractId);
+    if (!match) return;
+    focusHandled.current = focusContractId;
+    setEditing(match);
+    setOpen(true);
+  }, [rows, focusContractId]);
 
 
   const filteredRows = useMemo(() => {
