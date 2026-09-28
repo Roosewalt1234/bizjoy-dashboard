@@ -372,6 +372,27 @@ function AmcSchedulingPage() {
       });
     }
 
+    for (const contract of contracts) {
+      const label = contract.contract_no ?? contract.customer_name ?? "Contract";
+      const dates = contract.ppm_schedule?.dates ?? {};
+      const overrides = contract.ppm_schedule?.status ?? {};
+      for (const category of Object.keys(PPM_CATEGORY_LABELS)) {
+        const categoryDates = dates[category] ?? [];
+        const categoryOverrides = overrides[category] ?? [];
+        categoryDates.forEach((date, i) => {
+          if (!date) return;
+          const status = computePpmStatus(date, categoryOverrides[i] ?? "");
+          events.push({
+            id: `ppm|${contract.id}|${category}|${i}`,
+            date,
+            title: `PPM: ${PPM_CATEGORY_LABELS[category]} — ${label}`,
+            subtitle: status,
+            colorClass: ppmEventColorClass(status),
+          });
+        });
+      }
+    }
+
     return events;
   }, [visits, contracts, scheduledWorkOrders]);
 
