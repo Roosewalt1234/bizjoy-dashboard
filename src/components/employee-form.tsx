@@ -17,7 +17,7 @@ const POSITIONS = [
   "Purchase Exec","CAFM Exec","MEP Supervisor","Cleaning Supervisor","MEP Team Lead","Cleaning Team Lead",
   "Helper","Plumber","Electrician","AC Technician","Multy Technician","Mason","Tile Mason","Painter",
   "Gypsum Mason","Carpenter","Gypsum & Carpenter","Driver","Cleaner Male","Cleaner Female","Maid",
-  "Handyman","Swimming Pool Technician","Life Guard","Office Boy",
+  "Handyman","Swimming Pool Technician","Life Guard","Office Boy","FM Engineer",
 ];
 const EMPLOYMENT_TYPES = ["Full-time","Part-time","Contract","Intern","Commission Basis","Others"];
 const VISA_STATUSES = ["Visit Visa","Company Visa","NOC from other Company"];
