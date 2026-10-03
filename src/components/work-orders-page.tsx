@@ -35,6 +35,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   CheckCircle2,
   Clock,
   Pause,
@@ -45,6 +51,7 @@ import {
   Eye,
   Wrench,
   ClipboardCheck,
+  MoreVertical,
 } from "lucide-react";
 import { toast } from "sonner";
 import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar";
@@ -199,7 +206,7 @@ export function WorkOrdersPage({
     qc.invalidateQueries({ queryKey: ["sla-tracker-work-orders"] });
   }
 
-  function timestampActions(order: any) {
+  function timestampActionItems(order: any) {
     const now = new Date().toISOString();
     const paused = Boolean(order.delay_reason || order.sla_exclusion_reason);
     const responseStatus = calculateSlaStatus({
@@ -214,18 +221,10 @@ export function WorkOrdersPage({
     });
     return (
       <>
-        <Button
-          size="sm"
-          variant="outline"
-          title="Acknowledge"
-          onClick={() => logSlaEvent(order, "Acknowledged", { status: "In Progress" })}
-        >
-          <Clock className="h-3 w-3 mr-1" /> Ack
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          title="Mark responded"
+        <DropdownMenuItem onClick={() => logSlaEvent(order, "Acknowledged", { status: "In Progress" })}>
+          <Clock className="h-4 w-4" /> Acknowledge
+        </DropdownMenuItem>
+        <DropdownMenuItem
           onClick={() =>
             logSlaEvent(order, "Responded", {
               responded_at: now,
@@ -234,20 +233,12 @@ export function WorkOrdersPage({
             })
           }
         >
-          Responded
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          title="Mark arrived"
-          onClick={() => logSlaEvent(order, "Arrived", { arrived_at: now, status: "In Progress" })}
-        >
-          Arrived
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          title="Mark completed"
+          Mark Responded
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => logSlaEvent(order, "Arrived", { arrived_at: now, status: "In Progress" })}>
+          Mark Arrived
+        </DropdownMenuItem>
+        <DropdownMenuItem
           onClick={() =>
             logSlaEvent(order, "Completed", {
               completed_at: now,
@@ -256,12 +247,9 @@ export function WorkOrdersPage({
             })
           }
         >
-          <CheckCircle2 className="h-3 w-3 mr-1" /> Done
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          title="Pause SLA"
+          <CheckCircle2 className="h-4 w-4" /> Mark Completed
+        </DropdownMenuItem>
+        <DropdownMenuItem
           onClick={() =>
             logSlaEvent(order, "Paused", {
               delay_reason: order.delay_reason || "Paused",
@@ -270,12 +258,9 @@ export function WorkOrdersPage({
             })
           }
         >
-          <Pause className="h-3 w-3" />
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          title="Resume SLA"
+          <Pause className="h-4 w-4" /> Pause SLA
+        </DropdownMenuItem>
+        <DropdownMenuItem
           onClick={() =>
             logSlaEvent(order, "Resumed", {
               delay_reason: null,
@@ -291,8 +276,8 @@ export function WorkOrdersPage({
             })
           }
         >
-          <Play className="h-3 w-3" />
-        </Button>
+          <Play className="h-4 w-4" /> Resume SLA
+        </DropdownMenuItem>
       </>
     );
   }
@@ -421,7 +406,7 @@ export function WorkOrdersPage({
               <TableHead>Response SLA</TableHead>
               <TableHead>Completion SLA</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="w-80 text-right">Actions</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -480,63 +465,62 @@ export function WorkOrdersPage({
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex flex-wrap justify-end gap-1">
-                      {timestampActions(r)}
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        title="View"
-                        onClick={() => setViewing(r)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      {can("service", "add") && (
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          title="Create work completion report"
-                          onClick={() => navigate({ to: "/amc-service-reports", search: { wo: r.id } as any })}
-                        >
-                          <ClipboardCheck className="h-4 w-4" />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="icon" variant="ghost" title="Actions">
+                          <MoreVertical className="h-4 w-4" />
                         </Button>
-                      )}
-                      {can("service", "edit") && (
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          title="Edit"
-                          onClick={() => {
-                            setEditing(r);
-                            setOpen(true);
-                          }}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {can("service", "delete") && (
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="icon" variant="ghost" title="Delete">
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete work order?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => remove(r.id)}>
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      )}
-                    </div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {timestampActionItems(r)}
+                        <DropdownMenuItem onClick={() => setViewing(r)}>
+                          <Eye className="h-4 w-4" /> View
+                        </DropdownMenuItem>
+                        {can("service", "add") && (
+                          <DropdownMenuItem
+                            onClick={() => navigate({ to: "/amc-service-reports", search: { wo: r.id } as any })}
+                          >
+                            <ClipboardCheck className="h-4 w-4" /> Create Work Completion Report
+                          </DropdownMenuItem>
+                        )}
+                        {can("service", "edit") && (
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setEditing(r);
+                              setOpen(true);
+                            }}
+                          >
+                            <Pencil className="h-4 w-4" /> Edit
+                          </DropdownMenuItem>
+                        )}
+                        {can("service", "delete") && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <DropdownMenuItem
+                                onSelect={(e) => e.preventDefault()}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" /> Delete
+                              </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete work order?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => remove(r.id)}>
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))
