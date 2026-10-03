@@ -71,24 +71,25 @@ const fmDb = supabase as any;
 
 const DUBAI_TIMEZONE = "Asia/Dubai";
 
-/** Formats a timestamptz value as HH:MM AM/PM in Dubai local time, regardless of the viewer's browser timezone. */
-function formatDubaiTime(value: string): string {
-  return new Date(value).toLocaleTimeString("en-US", {
+/**
+ * Formats a timestamptz value as "03 Oct, 06:50 PM" in Dubai local time, regardless of the viewer's
+ * browser timezone. The date is part of the output because a night-shift check-out lands on the
+ * calendar day after its check-in.
+ */
+function formatDubaiDateTime(value: string): string {
+  return new Date(value).toLocaleString("en-GB", {
     timeZone: DUBAI_TIMEZONE,
+    day: "2-digit",
+    month: "short",
     hour: "2-digit",
     minute: "2-digit",
     hour12: true,
   });
 }
 
-/** Extracts 24-hour "HH:MM" in Dubai local time from a timestamptz value, for populating an <input type="time">. */
-function toDubaiHHMM(value: string): string {
-  return new Date(value).toLocaleTimeString("en-GB", {
-    timeZone: DUBAI_TIMEZONE,
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
+/** Extracts "YYYY-MM-DDTHH:MM" in Dubai local time from a timestamptz value, for populating an <input type="datetime-local">. */
+function toDubaiDateTimeLocal(value: string): string {
+  return new Date(value).toLocaleString("sv-SE", { timeZone: DUBAI_TIMEZONE }).slice(0, 16).replace(" ", "T");
 }
 
 const emptyForm = {
@@ -110,7 +111,8 @@ function ContractAttendancePage() {
   const [contractFilter, setContractFilter] = useState(
     search.contract_id ? `fm:${search.contract_id}` : "all",
   );
-  const [dateFilter, setDateFilter] = useState(search.date ?? todayIso());
+  const [dateFrom, setDateFrom] = useState(search.date ?? todayIso());
+  const [dateTo, setDateTo] = useState(search.date ?? todayIso());
   const [employeeFilter, setEmployeeFilter] = useState("all");
   const [shiftFilter, setShiftFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -239,13 +241,25 @@ function ContractAttendancePage() {
   const filteredRows = useMemo(() => {
     return (rows as any[]).filter((row) => {
       if (contractFilter !== "all" && contractKeyOf(row) !== contractFilter) return false;
-      if (dateFilter && row.attendance_date !== dateFilter) return false;
+      if (dateFrom && row.attendance_date < dateFrom) return false;
+      if (dateTo && row.attendance_date > dateTo) return false;
       if (employeeFilter !== "all" && row.employee_id !== employeeFilter) return false;
       if (shiftFilter !== "all" && (row.shift ?? row.shift_name) !== shiftFilter) return false;
       if (statusFilter !== "all" && row.status !== statusFilter) return false;
       return true;
     });
-  }, [rows, contractFilter, dateFilter, employeeFilter, shiftFilter, statusFilter]);
+  }, [rows, contractFilter, dateFrom, dateTo, employeeFilter, shiftFilter, statusFilter]);
+
+  // Export-friendly copy: raw timestamptz values are UTC, so format them in Dubai time with the date.
+  const exportRows = useMemo(
+    () =>
+      filteredRows.map((row: any) => ({
+        ...row,
+        check_in_text: row.check_in ? formatDubaiDateTime(row.check_in) : "",
+        check_out_text: row.check_out ? formatDubaiDateTime(row.check_out) : "",
+      })),
+    [filteredRows],
+  );
 
   const summary = useMemo(
     () => summarizeAttendance(plans as any[], assignments as any[], filteredRows),
@@ -267,8 +281,8 @@ function ContractAttendancePage() {
             employee_name: row.employee_name ?? row.employees?.full_name ?? "",
             attendance_date: row.attendance_date ?? todayIso(),
             shift: row.shift ?? row.shift_name ?? "Day Shift",
-            check_in: row.check_in ? toDubaiHHMM(row.check_in) : "",
-            check_out: row.check_out ? toDubaiHHMM(row.check_out) : "",
+            check_in: row.check_in ? toDubaiDateTimeLocal(row.check_in) : "",
+            check_out: row.check_out ? toDubaiDateTimeLocal(row.check_out) : "",
             status: row.status ?? "Present",
             source: row.source ?? "Manual",
             remarks: row.remarks ?? "",
@@ -276,7 +290,7 @@ function ContractAttendancePage() {
         : {
             ...emptyForm,
             contractKey: contractFilter === "all" ? "" : contractFilter,
-            attendance_date: dateFilter || todayIso(),
+            attendance_date: dateFrom || todayIso(),
           },
     );
     setOpen(true);
@@ -301,14 +315,20 @@ function ContractAttendancePage() {
       toast.error("Select an employee");
       return;
     }
+    // Both fields carry a full date+time so a night shift can check in on
+    // one day and check out on the next.
+    if (form.check_in && form.check_out && form.check_out <= form.check_in) {
+      toast.error("Check out must be after check in");
+      return;
+    }
     setSaving(true);
     try {
       const employee = employees.find((item: any) => item.id === form.employee_id);
       // Built as an explicit +04:00 (Dubai) offset string rather than routing
       // through `new Date(...).toISOString()`, which would instead assume
       // the typed time is in the viewing browser's own local timezone.
-      const checkIn = form.check_in ? `${form.attendance_date}T${form.check_in}:00+04:00` : null;
-      const checkOut = form.check_out ? `${form.attendance_date}T${form.check_out}:00+04:00` : null;
+      const checkIn = form.check_in ? `${form.check_in}:00+04:00` : null;
+      const checkOut = form.check_out ? `${form.check_out}:00+04:00` : null;
       const [siteType, rawId] = form.contractKey.split(":");
       const payload = {
         contract_id: siteType === "fm" ? rawId : null,
@@ -436,7 +456,7 @@ function ContractAttendancePage() {
       </div>
 
       <Card className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
           <Filter
             label="Contract"
             value={contractFilter}
@@ -455,12 +475,23 @@ function ContractAttendancePage() {
             ))}
           </Filter>
           <div>
-            <Label className="text-xs">Date</Label>
+            <Label className="text-xs">From Date</Label>
             <Input
               type="date"
-              value={dateFilter}
+              value={dateFrom}
               onChange={(event) => {
-                setDateFilter(event.target.value);
+                setDateFrom(event.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
+          <div>
+            <Label className="text-xs">To Date</Label>
+            <Input
+              type="date"
+              value={dateTo}
+              onChange={(event) => {
+                setDateTo(event.target.value);
                 setPage(1);
               }}
             />
@@ -517,11 +548,13 @@ function ContractAttendancePage() {
         <ExportMenu
           filename="attendance-logs"
           sheetName="Attendance"
-          rows={filteredRows}
+          rows={exportRows}
           columns={[
             { key: "attendance_date", label: "Date" },
             { key: "employee_name", label: "Employee" },
             { key: "shift", label: "Shift" },
+            { key: "check_in_text", label: "Check In" },
+            { key: "check_out_text", label: "Check Out" },
             { key: "status", label: "Status" },
             { key: "source", label: "Source" },
             { key: "remarks", label: "Remarks" },
@@ -575,10 +608,10 @@ function ContractAttendancePage() {
                   </TableCell>
                   <TableCell>{row.employee_name ?? row.employees?.full_name ?? "-"}</TableCell>
                   <TableCell>{row.shift ?? row.shift_name ?? "-"}</TableCell>
-                  <TableCell>{row.check_in ? formatDubaiTime(row.check_in) : "-"}</TableCell>
+                  <TableCell>{row.check_in ? formatDubaiDateTime(row.check_in) : "-"}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1.5">
-                      <span>{row.check_out ? formatDubaiTime(row.check_out) : "-"}</span>
+                      <span>{row.check_out ? formatDubaiDateTime(row.check_out) : "-"}</span>
                       {row.auto_checked_out && (
                         <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-amber-700 border-amber-300">
                           Auto
@@ -660,14 +693,14 @@ function ContractAttendancePage() {
             </SelectField>
             <Field label="Check In">
               <Input
-                type="time"
+                type="datetime-local"
                 value={form.check_in}
                 onChange={(event) => setForm((prev) => ({ ...prev, check_in: event.target.value }))}
               />
             </Field>
             <Field label="Check Out">
               <Input
-                type="time"
+                type="datetime-local"
                 value={form.check_out}
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, check_out: event.target.value }))
