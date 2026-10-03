@@ -288,6 +288,24 @@ function SalesPage() {
   );
 }
 
+/**
+ * A database trigger creates an AMC work order the moment a quotation becomes
+ * "Won & Activated". This only looks that work order up so the user is told
+ * which one it is and where it lives.
+ */
+async function announceWorkOrderForQuote(quoteId: string, newStatus: string) {
+  if (newStatus !== "Won & Activated") return;
+  const { data } = await (supabase.from as any)("work_orders")
+    .select("wo_no")
+    .eq("quote_id", quoteId)
+    .maybeSingle();
+  if (data?.wo_no) {
+    toast.success(`Work order ${data.wo_no} created for this quotation`, {
+      description: "Find it under AMC Work Orders, ready for a Work Completion Report.",
+    });
+  }
+}
+
 /* ---------------- Funnel ---------------- */
 
 const QUOTE_STATUS_TO_STAGE: Record<string, Stage> = {
@@ -450,6 +468,7 @@ function FunnelBoard() {
       }
     }
     toast.success("Status updated");
+    if (statusEntity.type === "quote") await announceWorkOrderForQuote(statusEntity.id, statusValue);
     setStatusEntity(null);
     load();
   }
@@ -1741,6 +1760,7 @@ function QuotesList() {
     }
 
     toast.success("Status updated");
+    await announceWorkOrderForQuote(statusQuote.id, statusValue);
     setStatusQuote(null);
     load();
   }
