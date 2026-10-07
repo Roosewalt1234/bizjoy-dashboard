@@ -184,6 +184,7 @@ interface Quote {
   purchase_order: string | null;
   quote_type: string | null;
   probability: string | null;
+  updated_at?: string | null;
 }
 
 const PROBABILITY_LEVELS = ["Low", "Medium", "High", "Very High", "Assured"] as const;
@@ -339,6 +340,26 @@ function getPeriodBounds(period: string): { start: Date; end: Date } | null {
   if (period === "this-year") return { start: new Date(y, 0, 1), end: new Date(y + 1, 0, 1) };
   if (period === "last-year") return { start: new Date(y - 1, 0, 1), end: new Date(y, 0, 1) };
   return null;
+}
+
+/** Whole days since a timestamp (0 = today); null when there is no timestamp. */
+function daysSince(value: string | null | undefined): number | null {
+  if (!value) return null;
+  const ms = Date.now() - new Date(value).getTime();
+  if (Number.isNaN(ms)) return null;
+  return Math.max(0, Math.floor(ms / 86_400_000));
+}
+
+/** "Last Updated" cell: number of days since the record last changed, tinted when it has gone stale. */
+function LastUpdatedCell({ value }: { value: string | null | undefined }) {
+  const days = daysSince(value);
+  if (days == null) return <TableCell className="text-muted-foreground text-xs">—</TableCell>;
+  const tone = days >= 30 ? "text-red-600 font-semibold" : days >= 14 ? "text-amber-600 font-medium" : "text-muted-foreground";
+  return (
+    <TableCell className={`text-xs ${tone}`} title={new Date(value as string).toLocaleString()}>
+      {days === 0 ? "Today" : `${days} day${days === 1 ? "" : "s"}`}
+    </TableCell>
+  );
 }
 
 function FunnelBoard() {
@@ -679,6 +700,7 @@ function FunnelBoard() {
                     <TableHead>Company / Customer</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Date</TableHead>
+                    <TableHead>Last Updated</TableHead>
                     <TableHead className="text-right">Value</TableHead>
                     <TableHead className="w-[110px] text-right">Actions</TableHead>
                   </TableRow>
@@ -710,6 +732,7 @@ function FunnelBoard() {
                           ? new Date((lead as any).created_at).toLocaleDateString()
                           : "—"}
                       </TableCell>
+                      <LastUpdatedCell value={(lead as any).updated_at ?? (lead as any).created_at} />
                       <TableCell className="text-right font-medium">
                         {lead.estimated_value != null
                           ? `${lead.currency ?? "AED"} ${Number(lead.estimated_value).toLocaleString()}`
@@ -791,6 +814,7 @@ function FunnelBoard() {
                       <TableCell className="text-muted-foreground text-xs">
                         {q.quote_date ? new Date(q.quote_date).toLocaleDateString() : "—"}
                       </TableCell>
+                      <LastUpdatedCell value={q.updated_at ?? q.quote_date} />
                       <TableCell className="text-right font-medium">
                         {q.total != null
                           ? `${q.currency ?? "AED"} ${Number(q.total).toLocaleString()}`
