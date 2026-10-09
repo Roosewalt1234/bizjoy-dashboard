@@ -1,21 +1,6 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import {
-  LayoutDashboard,
-  Users,
-  ShoppingCart,
-  UserCog,
-  Wallet,
-  FileText,
-  FolderKanban,
-  LogOut,
-  History,
-  Shield,
-  ChevronRight,
-  KeyRound,
-  Loader2,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { LogOut, ChevronRight, KeyRound, Loader2 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -49,92 +34,23 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import logoAsset from "@/assets/fizfix-logo.jpeg.asset.json";
 import { usePermissions } from "@/hooks/use-permissions";
-
-type NavItem = {
-  title: string;
-  url: string;
-  icon: LucideIcon;
-  module?: string;
-  adminOnly?: boolean;
-  children?: { title: string; url: string; module?: string }[];
-};
-
-const items: NavItem[] = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Customers", url: "/customers", icon: Users, module: "customers" },
-  { title: "Sales", url: "/sales", icon: ShoppingCart, module: "sales" },
-  {
-    title: "HR",
-    url: "/hr",
-    icon: UserCog,
-    module: "hr",
-    children: [
-      { title: "Employees", url: "/hr", module: "hr" },
-      { title: "Attendance", url: "/fm-attendance", module: "contracts" },
-    ],
-  },
-  {
-    title: "Accounts",
-    url: "/accounts",
-    icon: Wallet,
-    module: "accounts",
-    children: [
-      { title: "Ledger", url: "/accounts", module: "accounts" },
-      { title: "Outstanding Amounts", url: "/accounts-outstanding", module: "accounts" },
-      { title: "PEMO Management", url: "/pemo-management", module: "accounts" },
-    ],
-  },
-  {
-    title: "AMC Contracts",
-    url: "/amc-contracts",
-    icon: FileText,
-    module: "contracts",
-    children: [
-      { title: "AMC Scheduling", url: "/amc-scheduling", module: "contracts" },
-      { title: "AMC Work Orders", url: "/amc-work-orders", module: "service" },
-      { title: "AMC Work Completion Reports", url: "/amc-service-reports", module: "service" },
-    ],
-  },
-  {
-    title: "FM Projects",
-    url: "/fm-daily-operations",
-    icon: FolderKanban,
-    module: "contracts",
-    children: [
-      { title: "FM Contracts", url: "/fm-contracts", module: "contracts" },
-      { title: "Service Categories", url: "/fm-service-categories", module: "contracts" },
-      { title: "Contract Line Items", url: "/fm-contract-line-items", module: "contracts" },
-      { title: "FM Asset Register", url: "/fm-assets", module: "contracts" },
-      { title: "PPM Planner", url: "/fm-ppm", module: "contracts" },
-      { title: "FM Work Orders", url: "/fm-work-orders", module: "service" },
-      { title: "FM Service Reports", url: "/fm-service-reports", module: "service" },
-      { title: "SLA & KPI Tracker", url: "/fm-sla", module: "contracts" },
-      { title: "Manpower Planning", url: "/fm-manpower", module: "contracts" },
-      { title: "Weekly Reports", url: "/fm-weekly-reports", module: "contracts" },
-      { title: "Monthly Reports", url: "/fm-monthly-reports", module: "contracts" },
-      { title: "Invoice Packs", url: "/fm-invoice-packs", module: "contracts" },
-
-      { title: "Cleaning Area", url: "/fm-cleaning-areas", module: "projects" },
-      { title: "Cleaning Scheduler", url: "/fm-cleaning-scheduler", module: "projects" },
-      { title: "Reports", url: "/fm-reports", module: "projects" },
-    ],
-  },
-
-  { title: "Audit Log", url: "/audit", icon: History, adminOnly: true },
-  { title: "User Permissions", url: "/permissions", icon: Shield, adminOnly: true },
-];
+import { NAV_ITEMS as items } from "@/lib/nav-items";
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [email, setEmail] = useState<string | null>(null);
-  const { isAdmin, can } = usePermissions();
+  const { isAdmin, canNav } = usePermissions();
+
+  const visibleKids = (item: (typeof items)[number]) =>
+    (item.children ?? []).filter((c) => canNav(c.key, c.module));
 
   const visibleItems = items.filter((item) => {
+    if (item.hiddenInSidebar) return false;
     if (item.adminOnly) return isAdmin;
-    if (item.module) return can(item.module, "view");
-    return true;
+    if (!item.module && !item.children?.length) return true;
+    return (item.module && canNav(item.key, item.module)) || visibleKids(item).length > 0;
   });
 
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
@@ -228,9 +144,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {visibleItems.map((item) => {
-                const kids = (item.children ?? []).filter(
-                  (c) => !c.module || can(c.module, "view"),
-                );
+                const kids = visibleKids(item);
 
                 if (kids.length === 0) {
                   return (

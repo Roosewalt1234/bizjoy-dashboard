@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { navFlags } from "@/lib/nav-items";
 
 export const MODULES = [
   { key: "customers", label: "Customers", url: "/customers" },
@@ -50,5 +51,11 @@ export function usePermissions() {
     return Boolean(row[`can_${action}`]);
   };
 
-  return { isAdmin, can, isLoading: query.isLoading };
+  /** Nav-item grant (sidebar visibility); falls back to the module row for legacy users. */
+  const canNav = (key: string, module: string, action: Action = "view") => {
+    if (isAdmin) return true;
+    return navFlags(query.data?.perms ?? [], key, module)[action];
+  };
+
+  return { isAdmin, can, canNav, isLoading: query.isLoading };
 }
