@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/audit")({
 const TABLES = [
   "customers","contracts","contract_payments","quotes","quote_items",
   "sales_leads","sales_orders","employees","accounts_transactions",
-  "customer_contacts","customer_documents","projects",
+  "customer_contacts","customer_documents","projects","geofence_locations",
 ];
 
 function actionColor(a: string) {

@@ -6,9 +6,8 @@ import {
   Wallet,
   FileText,
   FolderKanban,
-  History,
-  Shield,
   Smartphone,
+  Settings,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -115,8 +114,18 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
 
-  { key: "nav:audit", title: "Audit Log", url: "/audit", icon: History, adminOnly: true },
-  { key: "nav:permissions", title: "User Permissions", url: "/permissions", icon: Shield, adminOnly: true },
+  {
+    key: "nav:settings",
+    title: "Settings",
+    url: "/audit",
+    icon: Settings,
+    adminOnly: true,
+    children: [
+      { key: "nav:settings.audit", title: "Audit Log", url: "/audit", module: "settings" },
+      { key: "nav:settings.permissions", title: "User Permissions", url: "/permissions", module: "settings" },
+      { key: "nav:settings.geofencing", title: "Geofencing", url: "/geofencing", module: "settings" },
+    ],
+  },
 ];
 
 /** Nav items that carry permissions (excludes the always-visible Dashboard and admin-only pages). */

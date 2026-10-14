@@ -151,20 +151,40 @@ function ContractAttendancePage() {
     },
   });
 
+  // Standalone geofence locations (office, warehouse, shop...) - attendance
+  // places that have no contract behind them.
+  const { data: locations = [] } = useQuery({
+    queryKey: ["geofence-locations-lookup-attendance"],
+    queryFn: async () => {
+      const { data, error } = await fmDb
+        .from("geofence_locations")
+        .select("id, name")
+        .order("name", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   // One combined list for the filter dropdown and the manual add/edit
-  // form's contract picker. Values are prefixed "fm:"/"amc:" so a
+  // form's site picker. Values are prefixed "fm:"/"amc:"/"loc:" so a
   // selection unambiguously says which table AND which id it means.
   const combinedContracts = useMemo(
     () => [
       ...contracts.map((c: any) => ({ ...c, key: `fm:${c.id}`, siteType: "FM" as const })),
       ...amcContracts.map((c: any) => ({ ...c, key: `amc:${c.id}`, siteType: "AMC" as const })),
+      ...locations.map((l: any) => ({ id: l.id, title: l.name, key: `loc:${l.id}`, siteType: "LOC" as const })),
     ],
-    [contracts, amcContracts],
+    [contracts, amcContracts, locations],
   );
+
+  function sitePrefix(siteType: "FM" | "AMC" | "LOC") {
+    return siteType === "AMC" ? "[AMC] " : siteType === "LOC" ? "[Location] " : "[FM] ";
+  }
 
   function contractKeyOf(row: any): string | null {
     if (row.contract_id) return `fm:${row.contract_id}`;
     if (row.amc_contract_id) return `amc:${row.amc_contract_id}`;
+    if (row.location_id) return `loc:${row.location_id}`;
     return null;
   }
 
@@ -229,7 +249,7 @@ function ContractAttendancePage() {
       const { data, error } = await fmDb
         .from("attendance_logs")
         .select(
-          "*, fm_contracts:contract_id(id, title, contract_no, customer_name), amc_contracts:amc_contract_id(id, title, contract_no, customer_name), employees:employee_id(id, first_name, last_name, full_name)",
+          "*, fm_contracts:contract_id(id, title, contract_no, customer_name), amc_contracts:amc_contract_id(id, title, contract_no, customer_name), geofence_locations:location_id(id, name), employees:employee_id(id, first_name, last_name, full_name)",
         )
         .order("attendance_date", { ascending: false })
         .order("created_at", { ascending: false });
@@ -333,7 +353,8 @@ function ContractAttendancePage() {
       const payload = {
         contract_id: siteType === "fm" ? rawId : null,
         amc_contract_id: siteType === "amc" ? rawId : null,
-        site_type: siteType === "amc" ? "AMC" : "FM",
+        location_id: siteType === "loc" ? rawId : null,
+        site_type: siteType === "amc" ? "AMC" : siteType === "loc" ? "LOCATION" : "FM",
         employee_id: form.employee_id || null,
         employee_name: (employee?.name ?? form.employee_name) || null,
         attendance_date: form.attendance_date,
@@ -468,7 +489,7 @@ function ContractAttendancePage() {
             <SelectItem value="all">All Contracts</SelectItem>
             {combinedContracts.map((contract: any) => (
               <SelectItem key={contract.key} value={contract.key}>
-                {(contract.siteType === "AMC" ? "[AMC] " : "[FM] ") +
+                {sitePrefix(contract.siteType) +
                   (contract.contract_no ? `${contract.contract_no} - ` : "") +
                   (contract.customer_name ?? contract.title ?? "Untitled")}
               </SelectItem>
@@ -597,12 +618,14 @@ function ContractAttendancePage() {
                   <TableCell>
                     <div className="flex items-center gap-1.5">
                       <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                        {row.amc_contract_id ? "AMC" : "FM"}
+                        {row.location_id ? "LOC" : row.amc_contract_id ? "AMC" : "FM"}
                       </Badge>
                       <span>
-                        {row.amc_contract_id
-                          ? (row.amc_contracts?.contract_no ?? row.amc_contracts?.customer_name ?? "-")
-                          : (row.fm_contracts?.contract_no ?? row.fm_contracts?.customer_name ?? "-")}
+                        {row.location_id
+                          ? (row.geofence_locations?.name ?? "-")
+                          : row.amc_contract_id
+                            ? (row.amc_contracts?.contract_no ?? row.amc_contracts?.customer_name ?? "-")
+                            : (row.fm_contracts?.contract_no ?? row.fm_contracts?.customer_name ?? "-")}
                       </span>
                     </div>
                   </TableCell>
@@ -647,7 +670,7 @@ function ContractAttendancePage() {
             >
               {combinedContracts.map((contract: any) => (
                 <SelectItem key={contract.key} value={contract.key}>
-                  {(contract.siteType === "AMC" ? "[AMC] " : "[FM] ") +
+                  {sitePrefix(contract.siteType) +
                     (contract.contract_no ? `${contract.contract_no} - ` : "") +
                     (contract.customer_name ?? contract.title ?? "Untitled")}
                 </SelectItem>
