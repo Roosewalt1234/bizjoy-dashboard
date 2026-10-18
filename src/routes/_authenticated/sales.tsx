@@ -48,6 +48,7 @@ export const Route = createFileRoute("/_authenticated/sales")({
 const STAGES = [
   "New Lead / Inquiry",
   "Contacted / Pitching",
+  "Enquiry",
   "Site Survey Scheduled",
   "Survey Report Ready",
   "Pending Quotation",
@@ -63,6 +64,14 @@ const STAGES = [
 
 
 type Stage = (typeof STAGES)[number];
+
+// Display names for stages whose stored value is kept for compatibility with
+// existing rows, the mobile app and the Supabase RPCs that hardcode them.
+const STAGE_LABELS: Partial<Record<string, string>> = {
+  "New Lead / Inquiry": "New Lead",
+  "Contacted / Pitching": "Pitching",
+};
+const stageLabel = (s: string | null | undefined) => (s ? (STAGE_LABELS[s] ?? s) : s);
 
 const LEAD_TYPES = [
   "Villa AMC",
@@ -107,6 +116,7 @@ For Technical clarification or assistance, please contact Texan- 0554254818 or E
 const STAGE_COLORS: Record<Stage, string> = {
   "New Lead / Inquiry": "bg-slate-100 text-slate-700 border-slate-300",
   "Contacted / Pitching": "bg-blue-100 text-blue-700 border-blue-300",
+  Enquiry: "bg-sky-100 text-sky-700 border-sky-300",
   "Site Survey Scheduled": "bg-cyan-100 text-cyan-700 border-cyan-300",
   "Survey Report Ready": "bg-teal-100 text-teal-700 border-teal-300",
   "Pending Quotation": "bg-yellow-100 text-yellow-700 border-yellow-300",
@@ -154,7 +164,7 @@ interface Lead {
 
 // Captures what a client actually wants at intake time - description and
 // quantity only, deliberately no unit price/amount, since pricing hasn't
-// happened yet at the New Lead / Contacted stage.
+// happened yet at the New Lead / Pitching stage.
 interface LeadItem {
   id?: string;
   description: string;
@@ -662,7 +672,7 @@ function FunnelBoard() {
                   <div className="flex items-center gap-1.5 min-w-0">
                     <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${dotColor}`} />
                     <div className="text-[11px] font-medium text-muted-foreground truncate">
-                      {stage}
+                      {stageLabel(stage)}
                     </div>
                   </div>
                   <div className="mt-1.5 text-2xl font-bold leading-none">
@@ -1000,7 +1010,7 @@ function FunnelBoard() {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {STAGES.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                    <SelectItem key={s} value={s}>{stageLabel(s)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -1067,7 +1077,7 @@ function FunnelBoard() {
               <div className="text-sm space-y-2">
                 <div className="flex justify-between"><span className="text-muted-foreground">Customer</span><span>{analyseQuote.customer_name ?? "—"}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Type</span><span>{analyseQuote.quote_type ?? "—"}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Funnel stage</span><span>{stage ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Funnel stage</span><span>{stageLabel(stage) ?? "—"}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Quote date</span><span>{analyseQuote.quote_date ?? "—"}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Expiry</span><span>{analyseQuote.expiry_date ?? "—"}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Days open</span><span>{daysOpen ?? "—"}</span></div>
@@ -1108,7 +1118,7 @@ function FunnelBoard() {
               <div className="text-sm space-y-2">
                 <div className="flex justify-between"><span className="text-muted-foreground">Company</span><span>{analyseLead.company ?? "—"}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Type</span><span>{analyseLead.lead_type ?? "—"}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Funnel stage</span><span>{analyseLead.stage}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Funnel stage</span><span>{stageLabel(analyseLead.stage)}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Source</span><span>{analyseLead.source ?? "—"}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Salesperson</span><span>{analyseLead.salesperson ?? "—"}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Expected close</span><span>{analyseLead.expected_close_date ?? "—"}</span></div>
@@ -1161,10 +1171,10 @@ function AdvanceLeadDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Move lead to “{targetStage}”</DialogTitle>
+          <DialogTitle>Move lead to “{stageLabel(targetStage)}”</DialogTitle>
         </DialogHeader>
         <div className="text-xs text-muted-foreground -mt-2">
-          Showing leads currently in “{prevStage}”.
+          Showing leads currently in “{stageLabel(prevStage)}”.
         </div>
         <Input
           placeholder="Search leads…"
@@ -1174,7 +1184,7 @@ function AdvanceLeadDialog({
         <div className="max-h-80 overflow-auto rounded-md border divide-y">
           {filtered.length === 0 ? (
             <div className="p-4 text-sm text-muted-foreground text-center">
-              No leads in “{prevStage}”.
+              No leads in “{stageLabel(prevStage)}”.
             </div>
           ) : (
             filtered.map((l) => (
@@ -1455,7 +1465,7 @@ function LeadDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {STAGES.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                    <SelectItem key={s} value={s}>{stageLabel(s)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -1862,7 +1872,7 @@ function QuotesList() {
             <SelectItem value="all">All statuses</SelectItem>
             {STAGES.map((s) => (
               <SelectItem key={s} value={s}>
-                {s}
+                {stageLabel(s)}
               </SelectItem>
             ))}
 
@@ -2177,7 +2187,7 @@ function QuotesList() {
                 <SelectContent>
                   {STAGES.map((s) => (
                     <SelectItem key={s} value={s}>
-                      {s}
+                      {stageLabel(s)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -2246,7 +2256,7 @@ function QuotesList() {
               <div className="text-sm space-y-2">
                 <div className="flex justify-between"><span className="text-muted-foreground">Customer</span><span>{analyseQuote.customer_name ?? "—"}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Type</span><span>{analyseQuote.quote_type ?? "—"}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Funnel stage</span><span>{stage ?? "—"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Funnel stage</span><span>{stageLabel(stage) ?? "—"}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Quote date</span><span>{analyseQuote.quote_date ?? "—"}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Expiry</span><span>{analyseQuote.expiry_date ?? "—"}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Days open</span><span>{daysOpen ?? "—"}</span></div>
@@ -2283,6 +2293,7 @@ function PickLeadForQuoteDialog({
   const ELIGIBLE: Stage[] = [
     "New Lead / Inquiry",
     "Contacted / Pitching",
+    "Enquiry",
     "Site Survey Scheduled",
     "Survey Report Ready",
   ];
@@ -2320,7 +2331,7 @@ function PickLeadForQuoteDialog({
           <DialogTitle>Select a lead to quote</DialogTitle>
         </DialogHeader>
         <div className="text-xs text-muted-foreground -mt-2">
-          Showing leads in New Lead, Contacted, Site Survey Scheduled and Survey Report Ready.
+          Showing leads in New Lead, Pitching, Enquiry, Site Survey Scheduled and Survey Report Ready.
         </div>
         <Input
           placeholder="Search leads…"
@@ -2349,7 +2360,7 @@ function PickLeadForQuoteDialog({
                       STAGE_COLORS[l.stage as Stage] ?? ""
                     }`}
                   >
-                    {l.stage}
+                    {stageLabel(l.stage)}
                   </span>
                 </div>
                 <div className="text-xs text-muted-foreground truncate">
@@ -2607,7 +2618,7 @@ function QuoteDialog({
                 <SelectContent>
                   {STAGES.map((s) => (
                     <SelectItem key={s} value={s}>
-                      {s}
+                      {stageLabel(s)}
                     </SelectItem>
                   ))}
 

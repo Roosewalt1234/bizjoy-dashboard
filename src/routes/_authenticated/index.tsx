@@ -25,6 +25,7 @@ export const Route = createFileRoute("/_authenticated/")({
 const FUNNEL_STAGES = [
   "New Lead / Inquiry",
   "Contacted / Pitching",
+  "Enquiry",
   "Site Survey Scheduled",
   "Survey Report Ready",
   "Pending Quotation",
@@ -38,9 +39,15 @@ const FUNNEL_STAGES = [
   "Cancelled",
 ];
 
+const STAGE_LABELS: Record<string, string> = {
+  "New Lead / Inquiry": "New Lead",
+  "Contacted / Pitching": "Pitching",
+};
+
 const STAGE_COLORS: Record<string, string> = {
   "New Lead / Inquiry": "#3b82f6",
   "Contacted / Pitching": "#6366f1",
+  "Enquiry": "#7c3aed",
   "Site Survey Scheduled": "#8b5cf6",
   "Survey Report Ready": "#a855f7",
   "Pending Quotation": "#eab308",
@@ -199,6 +206,7 @@ function SalesFunnelChart() {
           quoteItems.reduce((s, r) => s + (Number(r.total) || 0), 0);
         return {
           stage,
+          label: STAGE_LABELS[stage] ?? stage,
           shortStage: stage.replace(" / ", " /\n"),
           count: leadItems.length + quoteItems.length,
           value,
@@ -289,7 +297,7 @@ function SalesFunnelChart() {
                 <Pie
                   data={data?.filter((d) => d.count > 0)}
                   dataKey="count"
-                  nameKey="stage"
+                  nameKey="label"
                   cx="50%"
                   cy="45%"
                   outerRadius={135}
@@ -316,7 +324,7 @@ function SalesFunnelChart() {
                 <Tooltip
                   formatter={(val: any, _n: any, props: any) => [
                     `${val} leads · AED ${props.payload.value.toLocaleString()}`,
-                    props.payload.stage,
+                    props.payload.label,
                   ]}
                 />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
