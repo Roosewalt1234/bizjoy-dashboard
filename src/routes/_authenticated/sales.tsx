@@ -71,6 +71,13 @@ const STAGE_LABELS: Partial<Record<string, string>> = {
   "New Lead / Inquiry": "New Lead",
   "Contacted / Pitching": "Pitching",
 };
+const CREATABLE_STAGES = [
+  "New Lead / Inquiry",
+  "Contacted / Pitching",
+  "Enquiry",
+  "Site Survey Scheduled",
+  "Survey Report Ready",
+] as const satisfies readonly Stage[];
 const stageLabel = (s: string | null | undefined) => (s ? (STAGE_LABELS[s] ?? s) : s);
 
 const LEAD_TYPES = [
@@ -562,12 +569,6 @@ function FunnelBoard() {
   }
 
   function openNew(stage: Stage) {
-    const idx = STAGES.indexOf(stage);
-    if (idx > 0) {
-      setAdvanceTarget(stage);
-      setAdvanceOpen(true);
-      return;
-    }
     setEditing(null);
     setDefaultStage(stage);
     setDialogOpen(true);
@@ -613,6 +614,12 @@ function FunnelBoard() {
     return acc;
   }, {});
 
+  // The top "New …" button follows the selected card so an entry (e.g. a new
+  // enquiry for an existing customer) can be created straight into that stage.
+  // Quote-driven and closed stages fall back to a plain New Lead.
+  const newEntryStage: Stage = (CREATABLE_STAGES as readonly Stage[]).includes(selectedStage)
+    ? selectedStage
+    : "New Lead / Inquiry";
   const selectedLeads = leadsByStage[selectedStage] ?? [];
   const selectedQuotes = quotesByStage[selectedStage] ?? [];
   const stageTotal = selectedLeads.length + selectedQuotes.length;
@@ -645,8 +652,8 @@ function FunnelBoard() {
             {filteredQuotes.length} quote{filteredQuotes.length === 1 ? "" : "s"}
           </div>
         </div>
-        <Button onClick={() => openNew("New Lead / Inquiry")} size="sm">
-          <Plus className="h-4 w-4 mr-1" /> New Lead
+        <Button onClick={() => openNew(newEntryStage)} size="sm">
+          <Plus className="h-4 w-4 mr-1" /> New {stageLabel(newEntryStage)}
         </Button>
       </div>
 
@@ -690,7 +697,7 @@ function FunnelBoard() {
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <div className="flex items-center gap-2">
                 <span className={`inline-block w-2.5 h-2.5 rounded-full ${STAGE_COLORS[selectedStage].split(" ")[0]}`} />
-                <h3 className="font-semibold text-sm">{selectedStage}</h3>
+                <h3 className="font-semibold text-sm">{stageLabel(selectedStage)}</h3>
                 <Badge variant="secondary">{countsByStage[selectedStage]}</Badge>
               </div>
               <div className="text-sm text-muted-foreground">
