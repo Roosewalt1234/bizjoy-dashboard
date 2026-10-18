@@ -54,9 +54,11 @@ import { Route as AuthenticatedHrRouteImport } from './routes/_authenticated/hr'
 import { Route as AuthenticatedPemoManagementRouteImport } from './routes/_authenticated/pemo-management'
 import { Route as AuthenticatedPermissionsRouteImport } from './routes/_authenticated/permissions'
 import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
+import { Route as AuthenticatedPurchasesRouteImport } from './routes/_authenticated/purchases'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedServiceRouteImport } from './routes/_authenticated/service'
 import { Route as AuthenticatedUniverseRouteImport } from './routes/_authenticated/universe'
+import { Route as AuthenticatedVendorsRouteImport } from './routes/_authenticated/vendors'
 import { Route as AuthenticatedWorkOrdersRouteImport } from './routes/_authenticated/work-orders'
 import { Route as AuthenticatedAmcContractsIdRouteImport } from './routes/_authenticated/amc-contracts.$id'
 import { Route as AuthenticatedContractsIdRouteImport } from './routes/_authenticated/contracts.$id'
@@ -322,6 +324,11 @@ const AuthenticatedProjectsRoute = AuthenticatedProjectsRouteImport.update({
   path: '/projects',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPurchasesRoute = AuthenticatedPurchasesRouteImport.update({
+  id: '/purchases',
+  path: '/purchases',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSalesRoute = AuthenticatedSalesRouteImport.update({
   id: '/sales',
   path: '/sales',
@@ -335,6 +342,11 @@ const AuthenticatedServiceRoute = AuthenticatedServiceRouteImport.update({
 const AuthenticatedUniverseRoute = AuthenticatedUniverseRouteImport.update({
   id: '/universe',
   path: '/universe',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedVendorsRoute = AuthenticatedVendorsRouteImport.update({
+  id: '/vendors',
+  path: '/vendors',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedWorkOrdersRoute = AuthenticatedWorkOrdersRouteImport.update({
@@ -436,9 +448,11 @@ export interface FileRoutesByFullPath {
   '/pemo-management': typeof AuthenticatedPemoManagementRoute
   '/permissions': typeof AuthenticatedPermissionsRoute
   '/projects': typeof AuthenticatedProjectsRoute
+  '/purchases': typeof AuthenticatedPurchasesRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/service': typeof AuthenticatedServiceRoute
   '/universe': typeof AuthenticatedUniverseRoute
+  '/vendors': typeof AuthenticatedVendorsRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/amc-contracts/$id': typeof AuthenticatedAmcContractsIdRoute
   '/contracts/$id': typeof AuthenticatedContractsIdRoute
@@ -492,9 +506,11 @@ export interface FileRoutesByTo {
   '/pemo-management': typeof AuthenticatedPemoManagementRoute
   '/permissions': typeof AuthenticatedPermissionsRoute
   '/projects': typeof AuthenticatedProjectsRoute
+  '/purchases': typeof AuthenticatedPurchasesRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/service': typeof AuthenticatedServiceRoute
   '/universe': typeof AuthenticatedUniverseRoute
+  '/vendors': typeof AuthenticatedVendorsRoute
   '/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/': typeof AuthenticatedIndexRoute
   '/amc-contracts/$id': typeof AuthenticatedAmcContractsIdRoute
@@ -552,9 +568,11 @@ export interface FileRoutesById {
   '/_authenticated/pemo-management': typeof AuthenticatedPemoManagementRoute
   '/_authenticated/permissions': typeof AuthenticatedPermissionsRoute
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
+  '/_authenticated/purchases': typeof AuthenticatedPurchasesRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/_authenticated/service': typeof AuthenticatedServiceRoute
   '/_authenticated/universe': typeof AuthenticatedUniverseRoute
+  '/_authenticated/vendors': typeof AuthenticatedVendorsRoute
   '/_authenticated/work-orders': typeof AuthenticatedWorkOrdersRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/amc-contracts/$id': typeof AuthenticatedAmcContractsIdRoute
@@ -613,9 +631,11 @@ export interface FileRouteTypes {
     | '/pemo-management'
     | '/permissions'
     | '/projects'
+    | '/purchases'
     | '/sales'
     | '/service'
     | '/universe'
+    | '/vendors'
     | '/work-orders'
     | '/amc-contracts/$id'
     | '/contracts/$id'
@@ -669,9 +689,11 @@ export interface FileRouteTypes {
     | '/pemo-management'
     | '/permissions'
     | '/projects'
+    | '/purchases'
     | '/sales'
     | '/service'
     | '/universe'
+    | '/vendors'
     | '/work-orders'
     | '/'
     | '/amc-contracts/$id'
@@ -728,9 +750,11 @@ export interface FileRouteTypes {
     | '/_authenticated/pemo-management'
     | '/_authenticated/permissions'
     | '/_authenticated/projects'
+    | '/_authenticated/purchases'
     | '/_authenticated/sales'
     | '/_authenticated/service'
     | '/_authenticated/universe'
+    | '/_authenticated/vendors'
     | '/_authenticated/work-orders'
     | '/_authenticated/'
     | '/_authenticated/amc-contracts/$id'
@@ -1065,6 +1089,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/purchases': {
+      id: '/_authenticated/purchases'
+      path: '/purchases'
+      fullPath: '/purchases'
+      preLoaderRoute: typeof AuthenticatedPurchasesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/sales': {
       id: '/_authenticated/sales'
       path: '/sales'
@@ -1084,6 +1115,13 @@ declare module '@tanstack/react-router' {
       path: '/universe'
       fullPath: '/universe'
       preLoaderRoute: typeof AuthenticatedUniverseRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/vendors': {
+      id: '/_authenticated/vendors'
+      path: '/vendors'
+      fullPath: '/vendors'
+      preLoaderRoute: typeof AuthenticatedVendorsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/work-orders': {
@@ -1253,9 +1291,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPemoManagementRoute: typeof AuthenticatedPemoManagementRoute
   AuthenticatedPermissionsRoute: typeof AuthenticatedPermissionsRoute
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
+  AuthenticatedPurchasesRoute: typeof AuthenticatedPurchasesRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedServiceRoute: typeof AuthenticatedServiceRoute
   AuthenticatedUniverseRoute: typeof AuthenticatedUniverseRoute
+  AuthenticatedVendorsRoute: typeof AuthenticatedVendorsRoute
   AuthenticatedWorkOrdersRoute: typeof AuthenticatedWorkOrdersRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedCustomersIdRoute: typeof AuthenticatedCustomersIdRouteWithChildren
@@ -1310,9 +1350,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPemoManagementRoute: AuthenticatedPemoManagementRoute,
   AuthenticatedPermissionsRoute: AuthenticatedPermissionsRoute,
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
+  AuthenticatedPurchasesRoute: AuthenticatedPurchasesRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedServiceRoute: AuthenticatedServiceRoute,
   AuthenticatedUniverseRoute: AuthenticatedUniverseRoute,
+  AuthenticatedVendorsRoute: AuthenticatedVendorsRoute,
   AuthenticatedWorkOrdersRoute: AuthenticatedWorkOrdersRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedCustomersIdRoute: AuthenticatedCustomersIdRouteWithChildren,

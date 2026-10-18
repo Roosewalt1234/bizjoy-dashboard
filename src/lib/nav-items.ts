@@ -4,6 +4,7 @@ import {
   ShoppingCart,
   UserCog,
   Wallet,
+  Truck,
   FileText,
   FolderKanban,
   Smartphone,
@@ -58,6 +59,17 @@ export const NAV_ITEMS: NavItem[] = [
       { key: "nav:accounts.ledger", title: "Ledger", url: "/accounts", module: "accounts" },
       { key: "nav:accounts.outstanding", title: "Outstanding Amounts", url: "/accounts-outstanding", module: "accounts" },
       { key: "nav:accounts.pemo", title: "PEMO Management", url: "/pemo-management", module: "accounts" },
+    ],
+  },
+  {
+    key: "nav:purchase",
+    title: "Purchase Management",
+    url: "/purchases",
+    icon: Truck,
+    module: "purchase",
+    children: [
+      { key: "nav:purchase.vendors", title: "Vendor Management", url: "/vendors", module: "purchase" },
+      { key: "nav:purchase.purchases", title: "Purchase Management", url: "/purchases", module: "purchase" },
     ],
   },
   {

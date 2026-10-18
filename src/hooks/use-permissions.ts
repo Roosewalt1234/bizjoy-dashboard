@@ -7,6 +7,7 @@ export const MODULES = [
   { key: "sales", label: "Sales", url: "/sales" },
   { key: "hr", label: "HR", url: "/hr" },
   { key: "accounts", label: "Accounts", url: "/accounts" },
+  { key: "purchase", label: "Purchase Management", url: "/purchases" },
   { key: "contracts", label: "Contracts", url: "/amc-contracts" },
   { key: "projects", label: "Projects", url: "/projects" },
   { key: "service", label: "Work Orders & Completion Reports", url: "/amc-service-reports" },
