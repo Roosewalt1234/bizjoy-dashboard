@@ -3,7 +3,7 @@
 DO $$
 DECLARE
   wo1 uuid; wo2 uuid; wo3 uuid; wo4 uuid;
-  n int; st text; tok uuid; tok2 uuid; nid uuid; nid2 uuid; r record; na timestamptz;
+  n int; sn text; cid uuid; csite text; wid uuid; st text; tok uuid; tok2 uuid; nid uuid; nid2 uuid; r record; na timestamptz;
 BEGIN
   -- reset: no real queue rows should interfere
   DELETE FROM public.snag_notifications;
@@ -34,7 +34,9 @@ BEGIN
   INSERT INTO public.fm_work_orders(notes, before_photo_path, status)
     VALUES ('[SNAG REPORT] fresh', 't/snags/c.jpg', 'Open') RETURNING id INTO wo2;
 
-  SELECT count(*) INTO n FROM public.snag_bot_claim(5) c WHERE c.work_order_id = wo2;
+  SELECT count(*), max(c.site_name), max(c.work_order_id::text)::uuid INTO n, sn, wid FROM public.snag_bot_claim(5) c;
+  IF wid IS DISTINCT FROM wo2 THEN RAISE EXCEPTION 'FAIL: claim did not return exactly the fresh WO'; END IF;
+  IF sn IS NOT NULL THEN RAISE EXCEPTION 'FAIL: site_name should be null without contract, got %', sn; END IF;
   -- re-do properly: claim once and capture
   -- (the call above already claimed wo2; inspect state)
   SELECT status INTO st FROM public.snag_notifications WHERE work_order_id = wo1;
@@ -71,9 +73,13 @@ BEGIN
   IF st <> 'failed' THEN RAISE EXCEPTION 'FAIL: expected failed, got %', st; END IF;
 
   -- sent path
-  INSERT INTO public.fm_work_orders(notes, before_photo_path, status)
-    VALUES ('[SNAG REPORT] s', 't/snags/d.jpg', 'Open') RETURNING id INTO wo3;
-  SELECT c.notification_id, c.claim_token INTO nid, tok FROM public.snag_bot_claim(5) c WHERE c.work_order_id = wo3;
+  SELECT id, site_name INTO cid, csite FROM public.fm_contracts WHERE site_name IS NOT NULL LIMIT 1;
+  INSERT INTO public.fm_work_orders(notes, before_photo_path, status, contract_id)
+    VALUES ('[SNAG REPORT] s', 't/snags/d.jpg', 'Open', cid) RETURNING id INTO wo3;
+  SELECT c.notification_id, c.claim_token, c.site_name INTO nid, tok, sn FROM public.snag_bot_claim(5) c WHERE c.work_order_id = wo3;
+  IF cid IS NOT NULL AND sn IS DISTINCT FROM csite THEN
+    RAISE EXCEPTION 'FAIL: site_name % <> contract site_name %', sn, csite;
+  END IF;
   st := public.snag_bot_report(nid, tok, 'sent', 'WAID');
   IF st <> 'sent' THEN RAISE EXCEPTION 'FAIL: sent -> %', st; END IF;
   SELECT * INTO r FROM public.snag_notifications WHERE id = nid;
