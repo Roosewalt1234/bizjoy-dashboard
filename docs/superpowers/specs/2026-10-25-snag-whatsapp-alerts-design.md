@@ -27,8 +27,11 @@ Moving to a different group later is a deliberate, separate change.
 
 ## Goals
 
-1. Every snag reported from the mobile app (after go-live) is posted once to
-   `Schedule- Fizfix` as an image with a caption.
+1. Every snag reported from the mobile app (after go-live) is posted to
+   `Schedule- Fizfix` as an image with a caption, with duplicates prevented.
+   "Exactly once" can't always be proven: if Anna crashes between WhatsApp
+   accepting the message and saving its id, the row is held as `uncertain`
+   for a human to check rather than risk a second post.
 2. A permanent CRM record per snag notification: pending / sending / sent /
    failed / uncertain, attempts, send time, last error, WhatsApp message id.
 3. Safe retries for clear failures; never a duplicate post.
@@ -84,7 +87,9 @@ In `syncPendingSnagsToCloud()`, before the `fm_work_orders` insert:
 
 - Upload `snag.photoData` (decode data URL → JPEG blob) to
   `work-order-photos/{reportedByEmployeeId}/snags/{snag.id}.jpg` with
-  `upsert: true` (same path on retry, so no orphan duplicates).
+  `upsert: false`. The bucket has no UPDATE policy, so an overwrite would be
+  refused; an "already exists" error counts as success because the path is
+  unique per snag.
 - Only if the upload succeeds, insert the work order with
   `before_photo_path` set to that path. If the upload fails, the snag is
   marked failed locally and retried by the existing sync loop — the work
@@ -151,6 +156,9 @@ instead. The two SQL functions below are executable only by `service_role`.
   - `uncertain` (send started but timed out / no confirmation) →
     `status='uncertain'`, **never auto-retried** (matches Anna's existing
     rule that uncertain sends are not retried, to avoid duplicates).
+- Each claim issues a fresh `claim_token`; reports must carry it. Allowed
+  transitions: `sending → sent | pending | failed | uncertain`, and
+  `uncertain → sent` (late confirmation). `sent` is never overwritten.
 - Stale claims: a row left in `sending` for > 10 min (e.g. Dell crashed
   mid-send) moves to `uncertain` on the next claim call, not back to
   pending.
