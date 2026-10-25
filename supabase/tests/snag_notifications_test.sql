@@ -1,3 +1,4 @@
+-- WARNING: Runs against the live DB inside a rolled-back DO block; it locks/deletes queue rows until rollback — do not run while Anna's sender is enabled.
 -- Snag notification queue tests. Everything rolls back via the final RAISE EXCEPTION.
 -- Run with Supabase execute_sql; expected error text: snag_tests_passed
 DO $$
