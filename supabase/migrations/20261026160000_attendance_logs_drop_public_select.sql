@@ -1,0 +1,11 @@
+-- attendance_logs had a SELECT policy for anon and authenticated with qual true,
+-- so anyone holding the publishable anon key (shipped in the mobile web app)
+-- could read every employee's attendance, GPS coordinates included.
+--
+-- Legitimate reads stay covered by the existing policies:
+--   attendance_logs_select       dashboard users with contracts:view
+--   attendance_logs_self_select  field staff read their own rows (employees.auth_user_id)
+--   anna_business_executor       Anna's anna_crm_executor role
+-- Every reader in the dashboard and the mobile app is signed in, so no
+-- replacement policy is needed.
+drop policy if exists "Allow public select on attendance_logs" on public.attendance_logs;
