@@ -134,20 +134,64 @@ export async function saveFmWorkOrder(input: FmWorkOrderInput, editingId?: strin
   }
 
   // Notify the technician/cleaner only when the assignment actually changed, not on every save.
+  // WhatsApp alerts are queued by a database trigger on technician_id; this is the mobile push.
   if (payload.technician_id && payload.technician_id !== previousTechnicianId) {
-    supabase.functions
-      .invoke("send-push-notification", {
-        body: {
-          employeeId: payload.technician_id,
-          title: "New work assigned",
-          body: `${payload.wo_no ?? "Work order"} - ${payload.service_type || payload.request_type || "Reactive work"}`,
-          data: { type: "fm_work_order", id: workOrderId },
-        },
-      })
-      .catch((e) => console.error("Failed to send push notification", e));
+    sendAssignmentPush(payload.technician_id, workOrderId!, payload);
   }
 
   return { noSlaPolicy: !policy && !!payload.contract_id };
+}
+
+function sendAssignmentPush(employeeId: string, workOrderId: string, order: Record<string, any>) {
+  supabase.functions
+    .invoke("send-push-notification", {
+      body: {
+        employeeId,
+        title: "New work assigned",
+        body: `${order.wo_no ?? "Work order"} - ${order.service_type || order.request_type || "Reactive work"}`,
+        data: { type: "fm_work_order", id: workOrderId },
+      },
+    })
+    .catch((e) => console.error("Failed to send push notification", e));
+}
+
+export type AssignableStaff = {
+  employee_id: string;
+  name: string;
+  role_name: string | null;
+  has_whatsapp: boolean;
+  is_current: boolean;
+};
+
+/** Staff allocated (Contracts > Manpower) to the work order's FM contract. */
+export async function listAssignableStaff(workOrderId: string): Promise<AssignableStaff[]> {
+  const { data, error } = await (supabase as any).rpc("list_fm_work_order_assignable_staff", {
+    p_work_order_id: workOrderId,
+  });
+  if (error) throw error;
+  return ((data ?? []) as AssignableStaff[]).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * Assigns the work order to an allocated worker. The database queues the WhatsApp alerts
+ * (private message + Parkside group post); the mobile push is sent from here.
+ */
+export async function assignFmWorkOrder(
+  order: Record<string, any>,
+  employeeId: string,
+): Promise<{ technician_name: string; changed: boolean; has_whatsapp: boolean }> {
+  const { data, error } = await (supabase as any).rpc("assign_fm_work_order", {
+    p_work_order_id: order.id,
+    p_employee_id: employeeId,
+  });
+  if (error) {
+    if ((error.message ?? "").includes("not_allocated_to_contract")) {
+      throw new Error("This person is not allocated to the work order's contract.");
+    }
+    throw error;
+  }
+  if (data?.changed) sendAssignmentPush(employeeId, order.id, order);
+  return data;
 }
 
 export async function deleteFmWorkOrder(id: string): Promise<void> {

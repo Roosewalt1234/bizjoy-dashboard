@@ -17,7 +17,7 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CheckCircle2, Clock, Pause, Play, Plus, Pencil, Trash2, Eye, Wrench, ClipboardCheck, MoreVertical } from "lucide-react";
+import { CheckCircle2, Clock, Pause, Play, Plus, Pencil, Trash2, Eye, Wrench, ClipboardCheck, MoreVertical, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { PaginationBar, PAGE_SIZE, paginate } from "@/components/pagination-bar";
 import { ExportMenu } from "@/components/export-menu";
@@ -28,6 +28,7 @@ import { calculateSlaStatus, formatDateTime, normalizePriority, statusBadgeClass
 import { deleteFmWorkOrder } from "./fm-work-orders-api";
 import { useFmWorkOrderModal } from "./use-fm-work-order-modal";
 import { FmWorkOrderModal } from "./fm-work-order-modal";
+import { AssignWorkOrderDialog } from "./assign-work-order-dialog";
 
 function matchSlaPolicy(order: any, policies: any[]) {
   return (
@@ -43,8 +44,8 @@ function matchSlaPolicy(order: any, policies: any[]) {
 }
 
 /**
- * FM Work Orders list page. Only triggers the shared FmWorkOrderModal - technician
- * assignment and rescheduling live inside the modal, not here.
+ * FM Work Orders list page. Triggers the shared FmWorkOrderModal (edit / reassign / reschedule)
+ * and the AssignWorkOrderDialog quick picker (staff allocated to the work order's contract).
  */
 export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string; focusWoId?: string }) {
   const qc = useQueryClient();
@@ -52,6 +53,7 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
   const { can } = usePermissions();
   const modal = useFmWorkOrderModal();
   const [viewing, setViewing] = useState<any | null>(null);
+  const [assigning, setAssigning] = useState<any | null>(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState(focusWo ?? "");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -329,6 +331,11 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
                           </DropdownMenuItem>
                         )}
                         {can("service", "edit") && (
+                          <DropdownMenuItem onClick={() => setAssigning(r)}>
+                            <UserPlus className="h-4 w-4" /> Assign work order
+                          </DropdownMenuItem>
+                        )}
+                        {can("service", "edit") && (
                           <DropdownMenuItem onClick={() => modal.openEdit(r)}>
                             <Pencil className="h-4 w-4" /> Edit / Reassign / Reschedule
                           </DropdownMenuItem>
@@ -367,6 +374,7 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
       </Card>
 
       <FmWorkOrderModal {...modal.dialogProps} />
+      <AssignWorkOrderDialog order={assigning} onClose={() => setAssigning(null)} />
       <WorkOrderView order={viewing} policies={slaPolicies} onClose={() => setViewing(null)} />
     </div>
   );
