@@ -100,7 +100,7 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
       if (requestTypeFilter !== "all" && r.request_type !== requestTypeFilter) return false;
       if (statusFilter !== "all" && r.status !== statusFilter) return false;
       if (!q) return true;
-      return [r.wo_no, r.customer_name, r.technician_name, r.location, r.contract_assets?.asset_tag, r.service_categories?.name]
+      return [r.wo_no, r.customer_name, r.created_by_name, assignedTo(r), r.location, r.contract_assets?.asset_tag, r.service_categories?.name]
         .some((v) => (v ?? "").toString().toLowerCase().includes(q));
     });
   }, [orders, search, typeFilter, requestTypeFilter, statusFilter]);
@@ -212,7 +212,7 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
         <div className="flex items-center gap-2">
           <ExportMenu
             filename="fm-work-orders"
-            rows={filtered}
+            rows={filtered.map((r: any) => ({ ...r, assigned_to: assignedTo(r) }))}
             sheetName="FM Work Orders"
             columns={[
               { key: "wo_no", label: "WO No" },
@@ -220,7 +220,8 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
               { key: "scheduled_date", label: "Scheduled" },
               { key: "customer_name", label: "Customer" },
               { key: "service_type", label: "Service Type" },
-              { key: "technician_name", label: "Technician" },
+              { key: "created_by_name", label: "Created by" },
+              { key: "assigned_to", label: "Assigned to" },
               { key: "location", label: "Location" },
               { key: "priority", label: "Priority" },
               { key: "request_type", label: "Request Type" },
@@ -246,7 +247,7 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
 
       <Card className="p-3 flex flex-col md:flex-row gap-2">
         <Input
-          placeholder="Search WO no, customer, technician, location..."
+          placeholder="Search WO no, customer, staff, location..."
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           className="md:max-w-sm"
@@ -283,7 +284,8 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
               <TableHead>Scheduled</TableHead>
               <TableHead>Customer</TableHead>
               <TableHead>Service Type</TableHead>
-              <TableHead>Technician</TableHead>
+              <TableHead>Created by</TableHead>
+              <TableHead>Assigned to</TableHead>
               <TableHead>Priority</TableHead>
               <TableHead>Request</TableHead>
               <TableHead>Response SLA</TableHead>
@@ -294,9 +296,9 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={12} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+              <TableRow><TableCell colSpan={13} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
             ) : pageRows.length === 0 ? (
-              <TableRow><TableCell colSpan={12} className="text-center py-8 text-muted-foreground">No work orders yet.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={13} className="text-center py-8 text-muted-foreground">No work orders yet.</TableCell></TableRow>
             ) : (
               pageRows.map((r: any) => (
                 <TableRow key={r.id}>
@@ -307,7 +309,8 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
                   <TableCell>
                     {r.service_type ? <Badge variant="secondary" className="gap-1"><Wrench className="h-3 w-3" />{r.service_type}</Badge> : "—"}
                   </TableCell>
-                  <TableCell>{r.technician_name ?? "—"}</TableCell>
+                  <TableCell>{r.created_by_name ?? "—"}</TableCell>
+                  <TableCell>{assignedTo(r) ?? "—"}</TableCell>
                   <TableCell><Badge variant="outline" className={woPriorityClasses(r.priority)}>{r.priority}</Badge></TableCell>
                   <TableCell>{r.request_type ?? "—"}</TableCell>
                   <TableCell><Badge variant="outline" className={statusBadgeClasses(r.response_sla_status)}>{r.response_sla_status ?? "—"}</Badge></TableCell>
@@ -380,6 +383,14 @@ export function FmWorkOrdersListPage({ focusWo, focusWoId }: { focusWo?: string;
   );
 }
 
+// technician_* is the assignee. A snag starts with its reporter there, so until someone else is
+// assigned it is not really assigned to anyone.
+function assignedTo(r: any): string | null {
+  if (!r.technician_name) return null;
+  if (r.created_by_id && r.technician_id === r.created_by_id && (r.notes ?? "").startsWith("[SNAG REPORT]")) return null;
+  return r.technician_name;
+}
+
 function WorkOrderView({ order, policies, onClose }: { order: any | null; policies: any[]; onClose: () => void }) {
   if (!order) return null;
   const slaPolicy = matchSlaPolicy(order, policies);
@@ -404,7 +415,8 @@ function WorkOrderView({ order, policies, onClose }: { order: any | null; polici
             <Field label="Requested" value={order.requested_date} />
             <Field label="Scheduled" value={order.scheduled_date} />
             <Field label="Customer" value={order.customer_name} />
-            <Field label="Technician" value={order.technician_name} />
+            <Field label="Created by" value={order.created_by_name} />
+            <Field label="Assigned to" value={assignedTo(order)} />
             <Field label="Contract" value={order.fm_contracts?.contract_no ?? order.fm_contracts?.title} />
             <Field label="Asset" value={order.contract_assets?.asset_tag ?? order.contract_assets?.description} />
             <Field label="Service Category" value={order.service_categories?.name} />
