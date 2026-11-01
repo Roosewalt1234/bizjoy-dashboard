@@ -46,7 +46,10 @@ export function createAdapters(config,fetchImpl=fetch) {
    },
    async planCrm({input,allowedTables,signal}){return planQuestion({input,allowedTables,startModel:(p,s)=>adapters.startModel(p,s),signal});},
    async executeCrmPlan({plan,allowedTables,token,signal}){
-     return executePlan(plan,{allowedTables,signal,permit:async module=>{const r=await request('/rest/v1/rpc/eva_crm_can_read',token,{method:'POST',body:{module_name:module},signal});if(r.value!==true)throw new SafeError('crm_denied',403);},read:(table,params,s)=>request(`/rest/v1/${table}?${params}`,token,{signal:s})});
+     return executePlan(plan,{allowedTables,signal,permit:async module=>{const r=await request('/rest/v1/rpc/eva_crm_can_read',token,{method:'POST',body:{module_name:module},signal});if(r.value!==true)throw new SafeError('crm_denied',403);},read:(table,params,s)=>request(`/rest/v1/${table}?${params}`,token,{signal:s}),aggregate:async(step,prior,s)=>{
+       const filters=step.filters.map(f=>({...f,value:f.value&&typeof f.value==='object'?prior[f.value.step]?.records?.[0]?.[f.value.field]:f.value}));
+       return (await request('/rest/v1/rpc/eva_crm_aggregate',token,{method:'POST',body:{query_spec:{table:step.table,mode:step.mode,metric:step.metric??null,filters}},signal:s})).value;
+     }});
    },
    async readCrm({token,input,intent,signal}){
      const spec=TABLES[intent.kind];if(!spec)throw new SafeError('unsupported_read');

@@ -34,14 +34,14 @@ for(const [label,value] of [
 test('disallowed module cannot appear in plan',()=>assert.throws(()=>validatePlan(plan(step()),['customers']),/crm_invalid_plan/));
 test('literal injection stays one encoded column filter',()=>{
  const s=step({filters:[{field:'customer_name',op:'eq',value:'A & Co, (x).or.*"'}]});validatePlan(plan(s));
- const q=queryParams(s);assert.deepEqual([...q.keys()],['select','limit','offset','customer_name','order']);assert.equal(q.get('customer_name'),'eq.'+JSON.stringify(s.filters[0].value));
+ const q=queryParams(s);assert.deepEqual([...q.keys()],['select','limit','offset','customer_name','order']);assert.equal(q.get('customer_name'),'eq.'+s.filters[0].value);assert.equal(new URLSearchParams(q.toString()).get('customer_name'),'eq.'+s.filters[0].value);
 });
 test('unknown foreign-key relationship rejected, not guessed by model',()=>{
  const p={steps:[step({table:'customers',fields:['id'],unique:true}),step({filters:[{field:'id',op:'eq',value:{step:0,field:'id'}}]})]};assert.throws(()=>validatePlan(p),/crm_invalid_plan/);
 });
 test('unique foreign-key lookup works and rereads under permission',async()=>{
  const p={steps:[step({table:'fm_contracts',fields:['id','title'],unique:true}),step({table:'fm_work_orders',fields:['id','status'],filters:[{field:'contract_id',op:'eq',value:{step:0,field:'id'}}]})]};
- let calls=0;const r=await execute(p,async(table,q)=>{calls++;if(table==='fm_work_orders')assert.equal(q.get('contract_id'),'eq.'+JSON.stringify(uid));return {value:[{id:uid}],total:1};});assert.equal(calls,2);assert.equal(r.results.length,2);
+ let calls=0;const r=await execute(p,async(table,q)=>{calls++;if(table==='fm_work_orders')assert.equal(q.get('contract_id'),'eq.'+uid);return {value:[{id:uid}],total:1};});assert.equal(calls,2);assert.equal(r.results.length,2);
 });
 test('ambiguous site stops before dependent query',async()=>{
  const p={steps:[step({table:'fm_contracts',fields:['id','title'],unique:true}),step({table:'fm_work_orders',fields:['id'],filters:[{field:'contract_id',op:'eq',value:{step:0,field:'id'}}]})]};

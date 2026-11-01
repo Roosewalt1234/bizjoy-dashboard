@@ -53,7 +53,10 @@ export function queryParams(step,prior=[],offset=0,pageSize=10) {
  for(const f of step.filters){
   let value=f.value;if(plain(value)){const result=prior[value.step];if(result.total!==1||result.records.length!==1)throw new SafeError('crm_ambiguous',422);value=result.records[0][value.field];if(value==null)throw new SafeError('crm_unsupported',422);}
   const op=f.op==='contains'?'ilike':f.op==='not_is'?'not.is':f.op;
-  const literal=f.op==='contains'?JSON.stringify('*'+value.replace(/[*%_]/g,'')+'*'):typeof value==='string'?JSON.stringify(value):String(value);
+  // URLSearchParams encodes values as one query parameter. Top-level eq values
+  // are literals, not an IN-list grammar: JSON quoting changes text identity and
+  // makes UUID filters fail (22P02) against real PostgREST.
+  const literal=f.op==='contains'?'*'+value.replace(/[*%_]/g,'')+'*':String(value);
   q.append(f.field,op+'.'+literal);
  }
  const order=step.order?.map(o=>o.field+'.'+o.direction+'.nullslast')??[];
@@ -67,7 +70,7 @@ export function classifyPayment(paymentDate,receivedDate,today) {
  if(!Number.isFinite(days))throw new SafeError('crm_invalid_data',502);
  return days<=0?'Not Yet Due':days<=15?'Due':'Overdue';
 }
-export async function executePlan(plan,{read,permit,allowedTables,signal,now=new Date()}) {
+export async function executePlan(plan,{read,permit,allowedTables,signal,aggregate:snapshotAggregate,now=new Date()}) {
  validatePlan(plan,allowedTables);
  if(!plan.steps.length)return {status:'ambiguous',clarification:plan.clarification,selected:{},choices:[]};
  // Authorize every step before fetching ANY business record.
@@ -76,6 +79,12 @@ export async function executePlan(plan,{read,permit,allowedTables,signal,now=new
  for(const step of plan.steps){
   signal?.throwIfAborted();
   const aggregate=['sum','outstanding'].includes(step.mode),size=aggregate?100:step.mode==='count'?1:step.limit??10;
+  if(aggregate&&snapshotAggregate){
+   queryParams(step,results); // Validate unique references before sending resolved literals.
+   const value=await snapshotAggregate(step,results,signal);
+   if(!value||value.table!==step.table||value.mode!==step.mode||!Number.isSafeInteger(value.total)||value.total<0||value.snapshot!==true)throw new SafeError('crm_invalid_data',502);
+   results.push({...value,...(step.mode==='outstanding'?{scannedTotal:value.total,countMeaning:'total is all schedules checked, including Received and Not Yet Due. Use outstandingCount for the number that are Due or Overdue; never describe scannedTotal as unpaid schedule count.'}:{}),records:[],truncated:false});continue;
+  }
   let records=[],total=null;
   for(let offset=0;;offset+=size){
    const r=await read(step.table,queryParams(step,results,offset,size),signal);
